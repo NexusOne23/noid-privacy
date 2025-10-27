@@ -19,7 +19,6 @@ Have you checked the following documentation?
 - [ ] [INSTALLATION.md](../../INSTALLATION.md)
 - [ ] [PROJECT_STRUCTURE.md](../../PROJECT_STRUCTURE.md)
 - [ ] [CHANGELOG.md](../../CHANGELOG.md)
-- [ ] [GitHub Discussions](https://github.com/NexusOne23/noid-privacy/discussions)
 - [ ] [Existing Issues](https://github.com/NexusOne23/noid-privacy/issues)
 
 ## 💻 Context (if applicable)

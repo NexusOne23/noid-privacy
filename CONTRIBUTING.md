@@ -346,14 +346,13 @@ finally {
 ## Community
 
 ### Communication Channels
-- **GitHub Issues**: Bug reports, feature requests
-- **GitHub Discussions**: General questions, ideas, showcases
+- **GitHub Issues**: Bug reports, feature requests, questions
 - **Pull Requests**: Code contributions
 
 ### Getting Help
 - Read the [README.md](README.md), [FAQ.md](FAQ.md), and [INSTALLATION.md](INSTALLATION.md)
 - Search [existing issues](https://github.com/NexusOne23/noid-privacy/issues)
-- Ask in [GitHub Discussions](https://github.com/NexusOne23/noid-privacy/discussions)
+- Ask questions via GitHub Issues
 
 ### Recognition
 Contributors will be:
@@ -366,7 +365,7 @@ Contributors will be:
 ## Questions?
 
 If you have questions about contributing, feel free to:
-- Open a [GitHub Discussion](https://github.com/NexusOne23/noid-privacy/discussions)
+- Open a [GitHub Issue](https://github.com/NexusOne23/noid-privacy/issues) with the question tag
 - Review [existing contributions](https://github.com/NexusOne23/noid-privacy/pulls)
 - Contact the maintainers
 

@@ -423,7 +423,6 @@ git pull origin main
 
 - **Documentation**: [README.md](README.md) | [INSTALLATION.md](INSTALLATION.md) | [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md)
 - **Issues**: [GitHub Issues](https://github.com/NexusOne23/noid-privacy/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/NexusOne23/noid-privacy/discussions)
 - **Security**: [SECURITY.md](SECURITY.md)
 
 ---

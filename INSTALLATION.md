@@ -350,7 +350,6 @@ git pull origin main
 - **Contributing**: [CONTRIBUTING.md](CONTRIBUTING.md)
 - **Security Policy**: [SECURITY.md](SECURITY.md)
 - **GitHub Issues**: https://github.com/NexusOne23/noid-privacy/issues
-- **Discussions**: https://github.com/NexusOne23/noid-privacy/discussions
 
 ---
 

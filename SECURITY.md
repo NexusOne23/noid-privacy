@@ -137,7 +137,6 @@ For security concerns:
 
 For general issues:
 - **GitHub Issues**: [Report here](https://github.com/NexusOne23/noid-privacy/issues)
-- **Discussions**: [Community forum](https://github.com/NexusOne23/noid-privacy/discussions)
 
 ---
 

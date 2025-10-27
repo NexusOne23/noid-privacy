@@ -76,7 +76,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for detailed guidelines.
 
 ## Contact
 
-Questions about contributing? Open a [GitHub Discussion](https://github.com/NexusOne23/noid-privacy/discussions).
+Questions about contributing? Open a [GitHub Issue](https://github.com/NexusOne23/noid-privacy/issues) with the question tag.
 
 ---
 
