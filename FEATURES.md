@@ -238,17 +238,30 @@ All apps CANNOT access (unless you allow):
 ### SMB Hardening
 ✅ **Secure File Sharing**
 
+**Module:** `SecurityBaseline-Core.ps1` → `Set-SMBHardening`
+
 - SMB v1: COMPLETELY REMOVED (WannaCry protection)
 - SMB Signing: REQUIRED (MITM prevention)
 - SMB Encryption: ENABLED (packet sniffing protection)
 - Guest Auth: DISABLED (no anonymous access)
 
-### TLS/SSL - Modern Only
-✅ **Only Secure Protocols**
+### TLS/SSL Hardening
+✅ **Only Secure Protocols + Strong Ciphers**
 
-- ❌ SSL 2.0 / 3.0 (DROWN, POODLE)
-- ❌ TLS 1.0 / 1.1 (Deprecated)
+**Module:** `SecurityBaseline-Advanced.ps1` → `Set-TLSHardening`
+
+**Protocols:**
+- ❌ SSL 2.0 / 3.0 (DROWN, POODLE attacks)
+- ❌ TLS 1.0 / 1.1 (Deprecated, weak)
 - ✅ TLS 1.2 / 1.3 (Modern & Secure)
+
+**Ciphers:**
+- ❌ Weak: RC4, 3DES, DES, NULL, MD5
+- ❌ CBC Ciphers (vulnerable to BEAST/Lucky13)
+- ✅ Strong: AES-GCM, ChaCha20-Poly1305 only (AEAD)
+- ✅ Hash: SHA-256/384/512 (no SHA-1)
+
+**User Benefit:** Bank-grade TLS encryption, no weak crypto
 
 ### Legacy Protocols - All Disabled
 ✅ **Attack Surface Minimized**
@@ -737,13 +750,52 @@ Solitaire, Candy Crush, Bubble Witch
 
 **Use Case:** Security incident investigation
 
+### NTLM Auditing
+✅ **Legacy Authentication Tracking**
+
+**Module:** `SecurityBaseline-Advanced.ps1` → `Enable-NTLMAuditing`
+
+- **Tracks:** All NTLM authentication attempts
+- **Event IDs:** 4624 (NTLM Logon), 8004 (NTLM Auth), 8002 (NTLM Blocked)
+- **Mode:** Audit-only (no blocking, for compatibility)
+- **Purpose:** Identify legacy NTLM usage for Kerberos migration
+- **Security:** Detect Pass-the-Hash attacks
+
+**User Benefit:** See who's still using outdated NTLM (vs Kerberos)
+
 ### Smart App Control
 ✅ **AI-Based App Reputation**
+
+**Module:** `SecurityBaseline-ASR.ps1` → `Enable-SmartAppControl`
 
 - Cloud verification
 - Machine learning detection
 - Zero-day protection
 - Untrusted app blocking
+
+### USB Device Control
+✅ **Removable Media Protection**
+
+**Module:** `SecurityBaseline-ASR.ps1` → `Enable-USBDeviceControl`
+
+- **Blocks:** Untrusted USB executables
+- **Allows:** Read/Write of files (USB storage works)
+- **Prevents:** USB-based malware auto-execution
+- **ASR Rule:** Part of 19 ASR rules
+
+**User Benefit:** USB sticks work, but can't infect you
+
+### Game Bar & Game Mode
+✅ **Gaming Telemetry Disabled**
+
+**Module:** `SecurityBaseline-Telemetry.ps1` → `Disable-GameBarAndGameMode`
+
+- **Xbox Game Bar:** DISABLED (no gaming overlay)
+- **Game Mode:** DISABLED (no performance tracking)
+- **Game DVR:** DISABLED (no screen recordings)
+- **Broadcasting:** DISABLED (no streaming telemetry)
+
+**User Benefit:** No gaming data sent to Microsoft
 
 ### Registry Ownership Management
 ✅ **TrustedInstaller Handling**
@@ -796,6 +848,8 @@ Solitaire, Candy Crush, Bubble Witch
 | **Security Settings** | 550+ | Defender, ASR, BitLocker, Firewall, etc. |
 | **Privacy Settings** | 700+ | Telemetry, Permissions, AI, Tracking |
 | **System Hardening** | 15 | Controlled Folder Access, AutoPlay, Admin Shares, Print Spooler, Remote Access, IE11, Sudo, SID Enum, MotW, Kerberos, Admin Account, Process Auditing, SmartScreen, etc. |
+| **Network Hardening** | 5 | SMB, TLS/SSL (ciphers!), Legacy Protocols, Wireless, DNS |
+| **Advanced Security** | 5 | LAPS, Advanced Auditing, NTLM Auditing, Smart App Control, USB Device Control |
 | **Services Disabled** | 25 | DiagTrack, WerSvc, Diagnostics, etc. |
 | **Tasks Disabled** | 60+ | CEIP, Appraiser, Data Collection |
 | **Registry Keys** | 180+ | Telemetry/Privacy/Security |
