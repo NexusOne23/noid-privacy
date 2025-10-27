@@ -14,10 +14,13 @@
 - [AI & Tracking Lockdown](#-ai--tracking-lockdown) - 8 AI Features Disabled
 - [Telemetry Control](#-telemetry-control) - 25 Services, 180 Keys, 60 Tasks
 - [Application Control](#-application-control) - 50+ Apps Removed
-- [Performance](#-performance-optimization) - Background Tasks, Logs
+- [Windows Update](#-windows-update) - Secure Auto-Update Configuration
+- [System Hardening](#-system-hardening) - 15+ Additional Protections
+- [Performance Optimization](#-performance-optimization) - Background Tasks, Logs
 - [User Experience](#-user-experience) - Interactive Menu, Multi-Language
 - [Backup & Recovery](#-backup--recovery) - Complete Undo Capability
 - [Advanced Features](#-advanced-features) - LAPS, Auditing, SAC
+- [Compliance & Reporting](#-compliance--reporting) - HTML Reports
 
 ---
 
@@ -342,6 +345,190 @@ Solitaire, Candy Crush, Bubble Witch
 
 ---
 
+## 🔄 Windows Update
+
+### Secure Auto-Update Configuration
+✅ **HYBRID Approach: Security + User Control**
+
+**Module:** `SecurityBaseline-WindowsUpdate.ps1`
+
+| Setting | Configuration | User Benefit |
+|---------|---------------|--------------|
+| **Updates for MS Products** | ON (default) | Office/Defender updates automatic |
+| **Get Latest Updates** | ON (default) | Continuous Innovation features |
+| **Metered Connections** | ON (default) | Security > Data costs |
+| **Restart Notifications** | ON (default) | Controlled restarts |
+| **Expedited Updates** | ON (default) | Security patches ASAP |
+| **Preview Builds** | OFF (enforced) | No unstable Windows Insider builds |
+
+**Philosophy:** All toggles ON = Maximum security, but user CAN change
+
+### Delivery Optimization
+✅ **HTTP-Only (No P2P)**
+
+| Setting | Configuration | User Benefit |
+|---------|---------------|--------------|
+| **Download Mode** | HTTP only (1) | No peer-to-peer sharing |
+| **LAN Sharing** | Disabled | Privacy on local network |
+| **Internet Sharing** | Disabled | No uploads to strangers |
+| **Background Download** | Optimized | Less bandwidth usage |
+
+**User Benefit:** Fast updates WITHOUT becoming a P2P node
+
+---
+
+## 🔐 System Hardening
+
+### Controlled Folder Access (Ransomware Protection)
+✅ **Advanced Ransomware Defense**
+
+**Module:** `SecurityBaseline-Core.ps1`
+
+- **Protected Folders:** Documents, Pictures, Desktop, Videos
+- **Only Trusted Apps:** Can modify protected folders
+- **Ransomware:** Can't encrypt your files
+- **User Control:** Add custom folders/apps
+- **Status:** Enabled + monitored
+
+**User Benefit:** Ransomware CANNOT encrypt your documents!
+
+### AutoPlay/AutoRun Disablement
+✅ **USB Attack Prevention**
+
+| Feature | Status | Protection Against |
+|---------|--------|---------------------|
+| **AutoPlay** | Disabled | USB malware auto-execution |
+| **AutoRun** | Disabled | CD/DVD auto-launch attacks |
+| **All Drive Types** | Blocked | Network shares, optical media |
+| **Registry Lock** | Enforced | Can't be re-enabled easily |
+
+**User Benefit:** USB stick can't auto-infect your PC
+
+### Administrative Shares Disablement
+✅ **Hidden Share Protection**
+
+| Share | Status | Security Impact |
+|-------|--------|-----------------|
+| **ADMIN$** | Disabled | No remote C:\ access |
+| **C$, D$, etc.** | Disabled | No admin share access |
+| **IPC$** | Hardened | No anonymous access |
+| **Print$** | Controlled | Printer security |
+
+**User Benefit:** Hackers can't access C$ remotely
+
+### Print Spooler Hardening
+✅ **PrintNightmare Protection**
+
+- RPC Authentication: REQUIRED
+- RPC Encryption: ENABLED
+- Point and Print: RESTRICTED
+- Driver Installation: ADMIN-ONLY
+- Network Printing: HARDENED
+
+**Blocks:** PrintNightmare exploit + variants
+
+### Remote Access Complete Lockdown
+✅ **Zero Remote Access**
+
+**ALL Remote Methods Disabled:**
+- Remote Desktop (RDP)
+- Remote Assistance
+- Remote Registry
+- Remote Scheduled Tasks
+- Remote Service Management
+- WinRM / PSRemoting
+- Network Access (Server service)
+
+**Exception:** Intune/SCCM management still works
+
+**User Benefit:** Can't be hacked remotely
+
+### IE11 & Legacy COM Disablement
+✅ **No Legacy Browser Exploits**
+
+- Internet Explorer 11: DISABLED
+- MSHTML.DLL: BLOCKED
+- ActiveX Controls: DISABLED
+- COM Automation: BLOCKED
+- Jscript.dll: HARDENED
+
+**User Benefit:** No IE exploits, must use Edge
+
+### Sudo for Windows Disablement
+✅ **No Privilege Escalation Vector**
+
+- Sudo Command: DISABLED
+- Windows 11 24H2+ Feature
+- Potential Security Risk: BLOCKED
+
+**User Benefit:** UAC can't be bypassed via sudo
+
+### Anonymous SID Enumeration Blocking
+✅ **User Enumeration Prevention**
+
+- RestrictAnonymousSAM = 1
+- RestrictAnonymous = 1
+- EveryoneIncludesAnonymous = 0
+- LM Hashes: DISABLED
+- NoLMHash = 1
+
+**User Benefit:** Attackers can't enumerate users
+
+### Mark-of-the-Web (MotW)
+✅ **Downloaded File Protection**
+
+- SmartScreen: Checks downloaded files
+- Zone.Identifier: Preserved
+- Office: Won't open untrusted docs
+- Saves Against: Downloaded malware
+
+**User Benefit:** Downloads are automatically scanned
+
+### Kerberos PKINIT Hash Agility
+✅ **Modern Kerberos Only**
+
+- SHA-256/384/512: ENABLED
+- SHA-1: DISABLED
+- Smart Card Auth: SHA-256+
+- Certificate-based: HARDENED
+
+**User Benefit:** No weak Kerberos attacks
+
+### Secure Administrator Account
+✅ **Built-in Admin Hardening**
+
+- Account: Renamed (not "Administrator")
+- Status: Disabled (not in use)
+- Description: Randomized
+- Password: Complex (if enabled)
+- SID: S-1-5-21-*-500 (tracked)
+
+**User Benefit:** Built-in admin can't be brute-forced
+
+### Process Auditing with Command Line
+✅ **Full Command Line Logging**
+
+- Process Creation: LOGGED
+- Command Lines: CAPTURED
+- Audit Category: Enabled
+- Event ID: 4688
+
+**Warning:** May log passwords in scripts!
+**Use Case:** Forensics, incident response
+
+### SmartScreen Extended Configuration
+✅ **Multi-Layer SmartScreen**
+
+- Windows Defender SmartScreen: ON
+- Microsoft Edge SmartScreen: ON
+- Microsoft Store Apps: CHECKED
+- Unrecognized Apps: WARNED
+- Bypass: BLOCKED (where possible)
+
+**User Benefit:** Protection across all entry points
+
+---
+
 ## ⚡ Performance Optimization
 
 ### Background Task Control
@@ -402,25 +589,100 @@ Solitaire, Candy Crush, Bubble Witch
 ### Complete System Backup
 ✅ **Can Undo EVERYTHING**
 
-**What's Backed Up:**
-- 500+ security registry keys
-- 700+ privacy registry keys
-- 25 service states
-- 60+ task states
-- Firewall rules
-- Hosts file
-- Configuration files
-- Metadata (timestamp, version, modules)
+**Module:** `Backup-SecurityBaseline.ps1`
 
-**Format:** JSON (human-readable)
+**6 Backup Components:**
+
+**1. Registry Snapshots (1,200+ keys)**
+- All security policy keys (500+)
+- All privacy setting keys (700+)
+- Network configuration keys
+- All HKLM:\SOFTWARE\Policies paths
+- All HKLM:\SYSTEM\CurrentControlSet paths
+- Telemetry-related keys
+- Application permission keys
+
+**2. Service States (25+ services)**
+- Service name
+- Startup type (Automatic, Manual, Disabled)
+- Running status (Running, Stopped)
+- Dependencies
+- Service description
+
+**3. Scheduled Tasks (60+ tasks)**
+- Task name
+- Task path (\Microsoft\Windows\*)
+- Enabled/Disabled state
+- Task configuration XML
+- Triggers and actions
+
+**4. Firewall Rules**
+- All custom rules created
+- Telemetry blocking rules (200+ domains)
+- Miracast port blocks
+- Rule direction, action, protocol, ports
+- Rule enabled/disabled state
+
+**5. File Backups**
+- Original hosts file (before 80K blocklist)
+- PowerShell profiles (if modified)
+- Configuration files
+- DNS settings
+
+**6. Metadata**
+- Backup timestamp (UTC)
+- Windows version (build number)
+- Script version (e.g., 1.7.9)
+- Applied modules list
+- User settings
+- Computer name
+- Backup hash (integrity check)
+
+**Backup Format:** JSON (human-readable + compressed)
+**Location:** `C:\SecurityBaseline\Backups\`
+**Filename:** `Backup-YYYY-MM-DD-HHmmss.json`
+**Compression:** Optional ZIP
+
+**User Benefit:** Can undo EVERYTHING with one command
 
 ### Granular Restore
-✅ **Flexible Undo**
+✅ **Flexible Undo Options**
 
-- Full Restore: Everything back
-- Partial Restore: Select modules
-- Registry Only: Quick revert
-- Services Only: Fix services
+**Module:** `Restore-SecurityBaseline.ps1`
+
+| Restore Mode | What Gets Restored | Use Case |
+|--------------|-------------------|----------|
+| **Full Restore** | All 6 components | Complete undo |
+| **Registry Only** | Just registry keys | Quick settings revert |
+| **Services Only** | Just service states | Fix broken services |
+| **Tasks Only** | Just scheduled tasks | Re-enable background tasks |
+| **Firewall Only** | Just firewall rules | Remove custom blocks |
+| **Files Only** | Just file backups | Restore hosts file |
+| **Selective** | Pick specific modules | Undo one feature |
+
+**Safety Features:**
+- Backup validation before restore
+- Dry-run mode (simulate without applying)
+- Rollback on error
+- Integrity checks (hash verification)
+- Timestamp verification
+
+### Rollback Functionality
+✅ **Safe Experimentation**
+
+**Module:** `Rollback-SecurityBaseline.ps1`
+
+**Features:**
+- Automatic backup detection
+- Latest backup auto-selection
+- Pre-rollback system check
+- Step-by-step restore
+- Error recovery
+- Post-rollback verification
+
+**Use Case:** "I don't like this, go back to before!"
+
+**User Benefit:** Zero risk - can always revert
 
 ---
 
@@ -455,6 +717,66 @@ Solitaire, Candy Crush, Bubble Witch
 - Zero-day protection
 - Untrusted app blocking
 
+### Registry Ownership Management
+✅ **TrustedInstaller Handling**
+
+**Module:** `SecurityBaseline-RegistryOwnership.ps1`
+
+| Feature | Purpose |
+|---------|---------|
+| **Automatic Ownership Taking** | Modify TrustedInstaller keys |
+| **Privilege Elevation** | SeBackupPrivilege, SeRestorePrivilege |
+| **Safe Rollback** | Restore original ownership |
+| **Error Recovery** | Graceful failure handling |
+
+**Use Case:** Modify system-protected registry keys safely
+
+---
+
+## 📊 Compliance & Reporting
+
+### HTML Compliance Report
+✅ **Detailed Configuration Report**
+
+**Module:** `SecurityBaseline-Core.ps1` → `New-ComplianceReport`
+
+**Report Includes:**
+- System Information (OS version, build, edition)
+- Security Settings Status (550+ checks)
+- Privacy Configuration (700+ checks)
+- Defender Status (11 protection layers)
+- BitLocker Status (encryption methods)
+- Firewall Configuration (all profiles)
+- Network Security (SMB, TLS, protocols)
+- Service States (disabled services)
+- Applied Settings (all modules)
+- Compliance Score (percentage)
+- Recommendations (what to improve)
+- Timestamp & Version
+
+**Output Format:** HTML (styled, professional)
+**Location:** `C:\SecurityBaseline\Reports\`
+**Filename:** `ComplianceReport-YYYY-MM-DD-HHmmss.html`
+
+**User Benefit:** Proof of compliance for audit/management
+
+### Verification Mode
+✅ **Post-Apply Validation**
+
+**Module:** `SecurityBaseline-Interactive.ps1` → `Invoke-VerifyMode`
+
+**Verifies:**
+- All registry keys set correctly
+- All services disabled
+- All tasks disabled
+- Firewall rules applied
+- Defender configuration active
+- BitLocker enabled
+- Network settings hardened
+
+**Output:** Pass/Fail per setting + summary
+**Use Case:** Validate script worked correctly
+
 ---
 
 ## 📊 Statistics Summary
@@ -463,39 +785,51 @@ Solitaire, Candy Crush, Bubble Witch
 |----------|-------|---------|
 | **Security Settings** | 550+ | Defender, ASR, BitLocker, Firewall, etc. |
 | **Privacy Settings** | 700+ | Telemetry, Permissions, AI, Tracking |
+| **System Hardening** | 15 | Controlled Folder Access, AutoPlay, Admin Shares, Print Spooler, Remote Access, IE11, Sudo, SID Enum, MotW, Kerberos, Admin Account, Process Auditing, SmartScreen, etc. |
 | **Services Disabled** | 25 | DiagTrack, WerSvc, Diagnostics, etc. |
 | **Tasks Disabled** | 60+ | CEIP, Appraiser, Data Collection |
 | **Registry Keys** | 180+ | Telemetry/Privacy/Security |
 | **Domains Blocked** | 80,101 | Malware + Ads + Tracking (hosts) |
 | **Domains Blocked** | 200+ | Microsoft telemetry (firewall) |
 | **Apps Removed** | 50+ | Bloatware, Xbox, 3D, Games |
+| **Windows Update** | 6 settings | Auto-update config + Delivery Optimization |
 | **ASR Rules** | 19 | Attack Surface Reduction |
 | **Exploit Mitigations** | 13 | DEP, ASLR, CFG, SEHOP, etc. |
 | **App Permissions** | 37 | Default-DENY categories |
 | **AI Features Blocked** | 8 | Recall, Copilot, Paint AI, etc. |
 | **Audit Categories** | 18 | Security event logging |
+| **Backup Components** | 6 | Registry, Services, Tasks, Firewall, Files, Metadata |
 
 ---
 
 ## 🎯 Quick Feature Lookup
 
 **Want Maximum Security?**
-→ Defender + ASR (19 rules) + BitLocker + Exploit Protection
+→ Defender (11 layers) + ASR (19 rules) + BitLocker + Exploit Protection (13 mitigations) + System Hardening (15 protections)
 
 **Want Maximum Privacy?**
-→ Telemetry OFF (25 services) + App Permissions (37 categories) + AI Lockdown (8 features)
+→ Telemetry OFF (25 services + 60 tasks + 180 keys) + App Permissions (37 categories) + AI Lockdown (8 features) + 80,000 domains blocked
 
-**Want Both?**
-→ Enforce Mode = Everything!
+**Want Ransomware Protection?**
+→ ASR Rules + Controlled Folder Access + AutoPlay OFF + Network Protection
+
+**Want Secure Updates?**
+→ Windows Update (all toggles ON) + Delivery Optimization (HTTP-only, no P2P)
+
+**Want System Hardening?**
+→ Remote Access OFF + Admin Shares OFF + Print Spooler hardened + IE11 disabled + AutoPlay OFF
 
 **Want Performance?**
-→ 50+ tasks disabled + Event log optimization + Visual effects optimized
+→ 50+ tasks disabled + Event log optimization + Visual effects optimized + Bloatware removed
 
 **Want Control?**
-→ Custom Mode = Pick what you want
+→ Custom Mode = Pick specific modules
+
+**Want Proof of Compliance?**
+→ HTML Compliance Report + Verification Mode
 
 **Made a Mistake?**
-→ Backup/Restore = Complete undo
+→ Backup/Restore = Complete undo (6 backup components)
 
 ---
 
