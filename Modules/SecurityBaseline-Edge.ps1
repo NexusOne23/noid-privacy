@@ -43,8 +43,8 @@ function Set-EdgeSecurityBaseline {
     # === SmartScreen & Security (POLICIES - GREYED OUT!) ===
     Write-Info "Konfiguriere SmartScreen und Site Isolation..."
     
-    # CRITICAL FIX v1.7.6: SmartScreenEnabled MUSS gesetzt werden (auch wenn deprecated!)
-    # Wird im Compliance-Report gecheckt und von SecurityBaseline-Core auch gesetzt
+    # CRITICAL FIX v1.7.6: SmartScreenEnabled MUST be set (even if deprecated!)
+    # Is checked in Compliance-Report and also set by SecurityBaseline-Core
     Set-RegistryValue -Path $edgePolicyPath -Name "SmartScreenEnabled" -Value 1 -Type DWord `
         -Description "Enable SmartScreen (even if deprecated since Edge v139+)"
     
@@ -85,8 +85,8 @@ function Set-EdgeSecurityBaseline {
     # === Enhanced Security Mode (POLICIES - GREYED OUT!) ===
     Write-Info "Konfiguriere Enhanced Security Mode (Balanced)..."
     
-    # CRITICAL FIX v1.7.6: TYPO! Es muss "EnhancedSecurityMode" sein (mit "d")!
-    # Enhanced Security Mode: Basic (nicht Strict!)
+    # CRITICAL FIX v1.7.6: TYPO! It must be "EnhancedSecurityMode" (with "d")!
+    # Enhanced Security Mode: Basic (not Strict!)
     Set-RegistryValue -Path $edgePolicyPath -Name "EnhancedSecurityMode" -Value 1 -Type DWord `
         -Description "Enhanced Security Mode: Basic (1) - Balance between Security & Compatibility"
     
@@ -102,7 +102,7 @@ function Set-EdgeSecurityBaseline {
     try {
         $extensionSources = @("https://microsoftedge.microsoft.com/addons/*")
         New-Item -Path $edgePolicyPath -Force -ErrorAction SilentlyContinue | Out-Null
-        # CRITICAL: MultiString braucht New-ItemProperty (nicht Set-ItemProperty!)
+        # CRITICAL: MultiString needs New-ItemProperty (not Set-ItemProperty!)
         if (Get-ItemProperty -Path $edgePolicyPath -Name "ExtensionInstallSources" -ErrorAction SilentlyContinue) {
             Remove-ItemProperty -Path $edgePolicyPath -Name "ExtensionInstallSources" -Force
         }
