@@ -731,7 +731,7 @@ function Disable-CameraAndMicrophone {
         if (-not (Test-Path $cameraPathHKCU)) {
             $null = New-Item -Path $cameraPathHKCU -Force -ErrorAction Stop
         }
-        Set-ItemProperty -Path $cameraPathHKCU -Name "Value" -Value "Deny" -PropertyType String -Force -ErrorAction Stop
+        Set-ItemProperty -Path $cameraPathHKCU -Name "Value" -Value "Deny" -Type String -Force -ErrorAction Stop
         Write-Verbose "     Kamera HKCU: Value=Deny"
         
         # Sub-Keys auch auf Deny setzen
@@ -740,7 +740,7 @@ function Disable-CameraAndMicrophone {
             if ($cameraApps) {
                 foreach ($app in $cameraApps) {
                     try {
-                        Set-ItemProperty -Path $app.PSPath -Name "Value" -Value "Deny" -PropertyType String -Force -ErrorAction Stop
+                        Set-ItemProperty -Path $app.PSPath -Name "Value" -Value "Deny" -Type String -Force -ErrorAction Stop
                     }
                     catch {
                         Write-Verbose "     Kamera App '$($app.PSChildName)' Fehler: $_"
@@ -760,7 +760,7 @@ function Disable-CameraAndMicrophone {
         if (-not (Test-Path $cameraPathHKLM)) {
             $null = New-Item -Path $cameraPathHKLM -Force -ErrorAction Stop
         }
-        Set-ItemProperty -Path $cameraPathHKLM -Name "Value" -Value "Deny" -PropertyType String -Force -ErrorAction Stop
+        Set-ItemProperty -Path $cameraPathHKLM -Name "Value" -Value "Deny" -Type String -Force -ErrorAction Stop
         Write-Verbose "     Kamera HKLM: Value=Deny"
     }
     catch {
@@ -775,7 +775,7 @@ function Disable-CameraAndMicrophone {
         if (-not (Test-Path $microphonePathHKCU)) {
             $null = New-Item -Path $microphonePathHKCU -Force -ErrorAction Stop
         }
-        Set-ItemProperty -Path $microphonePathHKCU -Name "Value" -Value "Deny" -PropertyType String -Force -ErrorAction Stop
+        Set-ItemProperty -Path $microphonePathHKCU -Name "Value" -Value "Deny" -Type String -Force -ErrorAction Stop
         Write-Verbose "     Mikrofon HKCU: Value=Deny"
         
         # Sub-Keys auch auf Deny setzen
@@ -784,7 +784,7 @@ function Disable-CameraAndMicrophone {
             if ($microphoneApps) {
                 foreach ($app in $microphoneApps) {
                     try {
-                        Set-ItemProperty -Path $app.PSPath -Name "Value" -Value "Deny" -PropertyType String -Force -ErrorAction Stop
+                        Set-ItemProperty -Path $app.PSPath -Name "Value" -Value "Deny" -Type String -Force -ErrorAction Stop
                     }
                     catch {
                         Write-Verbose "     Mikrofon App '$($app.PSChildName)' Fehler: $_"
@@ -804,7 +804,7 @@ function Disable-CameraAndMicrophone {
         if (-not (Test-Path $microphonePathHKLM)) {
             $null = New-Item -Path $microphonePathHKLM -Force -ErrorAction Stop
         }
-        Set-ItemProperty -Path $microphonePathHKLM -Name "Value" -Value "Deny" -PropertyType String -Force -ErrorAction Stop
+        Set-ItemProperty -Path $microphonePathHKLM -Name "Value" -Value "Deny" -Type String -Force -ErrorAction Stop
         Write-Verbose "     Mikrofon HKLM: Value=Deny"
     }
     catch {
@@ -1034,7 +1034,7 @@ function Set-LocationServicesDefault {
             $null = New-Item -Path $locationPathHKCU -Force -ErrorAction Stop
         }
         # NUR Value setzen - Windows managed LastUsedTime* selbst!
-        Set-ItemProperty -Path $locationPathHKCU -Name "Value" -Value "Deny" -PropertyType String -Force -ErrorAction Stop
+        Set-ItemProperty -Path $locationPathHKCU -Name "Value" -Value "Deny" -Type String -Force -ErrorAction Stop
         Write-Verbose "     Location HKCU: Value=Deny"
         
         # Sub-Keys auch auf Deny setzen
@@ -1043,7 +1043,7 @@ function Set-LocationServicesDefault {
             if ($locationApps) {
                 foreach ($app in $locationApps) {
                     try {
-                        Set-ItemProperty -Path $app.PSPath -Name "Value" -Value "Deny" -PropertyType String -Force -ErrorAction Stop
+                        Set-ItemProperty -Path $app.PSPath -Name "Value" -Value "Deny" -Type String -Force -ErrorAction Stop
                     }
                     catch {
                         Write-Verbose "     Location App '$($app.PSChildName)' Fehler: $_"
@@ -1393,7 +1393,7 @@ function Disable-AllAppPermissionsDefaults {
             }
             
             # NUR Value setzen - Windows managed LastUsedTime* selbst!
-            Set-ItemProperty -Path $hkcuPath -Name "Value" -Value "Deny" -PropertyType String -Force -ErrorAction Stop
+            Set-ItemProperty -Path $hkcuPath -Name "Value" -Value "Deny" -Type String -Force -ErrorAction Stop
             Write-Verbose "     HKCU: $permission = Deny"
             
             # Sub-Keys auch auf Deny setzen
@@ -1402,7 +1402,7 @@ function Disable-AllAppPermissionsDefaults {
                 if ($appSubKeys) {
                     foreach ($appKey in $appSubKeys) {
                         try {
-                            Set-ItemProperty -Path $appKey.PSPath -Name "Value" -Value "Deny" -PropertyType String -Force -ErrorAction Stop
+                            Set-ItemProperty -Path $appKey.PSPath -Name "Value" -Value "Deny" -Type String -Force -ErrorAction Stop
                         }
                         catch {
                             Write-Verbose "     App '$($appKey.PSChildName)' Fehler: $_"
