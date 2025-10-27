@@ -1,0 +1,350 @@
+# NoID Privacy - Windows 11 25H2 Security Baseline
+
+> **Enterprise-Grade Security & Privacy Hardening for Windows 11 25H2**
+
+[![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-blue.svg)](https://github.com/PowerShell/PowerShell)
+[![Windows 11](https://img.shields.io/badge/Windows%2011-25H2-0078D4.svg)](https://www.microsoft.com/windows/)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Version](https://img.shields.io/badge/version-1.7.9-blue.svg)](CHANGELOG.md)
+
+---
+
+## 🎯 Overview
+
+**NoID Privacy** is a comprehensive PowerShell-based security hardening solution for Windows 11 25H2, implementing the Microsoft Security Baseline with extensive privacy enhancements. This project provides:
+
+- ✅ **100% Microsoft Security Baseline 25H2 Compliance**
+- 🔒 **550+ Security Settings** (Defense-in-Depth approach)
+- 🛡️ **700+ Privacy Settings** (+200% above baseline)
+- 🚀 **Modular Architecture** (17 specialized modules)
+- 🔄 **Backup & Restore** functionality
+- 🌐 **Multi-Language Support** (English/German)
+- 📊 **Interactive Menu** & CLI modes
+
+---
+
+## 🌟 Key Features
+
+### Security Hardening
+- **Microsoft Defender:** Real-time protection, Cloud-delivered protection, Behavior monitoring
+- **Attack Surface Reduction:** 19 ASR rules configured
+- **Exploit Protection:** DEP, SEHOP, CFG, ASLR, and 12+ system-wide mitigations
+- **Credential Protection:** LSA-PPL, Credential Guard (VBS-based), NTLM hardening
+- **BitLocker:** XTS-AES-256 encryption with TPM 2.0 + PIN
+- **Firewall:** Strict inbound blocking with discovery protection
+- **Network Hardening:** SMB signing/encryption, TLS 1.2/1.3 only, NetBIOS/LLMNR disabled
+
+### Privacy Protection
+- **Telemetry:** Complete telemetry service, task, and registry disablement
+- **AI Features:** Windows Recall, Copilot, and AI tracking completely blocked
+- **App Permissions:** 37 permission categories default-deny (Camera, Microphone, Location, etc.)
+- **Bloatware Removal:** 50+ pre-installed apps removed
+- **DNS Security:** DNS-over-HTTPS (Cloudflare), DNSSEC, 8,864-domain blocklist
+
+### Advanced Features
+- **Windows LAPS:** 30-day password rotation with 20-character complexity
+- **Advanced Auditing:** 18+ audit categories for security monitoring
+- **Smart App Control:** Application reputation verification
+- **Enhanced UAC:** Maximum privilege protection mode
+- **Edge Hardening:** SmartScreen, tracking prevention, DNS-over-HTTPS
+
+---
+
+## 📋 Requirements
+
+### System Requirements
+- **OS:** Windows 11 25H2 (Build 26100+)
+- **TPM:** TPM 2.0 (for BitLocker, Credential Guard, VBS)
+- **CPU:** Intel 8th Gen+ or AMD Ryzen 2000+ (for optimal AES-NI support)
+- **RAM:** 8 GB minimum (16 GB recommended for VBS)
+- **Disk:** 256 GB+ (for BitLocker encryption)
+
+### Software Requirements
+- **PowerShell:** 5.1 or higher (Windows built-in)
+- **Administrator Rights:** Required for all operations
+- **Internet Connection:** Required for DNS-over-HTTPS and blocklist download
+
+---
+
+## 🚀 Quick Start
+
+### 1. Download
+```powershell
+# Clone repository
+git clone https://github.com/NexusOne23/noid-privacy.git
+cd noid-privacy
+```
+
+### 2. Run Script
+```powershell
+# Open PowerShell as Administrator
+# Navigate to project directory
+
+# Option A: Interactive Mode (Recommended for first-time users)
+.\Apply-Win11-25H2-SecurityBaseline.ps1 -Interactive
+
+# Option B: Audit Mode (Safe testing - no enforcement)
+.\Apply-Win11-25H2-SecurityBaseline.ps1 -Mode Audit
+
+# Option C: Enforce Mode (Full hardening)
+.\Apply-Win11-25H2-SecurityBaseline.ps1 -Mode Enforce
+```
+
+### 3. Reboot
+Some features (VBS, Credential Guard, BitLocker) require a system restart to activate.
+
+---
+
+## 📖 Usage
+
+### Basic Commands
+
+#### Apply Security Baseline
+```powershell
+# Interactive menu with language selection
+.\Apply-Win11-25H2-SecurityBaseline.ps1 -Interactive
+
+# Enforce mode with automatic reboot prompt
+.\Apply-Win11-25H2-SecurityBaseline.ps1 -Mode Enforce
+
+# Audit mode without reboot
+.\Apply-Win11-25H2-SecurityBaseline.ps1 -Mode Audit -SkipReboot
+```
+
+#### Backup & Restore
+```powershell
+# Create backup before applying baseline
+.\Backup-SecurityBaseline.ps1
+
+# Restore from backup
+.\Restore-SecurityBaseline.ps1
+
+# Restore specific backup file
+.\Restore-SecurityBaseline.ps1 -BackupFile "C:\Backups\MyBackup.json"
+```
+
+#### Verify Compliance
+```powershell
+# Quick compliance check
+.\Verify-SecurityBaseline.ps1
+
+# With CSV export
+.\Verify-SecurityBaseline.ps1 -ExportReport
+```
+
+### Advanced Usage
+
+#### Custom Module Selection (Interactive Mode)
+1. Start interactive mode: `.\Apply-Win11-25H2-SecurityBaseline.ps1 -Interactive`
+2. Select language (English/German)
+3. Choose "Custom Configuration"
+4. Select specific modules to apply
+5. Confirm and execute
+
+#### Batch File (for non-technical users)
+```cmd
+# Double-click Start-NoID-Privacy.bat
+# Automatically opens PowerShell with correct permissions
+```
+
+---
+
+## 🔧 Module Architecture
+
+The project uses a modular architecture with 17 specialized modules:
+
+| Module | Description | Settings |
+|--------|-------------|----------|
+| **Core** | Security baseline, Defender, Firewall, BitLocker | 350+ |
+| **Telemetry** | Privacy protection, App permissions, Services | 150+ |
+| **ASR** | Attack Surface Reduction rules | 19 |
+| **Advanced** | VBS, Credential Guard, LAPS, Auditing | 30+ |
+| **DNS** | DNS-over-HTTPS, DNSSEC, Blocklist | 8,864 domains |
+| **Bloatware** | App removal, Consumer features | 50+ apps |
+| **AI** | Recall, Copilot, AI tracking | 15+ |
+| **Performance** | Scheduled tasks, Event logs | 40+ |
+| **Edge** | Microsoft Edge security | 42 |
+| **OneDrive** | OneDrive privacy | 5 |
+| **UAC** | User Account Control enhancement | 3 |
+| **WindowsUpdate** | Update optimization | 7 |
+| **WirelessDisplay** | Miracast disablement | 4 |
+| **Interactive** | Menu system, User interface | - |
+| **Common** | Shared functions, Logging | - |
+| **Localization** | Multi-language support | - |
+| **RegistryOwnership** | TrustedInstaller handling | - |
+
+---
+
+## 📊 Compliance Matrix
+
+| Standard | Coverage | Details |
+|----------|----------|---------|
+| **Microsoft Baseline 25H2** | 100% | Full compliance with September 30, 2025 baseline |
+| **CIS Benchmark Level 1** | 85% | Domain-specific settings excluded (standalone focus) |
+| **CIS Benchmark Level 2** | 90% | Enhanced security with privacy extensions |
+| **DoD STIG** | 75% | Core security controls (non-domain environment) |
+| **BSI SiSyPHuS** | 95% | German Federal Office for Information Security standards |
+
+**Note:** This project focuses on **standalone/workgroup workstations**. Domain-specific features (Group Policy, AD integration) are not included.
+
+---
+
+## ⚙️ Configuration
+
+### Default Settings
+All settings are configured for **maximum security with maintained usability**:
+- Services: Telemetry services disabled, critical services protected
+- Firewall: Inbound blocked, outbound allowed (with exceptions)
+- Privacy: Default-deny for app permissions, user can enable individually
+- BitLocker: XTS-AES-256 with TPM 2.0 + PIN (if TPM available)
+
+### Customization
+Edit module files in `/Modules/` to adjust settings:
+```powershell
+# Example: Modify ASR rules
+.\Modules\SecurityBaseline-ASR.ps1
+
+# Example: Adjust telemetry settings
+.\Modules\SecurityBaseline-Telemetry.ps1
+```
+
+---
+
+## 🛡️ Security Considerations
+
+### What This Script Does
+✅ Hardens Windows 11 25H2 to enterprise security standards  
+✅ Disables unnecessary services and features  
+✅ Configures Windows Defender to maximum protection  
+✅ Enables BitLocker encryption with strong algorithms  
+✅ Protects against common attack vectors (ASR, Exploit Protection)  
+✅ Minimizes telemetry and tracking  
+✅ Removes bloatware and unnecessary apps  
+
+### What This Script Does NOT Do
+❌ Install third-party antivirus (uses Windows Defender)  
+❌ Configure domain-specific policies (standalone focus)  
+❌ Modify BIOS/UEFI settings (user responsibility)  
+❌ Break critical Windows functionality  
+❌ Prevent user from re-enabling features  
+
+### Reversibility
+- **Backup & Restore:** Full system state backup before applying
+- **No Force Policies:** Most settings can be re-enabled via Settings GUI
+- **Documented Changes:** All changes logged in transcript files
+- **Exception:** Some Windows components (e.g., Recall, Copilot) are permanently disabled
+
+---
+
+## 🐛 Troubleshooting
+
+### Common Issues
+
+#### "Script already running in another session"
+**Cause:** Mutex prevents concurrent execution  
+**Solution:** Wait for other instance to finish or restart system
+
+#### "Access Denied" errors
+**Cause:** Not running as Administrator  
+**Solution:** Right-click PowerShell → "Run as Administrator"
+
+#### VBS/Credential Guard not active after reboot
+**Cause:** Hardware incompatibility (no TPM 2.0 or virtualization disabled)  
+**Solution:** 
+1. Check TPM: `Get-Tpm`
+2. Enable virtualization in BIOS/UEFI
+3. Verify: `.\Verify-SecurityBaseline.ps1`
+
+#### BitLocker not activating
+**Cause:** No TPM 2.0 or insufficient disk space  
+**Solution:**
+1. Check TPM: `Get-Tpm`
+2. Ensure 256 GB+ free space
+3. Manual activation: Control Panel → BitLocker
+
+### Logs
+All operations are logged to:
+```
+C:\ProgramData\SecurityBaseline\Logs\SecurityBaseline-Enforce-YYYYMMDD-HHMMSS.log
+```
+
+---
+
+## 🤝 Contributing
+
+Contributions are welcome! Please follow these guidelines:
+
+1. **Fork** the repository
+2. **Create** a feature branch (`git checkout -b feature/AmazingFeature`)
+3. **Commit** your changes (`git commit -m 'Add some AmazingFeature'`)
+4. **Push** to the branch (`git push origin feature/AmazingFeature`)
+5. **Open** a Pull Request
+
+### Code Style
+- PowerShell best practices (Verb-Noun naming)
+- UTF-8 without BOM encoding
+- ASCII/Extended Latin characters only (no Unicode symbols)
+- Comprehensive error handling (Try-Catch-Finally)
+- Verbose logging for debugging
+
+---
+
+## 📜 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 🙏 Acknowledgments
+
+- **Microsoft Security Baseline Team** for Windows 11 25H2 guidance
+- **Center for Internet Security (CIS)** for benchmark standards
+- **DoD Cyber Exchange** for STIG requirements
+- **BSI (German Federal Office for Information Security)** for SiSyPHuS recommendations
+- **Community Contributors** for testing and feedback
+
+---
+
+## 📞 Support
+
+- **Issues:** [GitHub Issues](https://github.com/NexusOne23/noid-privacy/issues)
+- **Discussions:** [GitHub Discussions](https://github.com/NexusOne23/noid-privacy/discussions)
+- **Documentation:** [Wiki](https://github.com/NexusOne23/noid-privacy/wiki)
+
+---
+
+## ⚠️ Disclaimer
+
+This script modifies critical system settings. Use at your own risk. Always:
+1. **Create a system backup** before running
+2. **Test in a VM** before production use
+3. **Review the code** to understand changes
+4. **Verify compatibility** with your hardware/software
+
+The authors are not responsible for any damage or data loss caused by this script.
+
+---
+
+## 📈 Project Status
+
+**Current Version:** 1.7.9  
+**Last Updated:** October 27, 2025  
+**Status:** Production-Ready ✅
+
+### Recent Updates
+- ✅ Guest Account renaming added (CIS Benchmark compliance)
+- ✅ Fixed `-Type` → `-PropertyType` in Telemetry module
+- ✅ Enhanced error handling for third-party AV compatibility
+- ✅ Improved Defender feature detection (ASR, PUA, Controlled Folder Access)
+
+See [CHANGELOG.md](CHANGELOG.md) for full version history.
+
+---
+
+<div align="center">
+
+**Made with ❤️ for the Windows Security Community**
+
+[Report Bug](https://github.com/NexusOne23/noid-privacy/issues) · [Request Feature](https://github.com/NexusOne23/noid-privacy/issues) · [Contribute](CONTRIBUTING.md)
+
+</div>

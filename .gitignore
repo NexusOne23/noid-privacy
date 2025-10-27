@@ -1,0 +1,95 @@
+# Windows System Files
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.lnk
+
+# PowerShell Transcript Logs
+*.log
+*.txt
+Logs/
+*-Transcript-*.txt
+SecurityBaseline-*.log
+
+# Backup Files
+Backups/
+*.backup
+*.bak
+*.json.bak
+SecurityBaseline-Backup-*.json
+
+# Temporary Files
+*.tmp
+*.temp
+~$*
+*.swp
+*.swo
+*~
+
+# IDE and Editor Files
+.vscode/
+.vs/
+*.code-workspace
+.idea/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# OS-specific
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Node Modules (if used for tooling)
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# PowerShell Module Cache
+PSGetModuleInfo.xml
+
+# Test Results
+TestResults/
+*.trx
+*.coverage
+
+# Build Artifacts
+bin/
+obj/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+
+# Package Files
+*.nupkg
+*.snupkg
+*.zip
+*.7z
+*.tar.gz
+
+# Documentation Build
+docs/_build/
+site/
+
+# Sensitive Data
+*.key
+*.pem
+*.p12
+*.pfx
+*credentials*
+*secrets*
+*password*
+
+# Custom Exclusions
+LastRun-Status.txt
+CapabilityAccessManager.db
+CapabilityAccessManager.db-*
