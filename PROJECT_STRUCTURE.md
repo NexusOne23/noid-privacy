@@ -34,7 +34,7 @@ noid-privacy/
 │   ├── SecurityBaseline-WirelessDisplay.ps1
 │   └── SecurityBaseline-Interactive.ps1
 │
-├── 📄 hosts                                  # DNS blocklist (8,864 domains)
+├── 📄 hosts                                  # DNS blocklist (80,101 domains, compressed)
 │
 ├── 📄 README.md                              # Project overview & documentation
 ├── 📄 LICENSE                                # MIT License
@@ -317,7 +317,7 @@ noid-privacy/
 
 **Exports** (3 functions):
 - `Enable-DNSSEC` - Opportunistic mode
-- `Install-DNSBlocklist` - 8,864-domain hosts file
+- `Install-DNSBlocklist` - 80,101-domain hosts file (compressed to 8,864 lines)
 - `Set-StrictInboundFirewall` - Discovery blocking
 
 **Lines of Code**: ~306  
@@ -466,9 +466,11 @@ noid-privacy/
 ### hosts
 **Purpose**: DNS blocklist for malware/tracking/ads
 
-**Entries**: 8,864 domains  
+**Domains**: 80,101 unique domains (Steven Black Unified)  
+**Lines**: 8,864 (compressed format - 9 domains per line)  
 **Size**: ~1.6 MB  
-**Format**: Standard hosts file (127.0.0.1 domain.com)
+**Format**: Windows-optimized hosts file (0.0.0.0 domain.com)  
+**Optimization**: Compressed for Windows DNS Cache performance
 
 **Categories**:
 - Malware domains

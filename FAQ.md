@@ -223,6 +223,84 @@ For domain environments:
 
 ---
 
+## 🌐 DNS & Network Questions
+
+### What DNS provider is used?
+
+**Cloudflare DNS-over-HTTPS (DoH)**
+- Primary: 1.1.1.1
+- Secondary: 1.0.0.1
+- Fallback: 8.8.8.8 (Google, if Cloudflare unreachable)
+- Protocol: DNS-over-HTTPS (encrypted)
+
+**Why Cloudflare?**
+- ✅ Privacy-first (no user tracking)
+- ✅ Fast (one of the fastest DNS resolvers globally)
+- ✅ Supports DNSSEC
+- ✅ Free and open
+- ✅ Better privacy than ISP DNS
+
+### How many domains are blocked?
+
+**80,101 unique domains** from Steven Black Unified Hosts list.
+
+**Categories:**
+- Malware domains
+- Tracking/analytics
+- Ad networks
+- Coin miners
+- Phishing sites
+- Telemetry servers
+
+### Why only 8,864 lines in the hosts file?
+
+**Compression for Windows DNS Cache performance!**
+
+**The Problem:**
+- Steven Black original: 80,101 domains = 80,101 lines
+- Windows DNS Cache limit: ~20,000 entries
+- 80k+ lines would cause cache overflow
+- Result: Slow DNS lookups
+
+**Our Solution:**
+- ✅ **9 domains per line** (Windows supports this!)
+- ✅ 80,101 domains ÷ 9 = ~8,864 lines
+- ✅ **Full protection, zero performance impact**
+- ✅ DNS cache stays fast and efficient
+
+**Format example:**
+```
+0.0.0.0 tracker1.com tracker2.com tracker3.com ... (9 domains)
+```
+
+### Will this block legitimate websites?
+
+**No.** Steven Black Unified Hosts is community-vetted:
+- ✅ Only malicious/tracking domains
+- ✅ No false positives on major sites
+- ✅ Regularly updated
+- ❌ Won't block Google, Facebook, Amazon, etc. (main domains)
+- ✅ Will block their tracking/analytics subdomains
+
+**If a site breaks:** Temporarily disable by renaming hosts file and reboot.
+
+### Can I use my own DNS provider?
+
+**Yes!** Edit the DNS module before running:
+- File: `Modules/SecurityBaseline-DNS.ps1`
+- Change Cloudflare IPs to your preferred DNS
+- Examples: Quad9 (9.9.9.9), Google (8.8.8.8), NextDNS
+
+### Does DNS-over-HTTPS slow down browsing?
+
+**No, usually faster:**
+- Initial DoH connection: ~50ms overhead (one-time)
+- After that: Same speed or faster (Cloudflare's CDN)
+- Encryption overhead: Negligible (<1ms per query)
+- **Benefit:** ISP can't see or hijack your DNS queries
+
+---
+
 ## 🚨 Troubleshooting
 
 ### "Script already running in another session"
