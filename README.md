@@ -340,7 +340,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - **Issues:** [GitHub Issues](https://github.com/NexusOne23/noid-privacy/issues)
 - **Discussions:** [GitHub Discussions](https://github.com/NexusOne23/noid-privacy/discussions)
-- **Documentation:** [Wiki](https://github.com/NexusOne23/noid-privacy/wiki)
+- **Documentation:** [README](README.md) · [FAQ](FAQ.md) · [Installation](INSTALLATION.md) · [Quick Start](QUICKSTART.md)
 
 ---
 

@@ -351,7 +351,7 @@ finally {
 - **Pull Requests**: Code contributions
 
 ### Getting Help
-- Read the [README.md](README.md) and [Wiki](https://github.com/NexusOne23/noid-privacy/wiki)
+- Read the [README.md](README.md), [FAQ.md](FAQ.md), and [INSTALLATION.md](INSTALLATION.md)
 - Search [existing issues](https://github.com/NexusOne23/noid-privacy/issues)
 - Ask in [GitHub Discussions](https://github.com/NexusOne23/noid-privacy/discussions)
 
