@@ -733,49 +733,31 @@ Solitaire, Candy Crush, Bubble Witch
 
 ---
 
-## 📊 Compliance & Reporting
-
-### HTML Compliance Report
-✅ **Detailed Configuration Report**
-
-**Module:** `SecurityBaseline-Core.ps1` → `New-ComplianceReport`
-
-**Report Includes:**
-- System Information (OS version, build, edition)
-- Security Settings Status (550+ checks)
-- Privacy Configuration (700+ checks)
-- Defender Status (11 protection layers)
-- BitLocker Status (encryption methods)
-- Firewall Configuration (all profiles)
-- Network Security (SMB, TLS, protocols)
-- Service States (disabled services)
-- Applied Settings (all modules)
-- Compliance Score (percentage)
-- Recommendations (what to improve)
-- Timestamp & Version
-
-**Output Format:** HTML (styled, professional)
-**Location:** `C:\SecurityBaseline\Reports\`
-**Filename:** `ComplianceReport-YYYY-MM-DD-HHmmss.html`
-
-**User Benefit:** Proof of compliance for audit/management
+## 📊 Verification & Validation
 
 ### Verification Mode
 ✅ **Post-Apply Validation**
 
-**Module:** `SecurityBaseline-Interactive.ps1` → `Invoke-VerifyMode`
+**Script:** `Verify-SecurityBaseline.ps1`
 
-**Verifies:**
-- All registry keys set correctly
-- All services disabled
-- All tasks disabled
-- Firewall rules applied
-- Defender configuration active
-- BitLocker enabled
-- Network settings hardened
+**What Gets Verified:**
+- Registry keys (security + privacy settings)
+- Service states (disabled services)
+- Scheduled tasks (disabled tasks)
+- Firewall rules (custom blocks)
+- Defender configuration (real-time protection, ASR rules)
+- Network settings (SMB, TLS, protocols)
+- System settings (UAC, BitLocker, etc.)
 
-**Output:** Pass/Fail per setting + summary
-**Use Case:** Validate script worked correctly
+**Output:** 
+- Per-setting Pass/Fail status
+- Summary count (X passed, Y failed)
+- Detailed error messages for failures
+- Recommendations for fixes
+
+**Use Case:** Validate that Apply script worked correctly
+
+**User Benefit:** Know exactly what's configured and what failed
 
 ---
 
