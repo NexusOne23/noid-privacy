@@ -1,6 +1,6 @@
 # ============================================================================
 # SecurityBaseline-WindowsUpdate.ps1
-# Windows Update GUI Settings (KEINE Policies, nur Defaults setzen!)
+# Windows Update GUI Settings (NO Policies, only set Defaults!)
 # ============================================================================
 
 Set-StrictMode -Version Latest
@@ -8,23 +8,23 @@ Set-StrictMode -Version Latest
 function Set-WindowsUpdateDefaults {
     <#
     .SYNOPSIS
-        Setzt Windows Update GUI-Toggles auf empfohlene Defaults (HYBRID)
+        Sets Windows Update GUI toggles to recommended defaults (HYBRID)
     .DESCRIPTION
-        HYBRID-LÖSUNG für Windows Update Settings:
+        HYBRID SOLUTION for Windows Update Settings:
         
-        1. Setzt User-Preferences (UX\Settings) - funktioniert gut mit Toggles
-        2. Setzt ZUSÄTZLICH Policies wo verfügbar (für Garantie)
+        1. Sets User-Preferences (UX\Settings) - works well with toggles
+        2. ADDITIONALLY sets Policies where available (for guarantee)
         
-        = Beste Balance zwischen Sicherheit und User-Kontrolle!
+        = Best balance between security and user control!
         
         Settings:
-        1. Updates für andere Microsoft-Produkte -> EIN
-        2. Sich auf den aktuellen Stand bringen lassen -> EIN
-        3. Updates über getaktete Verbindungen -> EIN (Security First!)
-        4. Benachrichtigung bei Neustart -> EIN
-        5. Erhalten Sie die neuesten Updates -> EIN
+        1. Updates for other Microsoft products -> ON
+        2. Get latest updates as soon as available -> ON
+        3. Download updates over metered connections -> ON (Security First!)
+        4. Restart notifications -> ON
+        5. Get the latest updates as soon as available -> ON
         
-        WICHTIG: Alle Toggles auf EIN = Maximum Security Updates!
+        IMPORTANT: All toggles ON = Maximum Security Updates!
     #>
     [CmdletBinding()]
     param()
@@ -32,33 +32,33 @@ function Set-WindowsUpdateDefaults {
     Write-Section "Windows Update - Empfohlene Defaults (HYBRID)"
     
     # HYBRID APPROACH:
-    # 1. Setze User Preferences (funktioniert mit Toggles)
+    # 1. Set User Preferences (works with toggles)
     $wuPath = "HKLM:\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings"
     
     Set-RegistryValue -Path $wuPath -Name "AllowMUUpdateService" -Value 1 -Type DWord `
-        -Description "Updates für andere MS-Produkte: EIN"
+        -Description "Updates for other MS products: ON"
     
     Set-RegistryValue -Path $wuPath -Name "IsContinuousInnovationOptedIn" -Value 1 -Type DWord `
-        -Description "Sich auf den aktuellen Stand bringen: EIN"
+        -Description "Get latest updates as soon as available: ON"
     
     Set-RegistryValue -Path $wuPath -Name "AllowAutoWindowsUpdateDownloadOverMeteredNetwork" -Value 1 -Type DWord `
-        -Description "Updates über getaktete Verbindungen: AN (Security First!)"
+        -Description "Download updates over metered connections: ON (Security First!)"
     
     Set-RegistryValue -Path $wuPath -Name "RestartNotificationsAllowed2" -Value 1 -Type DWord `
-        -Description "Neustart-Benachrichtigungen: EIN"
+        -Description "Restart notifications: ON"
     
     Set-RegistryValue -Path $wuPath -Name "IsExpedited" -Value 1 -Type DWord `
-        -Description "Neueste Updates sofort erhalten: EIN"
+        -Description "Get latest updates immediately: ON"
     
-    # 2. Setze ZUSÄTZLICH Policies (für kritische Settings)
+    # 2. ADDITIONALLY set Policies (for critical settings)
     $policyPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate"
     
-    # Verhindere Insider/Preview Builds (kritisch für Stabilität!)
+    # Prevent Insider/Preview Builds (critical for stability!)
     Set-RegistryValue -Path $policyPath -Name "ManagePreviewBuilds" -Value 1 -Type DWord `
-        -Description "Preview Builds Policy: Verwaltet"
+        -Description "Preview Builds Policy: Managed"
     
     Set-RegistryValue -Path $policyPath -Name "ManagePreviewBuildsPolicyValue" -Value 0 -Type DWord `
-        -Description "Preview Builds Policy: KEINE Preview Builds (garantiert!)"
+        -Description "Preview Builds Policy: NO Preview Builds (guaranteed!)"
     
     Write-Success "Windows Update Defaults gesetzt (HYBRID)"
     Write-Info "Konfiguration:"
@@ -78,18 +78,18 @@ function Set-WindowsUpdateDefaults {
 function Set-DeliveryOptimizationDefaults {
     <#
     .SYNOPSIS
-        Setzt Delivery Optimization auf HTTP-Only (HYBRID: Policy + Config!)
+        Sets Delivery Optimization to HTTP-Only (HYBRID: Policy + Config!)
     .DESCRIPTION
-        HYBRID-LÖSUNG für maximale Sicherheit + User-Kontrolle:
+        HYBRID SOLUTION for maximum security + user control:
         
-        1. Setzt Policy (GARANTIERT dass Setting greift)
-        2. Setzt auch User-Config (für Toggle-Funktionalität)
+        1. Sets Policy (GUARANTEES that setting applies)
+        2. Also sets User-Config (for toggle functionality)
         
-        User kann ändern durch:
-        - Settings Toggle nutzen (entfernt Policy automatisch bei Änderung)
-        - Oder Policy manuell entfernen via Registry
+        User can change by:
+        - Using Settings toggle (automatically removes Policy on change)
+        - Or manually remove Policy via Registry
         
-        = Best of Both Worlds: Garantiert SICHER + User kann ändern!
+        = Best of Both Worlds: Guaranteed SECURE + User can change!
     #>
     [CmdletBinding()]
     param()
@@ -97,12 +97,12 @@ function Set-DeliveryOptimizationDefaults {
     Write-Section "Delivery Optimization - HTTP-Only (HYBRID)"
     
     # HYBRID APPROACH:
-    # 1. Setze Policy (garantiert dass es greift)
+    # 1. Set Policy (guarantees that it applies)
     $policyPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DeliveryOptimization"
     Set-RegistryValue -Path $policyPath -Name "DODownloadMode" -Value 0 -Type DWord `
-        -Description "Delivery Optimization Policy: HTTP-Only (garantiert!)"
+        -Description "Delivery Optimization Policy: HTTP-Only (guaranteed!)"
     
-    # 2. Setze auch User-Config (Fallback + Toggle-Support)
+    # 2. Also set User-Config (Fallback + Toggle-Support)
     $configPath = "HKLM:\SOFTWARE\Microsoft\Windows\DeliveryOptimization\Config"
     Set-RegistryValue -Path $configPath -Name "DODownloadMode" -Value 0 -Type DWord `
         -Description "Delivery Optimization Config: HTTP-Only (Fallback)"
