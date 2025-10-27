@@ -2,7 +2,7 @@
 # SecurityBaseline-Edge.ps1 - Microsoft Edge Security (User-Friendly Balance)
 # =======================================================================================
 
-# Best Practice 25H2: Strict Mode aktivieren
+# Best Practice 25H2: Enable Strict Mode
 Set-StrictMode -Version Latest
 
 function Set-EdgeSecurityBaseline {
@@ -10,20 +10,20 @@ function Set-EdgeSecurityBaseline {
     .SYNOPSIS
         Microsoft Edge Security Baseline v139+ (User-Friendly)
     .DESCRIPTION
-        Wendet Edge-Sicherheits-Baseline an - BALANCE zwischen Security & Usability.
-        NICHT zu restriktiv - fuer normale User geeignet!
+        Applies Edge Security Baseline - BALANCE between Security & Usability.
+        NOT too restrictive - suitable for normal users!
         
-        Aktiviert:
+        Enabled:
         - SmartScreen & Site Isolation
         - Tracking Prevention (Balanced)
         - DNS over HTTPS
         - Enhanced Security Mode (Balanced)
-        - TLS 1.2+ erzwingen
+        - Enforce TLS 1.2+
         
-        NICHT blockiert:
-        - Erweiterungen (Microsoft Store OK)
-        - AutoFill (verfuegbar)
-        - Payment Methods (verfuegbar)
+        NOT blocked:
+        - Extensions (Microsoft Store OK)
+        - AutoFill (available)
+        - Payment Methods (available)
     .EXAMPLE
         Set-EdgeSecurityBaseline
     #>
@@ -33,35 +33,35 @@ function Set-EdgeSecurityBaseline {
     
     Write-Section "Microsoft Edge Security Baseline v139+ (User-Friendly)"
     
-    # WICHTIG: Policies vs. Preferences!
-    # Policies (ausgegraut):  HKLM:\SOFTWARE\Policies\Microsoft\Edge
-    # Preferences (änderbar): HKLM:\SOFTWARE\Microsoft\Edge
+    # IMPORTANT: Policies vs. Preferences!
+    # Policies (greyed out):  HKLM:\SOFTWARE\Policies\Microsoft\Edge
+    # Preferences (changeable): HKLM:\SOFTWARE\Microsoft\Edge
     
-    $edgePolicyPath = "HKLM:\SOFTWARE\Policies\Microsoft\Edge"      # Für Security (ausgegraut)
-    $edgePrefPath = "HKLM:\SOFTWARE\Microsoft\Edge"                  # Für User-Friendly (änderbar)
+    $edgePolicyPath = "HKLM:\SOFTWARE\Policies\Microsoft\Edge"      # For Security (greyed out)
+    $edgePrefPath = "HKLM:\SOFTWARE\Microsoft\Edge"                  # For User-Friendly (changeable)
     
-    # === SmartScreen & Security (POLICIES - AUSGEGRAUT!) ===
+    # === SmartScreen & Security (POLICIES - GREYED OUT!) ===
     Write-Info "Konfiguriere SmartScreen und Site Isolation..."
     
     # CRITICAL FIX v1.7.6: SmartScreenEnabled MUSS gesetzt werden (auch wenn deprecated!)
     # Wird im Compliance-Report gecheckt und von SecurityBaseline-Core auch gesetzt
     Set-RegistryValue -Path $edgePolicyPath -Name "SmartScreenEnabled" -Value 1 -Type DWord `
-        -Description "SmartScreen aktivieren (auch wenn deprecated ab Edge v139+)"
+        -Description "Enable SmartScreen (even if deprecated since Edge v139+)"
     
     Set-RegistryValue -Path $edgePolicyPath -Name "SmartScreenPuaEnabled" -Value 1 -Type DWord `
-        -Description "SmartScreen PUA (Potentially Unwanted Apps) aktivieren"
+        -Description "Enable SmartScreen PUA (Potentially Unwanted Apps)"
     
     Set-RegistryValue -Path $edgePolicyPath -Name "PreventSmartScreenPromptOverride" -Value "true" -Type String `
-        -Description "SmartScreen-Warnungen nicht umgehbar"
+        -Description "SmartScreen warnings cannot be bypassed"
     
     Set-RegistryValue -Path $edgePolicyPath -Name "PreventSmartScreenPromptOverrideForFiles" -Value "true" -Type String `
-        -Description "SmartScreen-Dateiwarnungen nicht umgehbar"
+        -Description "SmartScreen file warnings cannot be bypassed"
     
     # Site Isolation (Maximum Security)
     Set-RegistryValue -Path $edgePolicyPath -Name "SitePerProcess" -Value 1 -Type DWord `
-        -Description "Site Isolation aktivieren"
+        -Description "Enable Site Isolation"
     
-    # === Tracking Prevention (POLICIES - AUSGEGRAUT!) ===
+    # === Tracking Prevention (POLICIES - GREYED OUT!) ===
     Write-Info "Konfiguriere Tracking Prevention (Strict)..."
     
     # CRITICAL FIX v1.7.6: Tracking Prevention auf Strict (2) setzen!
@@ -71,34 +71,34 @@ function Set-EdgeSecurityBaseline {
     
     # Third-Party Cookies: NUR im InPrivate blockieren
     Set-RegistryValue -Path $edgePolicyPath -Name "BlockThirdPartyCookies" -Value 0 -Type DWord `
-        -Description "Third-Party Cookies erlauben (normale Websites funktionieren)"
+        -Description "Allow Third-Party Cookies (normal websites work)"
     
-    # === DNS over HTTPS (POLICIES - AUSGEGRAUT!) ===
+    # === DNS over HTTPS (POLICIES - GREYED OUT!) ===
     Write-Info "Konfiguriere DNS over HTTPS..."
     
     Set-RegistryValue -Path $edgePolicyPath -Name "DnsOverHttpsMode" -Value "automatic" -Type String `
-        -Description "DNS over HTTPS: Automatic (nicht erzwungen)"
+        -Description "DNS over HTTPS: Automatic (not enforced)"
     
     Set-RegistryValue -Path $edgePolicyPath -Name "BuiltInDnsClientEnabled" -Value 1 -Type DWord `
-        -Description "Built-in DNS Client aktivieren"
+        -Description "Enable Built-in DNS Client"
     
-    # === Enhanced Security Mode (POLICIES - AUSGEGRAUT!) ===
+    # === Enhanced Security Mode (POLICIES - GREYED OUT!) ===
     Write-Info "Konfiguriere Enhanced Security Mode (Balanced)..."
     
     # CRITICAL FIX v1.7.6: TYPO! Es muss "EnhancedSecurityMode" sein (mit "d")!
     # Enhanced Security Mode: Basic (nicht Strict!)
     Set-RegistryValue -Path $edgePolicyPath -Name "EnhancedSecurityMode" -Value 1 -Type DWord `
-        -Description "Enhanced Security Mode: Basic (1) - Balance zwischen Security & Kompatibilitaet"
+        -Description "Enhanced Security Mode: Basic (1) - Balance between Security & Compatibility"
     
-    # Download Restrictions: Gefaehrliche Files warnen (nicht blockieren)
+    # Download Restrictions: Warn for dangerous files (not block)
     Set-RegistryValue -Path $edgePolicyPath -Name "DownloadRestrictions" -Value 1 -Type DWord `
-        -Description "Gefaehrliche Downloads warnen (nicht blockieren)"
+        -Description "Warn for dangerous downloads (not block)"
     
-    # === Extensions (POLICIES - AUSGEGRAUT!) ===
+    # === Extensions (POLICIES - GREYED OUT!) ===
     Write-Info "Konfiguriere Erweiterungs-Policies (User-Friendly)..."
     
-    # Extensions: Nur Microsoft Store erlauben (keine komplett Blockierung!)
-    # WICHTIG: ExtensionInstallSources MUSS ein MultiString (Array) sein!
+    # Extensions: Only allow Microsoft Store (no complete blocking!)
+    # IMPORTANT: ExtensionInstallSources MUST be a MultiString (Array)!
     try {
         $extensionSources = @("https://microsoftedge.microsoft.com/addons/*")
         New-Item -Path $edgePolicyPath -Force -ErrorAction SilentlyContinue | Out-Null
@@ -113,62 +113,62 @@ function Set-EdgeSecurityBaseline {
         Write-Warning "ExtensionInstallSources konnte nicht gesetzt werden: $_"
     }
     
-    # KEINE Blocklist - User kann Erweiterungen installieren!
-    # ExtensionInstallBlocklist = NICHT gesetzt!
+    # NO Blocklist - User can install extensions!
+    # ExtensionInstallBlocklist = NOT set!
     
     Write-Info "Erweiterungen aus Microsoft Edge Store sind ERLAUBT"
     
     # === TLS/SSL Security ===
     Write-Info "Konfiguriere TLS/SSL Security..."
     
-    # HINWEIS: SSLVersionMin wurde in Edge v98 entfernt (deprecated)
-    # TLS 1.2 ist in modernen Edge-Versionen standardmaessig die Mindestversion
-    # Keine Konfiguration mehr notwendig/moeglich!
+    # NOTE: SSLVersionMin was removed in Edge v98 (deprecated)
+    # TLS 1.2 is the default minimum version in modern Edge versions
+    # No configuration needed/possible anymore!
     
-    # QUIC/HTTP3 als PREFERENCE (User kann aendern!)
+    # QUIC/HTTP3 as PREFERENCE (User can change!)
     Set-RegistryValue -Path $edgePrefPath -Name "QuicAllowed" -Value 1 -Type DWord `
-        -Description "QUIC/HTTP3 Default: Aktiviert (User kann aendern)"
+        -Description "QUIC/HTTP3 Default: Enabled (User can change)"
     
     Write-Info "TLS 1.2+ ist standardmaessig aktiviert (Edge v98+)"
     
-    # === AutoFill & Password Manager (PREFERENCES - USER KANN AENDERN!) ===
+    # === AutoFill & Password Manager (PREFERENCES - USER CAN CHANGE!) ===
     Write-Info "Konfiguriere AutoFill und Password Manager (Default: Aktiviert)..."
     
-    # Password Manager als PREFERENCE (User kann aendern!)
+    # Password Manager as PREFERENCE (User can change!)
     Set-RegistryValue -Path $edgePrefPath -Name "PasswordManagerEnabled" -Value 1 -Type DWord `
-        -Description "Password Manager Default: Aktiviert (User kann deaktivieren)"
+        -Description "Password Manager Default: Enabled (User can disable)"
     
-    # AutoFill Address als PREFERENCE (User kann aendern!)
+    # AutoFill Address as PREFERENCE (User can change!)
     Set-RegistryValue -Path $edgePrefPath -Name "AutofillAddressEnabled" -Value 1 -Type DWord `
-        -Description "AutoFill Address Default: Aktiviert (User kann deaktivieren)"
+        -Description "AutoFill Address Default: Enabled (User can disable)"
     
-    # AutoFill Credit Card als PREFERENCE (User kann aendern!)
+    # AutoFill Credit Card as PREFERENCE (User can change!)
     Set-RegistryValue -Path $edgePrefPath -Name "AutofillCreditCardEnabled" -Value 1 -Type DWord `
-        -Description "AutoFill Credit Card Default: Aktiviert (User kann deaktivieren)"
+        -Description "AutoFill Credit Card Default: Enabled (User can disable)"
     
-    # Payment Methods als PREFERENCE (User kann aendern!)
+    # Payment Methods as PREFERENCE (User can change!)
     Set-RegistryValue -Path $edgePrefPath -Name "PaymentMethodQueryEnabled" -Value 1 -Type DWord `
-        -Description "Payment Methods Default: Aktiviert (User kann deaktivieren)"
+        -Description "Payment Methods Default: Enabled (User can disable)"
     
     Write-Info "AutoFill und Password Manager sind als DEFAULT aktiviert (User KANN aendern!)"
     
-    # === WebRTC IP-Leak Prevention (PREFERENCE - USER KANN AENDERN!) ===
+    # === WebRTC IP-Leak Prevention (PREFERENCE - USER CAN CHANGE!) ===
     Write-Info "Konfiguriere WebRTC IP-Leak Prevention..."
     
     Set-RegistryValue -Path $edgePrefPath -Name "WebRtcLocalhostIpHandling" -Value "default_public_interface_only" -Type String `
-        -Description "WebRTC IP-Leak Prevention Default (User kann aendern)"
+        -Description "WebRTC IP-Leak Prevention Default (User can change)"
     
     # === Auto-Update ===
-    # UpdateDefault ist deprecated in Edge v139+
-    # Edge verwendet jetzt eigenes Update-System (nicht mehr konfigurierbar via Policy)
-    # Auto-Updates sind standardmäßig aktiviert
+    # UpdateDefault is deprecated in Edge v139+
+    # Edge now uses its own update system (no longer configurable via Policy)
+    # Auto-Updates are enabled by default
     
-    # === InPrivate Mode (PREFERENCE - USER KANN AENDERN!) ===
+    # === InPrivate Mode (PREFERENCE - USER CAN CHANGE!) ===
     Write-Info "Konfiguriere InPrivate Mode..."
     
-    # InPrivate Mode als PREFERENCE (User kann aendern!)
+    # InPrivate Mode as PREFERENCE (User can change!)
     Set-RegistryValue -Path $edgePrefPath -Name "InPrivateModeAvailability" -Value 0 -Type DWord `
-        -Description "InPrivate Mode Default: Verfuegbar (User kann aendern)"
+        -Description "InPrivate Mode Default: Available (User can change)"
     
     Write-Success "Microsoft Edge Security Baseline v139+ angewendet (HYBRID Mode)"
     Write-Host ""
