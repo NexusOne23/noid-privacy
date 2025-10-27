@@ -5,7 +5,7 @@ Thank you to everyone who has contributed to NoID Privacy! 🎉
 ## Core Team
 
 ### Project Lead
-- **[Your Name]** - *Initial work, architecture, core development*
+- **NexusOne23** - *Initial work, architecture, core development*
 
 ## Contributors
 
