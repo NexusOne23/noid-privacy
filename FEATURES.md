@@ -20,7 +20,7 @@
 - [User Experience](#-user-experience) - Interactive Menu, Multi-Language
 - [Backup & Recovery](#-backup--recovery) - Complete Undo Capability
 - [Advanced Features](#-advanced-features) - LAPS, Auditing, SAC
-- [Compliance & Reporting](#-compliance--reporting) - HTML Reports
+- [Verification](#-verification--validation) - Post-Apply Validation
 
 ---
 
@@ -28,6 +28,8 @@
 
 ### Microsoft Defender - Real-Time Protection
 ✅ **11 Protection Layers Configured**
+
+**Module:** `SecurityBaseline-Core.ps1` → `Set-DefenderBaselineSettings`
 
 | Feature | User Benefit |
 |---------|--------------|
@@ -45,6 +47,8 @@
 
 ### Attack Surface Reduction (ASR)
 ✅ **19 ASR Rules = 19 Attack Vectors Blocked**
+
+**Module:** `SecurityBaseline-ASR.ps1`
 
 | What It Blocks | Your Protection |
 |----------------|-----------------|
@@ -114,6 +118,8 @@
 ### User Account Control (UAC)
 ✅ **Maximum Elevation Security**
 
+**Module:** `SecurityBaseline-UAC.ps1` → `Set-MaximumUAC` + `Enable-EnhancedPrivilegeProtectionMode`
+
 - **Level:** Always notify (highest)
 - **Secure Desktop:** Dimmed screen (can't be faked)
 - **Admin Approval Mode:** Even admins get prompted
@@ -133,6 +139,8 @@
 
 ### Complete Telemetry Shutdown
 ✅ **Microsoft Gets ZERO Data**
+
+**Module:** `SecurityBaseline-Telemetry.ps1`
 
 **25 Services Stopped:**
 - DiagTrack (Connected User Experiences)
@@ -203,6 +211,8 @@ All apps CANNOT access (unless you allow):
 ### DNS Security - Triple Protection
 ✅ **Encrypted + Validated + Blocked**
 
+**Module:** `SecurityBaseline-DNS.ps1` + `SecurityBaseline-Core.ps1`
+
 **1. DNS-over-HTTPS (DoH)**
 - Provider: Cloudflare 1.1.1.1 / 1.0.0.1
 - Encryption: HTTPS (Port 443)
@@ -251,6 +261,8 @@ All apps CANNOT access (unless you allow):
 ### Wireless Security
 ✅ **No Wireless Eavesdropping**
 
+**Module:** `SecurityBaseline-WirelessDisplay.ps1` → `Disable-WirelessDisplay`
+
 - Miracast: DISABLED (4 layers)
 - Wireless Display: DISABLED
 - Wi-Fi Direct: DISABLED
@@ -263,6 +275,8 @@ All apps CANNOT access (unless you allow):
 
 ### 8 AI Features Completely Disabled
 ✅ **Zero AI Spying**
+
+**Module:** `SecurityBaseline-AI.ps1`
 
 | AI Feature | Privacy Risk | Status |
 |------------|--------------|--------|
@@ -279,6 +293,8 @@ All apps CANNOT access (unless you allow):
 
 ### Microsoft Edge Privacy
 ✅ **Security Locked, Convenience Customizable**
+
+**Module:** `SecurityBaseline-Edge.ps1` → `Set-EdgeSecurityBaseline`
 
 **Enforced (Greyed Out):**
 - SmartScreen: ON (malware blocking)
@@ -320,6 +336,8 @@ Microsoft telemetry servers blocked
 
 ### Bloatware Removal
 ✅ **50+ Pre-Installed Apps Removed**
+
+**Module:** `SecurityBaseline-Bloatware.ps1` → `Remove-BloatwareApps` + `Disable-ConsumerFeatures`
 
 **Communication:**
 Teams, Skype, Messenger, Your Phone, Cortana, People
@@ -534,6 +552,8 @@ Solitaire, Candy Crush, Bubble Witch
 ### Background Task Control
 ✅ **50+ Tasks Disabled**
 
+**Module:** `SecurityBaseline-Performance.ps1` → `Optimize-ScheduledTasks`
+
 - WinSAT, Defrag, Error Reporting
 - CEIP, Application Experience
 - Diagnostics (non-security)
@@ -562,6 +582,8 @@ Solitaire, Candy Crush, Bubble Witch
 ### Interactive Menu
 ✅ **4 Modes**
 
+**Module:** `SecurityBaseline-Interactive.ps1` + `Apply-Win11-25H2-SecurityBaseline.ps1`
+
 - **Audit:** Check status (no changes)
 - **Enforce:** Apply ALL settings
 - **Custom:** Pick specific modules
@@ -569,6 +591,8 @@ Solitaire, Candy Crush, Bubble Witch
 
 ### Multi-Language
 ✅ **English + German**
+
+**Module:** `SecurityBaseline-Localization.ps1` → `Get-LocalizedString` + `Select-Language`
 
 - Real-time language switching
 - All messages localized
@@ -691,6 +715,8 @@ Solitaire, Candy Crush, Bubble Witch
 ### Windows LAPS
 ✅ **Automatic Admin Password Rotation**
 
+**Module:** `SecurityBaseline-Advanced.ps1` → `Enable-WindowsLAPS`
+
 - Rotation: Every 30 days
 - Length: 20 characters
 - Complexity: High entropy
@@ -699,6 +725,8 @@ Solitaire, Candy Crush, Bubble Witch
 
 ### Advanced Auditing
 ✅ **18 Security Event Categories**
+
+**Module:** `SecurityBaseline-Advanced.ps1` → `Enable-AdvancedAuditing`
 
 - Logon/Logoff tracking
 - Account management
