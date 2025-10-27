@@ -2,37 +2,37 @@
 # SecurityBaseline-OneDrive.ps1 - OneDrive Privacy Hardening
 # =======================================================================================
 
-# Best Practice 25H2: Strict Mode aktivieren
+# Best Practice 25H2: Enable Strict Mode
 Set-StrictMode -Version Latest
 
 function Set-OneDrivePrivacyHardening {
     <#
     .SYNOPSIS
-        OneDrive Privacy Hardening (ohne Breaking Changes)
+        OneDrive Privacy Hardening (without Breaking Changes)
     .DESCRIPTION
-        Haertet OneDrive fuer Maximum Privacy bei voller Funktionalitaet:
-        - Deaktiviert Tutorial und Feedback (Privacy)
-        - Verhindert Network Traffic vor User-Login (KRITISCH!)
-        - Blockiert Known Folder Move / Auto-Upload (Privacy!)
-        - Behaelt OneDrive-Funktionalitaet (User kann weiter nutzen)
+        Hardens OneDrive for maximum privacy with full functionality:
+        - Disables Tutorial and Feedback (Privacy)
+        - Prevents Network Traffic before User-Login (CRITICAL!)
+        - Blocks Known Folder Move / Auto-Upload (Privacy!)
+        - Keeps OneDrive functionality (User can continue using)
         
-        WICHTIG: Optional Diagnostic Data Popup wird BEREITS vom Telemetry-Modul deaktiviert!
-        -> AllowTelemetry = 0 (Security Level) blockiert OneDrive-Telemetrie
+        IMPORTANT: Optional Diagnostic Data Popup is ALREADY disabled by Telemetry module!
+        -> AllowTelemetry = 0 (Security Level) blocks OneDrive telemetry
         
-        Best Practice October 2025: Privacy-First ohne Breaking Changes
+        Best Practice October 2025: Privacy-First without Breaking Changes
     .NOTES
-        KEINE Breaking Changes:
-        - OneDrive funktioniert weiter
-        - User kann manuell Dateien hochladen (Drag and Drop)
-        - Personal OneDrive bleibt aktiv (kein Enterprise-Only)
+        NO Breaking Changes:
+        - OneDrive continues to work
+        - User can manually upload files (Drag and Drop)
+        - Personal OneDrive stays active (not Enterprise-Only)
         
-        Breaking fuer:
-        - NIEMANDEN! (Safe fuer alle User)
+        Breaking for:
+        - NOBODY! (Safe for all users)
         
-        Auto-Upload (KFM) wird blockiert:
-        - Desktop/Dokumente/Bilder werden NICHT automatisch hochgeladen
-        - User muss Dateien manuell in OneDrive-Ordner verschieben
-        - Privacy-First: User hat KONTROLLE was hochgeladen wird
+        Auto-Upload (KFM) is blocked:
+        - Desktop/Documents/Pictures will NOT be automatically uploaded
+        - User must manually move files to OneDrive folder
+        - Privacy-First: User has CONTROL over what gets uploaded
     #>
     [CmdletBinding()]
     [OutputType([void])]
@@ -43,42 +43,42 @@ function Set-OneDrivePrivacyHardening {
     Write-Info "OneDrive wird fuer Maximum Privacy gehaertet..."
     Write-Info "Funktionalitaet bleibt erhalten - User hat KONTROLLE ueber Uploads"
     
-    # CRITICAL FIX v1.7.6: Setze BEIDE Pfade (HKCU + HKLM) fuer Maximum Coverage!
-    # HKCU = Aktueller User (wirkt sofort)
-    # HKLM = Default fuer NEUE User (zukuenftige Profile)
+    # CRITICAL FIX v1.7.6: Set BOTH paths (HKCU + HKLM) for maximum coverage!
+    # HKCU = Current User (takes effect immediately)
+    # HKLM = Default for NEW Users (future profiles)
     $oneDrivePathHKCU = "HKCU:\SOFTWARE\Policies\Microsoft\OneDrive"
     $oneDrivePathHKLM = "HKLM:\SOFTWARE\Policies\Microsoft\OneDrive"
     
-    # 1. Tutorial deaktivieren (Privacy: weniger Tracking beim ersten Start)
+    # 1. Disable Tutorial (Privacy: less tracking on first start)
     Set-RegistryValue -Path $oneDrivePathHKCU -Name "DisableTutorial" -Value 1 -Type DWord `
         -Description "OneDrive Tutorial deaktivieren (Privacy)"
     Set-RegistryValue -Path $oneDrivePathHKLM -Name "DisableTutorial" -Value 1 -Type DWord `
         -Description "OneDrive Tutorial deaktivieren (Privacy) - Default fuer neue User"
     
-    # 2. Feedback deaktivieren (Privacy: verhindert Data-Leaks via Bug-Reports)
+    # 2. Disable Feedback (Privacy: prevents data leaks via bug reports)
     Set-RegistryValue -Path $oneDrivePathHKCU -Name "DisableFeedback" -Value 1 -Type DWord `
         -Description "OneDrive Feedback an Microsoft deaktivieren (Privacy)"
     Set-RegistryValue -Path $oneDrivePathHKLM -Name "DisableFeedback" -Value 1 -Type DWord `
         -Description "OneDrive Feedback an Microsoft deaktivieren (Privacy) - Default fuer neue User"
     
-    # 3. Network Traffic BLOCKIEREN vor User-Login (KRITISCH!)
-    # OneDrive darf NICHT ohne User-Consent nach Hause telefonieren!
+    # 3. BLOCK Network Traffic before User-Login (CRITICAL!)
+    # OneDrive must NOT phone home without user consent!
     Set-RegistryValue -Path $oneDrivePathHKCU -Name "PreventNetworkTrafficPreUserSignIn" -Value 1 -Type DWord `
         -Description "OneDrive darf nicht ohne User-Consent connecten (Privacy)"
     Set-RegistryValue -Path $oneDrivePathHKLM -Name "PreventNetworkTrafficPreUserSignIn" -Value 1 -Type DWord `
         -Description "OneDrive darf nicht ohne User-Consent connecten (Privacy) - Default fuer neue User"
     
-    # 4. Known Folder Move BLOCKIEREN (Auto-Upload verhindern!)
-    # Verhindert automatisches Hochladen von Desktop/Dokumente/Bilder
-    # User hat KONTROLLE was hochgeladen wird (Privacy-First!)
+    # 4. BLOCK Known Folder Move (prevent Auto-Upload!)
+    # Prevents automatic upload of Desktop/Documents/Pictures
+    # User has CONTROL over what gets uploaded (Privacy-First!)
     Set-RegistryValue -Path $oneDrivePathHKCU -Name "KFMBlockOptIn" -Value 1 -Type DWord `
         -Description "Auto-Upload von Desktop/Dokumente/Bilder blockieren (Privacy)"
     Set-RegistryValue -Path $oneDrivePathHKLM -Name "KFMBlockOptIn" -Value 1 -Type DWord `
         -Description "Auto-Upload von Desktop/Dokumente/Bilder blockieren (Privacy) - Default fuer neue User"
     
-    # 5. Personal OneDrive NICHT blockieren!
-    # DisablePersonalSync wuerde Home-User brechen - nur fuer Enterprise!
-    # Wir lassen Personal OneDrive aktiv (kein Breaking Change)
+    # 5. Do NOT block Personal OneDrive!
+    # DisablePersonalSync would break Home users - only for Enterprise!
+    # We keep Personal OneDrive active (no breaking change)
     
     Write-Success "OneDrive Privacy Hardening: DONE"
     Write-Host ""
