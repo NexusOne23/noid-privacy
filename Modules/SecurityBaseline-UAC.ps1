@@ -3,19 +3,19 @@
 # User Account Control Enhanced Settings - Windows 11 25H2
 # ============================================================================
 
-# Best Practice 25H2: Strict Mode aktivieren
+# Best Practice 25H2: Enable Strict Mode
 Set-StrictMode -Version Latest
 
 function Set-MaximumUAC {
     <#
     .SYNOPSIS
-        Setzt UAC auf Maximum (Immer benachrichtigen)
+        Sets UAC to Maximum (Always notify)
     .DESCRIPTION
-        Konfiguriert UAC auf höchste Sicherheit:
-        - Slider Position: Ganz oben (Immer benachrichtigen)
+        Configures UAC to highest security:
+        - Slider Position: Top (Always notify)
         - ConsentPromptBehaviorAdmin = 2 (Prompt for credentials on secure desktop)
-        - PromptOnSecureDesktop = 1 (Secure Desktop aktiv)
-        - EnableLUA = 1 (UAC aktiviert)
+        - PromptOnSecureDesktop = 1 (Secure Desktop active)
+        - EnableLUA = 1 (UAC enabled)
     .EXAMPLE
         Set-MaximumUAC
     #>
@@ -29,17 +29,17 @@ function Set-MaximumUAC {
     
     # Enable UAC
     Set-RegistryValue -Path $securityPath -Name "EnableLUA" -Value 1 -Type DWord `
-        -Description "UAC aktivieren"
+        -Description "Enable UAC"
     
-    # CRITICAL: ConsentPromptBehaviorAdmin = 2 für "Immer benachrichtigen" (Slider ganz oben!)
+    # CRITICAL: ConsentPromptBehaviorAdmin = 2 for "Always notify" (Slider at top!)
     # Values: 0=No prompt, 1=Prompt credentials (no secure desktop), 2=Prompt credentials (secure desktop),
     #         5=Prompt for consent (DEFAULT - Slider Position 2)
     Set-RegistryValue -Path $securityPath -Name "ConsentPromptBehaviorAdmin" -Value 2 -Type DWord `
-        -Description "UAC: Immer benachrichtigen (Slider ganz oben) - Prompt for credentials on secure desktop"
+        -Description "UAC: Always notify (Slider at top) - Prompt for credentials on secure desktop"
     
     # Enable Secure Desktop for UAC prompts
     Set-RegistryValue -Path $securityPath -Name "PromptOnSecureDesktop" -Value 1 -Type DWord `
-        -Description "UAC: Secure Desktop aktivieren (Anti-Malware-Schutz)"
+        -Description "UAC: Enable Secure Desktop (Anti-Malware Protection)"
     
     # ConsentPromptBehaviorUser: Standard users prompt behavior
     # Value: 1 = Prompt for credentials (allows user to elevate with admin password)
@@ -49,11 +49,11 @@ function Set-MaximumUAC {
     # ValidateAdminCodeSignatures: Don't require signed executables (too restrictive for most environments)
     # Value: 0 = Don't require (default), 1 = Require digital signature
     Set-RegistryValue -Path $securityPath -Name "ValidateAdminCodeSignatures" -Value 0 -Type DWord `
-        -Description "UAC: Keine Signatur-Prüfung (zu restriktiv für normale Umgebungen)"
+        -Description "UAC: No signature check (too restrictive for normal environments)"
     
     # EnableSecureUIAPaths: Only allow UIAccess applications that are in secure locations
     Set-RegistryValue -Path $securityPath -Name "EnableSecureUIAPaths" -Value 1 -Type DWord `
-        -Description "UAC: Nur sichere UIAccess-Pfade erlauben"
+        -Description "UAC: Only allow secure UIAccess paths"
     
     Write-Success "UAC auf MAXIMUM gesetzt (Immer benachrichtigen)"
     Write-Info "Slider Position: Ganz oben (Position 1 von 4)"
@@ -64,11 +64,11 @@ function Set-MaximumUAC {
 function Enable-EnhancedPrivilegeProtectionMode {
     <#
     .SYNOPSIS
-        Aktiviert Enhanced Privilege Protection Mode (EPP) fuer UAC
+        Enables Enhanced Privilege Protection Mode (EPP) for UAC
     .DESCRIPTION
         Microsoft Security Baseline 25H2: Enhanced Privilege Protection Mode.
-        WICHTIG: Dieses Feature ist in Windows 11 25H2 sichtbar, aber NOCH NICHT FUNKTIONAL!
-        Settings werden gesetzt, Feature kommt in spaeteren Windows 11 Updates.
+        IMPORTANT: This feature is visible in Windows 11 25H2 but NOT YET FUNCTIONAL!
+        Settings will be applied, feature will come in later Windows 11 updates.
     .EXAMPLE
         Enable-EnhancedPrivilegeProtectionMode
     #>
@@ -96,7 +96,7 @@ function Enable-EnhancedPrivilegeProtectionMode {
     # Configure type of Admin Approval Mode
     # Value: 1 = Admin Approval Mode with enhanced privilege protection
     Set-RegistryValue -Path $securityPath -Name "AdminApprovalModeType" -Value 1 -Type DWord `
-        -Description "UAC: Admin Approval Mode mit Enhanced Privilege Protection"
+        -Description "UAC: Admin Approval Mode with Enhanced Privilege Protection"
     
     Write-Success "Enhanced Privilege Protection Mode Settings gesetzt"
     Write-Warning-Custom "WICHTIG: Feature ist NOCH NICHT aktiv - wird in zukuenftigen Updates aktiviert!"
