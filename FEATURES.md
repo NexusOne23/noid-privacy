@@ -1015,7 +1015,7 @@ Solitaire, Candy Crush, Bubble Witch
 → Custom Mode = Pick specific modules
 
 **Want Proof of Compliance?**
-→ HTML Compliance Report + Verification Mode
+→ Verification Mode (Verify-SecurityBaseline.ps1)
 
 **Made a Mistake?**
 → Backup/Restore = Complete undo (6 backup components)
