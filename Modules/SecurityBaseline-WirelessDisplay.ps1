@@ -1,20 +1,20 @@
 # ============================================================================
 # SecurityBaseline-WirelessDisplay.ps1
-# Wireless Display / Miracast Deaktivierung (4 Ebenen)
+# Wireless Display / Miracast Disablement (4 Levels)
 # ============================================================================
 
-# Best Practice 25H2: Strict Mode aktivieren
+# Best Practice 25H2: Enable Strict Mode
 Set-StrictMode -Version Latest
 
 function Disable-WirelessDisplay {
     <#
     .SYNOPSIS
-        Deaktiviert Wireless Display / Miracast komplett
+        Completely disables Wireless Display / Miracast
     .DESCRIPTION
-        Deaktiviert Miracast auf 4 Ebenen: Services, Registry, Firewall, Apps.
-        Best Practice 25H2: CmdletBinding, Out-Null ersetzt, Error-Handling ueberall.
-        ACHTUNG: Cast zu Smart TV funktioniert danach nicht mehr!
-        HINWEIS: "Wiedergeben"-Button in Quick Settings bleibt sichtbar (kann nur manuell entfernt werden).
+        Disables Miracast on 4 levels: Services, Registry, Firewall, Apps.
+        Best Practice 25H2: CmdletBinding, Out-Null replaced, Error-Handling everywhere.
+        WARNING: Cast to Smart TV will NOT work after this!
+        NOTE: "Cast" button in Quick Settings remains visible (can only be removed manually).
     .EXAMPLE
         Disable-WirelessDisplay
     #>
@@ -26,7 +26,7 @@ function Disable-WirelessDisplay {
     
     Write-Info "Deaktiviere auf ALLEN Ebenen: Services, Registry, Firewall, Apps..."
     
-    # === EBENE 1: SERVICES ===
+    # === LEVEL 1: SERVICES ===
     Write-Info "Ebene 1/4: Services deaktivieren..."
     
     $wirelessServices = @(
@@ -37,7 +37,7 @@ function Disable-WirelessDisplay {
     foreach ($svc in $wirelessServices) {
         $service = Get-Service -Name $svc.Name -ErrorAction SilentlyContinue
         if ($service) {
-            # Stop and disable service (race-condition-frei)
+            # Stop and disable service (race-condition free)
             if (Stop-ServiceSafe -ServiceName $svc.Name) {
                 Write-Verbose "     $($svc.DisplayName) deaktiviert"
             }
@@ -47,15 +47,15 @@ function Disable-WirelessDisplay {
         }
     }
     
-    # User Services (mit Wildcards) - via Registry (Set-Service funktioniert nicht!)
-    # Windows 11 User Services haben dynamische Namen und koennen nicht via Set-Service disabled werden
+    # User Services (with Wildcards) - via Registry (Set-Service doesn't work!)
+    # Windows 11 User Services have dynamic names and cannot be disabled via Set-Service
     $userServicePrefixes = @(
         @{Name="DevicePickerUserSvc"; Reg="DevicePickerUserSvc"},
         @{Name="DevicesFlowUserSvc"; Reg="DevicesFlowUserSvc"}
     )
     foreach ($svc in $userServicePrefixes) {
         try {
-            # Registry-Methode fuer User Services (einzige Methode die funktioniert!)
+            # Registry method for User Services (only method that works!)
             $svcRegPath = "HKLM:\SYSTEM\CurrentControlSet\Services\$($svc.Reg)"
             if (Test-Path $svcRegPath) {
                 Set-ItemProperty -Path $svcRegPath -Name "Start" -Value 4 -ErrorAction SilentlyContinue
@@ -67,37 +67,37 @@ function Disable-WirelessDisplay {
         }
     }
     
-    # === EBENE 2: REGISTRY ===
+    # === LEVEL 2: REGISTRY ===
     Write-Info "Ebene 2/4: Registry haerten..."
     
     # PlayToReceiver (DLNA/Cast)
     $playToPath = "HKLM:\SOFTWARE\Microsoft\PlayToReceiver"
     [void](Set-RegistryValue -Path $playToPath -Name "Enabled" -Value 0 -Type DWord `
-        -Description "PlayToReceiver deaktivieren")
+        -Description "Disable PlayToReceiver")
     
-    # Projektion zu diesem PC
+    # Projection to this PC
     $connectPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Connect"
     [void](Set-RegistryValue -Path $connectPath -Name "AllowProjectionToPC" -Value 0 -Type DWord `
-        -Description "Projektion zu diesem PC verbieten")
+        -Description "Prohibit projection to this PC")
     [void](Set-RegistryValue -Path $connectPath -Name "RequirePinForPairing" -Value 1 -Type DWord `
-        -Description "PIN fuer Pairing erzwingen")
+        -Description "Enforce PIN for pairing")
     
     # Wireless Display
     $wirelessDisplayPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WirelessDisplay"
     [void](Set-RegistryValue -Path $wirelessDisplayPath -Name "Enabled" -Value 0 -Type DWord `
-        -Description "Wireless Display Feature deaktivieren")
+        -Description "Disable Wireless Display Feature")
     
     # Media Player Wireless Receiver
     $miracastPath = "HKLM:\SOFTWARE\Policies\Microsoft\WindowsMediaPlayer"
     [void](Set-RegistryValue -Path $miracastPath -Name "PreventWirelessReceiver" -Value 1 -Type DWord `
-        -Description "Wireless Media Streaming verhindern")
+        -Description "Prevent Wireless Media Streaming")
     
     # Wi-Fi Direct
     $wifiDirectPath = "HKLM:\SOFTWARE\Microsoft\WlanSvc\AnqpCache"
     [void](Set-RegistryValue -Path $wifiDirectPath -Name "OsuRegistrationStatus" -Value 0 -Type DWord `
-        -Description "Wi-Fi Direct OSU deaktivieren")
+        -Description "Disable Wi-Fi Direct OSU")
     
-    # === EBENE 3: FIREWALL ===
+    # === LEVEL 3: FIREWALL ===
     Write-Info "Ebene 3/4: Firewall-Regeln blockieren..."
     
     $wirelessFirewallRules = @(
@@ -122,9 +122,9 @@ function Disable-WirelessDisplay {
         }
     }
     
-    # Miracast Ports blockieren (TCP 7236, 7250) - mit Idempotenz
+    # Block Miracast Ports (TCP 7236, 7250) - with Idempotency
     try {
-        # Check ob Regel bereits existiert (eindeutiger Name mit NoID-Prefix)
+        # Check if rule already exists (unique name with NoID-Prefix)
         $rule7236 = Get-NetFirewallRule -DisplayName "NoID-Block-Miracast-TCP-7236" -ErrorAction SilentlyContinue
         if (-not $rule7236) {
             $null = New-NetFirewallRule -DisplayName "NoID-Block-Miracast-TCP-7236" `
@@ -151,7 +151,7 @@ function Disable-WirelessDisplay {
     
     Write-Verbose "Miracast Ports: Blockierung abgeschlossen"
     
-    # === EBENE 4: APPS ENTFERNEN ===
+    # === LEVEL 4: REMOVE APPS ===
     Write-Info "Ebene 4/4: Wireless Display Apps entfernen..."
     
     $wirelessApps = @(
