@@ -575,18 +575,84 @@ Solitaire, Candy Crush, Bubble Witch
 ### Event Log Optimization
 ✅ **Less Disk I/O**
 
-- Application: 20 MB → 10 MB
-- System: 20 MB → 10 MB  
-- Noisy Logs: 15 MB → 5 MB
-- **Security Log: KEPT LARGE**
+**Module:** `SecurityBaseline-Performance.ps1` → `Optimize-EventLogs`
 
-### Visual Effects
-✅ **Performance-Optimized Defaults**
+**Log Size Reduction:**
+- Application Log: 20 MB → 10 MB
+- System Log: 20 MB → 10 MB  
+- Setup Log: 20 MB → 10 MB
+- Forwarded Events: 20 MB → 10 MB
+- **Security Log: KEPT at 100 MB** (critical!)
 
-- Animations: Reduced
+**Noisy Logs Reduced:**
+- Microsoft-Windows-NCSI: 15 MB → 5 MB
+- Microsoft-Windows-NetworkProfile: 15 MB → 5 MB
+- Microsoft-Windows-WindowsUpdateClient: 15 MB → 5 MB
+- And 10+ more chatty logs reduced
+
+**User Benefit:** Less disk writes, faster log access, less I/O noise
+
+### Background Activities Control
+✅ **Quieter System**
+
+**Module:** `SecurityBaseline-Performance.ps1` → `Disable-BackgroundActivities`
+
+**Disabled Background Features:**
+- Cortana Background Tasks
+- Windows Tips & Tricks
+- Timeline Activity History
+- Clipboard History Sync
+- Feedback Notifications
+- Suggested Content
+- Background App Refresh (user-controlled)
+- Storage Sense Automation (manual control)
+
+**User Benefit:** Less CPU/disk usage when idle, more battery life
+
+### System Maintenance Optimization
+✅ **Controlled Maintenance Windows**
+
+**Module:** `SecurityBaseline-Performance.ps1` → `Optimize-SystemMaintenance`
+
+**Optimized Tasks:**
+- Idle Maintenance: Less aggressive
+- Registry Backup: Less frequent
+- Notification Cleanup: Minimal processing
+- Automatic Maintenance: User-controlled
+- Maintenance Windows: Optimized timing
+
+**User Benefit:** Less interruptions during work, maintenance runs when YOU want
+
+### Visual Effects Optimization
+✅ **Performance > Eye Candy**
+
+**Module:** `SecurityBaseline-Performance.ps1` → `Disable-VisualEffects`
+
+**Optimized Settings:**
+- Animations: Reduced (not disabled)
 - Transparency: Minimal
 - Shadows: Reduced
-- **User can customize everything!**
+- Smooth Scrolling: OFF (performance)
+- Aero Peek: ON (still useful)
+- Thumbnails: ON (still useful)
+
+**User Benefit:** Snappier UI, faster window operations
+**Note:** User can re-enable animations in Settings > Accessibility > Visual Effects
+
+### Performance Report
+✅ **See What Changed**
+
+**Module:** `SecurityBaseline-Performance.ps1` → `Show-PerformanceReport`
+
+**Shows:**
+- Tasks disabled count
+- Event logs optimized count
+- Background activities disabled
+- Visual effects optimized
+- Estimated performance gain
+- What's still active (Windows Update, Defender)
+
+**User Benefit:** Know exactly what was optimized
 
 ---
 
