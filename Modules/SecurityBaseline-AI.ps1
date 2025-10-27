@@ -8,10 +8,10 @@ Set-StrictMode -Version Latest
 function Disable-WindowsRecall {
     <#
     .SYNOPSIS
-        Deaktiviert Windows Recall komplett (PRIVACY KRITISCH!)
+        Completely disables Windows Recall (PRIVACY CRITICAL!)
     .DESCRIPTION
-        Recall macht Screenshots von ALLEM inkl. Passwoertern, Banking, etc.
-        MUSS deaktiviert werden fuer Privacy!
+        Recall takes screenshots of EVERYTHING incl. passwords, banking, etc.
+        MUST be disabled for privacy!
         
         Registry: HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI
         Policy: DisableAIDataAnalysis = 1
@@ -23,11 +23,11 @@ function Disable-WindowsRecall {
     
     $aiPolicyPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI"
     
-    # KRITISCH: Recall komplett ausschalten
+    # CRITICAL: Turn off Recall completely
     Set-RegistryValue -Path $aiPolicyPath -Name "DisableAIDataAnalysis" -Value 1 -Type DWord `
         -Description "Windows Recall deaktivieren (KEINE Screenshots!)"
     
-    # Policy Manager Path (zusaetzlicher Schutz)
+    # Policy Manager Path (additional protection)
     $policyManagerPath = "HKLM:\SOFTWARE\Microsoft\PolicyManager\default\WindowsAI\DisableAIDataAnalysis"
     Set-RegistryValue -Path $policyManagerPath -Name "value" -Value 1 -Type DWord `
         -Description "Recall Policy Manager: DISABLED"
@@ -40,31 +40,31 @@ function Disable-WindowsRecall {
 function Disable-WindowsCopilot {
     <#
     .SYNOPSIS
-        Deaktiviert Windows Copilot komplett (Multi-Layer Blocking!)
+        Completely disables Windows Copilot (Multi-Layer Blocking!)
     .DESCRIPTION
-        Blockiert Copilot auf ALLEN Ebenen:
+        Blocks Copilot on ALL levels:
         1. TurnOffWindowsCopilot Policy
         2. ShowCopilotButton = 0 (Taskbar)
         3. Copilot App Registry Keys
         
-        Microsoft aendert staendig die Pfade - daher Multi-Layer!
+        Microsoft constantly changes the paths - therefore Multi-Layer!
     #>
     [CmdletBinding()]
     param()
     
     Write-Section "Windows Copilot - MULTI-LAYER BLOCKING"
     
-    # Layer 1: TurnOffWindowsCopilot (HKLM - nicht offiziell aber funktioniert)
+    # Layer 1: TurnOffWindowsCopilot (HKLM - not official but works)
     $aiPolicyPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI"
     Set-RegistryValue -Path $aiPolicyPath -Name "TurnOffWindowsCopilot" -Value 1 -Type DWord `
         -Description "Copilot: Layer 1 - Main Policy (HKLM)"
     
-    # Layer 2: WindowsCopilot Path (alte Methode, noch verwenden!)
+    # Layer 2: WindowsCopilot Path (old method, still use!)
     $copilotPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsCopilot"
     Set-RegistryValue -Path $copilotPath -Name "TurnOffWindowsCopilot" -Value 1 -Type DWord `
         -Description "Copilot: Layer 2 - Legacy Policy Path"
     
-    # Layer 3: Taskbar Button verstecken
+    # Layer 3: Hide Taskbar Button
     Set-RegistryValue -Path $copilotPath -Name "ShowCopilotButton" -Value 0 -Type DWord `
         -Description "Copilot: Layer 3 - Hide Taskbar Button"
     
@@ -81,10 +81,10 @@ function Disable-WindowsCopilot {
 function Disable-ClickToDo {
     <#
     .SYNOPSIS
-        Deaktiviert Click to Do (AI Screenshot Analysis)
+        Disables Click to Do (AI Screenshot Analysis)
     .DESCRIPTION
-        Click to Do macht Screenshots + AI Analysis
-        Privacy-invasiv, sollte deaktiviert werden
+        Click to Do takes screenshots + AI Analysis
+        Privacy-invasive, should be disabled
     #>
     [CmdletBinding()]
     param()
@@ -102,10 +102,10 @@ function Disable-ClickToDo {
 function Disable-PaintAIFeatures {
     <#
     .SYNOPSIS
-        Deaktiviert AI Features in Paint (Cocreator, Generative Fill, Image Creator)
+        Disables AI Features in Paint (Cocreator, Generative Fill, Image Creator)
     .DESCRIPTION
-        Microsoft hat AI in Paint integriert
-        Alle AI Features werden deaktiviert
+        Microsoft has integrated AI into Paint
+        All AI Features will be disabled
     #>
     [CmdletBinding()]
     param()
@@ -133,10 +133,10 @@ function Disable-PaintAIFeatures {
 function Disable-SettingsAgent {
     <#
     .SYNOPSIS
-        Deaktiviert Settings Agent (AI im Settings Menu)
+        Disables Settings Agent (AI in Settings Menu)
     .DESCRIPTION
-        Windows hat AI im Settings Menu integriert
-        Wird deaktiviert
+        Windows has integrated AI into Settings Menu
+        Will be disabled
     #>
     [CmdletBinding()]
     param()
@@ -153,9 +153,9 @@ function Disable-SettingsAgent {
 function Disable-CopilotProactive {
     <#
     .SYNOPSIS
-        Deaktiviert Copilot Proactive Features
+        Disables Copilot Proactive Features
     .DESCRIPTION
-        Verhindert dass Copilot ungefragt Vorschlaege macht
+        Prevents Copilot from making unsolicited suggestions
     #>
     [CmdletBinding()]
     param()
@@ -173,10 +173,10 @@ function Disable-CopilotProactive {
 function Set-RecallMaximumStorage {
     <#
     .SYNOPSIS
-        Setzt Recall Storage auf Minimum (falls Recall aktiviert sein sollte)
+        Sets Recall Storage to minimum (if Recall should be enabled)
     .DESCRIPTION
-        Fallback falls Recall durch User reaktiviert wird
-        Limitiert Speicherplatz auf Minimum
+        Fallback if Recall is reactivated by user
+        Limits storage space to minimum
     #>
     [CmdletBinding()]
     param()
@@ -200,7 +200,7 @@ function Set-RecallMaximumStorage {
 function Show-AILockdownReport {
     <#
     .SYNOPSIS
-        Zeigt Zusammenfassung der AI-Blockierung
+        Shows AI blocking summary
     #>
     [CmdletBinding()]
     param()
