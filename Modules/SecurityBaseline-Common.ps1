@@ -1,22 +1,22 @@
 # =======================================================================================
-# SecurityBaseline-Common.ps1 - Gemeinsame Helper-Functions
+# SecurityBaseline-Common.ps1 - Common Helper Functions
 # =======================================================================================
 
 <#
 .SYNOPSIS
-    Gemeinsame Helper-Functions fuer alle SecurityBaseline-Module
+    Common helper functions for all SecurityBaseline modules
 .DESCRIPTION
-    Zentralisiert Code-Duplikation von Logging/Output-Funktionen.
+    Centralizes code duplication of logging/output functions.
     Best Practice 25H2: DRY (Don't Repeat Yourself)
 #>
 
-# Best Practice 25H2: Strict Mode aktivieren
+# Best Practice 25H2: Enable Strict Mode
 Set-StrictMode -Version Latest
 
 function Write-Section {
     <#
     .SYNOPSIS
-        Schreibt einen Section-Header
+        Writes a section header
     .PARAMETER Text
         Header-Text
     #>
@@ -35,7 +35,7 @@ function Write-Section {
 function Write-Info {
     <#
     .SYNOPSIS
-        Schreibt eine Info-Meldung
+        Writes an info message
     .PARAMETER Message
         Info-Text
     #>
@@ -52,7 +52,7 @@ function Write-Info {
 function Write-Success {
     <#
     .SYNOPSIS
-        Schreibt eine Success-Meldung
+        Writes a success message
     .PARAMETER Message
         Success-Text
     #>
@@ -69,7 +69,7 @@ function Write-Success {
 function Write-Warning-Custom {
     <#
     .SYNOPSIS
-        Schreibt eine Custom-Warning (nicht Write-Warning weil das zu verbose ist)
+        Writes a custom warning (not Write-Warning because that's too verbose)
     .PARAMETER Message
         Warning-Text
     #>
@@ -86,7 +86,7 @@ function Write-Warning-Custom {
 function Write-Error-Custom {
     <#
     .SYNOPSIS
-        Schreibt eine Custom-Error-Meldung (nicht Write-Error weil das zu disruptiv ist)
+        Writes a custom error message (not Write-Error because that's too disruptive)
     .PARAMETER Message
         Error-Text
     #>
@@ -103,13 +103,13 @@ function Write-Error-Custom {
 function Set-RegistryValue {
     <#
     .SYNOPSIS
-        Setzt einen Registry-Wert mit automatischer Key-Erstellung
+        Sets a registry value with automatic key creation
     .DESCRIPTION
-        Helper-Function die automatisch fehlende Registry-Keys erstellt.
-        Best Practice 25H2: Robuste String-Formatierung, Error-Handling
+        Helper function that automatically creates missing registry keys.
+        Best Practice 25H2: Robust string formatting, error handling
         
-        HINWEIS: Fuer TrustedInstaller-geschuetzte Keys verwende Set-RegistryValueSmart
-                 aus dem RegistryOwnership-Modul!
+        NOTE: For TrustedInstaller-protected keys use Set-RegistryValueSmart
+              from the RegistryOwnership module!
     .PARAMETER Path
         Registry-Pfad
     .PARAMETER Name
@@ -119,7 +119,7 @@ function Set-RegistryValue {
     .PARAMETER Type
         Registry-Typ (DWord, String, etc.)
     .PARAMETER Description
-        Optionale Beschreibung fuer Logging
+        Optional description for logging
     .OUTPUTS
         [bool] $true bei Erfolg, $false bei Fehler
     .EXAMPLE
@@ -148,21 +148,21 @@ function Set-RegistryValue {
     )
     
     try {
-        # Erstelle Key falls nicht vorhanden
+        # Create key if not exists
         if (-not (Test-Path -Path $Path)) {
             Write-Verbose "Erstelle Registry-Key: $Path"
             $null = New-Item -Path $Path -Force -ErrorAction Stop
         }
         
-        # Prüfe ob Wert existiert
+        # Check if value exists
         $valueExists = Get-ItemProperty -Path $Path -Name $Name -ErrorAction SilentlyContinue
         
         if ($valueExists) {
-            # Wert existiert - Set-ItemProperty (KEIN -Type Parameter in PS 5.1!)
+            # Value exists - Set-ItemProperty (NO -Type parameter in PS 5.1!)
             Set-ItemProperty -Path $Path -Name $Name -Value $Value -Force -ErrorAction Stop
         }
         else {
-            # Wert existiert NICHT - New-ItemProperty (MIT -PropertyType!)
+            # Value does NOT exist - New-ItemProperty (WITH -PropertyType!)
             New-ItemProperty -Path $Path -Name $Name -Value $Value -PropertyType $Type -Force -ErrorAction Stop | Out-Null
         }
         
@@ -185,24 +185,24 @@ function Set-RegistryValue {
 function Stop-ServiceSafe {
     <#
     .SYNOPSIS
-        Stoppt und deaktiviert einen Service race-condition-frei
+        Stops and disables a service race-condition-free
     .DESCRIPTION
-        Best Practice 25H2: Automatisches Ownership Management + Rollbacke Condition
+        Best Practice 25H2: Automatic ownership management + rollback condition
         
-        PROBLEM (alt):
-            Stop-Service -> Service stoppt
+        PROBLEM (old):
+            Stop-Service -> Service stops
             Set-Service -StartupType Disabled
-            -> RACE: Service koennte zwischen Stop und SetStartupType neu starten!
+            -> RACE: Service could restart between Stop and SetStartupType!
         
-        LOESUNG (neu):
-            1. Set-Service -StartupType Disabled ZUERST (verhindert Restart)
-            2. Stop-Service mit -NoWait
-            3. Warte bis Service wirklich gestoppt ist (max. MaxWaitSeconds)
-            4. Final-Check ob wirklich Disabled
+        SOLUTION (new):
+            1. Set-Service -StartupType Disabled FIRST (prevents restart)
+            2. Stop-Service with -NoWait
+            3. Wait until service actually stopped (max. MaxWaitSeconds)
+            4. Final check if really Disabled
     .PARAMETER ServiceName
         Name des Service
     .PARAMETER MaxWaitSeconds
-        Maximale Wartezeit in Sekunden (Standard: 10)
+        Maximum wait time in seconds (default: 10)
     .OUTPUTS
         [bool] $true bei Erfolg, $false bei Fehler
     .EXAMPLE
@@ -231,30 +231,30 @@ function Stop-ServiceSafe {
         
         Write-Verbose "Deaktiviere Service: $ServiceName (Status: $($service.Status))"
         
-        # === STEP 1: StartupType auf Disabled ZUERST ===
-        # KRITISCH: Verhindert dass Service zwischen Stop und SetStartupType neu startet
-        # Track Errors via $Error.Count (reliable!)
+        # === STEP 1: Set StartupType to Disabled FIRST ===
+        # CRITICAL: Prevents service from restarting between Stop and SetStartupType
+        # Track errors via $Error.Count (reliable!)
         $errorBefore = $Error.Count
         
         Set-Service -Name $ServiceName -StartupType Disabled -ErrorAction SilentlyContinue
         
-        # Check ob Error aufgetreten ist via Error.Count
+        # Check if error occurred via Error.Count
         if ($Error.Count -eq $errorBefore) {
-            # Kein Error = Erfolg
+            # No error = Success
             Write-Verbose "     StartupType: Disabled"
         } else {
-            # Error = Legacy Service nicht konfigurierbar
+            # Error = Legacy service not configurable
             Write-Verbose "     Set-Service fehlgeschlagen (Legacy Service nicht konfigurierbar)"
             return $false
         }
         
-        # === STEP 2: Pruefe ob Service laeuft ===
+        # === STEP 2: Check if service is running ===
         if ($service.Status -ne "Stopped") {
-            # === STEP 3: Stoppe Service ===
+            # === STEP 3: Stop service ===
             Stop-Service -Name $ServiceName -Force -NoWait -ErrorAction Stop
             Write-Verbose "     Stop-Command gesendet"
             
-            # === STEP 4: Warte bis wirklich gestoppt ===
+            # === STEP 4: Wait until actually stopped ===
             $waited = 0
             do {
                 Start-Sleep -Milliseconds 500
@@ -269,7 +269,7 @@ function Stop-ServiceSafe {
                 if ($waited -ge $MaxWaitSeconds) {
                     Write-Warning "Service $ServiceName stoppt nicht - Timeout nach ${MaxWaitSeconds}s"
                     Write-Warning "  Status: $($service.Status)"
-                    # Nicht kritisch - StartupType=Disabled ist wichtiger
+                    # Not critical - StartupType=Disabled is more important
                     break
                 }
             } while ($true)
@@ -278,9 +278,9 @@ function Stop-ServiceSafe {
             Write-Verbose "     Service war bereits gestoppt"
         }
         
-        # === STEP 5: Final-Check ===
-        # CRITICAL FIX: Get-Service hat KEINE StartupType Property in PowerShell 5.1!
-        # LÖSUNG: Verwende Get-CimInstance für StartupType-Check
+        # === STEP 5: Final check ===
+        # CRITICAL FIX: Get-Service has NO StartupType property in PowerShell 5.1!
+        # SOLUTION: Use Get-CimInstance for StartupType check
         try {
             $serviceCim = Get-CimInstance -ClassName Win32_Service -Filter "Name='$ServiceName'" -ErrorAction Stop
             if ($serviceCim.StartMode -eq "Disabled") {
@@ -290,7 +290,7 @@ function Stop-ServiceSafe {
                     return $true
                 }
                 else {
-                    # StartupType=Disabled ist erreicht, Status ist weniger kritisch
+                    # StartupType=Disabled is reached, status is less critical
                     Write-Verbose "[OK] $($ServiceName) - Disabled (Status=$($service.Status) - wird beim naechsten Reboot nicht starten)"
                     return $true
                 }
@@ -302,13 +302,13 @@ function Stop-ServiceSafe {
         }
         catch {
             Write-Verbose "CIM-Check fehlgeschlagen, verwende Fallback: $_"
-            # Fallback: Annahme dass Set-Service erfolgreich war
+            # Fallback: Assume Set-Service was successful
             Write-Verbose "[OK] $($ServiceName) - Disabled (angenommen - Set-Service war erfolgreich)"
             return $true
         }
     }
     catch [Microsoft.PowerShell.Commands.ServiceCommandException] {
-        # Service existiert nicht - das ist OK (bereits deinstalliert oder nie installiert)
+        # Service doesn't exist - that's OK (already uninstalled or never installed)
         Write-Verbose "Service $ServiceName nicht gefunden (OK - nicht installiert)"
         return $true
     }
