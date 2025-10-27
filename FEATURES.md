@@ -266,10 +266,69 @@ All apps CANNOT access (unless you allow):
 ### Legacy Protocols - All Disabled
 ✅ **Attack Surface Minimized**
 
+**Module:** `SecurityBaseline-Core.ps1` → `Disable-NetworkLegacyProtocols`
+
 - LLMNR: OFF (MITM credential theft)
 - NetBIOS: OFF (network poisoning)
 - WPAD: OFF (proxy attacks)
 - WDigest: OFF (plaintext passwords)
+- mDNS: OFF (multicast DNS)
+- SSDP: OFF (UPnP discovery)
+- WSD: OFF (Web Services Discovery)
+
+### Network Stealth Mode
+✅ **Invisible on Network**
+
+**Module:** `SecurityBaseline-Core.ps1` → `Enable-NetworkStealthMode`
+
+**What's Disabled:**
+- Network Discovery: OFF (can't be found by other PCs)
+- Network Browsing: OFF (not visible in Network Neighborhood)
+- File and Printer Sharing: Firewall rules disabled
+- Broadcasting: All disabled (mDNS, LLMNR, NetBIOS, SSDP, UPnP)
+- P2P Services: Peer Networking disabled
+- WSD: Web Services Discovery disabled
+
+**What Still Works:**
+- ✅ Internet access (browsing, downloads)
+- ✅ Wi-Fi / Ethernet connection
+- ✅ VPN connections
+- ✅ Outgoing connections to network shares (if you manually connect)
+
+**User Benefit:** Your PC is invisible on the network, can't be scanned/discovered
+**Use Case:** Coffee shop Wi-Fi, untrusted networks
+
+### Unnecessary Services Disabled
+✅ **24 Services Disabled (CIS Benchmark)**
+
+**Module:** `SecurityBaseline-Core.ps1` → `Disable-UnnecessaryServices`
+
+**Services Disabled:**
+- Remote Registry (remote access to registry)
+- SSDP Discovery (UPnP)
+- UPnP Device Host
+- Windows Error Reporting (handled separately)
+- Downloaded Maps Manager (Maps app removed)
+- Geolocation Service (privacy)
+- Link-Layer Topology Discovery
+- Internet Connection Sharing (ICS)
+- Microsoft iSCSI Initiator
+- Peer Networking (P2P - all 4 services)
+- RPC Locator
+- Routing and Remote Access
+- SNMP Trap
+- WWAN AutoConfig (Mobile Broadband)
+- Function Discovery (2 services)
+- WSD Scan/Print (2 services)
+- Xbox Live (4 services: Auth, Game Save, Networking, Accessories)
+
+**Services KEPT Active:**
+- ✅ Smart Card Services (3 services) - Enterprise compatibility
+- ✅ Windows Update
+- ✅ Windows Defender
+- ✅ All critical system services
+
+**User Benefit:** Less attack surface, better performance, no unnecessary background processes
 
 ### Wireless Security
 ✅ **No Wireless Eavesdropping**
