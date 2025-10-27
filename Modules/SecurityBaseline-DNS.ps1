@@ -2,7 +2,7 @@
 # SecurityBaseline-DNS.ps1 - DNS Security & Cloudflare DoH
 # =======================================================================================
 
-# Best Practice 25H2: Strict Mode aktivieren
+# Best Practice 25H2: Enable Strict Mode
 Set-StrictMode -Version Latest
 
 function Enable-DNSSEC {
@@ -31,7 +31,7 @@ function Enable-DNSSEC {
     # DNSSEC Mode: Opportunistic (Mode 1 - Best Practice 25H2)
     # Mode 1 = Opportunistic (validate if available, don't fail if not)
     # Mode 2 = Require validation (can break DNS if misconfigured)
-    # Best Practice: Mode 1 fuer Client-Systeme, Mode 2 nur fuer Server
+    # Best Practice: Mode 1 for client systems, Mode 2 only for servers
     
     Set-RegistryValue -Path $dnsPath -Name "DnssecMode" -Value 1 -Type DWord `
         -Description "DNSSEC Mode: 1 = Opportunistic (validate if available)"
@@ -51,16 +51,16 @@ function Install-DNSBlocklist {
     .SYNOPSIS
         Install DNS-based blocklist via Windows HOSTS file
     .DESCRIPTION
-        Installiert Steven Black's unified hosts file (80K+ domains) aus dem lokalen Projektverzeichnis.
-        Die hosts-Datei wird mit dem Script ausgeliefert - keine Internet-Verbindung nötig!
+        Installs Steven Black's unified hosts file (80K+ domains) from local project directory.
+        The hosts file is included with the script - no internet connection needed!
         Blocks malware, tracking, advertising domains at DNS level.
         
-        LOGIK (EINFACH!):
-        1. Prüfe ob bereits installiert (Idempotenz)
-        2. Backup Original hosts-Datei
-        3. Kopiere lokale hosts-Datei (80K+ Domains) nach System32
+        LOGIC (SIMPLE!):
+        1. Check if already installed (idempotency)
+        2. Backup original hosts file
+        3. Copy local hosts file (80K+ domains) to System32
         4. Flush DNS Cache
-        5. FERTIG!
+        5. DONE!
         
         Source: https://github.com/StevenBlack/hosts
         Last Update: 17 October 2025 (80,101 Domains)
@@ -107,37 +107,37 @@ function Install-DNSBlocklist {
         Write-Verbose "Original Backup existiert bereits: $hostsBackup"
     }
     
-    # Best Practice 25H2: Verwende LOKALE hosts-Datei aus Projektverzeichnis!
-    # Keine Internet-Verbindung nötig - alles ist lokal!
+    # Best Practice 25H2: Use LOCAL hosts file from project directory!
+    # No internet connection needed - everything is local!
     
-    # Finde Script-Verzeichnis (ROBUST!)
+    # Find script directory (ROBUST!)
     $scriptDir = $null
     
-    # Methode 1: $PSCommandPath (wenn Modul direkt aufgerufen)
+    # Method 1: $PSCommandPath (when module called directly)
     if ($PSCommandPath) {
         $scriptDir = Split-Path -Parent $PSCommandPath
         Write-Verbose "Script-Dir via PSCommandPath: $scriptDir"
     }
     
-    # Methode 2: $PSScriptRoot (wenn Script läuft)
+    # Method 2: $PSScriptRoot (when script is running)
     if (-not $scriptDir -and $PSScriptRoot) {
         $scriptDir = $PSScriptRoot
         Write-Verbose "Script-Dir via PSScriptRoot: $scriptDir"
     }
     
-    # Methode 3: MyInvocation (Fallback)
+    # Method 3: MyInvocation (Fallback)
     if (-not $scriptDir) {
         $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
         Write-Verbose "Script-Dir via MyInvocation: $scriptDir"
     }
     
-    # Methode 4: Arbeitsverzeichnis (letzter Fallback)
+    # Method 4: Working directory (last fallback)
     if (-not $scriptDir) {
         $scriptDir = Get-Location
         Write-Verbose "Script-Dir via Get-Location (Fallback): $scriptDir"
     }
     
-    # Gehe ein Verzeichnis hoch (aus Modules\ raus ins Projekt-Root)
+    # Go up one directory (from Modules\ to project root)
     $projectRoot = Split-Path -Parent $scriptDir
     $localHostsFile = Join-Path $projectRoot "hosts"
     
@@ -146,7 +146,7 @@ function Install-DNSBlocklist {
     Write-Info "Verwende lokale hosts-Datei aus Projektverzeichnis..."
     Write-Verbose "Pfad: $localHostsFile"
     
-    # Check ob lokale Datei existiert
+    # Check if local file exists
     if (-not (Test-Path $localHostsFile)) {
         Write-Error "KRITISCHER FEHLER: Lokale hosts-Datei nicht gefunden!"
         Write-Error "Erwartet: $localHostsFile"
@@ -155,7 +155,7 @@ function Install-DNSBlocklist {
     }
     
     try {
-        # Validiere lokale Datei
+        # Validate local file
         $localContent = Get-Content $localHostsFile -TotalCount 10 -ErrorAction Stop
         $hasValidHeader = $localContent | Where-Object { $_ -match "# Title: StevenBlack/hosts" }
         
@@ -165,40 +165,40 @@ function Install-DNSBlocklist {
             return
         }
         
-        # Zähle blockierte Domains
+        # Count blocked domains
         $allContent = Get-Content $localHostsFile -ErrorAction Stop
         $blockedDomains = ($allContent | Where-Object { $_ -match '^0\.0\.0\.0\s+' }).Count
         
         Write-Success "Lokale hosts-Datei validiert: $blockedDomains Domains"
         Write-Verbose "Datei-Groesse: $([Math]::Round((Get-Item $localHostsFile).Length / 1MB, 2)) MB"
         
-        # Installiere via ATOMARER REPLACE (Best Practice 25H2)
+        # Install via ATOMIC REPLACE (Best Practice 25H2)
         Write-Info "Installiere hosts-Datei (atomarer Replace)..."
         
         $hostsTemp = "$hostsPath.new"
         try {
-            # Kopiere zu temp-File
+            # Copy to temp file
             Copy-Item -Path $localHostsFile -Destination $hostsTemp -Force -ErrorAction Stop
             
-            # Validiere Kopie
+            # Validate copy
             $newContent = Get-Content $hostsTemp -ErrorAction Stop
             if ($newContent.Count -lt 1000) {
                 throw "Kopierte Datei zu klein ($($newContent.Count) Zeilen < 1000)!"
             }
             
-            # Atomarer Replace: temp -> final
+            # Atomic replace: temp -> final
             Move-Item -Path $hostsTemp -Destination $hostsPath -Force -ErrorAction Stop
             Write-Verbose "Atomarer Replace erfolgreich"
         }
         catch {
-            # Cleanup temp file bei Fehler
+            # Cleanup temp file on error
             if (Test-Path $hostsTemp) {
                 Remove-Item $hostsTemp -Force -ErrorAction SilentlyContinue
             }
             throw "Hosts-Datei Installation fehlgeschlagen: $_"
         }
         
-        # Flush DNS cache (mit Timeout - verhindert Hang)
+        # Flush DNS cache (with timeout - prevents hang)
         Write-Info "DNS-Cache wird geleert..."
         $dnsJob = $null
         try {
@@ -218,13 +218,13 @@ function Install-DNSBlocklist {
             Write-Verbose "DNS Cache Flush Fehler (nicht kritisch): $_"
         }
         finally {
-            # Garantierter Job-Cleanup
+            # Guaranteed job cleanup
             if ($dnsJob) {
                 Remove-Job $dnsJob -Force -ErrorAction SilentlyContinue
             }
         }
         
-        # ERFOLG!
+        # SUCCESS!
         Write-Success "Steven Black's Blocklist installiert ($blockedDomains Domains)"
         Write-Info "Blockiert: Malware, Tracking, Werbung, Coin-Miner, Phishing"
         Write-Info "Quelle: Lokale Datei (NoID Privacy Project)"
@@ -236,23 +236,23 @@ function Install-DNSBlocklist {
     }
 }
 
-# DELIVERY OPTIMIZATION WURDE VERSCHOBEN!
+# DELIVERY OPTIMIZATION MOVED!
 #
-# Die Funktion Set-DeliveryOptimization wurde nach SecurityBaseline-WindowsUpdate.ps1 verschoben
-# und in Set-DeliveryOptimizationDefaults umbenannt.
+# The Set-DeliveryOptimization function was moved to SecurityBaseline-WindowsUpdate.ps1
+# and renamed to Set-DeliveryOptimizationDefaults.
 #
-# Grund: User möchte KEINE Group Policy (würde Toggle ausgrauen)
-#        Stattdessen: Default-Setting das User ändern kann
+# Reason: User wants NO Group Policy (would grey out toggle)
+#         Instead: Default setting that user can change
 #
-# ALTE VERSION (hier, mit Policy):
+# OLD VERSION (here, with Policy):
 #   HKLM:\SOFTWARE\Policies\Microsoft\Windows\DeliveryOptimization
-#   -> Group Policy = User kann nicht ändern
+#   -> Group Policy = User cannot change
 #
-# NEUE VERSION (WindowsUpdate.ps1, ohne Policy):
+# NEW VERSION (WindowsUpdate.ps1, without Policy):
 #   HKLM:\SOFTWARE\Microsoft\Windows\DeliveryOptimization\Config
-#   -> User Setting = User kann in Settings ändern
+#   -> User Setting = User can change in Settings
 #
-# Siehe: SecurityBaseline-WindowsUpdate.ps1 -> Set-DeliveryOptimizationDefaults
+# See: SecurityBaseline-WindowsUpdate.ps1 -> Set-DeliveryOptimizationDefaults
 
 function Set-StrictInboundFirewall {
     <#
