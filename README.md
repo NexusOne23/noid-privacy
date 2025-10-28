@@ -244,12 +244,12 @@ The project uses a modular architecture with 13 specialized modules:
 | Standard | Coverage | Details |
 |----------|----------|---------|
 | **Microsoft Baseline 25H2** | 100% | Full compliance with September 30, 2025 baseline |
-| **CIS Benchmark Level 1** | 85% | Domain-specific settings excluded (standalone focus) |
-| **CIS Benchmark Level 2** | 90% | Enhanced security with privacy extensions |
-| **DoD STIG** | 75% | Core security controls (non-domain environment) |
-| **BSI SiSyPHuS** | 95% | German Federal Office for Information Security standards |
+| **CIS Benchmark Level 1** | ~85% | Majority of recommendations (standalone focus) |
+| **CIS Benchmark Level 2** | ~90% | Enhanced security with privacy extensions |
+| **DoD STIG** | ~75% | Core security controls (non-domain environment) |
+| **BSI SiSyPHuS** | ~90% | Based on Windows 10 guidelines |
 
-**Note:** This project focuses on **standalone/workgroup workstations**. Domain-specific features (Group Policy, AD integration) are not included.
+**Note:** Percentages are estimates for **standalone/workgroup workstations**. Domain-specific features (Group Policy, AD integration) are excluded. Exact compliance requires manual audit.
 
 ---
 
