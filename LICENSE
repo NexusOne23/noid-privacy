@@ -42,3 +42,79 @@ Cache performance by compressing multiple domains per line.
 
 For the full list of sources and contributors, please visit:
 https://github.com/StevenBlack/hosts
+
+-------------------------------------------------------------------------------
+Microsoft Security Baseline for Windows 11 25H2
+-------------------------------------------------------------------------------
+
+Source: Microsoft Security Compliance Toolkit
+Documentation: https://learn.microsoft.com/en-us/windows/security/operating-system-security/device-management/windows-security-configuration-framework/windows-security-baselines
+Copyright: © Microsoft Corporation
+Usage: Security configuration standards and recommendations
+
+This project implements security configurations based on Microsoft's official
+Security Baseline for Windows 11 version 25H2. The baseline provides recommended
+security settings backed by Microsoft's security teams and industry best practices.
+
+Microsoft Security Baselines are provided under Microsoft's standard terms of use.
+All trademarks and registered trademarks are property of Microsoft Corporation.
+
+-------------------------------------------------------------------------------
+CIS (Center for Internet Security) Benchmark
+-------------------------------------------------------------------------------
+
+Source: CIS Benchmarks
+Documentation: https://www.cisecurity.org/benchmark/microsoft_windows
+Copyright: © Center for Internet Security, Inc.
+Usage: Security configuration recommendations and compliance standards
+
+This project references CIS Benchmark recommendations for Windows 11. CIS
+Benchmarks are consensus-based security configuration guidelines developed by
+cybersecurity professionals worldwide.
+
+CIS Benchmarks are available for non-commercial use under the CIS terms of use.
+For commercial use, please refer to CIS licensing requirements.
+
+-------------------------------------------------------------------------------
+NIST Cybersecurity Framework
+-------------------------------------------------------------------------------
+
+Source: National Institute of Standards and Technology (NIST)
+Documentation: https://www.nist.gov/cyberframework
+Copyright: Public Domain (U.S. Government Work)
+Usage: Cybersecurity framework principles and best practices
+
+This project aligns with NIST Cybersecurity Framework principles for risk
+management and security controls. NIST publications are not subject to copyright
+and are available for public use.
+
+-------------------------------------------------------------------------------
+PowerShell Best Practices & Security Guidelines
+-------------------------------------------------------------------------------
+
+Source: Microsoft PowerShell Documentation
+Documentation: https://learn.microsoft.com/en-us/powershell/
+Copyright: © Microsoft Corporation
+Usage: PowerShell scripting standards and security practices
+
+This project follows PowerShell scripting best practices including:
+- Strict Mode compliance
+- CmdletBinding patterns
+- Error handling standards
+- Script security guidelines
+
+PowerShell and associated documentation are provided under Microsoft's terms.
+
+-------------------------------------------------------------------------------
+Attack Surface Reduction (ASR) Rules
+-------------------------------------------------------------------------------
+
+Source: Microsoft Defender for Endpoint
+Documentation: https://learn.microsoft.com/en-us/defender-endpoint/attack-surface-reduction
+Copyright: © Microsoft Corporation
+Usage: ASR rule implementation and configuration
+
+This project implements Microsoft's recommended Attack Surface Reduction rules
+for Windows Defender, including the 23 Microsoft-recommended rules for Windows 11.
+
+All ASR rule GUIDs and configurations are based on Microsoft official documentation.
