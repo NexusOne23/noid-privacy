@@ -20,7 +20,7 @@ We take the security of NoID Privacy seriously. If you discover a security vulne
 
 Instead, please report security issues via:
 
-1. **Email**: [security@noid-privacy.example](mailto:security@noid-privacy.example)
+1. **Email**: [security@noid-privacy.com](mailto:security@noid-privacy.com)
 2. **Subject Line**: "SECURITY: [Brief Description]"
 3. **Include**:
    - Detailed description of the vulnerability
@@ -132,11 +132,12 @@ When a security issue is confirmed:
 ### 📞 Contact
 
 For security concerns:
-- **Email**: [security@noid-privacy.example](mailto:security@noid-privacy.example)
+- **Email**: [security@noid-privacy.com](mailto:security@noid-privacy.com)
 - **PGP Key**: [Available on request]
 
 For general issues:
 - **GitHub Issues**: [Report here](https://github.com/NexusOne23/noid-privacy/issues)
+- **General Support**: [support@noid-privacy.com](mailto:support@noid-privacy.com)
 
 ---
 

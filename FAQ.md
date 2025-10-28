@@ -423,7 +423,8 @@ git pull origin main
 
 - **Documentation**: [README.md](README.md) | [INSTALLATION.md](INSTALLATION.md) | [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md)
 - **Issues**: [GitHub Issues](https://github.com/NexusOne23/noid-privacy/issues)
-- **Security**: [SECURITY.md](SECURITY.md)
+- **Support**: [support@noid-privacy.com](mailto:support@noid-privacy.com) - General questions and help
+- **Security**: [security@noid-privacy.com](mailto:security@noid-privacy.com) - Security vulnerabilities only
 
 ---
 

@@ -366,6 +366,7 @@ Contributors will be:
 
 If you have questions about contributing, feel free to:
 - Open a [GitHub Issue](https://github.com/NexusOne23/noid-privacy/issues) with the question tag
+- Email us at [support@noid-privacy.com](mailto:support@noid-privacy.com) for general questions
 - Review [existing contributions](https://github.com/NexusOne23/noid-privacy/pulls)
 - Contact the maintainers
 

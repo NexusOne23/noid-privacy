@@ -178,6 +178,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) to improve the project!
 
 - **Documentation**: [README.md](README.md) | [INSTALLATION.md](INSTALLATION.md)
 - **Issues**: [GitHub Issues](https://github.com/NexusOne23/noid-privacy/issues)
+- **Support**: [support@noid-privacy.com](mailto:support@noid-privacy.com)
 
 ---
 

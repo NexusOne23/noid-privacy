@@ -50,7 +50,7 @@ This Code of Conduct applies within all community spaces, and also applies when 
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be reported to the project maintainers responsible for enforcement at:
 
-📧 **[conduct@noid-privacy.example](mailto:conduct@noid-privacy.example)**
+📧 **[conduct@noid-privacy.com](mailto:conduct@noid-privacy.com)**
 
 All complaints will be reviewed and investigated promptly and fairly. All project maintainers are obligated to respect the privacy and security of the reporter of any incident.
 
