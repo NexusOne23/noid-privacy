@@ -433,14 +433,15 @@ function Set-DefenderBaselineSettings {
     # PUA Protection - BEST PRACTICE: Use Set-MpPreference instead of Registry Policy!
     # Registry Policy (HKLM\Policies) würde GUI ausgrauen
     # Set-MpPreference lässt User die Option in GUI ändern (flexibility!)
-    try {
-        Set-MpPreference -PUAProtection Enabled -ErrorAction Stop
+    # Best Practice 25H2: SilentlyContinue to avoid TerminatingError in logs
+    $null = Set-MpPreference -PUAProtection Enabled -ErrorAction SilentlyContinue
+    if ($?) {
         Write-Verbose "PUA Protection aktiviert via Set-MpPreference (GUI bleibt editierbar)"
     }
-    catch {
-        # KNOWN ISSUE: 0x800106ba = Operation failed (Defender Service Timing)
+    else {
+        # KNOWN ISSUE: 0x800106ba = Operation failed (Defender Service not running or 3rd-party AV active)
         # HARMLOS: PUA funktioniert trotzdem via Registry-Checkboxen unten!
-        Write-Verbose "Set-MpPreference PUA fehlgeschlagen (bekanntes Timing-Problem): $_"
+        Write-Verbose "Set-MpPreference PUA fehlgeschlagen (Defender Service oder Drittanbieter-AV) - verwende Registry-Checkboxen"
         Write-Info (Get-LocalizedString 'CorePUARegistry')
     }
     
