@@ -93,7 +93,7 @@ This project implements multiple security layers:
 - [Microsoft Security Baseline 25H2](https://techcommunity.microsoft.com/blog/microsoft-security-baselines/windows-11-version-25h2-security-baseline/4456231)
 - [CIS Benchmarks](https://www.cisecurity.org/cis-benchmarks)
 - [DoD STIG](https://public.cyber.mil/stigs/)
-- [BSI SiSyPHuS](https://www.bsi.bund.de/DE/Themen/Unternehmen-und-Organisationen/Informationen-und-Empfehlungen/Empfehlungen-nach-Angriffszielen/Einrichtungen/einrichtungen_node.html)
+- [BSI IT-Grundschutz](https://www.bsi.bund.de/EN/Themen/Unternehmen-und-Organisationen/Standards-und-Zertifizierung/IT-Grundschutz/it-grundschutz_node.html)
 
 ### 🛡️ Security Audits
 
