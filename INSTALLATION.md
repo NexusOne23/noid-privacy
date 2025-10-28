@@ -13,7 +13,7 @@ Before proceeding, verify:
 - [ ] **Backup**: System backup or restore point created
 - [ ] **TPM**: TPM 2.0 enabled (for BitLocker, VBS, Credential Guard)
 - [ ] **Virtualization**: Enabled in BIOS/UEFI (for VBS, Credential Guard)
-- [ ] **Internet**: Active connection (for DoH, blocklist download)
+- [ ] **Internet**: NOT required (hosts file included locally, DoH only configured)
 - [ ] **PowerShell**: Version 5.1+ (check with `$PSVersionTable.PSVersion`)
 
 ---
