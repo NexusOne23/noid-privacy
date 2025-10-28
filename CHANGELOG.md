@@ -5,6 +5,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.10] - 2025-10-28
+
+### Added
+- Core.ps1 Part 3 internationalization (128 strings - Services, Admin Shares, Administrator Account, DNS over HTTPS, Remote Access, Sudo, Kerberos, Mark-of-the-Web)
+- Complete Core.ps1 internationalization (205 total strings: Part 1 + Part 2 + Part 3)
+- English and German localization for all Core module functions
+
+### Fixed
+- **CRITICAL:** Registry property existence check causing 116 false error records in Common.ps1
+- **CRITICAL:** Registry property check bugs in Edge.ps1 (all Get-ItemProperty -Name issues)
+- **CRITICAL:** Backup-RegistryValue function causing 47 error records (L1235 + L516)
+- Set-MpPreference TerminatingError in PUA protection (changed -ErrorAction Stop to SilentlyContinue)
+- Eliminated all 105+ false error records from registry operations
+- Consistent error handling across all Set-MpPreference calls
+
+### Changed
+- All registry property checks now use safe pattern: `$item.PSObject.Properties.Name -contains $PropertyName`
+- Improved user experience (no scary TerminatingError messages in logs)
+- Enhanced 3rd-party AV compatibility (Bitdefender, Kaspersky, etc.)
+
+### Technical Details
+- Bug pattern eliminated: `Get-ItemProperty -Path $Path -Name $PropertyName -ErrorAction SilentlyContinue`
+- Safe pattern implemented: `$item = Get-ItemProperty -Path $Path -ErrorAction SilentlyContinue; $hasProperty = $item -and ($item.PSObject.Properties.Name -contains $PropertyName)`
+- Functions affected: Test-RegistryValue, Backup-RegistryValue, Set-RegistryValue, Get-EdgePolicyValue
+- Impact: Cleaner logs, better error handling, improved stability
+
 ## [1.7.9] - 2025-10-27
 
 ### Added
