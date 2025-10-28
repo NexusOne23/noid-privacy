@@ -1266,7 +1266,7 @@ function Disable-UnnecessaryServices {
     [OutputType([void])]
     param()
     
-    Write-Section "Unnoetige Services deaktivieren (Maximum Hardening)"
+    Write-Section (Get-LocalizedString 'CoreServicesTitle')
     
     # Service-Liste zum Deaktivieren (CIS Level 1 + Level 2)
     $servicesToDisable = @(
@@ -1301,8 +1301,8 @@ function Disable-UnnecessaryServices {
         @{Name="XboxGipSvc"; DisplayName="Xbox Accessory Management"}
     )
     
-    Write-Info "WLAN bleibt AKTIV (WlanSvc) - aber Network Discovery wird deaktiviert!"
-    Write-Info "Deaktiviere $($servicesToDisable.Count) Services..."
+    Write-Info (Get-LocalizedString 'CoreServicesWLANActive')
+    Write-Info (Get-LocalizedString 'CoreServicesDisabling' -FormatArgs $servicesToDisable.Count)
     
     $successCount = 0
     $notFoundCount = 0
@@ -1312,20 +1312,20 @@ function Disable-UnnecessaryServices {
         if ($service) {
             # Stop and disable service (race-condition-frei)
             if (Stop-ServiceSafe -ServiceName $svc.Name) {
-                Write-Success "$($svc.DisplayName) deaktiviert"
+                Write-Success (Get-LocalizedString 'CoreServicesDisabled' -FormatArgs $svc.DisplayName)
                 $successCount++
             }
             else {
-                Write-Warning-Custom "$($svc.DisplayName) konnte nicht deaktiviert werden (eventuell geschuetzt)"
+                Write-Warning-Custom (Get-LocalizedString 'CoreServicesProtected' -FormatArgs $svc.DisplayName)
             }
         }
         else {
-            Write-Verbose "$($svc.DisplayName) nicht gefunden (bereits entfernt oder nicht installiert)"
+            Write-Verbose (Get-LocalizedString 'CoreServicesNotFound' -FormatArgs $svc.DisplayName)
             $notFoundCount++
         }
     }
     
-    Write-Success "$successCount Services deaktiviert, $notFoundCount nicht gefunden"
+    Write-Success (Get-LocalizedString 'CoreServicesResult' -FormatArgs $successCount, $notFoundCount)
 }
 
 function Disable-AdministrativeShares {
@@ -1341,9 +1341,9 @@ function Disable-AdministrativeShares {
     [CmdletBinding()]
     param()
     
-    Write-Section "Administrative Shares deaktivieren (C$, ADMIN$, IPC$)"
+    Write-Section (Get-LocalizedString 'CoreAdminSharesTitle')
     
-    Write-Info "Administrative Shares werden PERMANENT deaktiviert..."
+    Write-Info (Get-LocalizedString 'CoreAdminSharesDisabling')
     
     # Registry: Administrative Shares deaktivieren (Server & Workstation)
     $autoSharePath = "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters"
@@ -1356,15 +1356,15 @@ function Disable-AdministrativeShares {
     [void](Set-RegistryValue -Path $autoSharePath -Name "AutoShareWks" -Value 0 -Type DWord `
         -Description "Admin Shares auf Workstations deaktivieren")
     
-    Write-Success "Administrative Shares deaktiviert (C$, ADMIN$, etc.)"
-    Write-Warning-Custom "IPC$ Share kann NICHT deaktiviert werden (benoetigt fuer Named Pipes)"
+    Write-Success (Get-LocalizedString 'CoreAdminSharesDisabled')
+    Write-Warning-Custom (Get-LocalizedString 'CoreAdminSharesIPCWarning')
     
     # File and Printer Sharing wird bereits in Enable-NetworkStealthMode deaktiviert (kein Duplikat)
     
-    Write-Info "HINWEIS: Neustart erforderlich fuer volle Wirkung der Share-Deaktivierung"
+    Write-Info (Get-LocalizedString 'CoreAdminSharesRebootNote')
     
     # IPC$ HaeRTEN (kann nicht deaktiviert werden, aber wir schraenken Anonymous Access ein)
-    Write-Info "IPC$ wird gehaertet (Restrict Anonymous Access)..."
+    Write-Info (Get-LocalizedString 'CoreAdminSharesIPCHardening')
     
     # Restrict anonymous access to Named Pipes and Shares
     $restrictPath = "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters"
@@ -1392,8 +1392,8 @@ function Disable-AdministrativeShares {
     [void](Set-RegistryValue -Path $restrictPath -Name "NullSessionShares" -Value ([string[]]@()) -Type MultiString `
         -Description "Keine Shares fuer Anonymous Access")
     
-    Write-Success "IPC$ gehaertet (Anonymous Access stark eingeschraenkt)"
-    Write-Info "IPC$ bleibt aktiv (benoetigt fuer Windows-intern), aber ohne Anonymous Access!"
+    Write-Success (Get-LocalizedString 'CoreAdminSharesIPCHardened')
+    Write-Info (Get-LocalizedString 'CoreAdminSharesIPCNote')
 }
 
 function Set-SecureAdministratorAccount {
@@ -1415,9 +1415,9 @@ function Set-SecureAdministratorAccount {
     [OutputType([bool])]
     param()
     
-    Write-Section "Built-in Administrator Account haerten"
+    Write-Section (Get-LocalizedString 'CoreAdminAccountTitle')
     
-    Write-Info "Administrator Account wird umbenannt und deaktiviert..."
+    Write-Info (Get-LocalizedString 'CoreAdminAccountRenaming')
     
     # RNG instances for proper disposal
     $rng = $null
@@ -1428,7 +1428,7 @@ function Set-SecureAdministratorAccount {
         $adminAccount = Get-LocalUser -ErrorAction Stop | Where-Object { $_.SID -like "*-500" }
         
         if (-not $adminAccount) {
-            Write-Warning-Custom "Built-in Administrator Account nicht gefunden"
+            Write-Warning-Custom (Get-LocalizedString 'CoreAdminAccountNotFound')
             return $false
         }
         
@@ -1444,15 +1444,15 @@ function Set-SecureAdministratorAccount {
         # Umbenennen
         try {
             Rename-LocalUser -Name $adminAccount.Name -NewName $newAdminName -ErrorAction Stop
-            Write-Success "Administrator umbenannt: '$($adminAccount.Name)' zu '$newAdminName'"
+            Write-Success (Get-LocalizedString 'CoreAdminAccountRenamed' -FormatArgs $adminAccount.Name, $newAdminName)
         }
         catch {
-            Write-Error-Custom "Fehler beim Umbenennen: $_"
+            Write-Error-Custom (Get-LocalizedString 'CoreAdminAccountRenameError' -FormatArgs $_)
             return $false
         }
         
         # KRYPTOGRAPHISCH SICHERES Passwort generieren (64 Zeichen)
-        Write-Info "Generiere kryptographisch sicheres 64-Zeichen-Passwort..."
+        Write-Info (Get-LocalizedString 'CoreAdminAccountPasswordGenerating')
         
         # Best Practice 25H2: RandomNumberGenerator API (korrekte Verwendung)
         $passwordLength = 64
@@ -1474,38 +1474,38 @@ function Set-SecureAdministratorAccount {
         # Passwort setzen
         try {
             Set-LocalUser -Name $newAdminName -Password $securePassword -ErrorAction Stop
-            Write-Success "Administrator Passwort auf 64-Zeichen-Kryptographisch-Sicher gesetzt"
+            Write-Success (Get-LocalizedString 'CoreAdminAccountPasswordSet')
         }
         catch {
-            Write-Error-Custom "Fehler beim Setzen des Passworts: $_"
+            Write-Error-Custom (Get-LocalizedString 'CoreAdminAccountPasswordError' -FormatArgs $_)
             return $false
         }
         
         # Account DEAKTIVIEREN (CIS Best Practice)
         try {
             Disable-LocalUser -Name $newAdminName -ErrorAction Stop
-            Write-Success "Administrator Account DEAKTIVIERT (CIS Best Practice)"
+            Write-Success (Get-LocalizedString 'CoreAdminAccountDisabled')
         }
         catch {
-            Write-Warning-Custom "Fehler beim Deaktivieren: $_"
+            Write-Warning-Custom (Get-LocalizedString 'CoreAdminAccountDisableError' -FormatArgs $_)
         }
         
         # WICHTIGE HINWEISE
-        Write-Warning-Custom "==========================================================="
-        Write-Warning-Custom "WICHTIG: Das Passwort wurde NICHT gespeichert!"
-        Write-Warning-Custom "Dies ist ein Security Best Practice - NIEMALS Klartext!"
+        Write-Warning-Custom (Get-LocalizedString 'CoreAdminAccountWarning1')
+        Write-Warning-Custom (Get-LocalizedString 'CoreAdminAccountWarning2')
+        Write-Warning-Custom (Get-LocalizedString 'CoreAdminAccountWarning3')
         Write-Host "" # Best Practice 25H2: Write-Host fuer leere Zeilen, nicht Write-Warning-Custom
-        Write-Info "EMPFOHLENE LOESUNGEN fuer Administrator-Zugriff:"
-        Write-Info "  1. LAPS (Local Administrator Password Solution)"
-        Write-Info "  2. Microsoft Entra ID (Azure AD) Join"
-        Write-Info "  3. Separate Admin-Accounts mit Just-In-Time Access"
+        Write-Info (Get-LocalizedString 'CoreAdminAccountSolutions')
+        Write-Info (Get-LocalizedString 'CoreAdminAccountLAPS')
+        Write-Info (Get-LocalizedString 'CoreAdminAccountEntra')
+        Write-Info (Get-LocalizedString 'CoreAdminAccountJIT')
         Write-Host "" # Best Practice 25H2: Write-Host fuer leere Zeilen, nicht Write-Warning-Custom
-        Write-Warning-Custom "Der Built-in Administrator ist jetzt DEAKTIVIERT und hat"
-        Write-Warning-Custom "ein unbekanntes 64-Zeichen-Passwort (RandomNumberGenerator)."
-        Write-Warning-Custom "==========================================================="
+        Write-Warning-Custom (Get-LocalizedString 'CoreAdminAccountWarning4')
+        Write-Warning-Custom (Get-LocalizedString 'CoreAdminAccountWarning5')
+        Write-Warning-Custom (Get-LocalizedString 'CoreAdminAccountWarning1')
         
         # GUEST ACCOUNT UMBENENNEN (CIS Benchmark + Defense-in-Depth)
-        Write-Info "Haerte Guest Account..."
+        Write-Info (Get-LocalizedString 'CoreAdminAccountGuestHardening')
         
         try {
             # Guest SID ist immer gleich: S-1-5-21-*-501
@@ -1515,7 +1515,7 @@ function Set-SecureAdministratorAccount {
                 # Guest Account sollte bereits disabled sein (Windows default)
                 if ($guestAccount.Enabled) {
                     Disable-LocalUser -Name $guestAccount.Name -ErrorAction Stop
-                    Write-Info "Guest Account wurde deaktiviert"
+                    Write-Info (Get-LocalizedString 'CoreAdminAccountGuestDisabled')
                 }
                 
                 # Umbenennen (Defense-in-Depth: Name verschleiern)
@@ -1527,21 +1527,21 @@ function Set-SecureAdministratorAccount {
                 $newGuestName = "DefGuest_$randomNumberGuest"
                 
                 Rename-LocalUser -Name $guestAccount.Name -NewName $newGuestName -ErrorAction Stop
-                Write-Success "Guest Account umbenannt: '$($guestAccount.Name)' zu '$newGuestName' + deaktiviert"
+                Write-Success (Get-LocalizedString 'CoreAdminAccountGuestRenamed' -FormatArgs $guestAccount.Name, $newGuestName)
             }
             else {
-                Write-Info "Guest Account nicht gefunden (bereits entfernt oder nicht vorhanden)"
+                Write-Info (Get-LocalizedString 'CoreAdminAccountGuestNotFound')
             }
         }
         catch {
-            Write-Warning-Custom "Guest Account Umbenennung fehlgeschlagen (nicht kritisch): $_"
-            Write-Info "Hinweis: Guest Account ist bereits deaktiviert (Windows Standard)"
+            Write-Warning-Custom (Get-LocalizedString 'CoreAdminAccountGuestError' -FormatArgs $_)
+            Write-Info (Get-LocalizedString 'CoreAdminAccountGuestNote')
         }
         
         return $true
     }
     catch {
-        Write-Error-Custom "Fehler beim Haerten des Administrator Accounts: $_"
+        Write-Error-Custom (Get-LocalizedString 'CoreAdminAccountError' -FormatArgs $_)
         Write-Verbose "Details: $($_.Exception.Message)"
         return $false
     }
@@ -1602,13 +1602,13 @@ function Enable-CloudflareDNSoverHTTPS {
     [OutputType([void])]
     param()
     
-    Write-Section "Cloudflare DNS over HTTPS (DoH) konfigurieren"
+    Write-Section (Get-LocalizedString 'CoreDNSTitle')
     
-    Write-Warning-Custom "ACHTUNG: DNS wird auf Cloudflare 1.1.1.1 gesetzt!"
-    Write-Info "Corporate Networks: Verwenden Sie stattdessen Ihre internen DNS-Server"
-    Write-Info "Alternative DNS: Quad9 (9.9.9.9), Google (8.8.8.8)"
+    Write-Warning-Custom (Get-LocalizedString 'CoreDNSWarning')
+    Write-Info (Get-LocalizedString 'CoreDNSCorporate')
+    Write-Info (Get-LocalizedString 'CoreDNSAlternatives')
     Write-Host ""
-    Write-Info "DNS wird auf Cloudflare 1.1.1.1 mit DoH umgestellt..."
+    Write-Info (Get-LocalizedString 'CoreDNSSwitching')
     
     # CRITICAL FIX v1.7.11: MS-DOKUMENTIERTE METHODE!
     # Quelle: Microsoft Learn + netsh dnsclient Dokumentation
@@ -1624,7 +1624,7 @@ function Enable-CloudflareDNSoverHTTPS {
     # - IPv6 temporär nach vorne für Validierung
     # - Funktioniert für IPv4 UND IPv6!
     
-    Write-Info "Schritt 1: Registriere DoH-Server (Cloudflare IPv4 + IPv6)..."
+    Write-Info (Get-LocalizedString 'CoreDNSStep1')
     
     # A. DoH-Server-Mapping eintragen (IPv4 + IPv6)
     # WICHTIG: Erst alte Einträge entfernen (idempotent!)
@@ -1677,19 +1677,19 @@ function Enable-CloudflareDNSoverHTTPS {
         Write-Verbose "  IPv6 Secondary bereits registriert (OK): $result"
     }
     
-    Write-Success "DoH-Server registriert: 4 Cloudflare-Server (IPv4 + IPv6)"
+    Write-Success (Get-LocalizedString 'CoreDNSRegistered')
     
     # B. Global DoH aktivieren
-    Write-Info "Schritt 2: Aktiviere DoH global..."
+    Write-Info (Get-LocalizedString 'CoreDNSStep2')
     $result = netsh dnsclient set global doh=yes 2>&1
     if ($LASTEXITCODE -eq 0) {
-        Write-Success "DoH global aktiviert"
+        Write-Success (Get-LocalizedString 'CoreDNSGlobalActivated')
     } else {
-        Write-Warning "DoH global konnte nicht aktiviert werden: $result"
+        Write-Warning (Get-LocalizedString 'CoreDNSGlobalError' -FormatArgs $result)
     }
     
     # DNS Server auf allen Adaptern setzen (AUSSER VPN!)
-    Write-Info "DNS wird auf Netzwerkadaptern auf Cloudflare umgestellt (VPN-Adapter werden uebersprungen)..."
+    Write-Info (Get-LocalizedString 'CoreDNSAdapters')
     
     try {
         # Hole alle aktiven Adapter
@@ -1781,7 +1781,7 @@ function Enable-CloudflareDNSoverHTTPS {
             
             if ($isVPN) {
                 $skippedVPN += $adapter.Name
-                Write-Warning "VPN-Adapter uebersprungen: '$($adapter.Name)' ($skipReason)"
+                Write-Warning (Get-LocalizedString 'CoreDNSVPNSkipped' -FormatArgs $adapter.Name, $skipReason)
             }
             elseif ($isVirtualization) {
                 # CRITICAL FIX: Virtualisierungs-Adapter (VMware, Hyper-V, VirtualBox) AUCH skippen!
@@ -1795,22 +1795,22 @@ function Enable-CloudflareDNSoverHTTPS {
         }
         
         if ($skippedVPN.Count -gt 0) {
-            Write-Info "Uebersprungene VPN-Adapter: $($skippedVPN -join ', ')"
-            Write-Info "VPN-Adapter behalten ihre eigenen DNS-Server (wichtig fuer VPN-Funktionalitaet!)"
+            Write-Info (Get-LocalizedString 'CoreDNSVPNKeepDNS' -FormatArgs ($skippedVPN -join ', '))
+            Write-Info (Get-LocalizedString 'CoreDNSVPNNote')
         }
         
         if ($adapters.Count -eq 0) {
-            Write-Warning "Keine Netzwerkadapter gefunden (alle sind VPN oder Down)"
-            Write-Warning "DNS-Konfiguration wird uebersprungen!"
+            Write-Warning (Get-LocalizedString 'CoreDNSNoAdapters')
+            Write-Warning (Get-LocalizedString 'CoreDNSSkipped')
             return
         }
         
-        Write-Info "Konfiguriere DNS auf $($adapters.Count) Adapter(n) (ohne VPN)"
+        Write-Info (Get-LocalizedString 'CoreDNSConfiguring' -FormatArgs $adapters.Count)
         
         $adapterCount = 0
         foreach ($adapter in $adapters) {
             try {
-                Write-Info "Schritt 3: Konfiguriere DNS auf Adapter '$($adapter.Name)'..."
+                Write-Info (Get-LocalizedString 'CoreDNSStep3' -FormatArgs $adapter.Name)
                 
                 # CRITICAL FIX v1.7.11: IPv4 + IPv6 ZUSAMMEN setzen!
                 # WICHTIG: IPv6 temporär nach VORNE für Validierung, dann zurück
@@ -1840,7 +1840,7 @@ function Enable-CloudflareDNSoverHTTPS {
                 # CRITICAL FIX v1.7.11: Warte für IPv6 DoH-Validierung
                 # Windows braucht Zeit um IPv6 DoH zu validieren
                 if ($ipv6Enabled) {
-                    Write-Info "Warte 5 Sekunden für IPv6 DoH-Validierung..."
+                    Write-Info (Get-LocalizedString 'CoreDNSIPv6Wait')
                     Start-Sleep -Seconds 5
                     
                     # Setze Reihenfolge zurueck (IPv4 zuerst - schneller)
@@ -1850,9 +1850,9 @@ function Enable-CloudflareDNSoverHTTPS {
                         -ErrorAction Stop
                     
                     Write-Verbose "DNS-Reihenfolge: IPv4 zuerst (optimal)"
-                    Write-Success "DNS auf Adapter '$($adapter.Name)': IPv4 + IPv6 mit DoH konfiguriert"
+                    Write-Success (Get-LocalizedString 'CoreDNSAdapterIPv6' -FormatArgs $adapter.Name)
                 } else {
-                    Write-Success "DNS auf Adapter '$($adapter.Name)': IPv4 mit DoH konfiguriert"
+                    Write-Success (Get-LocalizedString 'CoreDNSAdapterIPv4' -FormatArgs $adapter.Name)
                 }
                 
                 $adapterCount++
@@ -1862,27 +1862,27 @@ function Enable-CloudflareDNSoverHTTPS {
             }
         }
         
-        Write-Success "$adapterCount Adapter konfiguriert"
+        Write-Success (Get-LocalizedString 'CoreDNSAdapterResult' -FormatArgs $adapterCount)
     }
     catch {
-        Write-Error-Custom "Fehler beim Abrufen der Netzwerkadapter: $_"
+        Write-Error-Custom (Get-LocalizedString 'CoreDNSNetworkError' -FormatArgs $_)
     }
     
     # DNS Cache leeren (mit Timeout - verhindert Hang)
     $job = $null
     try {
-        Write-Info "DNS-Cache wird geleert..."
+        Write-Info (Get-LocalizedString 'CoreDNSCacheFlushing')
         $job = Start-Job -ScriptBlock { ipconfig /flushdns 2>&1 }
         $null = Wait-Job $job -Timeout 10
         
         if ($job.State -eq 'Completed') {
             $null = Receive-Job $job -ErrorAction SilentlyContinue
-            Write-Success "DNS Cache geleert"
+            Write-Success (Get-LocalizedString 'CoreDNSCacheFlushed')
         }
         elseif ($job.State -eq 'Running') {
             Stop-Job $job -ErrorAction SilentlyContinue
-            Write-Warning-Custom "DNS Cache Flush Timeout (10s) - wird uebersprungen"
-            Write-Info "DNS Cache wird beim naechsten Neustart automatisch geleert"
+            Write-Warning-Custom (Get-LocalizedString 'CoreDNSCacheTimeout')
+            Write-Info (Get-LocalizedString 'CoreDNSCacheReboot')
         }
     }
     catch {
@@ -1898,19 +1898,19 @@ function Enable-CloudflareDNSoverHTTPS {
     # WICHTIG: Dnscache Service NICHT neu starten!
     # Best Practice 25H2: Service ist geschuetzt und fuehrt zu Script-Hang
     # DoH wird automatisch beim naechsten DNS-Request aktiviert
-    Write-Info "DoH wird beim naechsten Neustart/DNS-Request aktiviert"
+    Write-Info (Get-LocalizedString 'CoreDNSActivation')
     Write-Verbose "DNS Client Service wird NICHT neu gestartet (geschuetzter Service)"
     
     # VALIDIERUNG: Pruefe ob DoH wirklich konfiguriert ist
     Write-Host ""
-    Write-Info "Validiere DoH-Konfiguration..."
+    Write-Info (Get-LocalizedString 'CoreDNSValidating')
     try {
         $dohServers = Get-DnsClientDohServerAddress -ErrorAction SilentlyContinue
         if ($dohServers) {
             $cloudflareDoH = $dohServers | Where-Object { $_.ServerAddress -match "1\.1\.1\.1|1\.0\.0\.1|2606:4700:4700" }
             if ($cloudflareDoH) {
                 $dohCount = @($cloudflareDoH).Count
-                Write-Success "DoH-Validierung: $dohCount Cloudflare DoH Server konfiguriert"
+                Write-Success (Get-LocalizedString 'CoreDNSValidated' -FormatArgs $dohCount)
                 foreach ($server in $cloudflareDoH) {
                     $serverAddr = $server.ServerAddress
                     $serverTemplate = $server.DohTemplate
@@ -1924,15 +1924,15 @@ function Enable-CloudflareDNSoverHTTPS {
                 }
             }
             else {
-                Write-Warning "VALIDIERUNG FEHLGESCHLAGEN: Keine Cloudflare DoH Server gefunden!"
-                Write-Warning "DNS koennte UNVERSCHLUESSELT sein!"
+                Write-Warning (Get-LocalizedString 'CoreDNSValidationFailed')
+                Write-Warning (Get-LocalizedString 'CoreDNSUnencrypted')
             }
         }
         else {
-            Write-Warning "VALIDIERUNG FEHLGESCHLAGEN: Get-DnsClientDohServerAddress gab keine Daten zurueck!"
-            Write-Info "Moegliche Ursachen:"
-            Write-Info "  - DoH Cmdlets nicht verfuegbar (Windows zu alt?)"
-            Write-Info "  - DoH noch nicht aktiv (Neustart erforderlich?)"
+            Write-Warning (Get-LocalizedString 'CoreDNSValidationNoData')
+            Write-Info (Get-LocalizedString 'CoreDNSValidationReasons')
+            Write-Info (Get-LocalizedString 'CoreDNSValidationOldWindows')
+            Write-Info (Get-LocalizedString 'CoreDNSValidationNotActive')
         }
     }
     catch {
@@ -1940,16 +1940,16 @@ function Enable-CloudflareDNSoverHTTPS {
     }
     
     Write-Host ""
-    Write-Success "Cloudflare DNS over HTTPS aktiviert"
-    Write-Info "IPv4: 1.1.1.1 (Primary), 1.0.0.1 (Secondary)"
-    Write-Info "IPv6: 2606:4700:4700::1111 (Primary), 2606:4700:4700::1001 (Secondary)"
+    Write-Success (Get-LocalizedString 'CoreDNSActivated')
+    Write-Info (Get-LocalizedString 'CoreDNSIPv4Info')
+    Write-Info (Get-LocalizedString 'CoreDNSIPv6Info')
     Write-Host ""
-    Write-Warning-Custom "WICHTIG: Neustart koennte erforderlich sein damit DoH aktiv wird!"
-    Write-Info "Test: nslookup cloudflare.com"
+    Write-Warning-Custom (Get-LocalizedString 'CoreDNSRebootWarning')
+    Write-Info (Get-LocalizedString 'CoreDNSTest')
     Write-Host ""
-    Write-Host "[i] HINWEIS: VPN-Adapter wurden NICHT geaendert!" -ForegroundColor Cyan
-    Write-Info "  VPN-Verbindungen verwenden weiterhin ihre eigenen DNS-Server"
-    Write-Info "  Dies ist KORREKT und WICHTIG fuer VPN-Funktionalitaet!"
+    Write-Host "[i] $(Get-LocalizedString 'CoreDNSVPNNotModified')" -ForegroundColor Cyan
+    Write-Info (Get-LocalizedString 'CoreDNSVPNKeep')
+    Write-Info (Get-LocalizedString 'CoreDNSVPNCorrect')
 }
 
 function Disable-RemoteAccessCompletely {
@@ -1967,10 +1967,10 @@ function Disable-RemoteAccessCompletely {
     [OutputType([void])]
     param()
     
-    Write-Section "Remote Access KOMPLETT deaktivieren (Hard Mode)"
+    Write-Section (Get-LocalizedString 'CoreRemoteTitle')
     
     # ===== RDP (Remote Desktop) IMMER deaktivieren (kein Optional!) =====
-    Write-Info "RDP wird PERMANENT DEAKTIVIERT..."
+    Write-Info (Get-LocalizedString 'CoreRemoteRDPDisabling')
     
     # Registry: RDP ausschalten
     $rdpPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server"
@@ -1988,13 +1988,13 @@ function Disable-RemoteAccessCompletely {
     }
     
     if ($successCount -eq $rdpServices.Count) {
-        Write-Success "RDP Services permanent deaktiviert (TermService, UmRdpService)"
+        Write-Success (Get-LocalizedString 'CoreRemoteRDPDisabled')
     }
     elseif ($successCount -gt 0) {
-        Write-Warning "Nur $successCount von $($rdpServices.Count) RDP Services deaktiviert"
+        Write-Warning (Get-LocalizedString 'CoreRemoteRDPPartial' -FormatArgs $successCount, $rdpServices.Count)
     }
     else {
-        Write-Warning "RDP Services konnten nicht deaktiviert werden"
+        Write-Warning (Get-LocalizedString 'CoreRemoteRDPFailed')
     }
     
     # Firewall-Regeln HART blockieren
@@ -2017,20 +2017,20 @@ function Disable-RemoteAccessCompletely {
             Write-Verbose "  -> Block-Regel fuer RDP existiert bereits"
         }
         
-        Write-Success "RDP Firewall-Regeln HART deaktiviert + Block-Regel aktiv"
+        Write-Success (Get-LocalizedString 'CoreRemoteRDPFirewall')
     }
     catch {
-        Write-Warning "RDP Firewall-Regeln Fehler: $_"
+        Write-Warning (Get-LocalizedString 'CoreRemoteRDPFirewallError' -FormatArgs $_)
     }
     
     # ===== Remote Registry IMMER deaktivieren =====
-    Write-Info "Remote Registry wird deaktiviert..."
+    Write-Info (Get-LocalizedString 'CoreRemoteRegDisabling')
     
     if (Stop-ServiceSafe -ServiceName "RemoteRegistry") {
-        Write-Success "Remote Registry Service deaktiviert"
+        Write-Success (Get-LocalizedString 'CoreRemoteRegDisabled')
     }
     else {
-        Write-Warning "Remote Registry konnte nicht deaktiviert werden"
+        Write-Warning (Get-LocalizedString 'CoreRemoteRegFailed')
     }
     
     $remoteRegPath = "HKLM:\SYSTEM\CurrentControlSet\Control\SecurePipeServers\winreg"
@@ -2038,7 +2038,7 @@ function Disable-RemoteAccessCompletely {
         -Description "Remote Registry Access verweigern"
     
     # ===== Remote Assistance IMMER deaktivieren =====
-    Write-Info "Remote Assistance wird deaktiviert..."
+    Write-Info (Get-LocalizedString 'CoreRemoteRADisabling')
     
     $raPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Remote Assistance"
     Set-RegistryValue -Path $raPath -Name "fAllowToGetHelp" -Value 0 -Type DWord `
@@ -2057,7 +2057,7 @@ function Disable-RemoteAccessCompletely {
     Set-RegistryValue -Path $raGpPath -Name "Shadow" -Value 0 -Type DWord `
         -Description "RDP Shadow Sessions verbieten"
     
-    Write-Success "Remote Assistance deaktiviert (alle Varianten)"
+    Write-Success (Get-LocalizedString 'CoreRemoteRADisabled')
     
     # ===== Remote Scheduled Tasks deaktivieren =====
     $schedTaskPath = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule"
@@ -2065,27 +2065,27 @@ function Disable-RemoteAccessCompletely {
         -Description "Remote Scheduled Tasks deaktivieren"
     
     # ===== WinRM (PowerShell Remoting) DEAKTIVIEREN =====
-    Write-Info "WinRM (PowerShell Remoting) wird deaktiviert..."
+    Write-Info (Get-LocalizedString 'CoreRemoteWinRMDisabling')
     
     if (Stop-ServiceSafe -ServiceName "WinRM") {
-        Write-Success "WinRM Service deaktiviert (PowerShell Remoting AUS)"
+        Write-Success (Get-LocalizedString 'CoreRemoteWinRMDisabled')
     }
     else {
-        Write-Warning "WinRM konnte nicht deaktiviert werden"
+        Write-Warning (Get-LocalizedString 'CoreRemoteWinRMFailed')
     }
     
     # WinRM Firewall-Regeln deaktivieren
     try {
         # SilentlyContinue wenn Regeln nicht existieren (Windows 11 25H2)
         Disable-NetFirewallRule -DisplayGroup "Windows Remote Management" -ErrorAction SilentlyContinue
-        Write-Success "WinRM Firewall-Regeln deaktiviert"
+        Write-Success (Get-LocalizedString 'CoreRemoteWinRMFirewall')
     }
     catch {
-        Write-Warning "WinRM Firewall-Regeln Fehler: $_"
+        Write-Warning (Get-LocalizedString 'CoreRemoteWinRMFirewallError' -FormatArgs $_)
     }
     
-    Write-Success "Remote Access 100% DEAKTIVIERT (RDP=AUS + RemoteReg=AUS + RA=AUS + WinRM=AUS)"
-    Write-Warning "KEIN Remote-Zugriff moeglich! Nur physischer Zugriff oder Intune/SCCM!"
+    Write-Success (Get-LocalizedString 'CoreRemoteComplete')
+    Write-Warning (Get-LocalizedString 'CoreRemoteWarning')
 }
 
 function Disable-SudoForWindows {
@@ -2102,15 +2102,15 @@ function Disable-SudoForWindows {
     [OutputType([void])]
     param()
     
-    Write-Section "Sudo for Windows deaktivieren"
+    Write-Section (Get-LocalizedString 'CoreSudoTitle')
     
     # Microsoft Baseline 25H2: Sudo = Disabled
     $sudoPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Sudo"
     Set-RegistryValue -Path $sudoPath -Name "Enabled" -Value 0 -Type DWord `
         -Description "Sudo for Windows deaktivieren (Privilege Escalation Prevention)"
     
-    Write-Success "Sudo for Windows deaktiviert (Microsoft Baseline 25H2)"
-    Write-Info "Sudo ist ein potentieller Privilege Escalation Vector"
+    Write-Success (Get-LocalizedString 'CoreSudoDisabled')
+    Write-Info (Get-LocalizedString 'CoreSudoNote')
 }
 
 function Set-KerberosPKINITHashAgility {
@@ -2128,7 +2128,7 @@ function Set-KerberosPKINITHashAgility {
     [OutputType([void])]
     param()
     
-    Write-Section "Kerberos PKINIT Hash-Agilitaet (SHA-2 Only)"
+    Write-Section (Get-LocalizedString 'CoreKerberosTitle')
     
     $kerbPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System\Kerberos\Parameters"
     
@@ -2152,9 +2152,9 @@ function Set-KerberosPKINITHashAgility {
     [void](Set-RegistryValue -Path $kdcPath -Name "PKINITHashAlgorithm" -Value 0x38 -Type DWord `
         -Description "KDC PKINIT: SHA-256/384/512 (OHNE SHA-1!)")
     
-    Write-Success "Kerberos PKINIT Hash-Agilitaet: SHA-256/384/512 (SHA-1 DEAKTIVIERT)"
-    Write-Info "Microsoft Baseline 25H2: SHA-1 wird NICHT unterstuetzt"
-    Write-Info "Hinweis: Windows Server 2025 KDC empfohlen fuer volle Funktionalitaet"
+    Write-Success (Get-LocalizedString 'CoreKerberosConfigured')
+    Write-Info (Get-LocalizedString 'CoreKerberosBaseline')
+    Write-Info (Get-LocalizedString 'CoreKerberosKDC')
 }
 
 #endregion
@@ -2175,7 +2175,7 @@ function Set-MarkOfTheWeb {
     [OutputType([void])]
     param()
     
-    Write-Section "Mark-of-the-Web"
+    Write-Section (Get-LocalizedString 'CoreMOTWTitle')
     
     $attachPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Attachments"
     
@@ -2185,7 +2185,7 @@ function Set-MarkOfTheWeb {
     [void](Set-RegistryValue -Path $attachPath -Name "ScanWithAntiVirus" -Value 3 -Type DWord `
         -Description "Immer mit AV scannen")
     
-    Write-Success "Mark-of-the-Web aktiv"
+    Write-Success (Get-LocalizedString 'CoreMOTWActivated')
 }
 
 #endregion
