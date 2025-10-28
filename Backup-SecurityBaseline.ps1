@@ -513,7 +513,14 @@ function Backup-RegistryValue {
     
     try {
         if (Test-Path -Path $Path) {
-            $rawValue = Get-ItemProperty -Path $Path -Name $Name -ErrorAction Stop | Select-Object -ExpandProperty $Name
+            # Safe property check - no error records created
+            $item = Get-ItemProperty -Path $Path -ErrorAction SilentlyContinue
+            if ($item -and ($item.PSObject.Properties.Name -contains $Name)) {
+                $rawValue = $item.$Name
+            }
+            else {
+                $rawValue = $null
+            }
             
             # Konvertiere zu primitive Typen (String, Int, Bool, null)
             if ($null -eq $rawValue) {
