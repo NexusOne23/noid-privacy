@@ -1232,9 +1232,12 @@ try {
             foreach ($app in $apps) {
                 try {
                     $appName = $app.PSChildName
-                    $enabledByUser = Get-ItemProperty -Path $app.PSPath -Name "EnabledByUser" -ErrorAction SilentlyContinue
+                    # Safe property check - no error records created
+                    $item = Get-ItemProperty -Path $app.PSPath -ErrorAction SilentlyContinue
+                    $hasProperty = $item -and ($item.PSObject.Properties.Name -contains "EnabledByUser")
                     
-                    if ($null -ne $enabledByUser) {
+                    if ($hasProperty) {
+                        $enabledByUser = $item
                         $deviceLevelBackup.Apps += @{
                             Permission = $permission
                             AppName = $appName

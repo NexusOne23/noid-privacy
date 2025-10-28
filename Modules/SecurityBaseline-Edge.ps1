@@ -103,7 +103,9 @@ function Set-EdgeSecurityBaseline {
         $extensionSources = @("https://microsoftedge.microsoft.com/addons/*")
         New-Item -Path $edgePolicyPath -Force -ErrorAction SilentlyContinue | Out-Null
         # CRITICAL: MultiString needs New-ItemProperty (not Set-ItemProperty!)
-        if (Get-ItemProperty -Path $edgePolicyPath -Name "ExtensionInstallSources" -ErrorAction SilentlyContinue) {
+        # Safe property check - no error records created
+        $item = Get-ItemProperty -Path $edgePolicyPath -ErrorAction SilentlyContinue
+        if ($item -and ($item.PSObject.Properties.Name -contains "ExtensionInstallSources")) {
             Remove-ItemProperty -Path $edgePolicyPath -Name "ExtensionInstallSources" -Force
         }
         New-ItemProperty -Path $edgePolicyPath -Name "ExtensionInstallSources" -Value $extensionSources -PropertyType MultiString -Force | Out-Null
