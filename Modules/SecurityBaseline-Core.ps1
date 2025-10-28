@@ -48,7 +48,7 @@ function Test-SystemRequirements {
     [OutputType([bool])]
     param()
     
-    Write-Section "System-Validierung"
+    Write-Section (Get-LocalizedString 'CoreSystemValidation')
     
     try {
         # OS-Info abrufen
@@ -60,13 +60,13 @@ function Test-SystemRequirements {
         
         # Build-Check
         if ($build -lt 26100) {
-            Write-Error-Custom "Windows 11 25H2 (Build 26100+) erforderlich! Aktuell: $build"
-            Write-Warning-Custom "Die Baseline ist speziell fuer Windows 11 25H2 optimiert!"
+            Write-Error-Custom (Get-LocalizedString 'CoreBuildRequired' $build)
+            Write-Warning-Custom (Get-LocalizedString 'CoreBaselineOptimized')
             return $false
         }
     }
     catch {
-        Write-Error-Custom "Fehler beim Abrufen der OS-Informationen: $_"
+        Write-Error-Custom (Get-LocalizedString 'CoreOSInfoError' $_)
         Write-Verbose "Details: $($_.Exception.Message)"
         return $false
     }
@@ -75,14 +75,14 @@ function Test-SystemRequirements {
     try {
         $tpm = Get-Tpm -ErrorAction Stop
         if ($tpm -and $tpm.TpmPresent -and $tpm.TpmReady) {
-            Write-Success "TPM 2.0 verfuegbar und bereit"
+            Write-Success (Get-LocalizedString 'CoreTPMAvailable')
         }
         else {
-            Write-Warning-Custom "TPM 2.0 nicht vollstaendig aktiviert (Present: $($tpm.TpmPresent), Ready: $($tpm.TpmReady))"
+            Write-Warning-Custom (Get-LocalizedString 'CoreTPMNotActivated' $tpm.TpmPresent, $tpm.TpmReady)
         }
     }
     catch {
-        Write-Warning-Custom "TPM-Status konnte nicht abgerufen werden: $_"
+        Write-Warning-Custom (Get-LocalizedString 'CoreTPMStatusError' $_)
         Write-Verbose "Manche Features (BitLocker, Credential Guard) benoetigen TPM 2.0"
     }
     
@@ -90,13 +90,13 @@ function Test-SystemRequirements {
     try {
         $vbs = Get-CimInstance -ClassName Win32_DeviceGuard -Namespace root\Microsoft\Windows\DeviceGuard -ErrorAction Stop
         if ($vbs -and $vbs.VirtualizationBasedSecurityStatus -eq 2) {
-            Write-Success "VBS (Virtualization-Based Security) aktiviert"
+            Write-Success (Get-LocalizedString 'CoreVBSActivated')
         }
         elseif ($vbs) {
             Write-Info "VBS Status: $($vbs.VirtualizationBasedSecurityStatus) (0=Disabled, 1=Enabled not running, 2=Enabled and running)"
         }
         else {
-            Write-Info "VBS-Status konnte nicht ermittelt werden"
+            Write-Info (Get-LocalizedString 'CoreVBSStatusUnknown')
         }
     }
     catch {
@@ -104,7 +104,7 @@ function Test-SystemRequirements {
         Write-Verbose "VBS wird ggf. von dieser Baseline aktiviert"
     }
     
-    Write-Success "System-Validierung abgeschlossen"
+    Write-Success (Get-LocalizedString 'CoreValidationComplete')
     return $true
 }
 
@@ -126,7 +126,7 @@ function Set-NetBIOSDisabled {
     [OutputType([void])]
     param()
     
-    Write-Section "NetBIOS-Namensaufloesung deaktivieren"
+    Write-Section (Get-LocalizedString 'CoreNetBIOSDisable')
     
     # DNS Client NetBIOS Policy
     $dnsClientPath = "HKLM:\SYSTEM\CurrentControlSet\Services\Dnscache\Parameters"
@@ -156,10 +156,10 @@ function Set-NetBIOSDisabled {
             }
         }
         
-        Write-Success "NetBIOS auf allen $adapterCount Adaptern deaktiviert"
+        Write-Success (Get-LocalizedString 'CoreNetBIOSDisabled' $adapterCount)
     }
     catch {
-        Write-Error-Custom "Fehler beim Abrufen der Netzwerkadapter: $_"
+        Write-Error-Custom (Get-LocalizedString 'CoreNetworkAdapterError' $_)
         Write-Verbose "Details: $($_.Exception.Message)"
     }
 }
@@ -179,7 +179,7 @@ function Set-ProcessAuditingWithCommandLine {
     [OutputType([void])]
     param()
     
-    Write-Section "Prozess-Auditing mit Command Line"
+    Write-Section (Get-LocalizedString 'CoreProcessAuditing')
     
     # Registry: Command Line Logging aktivieren
     $auditPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System\Audit"
@@ -192,8 +192,8 @@ function Set-ProcessAuditingWithCommandLine {
         $auditpolPath = "$env:SystemRoot\System32\auditpol.exe"
         
         if (-not (Test-Path -Path $auditpolPath)) {
-            Write-Error-Custom "auditpol.exe nicht gefunden: $auditpolPath"
-            Write-Warning-Custom "Process Creation Auditing via auditpol.exe uebersprungen"
+            Write-Error-Custom (Get-LocalizedString 'CoreAuditpolNotFound' $auditpolPath)
+            Write-Warning-Custom (Get-LocalizedString 'CoreAuditpolSkipped')
             # Continue - Registry setting above is already active
         }
         else {
@@ -202,25 +202,25 @@ function Set-ProcessAuditingWithCommandLine {
             $result = & $auditpolPath /set /subcategory:$processCreationGuid /success:enable /failure:enable 2>&1
             
             if ($LASTEXITCODE -eq 0) {
-                Write-Success "Audit Process Creation aktiviert (EID 4688)"
+                Write-Success (Get-LocalizedString 'CoreAuditActivated')
             }
             else {
-                Write-Error-Custom "auditpol.exe fehlgeschlagen: Exit Code $LASTEXITCODE - Output: $result"
-                Write-Warning-Custom "Bekanntes Problem: Fehler 0x00000057 bei Locale-Mismatch (harmlos)"
-                Write-Info "Command Line Logging via Registry ist bereits aktiv"
+                Write-Error-Custom (Get-LocalizedString 'CoreAuditpolFailed' $LASTEXITCODE, $result)
+                Write-Warning-Custom (Get-LocalizedString 'CoreLocaleMismatch')
+                Write-Info (Get-LocalizedString 'CoreRegistryActive')
                 # Continue - Registry setting above is already active
             }
         }
     }
     catch {
-        Write-Error-Custom "Fehler beim Ausfuehren von auditpol.exe: $_"
-        Write-Warning-Custom "Process Creation Auditing via auditpol.exe uebersprungen"
-        Write-Info "Command Line Logging via Registry ist bereits aktiv"
+        Write-Error-Custom (Get-LocalizedString 'CoreAuditpolExecError' $_)
+        Write-Warning-Custom (Get-LocalizedString 'CoreAuditpolSkipped')
+        Write-Info (Get-LocalizedString 'CoreRegistryActive')
         # Continue - not fatal, Registry setting handles the core functionality
     }
     
-    Write-Warning-Custom "ACHTUNG: Secret-Spill-Risiko in Logs evaluieren!"
-    Write-Warning-Custom "Command-Lines koennen Passwoerter, API-Keys, Tokens enthalten!"
+    Write-Warning-Custom (Get-LocalizedString 'CoreSecretSpillWarning')
+    Write-Warning-Custom (Get-LocalizedString 'CoreCommandLinesSecrets')
 }
 
 function Disable-IE11COMAutomation {
@@ -237,7 +237,7 @@ function Disable-IE11COMAutomation {
     [OutputType([void])]
     param()
     
-    Write-Section "IE11 COM-Automation deaktivieren"
+    Write-Section (Get-LocalizedString 'CoreIE11Disable')
     
     # IE11 Launch via COM blockieren
     $iePath = "HKLM:\SOFTWARE\Policies\Microsoft\Internet Explorer\Main"
@@ -249,7 +249,7 @@ function Disable-IE11COMAutomation {
     [void](Set-RegistryValue -Path $msHtmlPath -Name "iexplore.exe" -Value 1 -Type DWord `
         -Description "ActiveX Installation blockieren")
     
-    Write-Success "IE11/MSHTML/ActiveX deaktiviert"
+    Write-Success (Get-LocalizedString 'CoreIE11Disabled')
 }
 
 function Set-PrintSpoolerUserRights {
@@ -267,9 +267,9 @@ function Set-PrintSpoolerUserRights {
     [OutputType([void])]
     param()
     
-    Write-Section "Print Spooler User Rights"
+    Write-Section (Get-LocalizedString 'CorePrintSpooler')
     
-    Write-Info "Setze 'Impersonate client' fuer PrintSpoolerService..."
+    Write-Info (Get-LocalizedString 'CorePrintImpersonate')
     
     # Security Policy Template
     $secPolicy = @"
@@ -284,7 +284,7 @@ SeImpersonatePrivilege = *S-1-5-19,*S-1-5-20,*S-1-5-32-544,*S-1-5-99-0-0-0-0-0
     
     # Temp-Dateien
     if (-not $env:TEMP) {
-        Write-Error-Custom "TEMP-Umgebungsvariable nicht gesetzt!"
+        Write-Error-Custom (Get-LocalizedString 'CoreTempNotSet')
         return
     }
     
@@ -300,7 +300,7 @@ SeImpersonatePrivilege = *S-1-5-19,*S-1-5-20,*S-1-5-32-544,*S-1-5-99-0-0-0-0-0
         $seceditPath = "$env:SystemRoot\System32\secedit.exe"
         
         if (-not (Test-Path -Path $seceditPath)) {
-            Write-Error-Custom "secedit.exe nicht gefunden: $seceditPath"
+            Write-Error-Custom (Get-LocalizedString 'CoreSeceditNotFound' $seceditPath)
             return
         }
         
@@ -308,10 +308,10 @@ SeImpersonatePrivilege = *S-1-5-19,*S-1-5-20,*S-1-5-32-544,*S-1-5-99-0-0-0-0-0
         $result = & $seceditPath /configure /db $tempDb /cfg $tempInf /quiet 2>&1
         
         if ($LASTEXITCODE -eq 0) {
-            Write-Success "PrintSpoolerService zu 'Impersonate client' hinzugefuegt (WPP)"
+            Write-Success (Get-LocalizedString 'CorePrintAdded')
         }
         else {
-            Write-Error-Custom "secedit.exe fehlgeschlagen: Exit Code $LASTEXITCODE"
+            Write-Error-Custom (Get-LocalizedString 'CoreSeceditFailed' $LASTEXITCODE)
             Write-Verbose "Output: $result"
         }
         
@@ -331,12 +331,12 @@ SeImpersonatePrivilege = *S-1-5-19,*S-1-5-20,*S-1-5-32-544,*S-1-5-99-0-0-0-0-0
         }
     }
     catch {
-        Write-Error-Custom "Fehler bei User Rights Assignment: $_"
+        Write-Error-Custom (Get-LocalizedString 'CoreUserRightsError' $_)
         Write-Verbose "Details: $($_.Exception.Message)"
     }
     
     # Print Spooler RPC-Haertung (CVE-2021-1675 PrintNightmare)
-    Write-Info "Haerte Print Spooler RPC (PrintNightmare-Mitigation)..."
+    Write-Info (Get-LocalizedString 'CorePrintRPCHarden')
     
     $spoolerPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Printers"
     
@@ -346,7 +346,7 @@ SeImpersonatePrivilege = *S-1-5-19,*S-1-5-20,*S-1-5-32-544,*S-1-5-99-0-0-0-0-0
     [void](Set-RegistryValue -Path $spoolerPath -Name "RegisterSpoolerRemoteRpcEndPoint" -Value 2 -Type DWord `
         -Description "Remote RPC Endpoint deaktivieren")
     
-    Write-Success "Print Spooler RPC-Haertung (PrintNightmare CVE-2021-1675 Mitigation)"
+    Write-Success (Get-LocalizedString 'CorePrintNightmare')
 }
 
 #endregion
@@ -367,7 +367,7 @@ function Set-DefenderBaselineSettings {
     [OutputType([void])]
     param()
     
-    Write-Section "Microsoft Defender Baseline"
+    Write-Section (Get-LocalizedString 'CoreDefenderBaseline')
     
     # CRITICAL CHECK: Ist Windows Defender überhaupt verfügbar?
     # BitDefender/Norton/Kaspersky etc. deaktivieren Defender automatisch!
@@ -377,12 +377,12 @@ function Set-DefenderBaselineSettings {
         Write-Verbose "Defender ist verfuegbar und aktiv"
     }
     catch {
-        Write-Warning "Windows Defender ist NICHT verfuegbar!"
-        Write-Info "GRUND: Drittanbieter-Antivirus erkannt (BitDefender, Norton, Kaspersky, etc.)"
-        Write-Info "Windows Defender wird automatisch deaktiviert wenn Drittanbieter-AV aktiv ist."
+        Write-Warning (Get-LocalizedString 'CoreDefenderNotAvailable')
+        Write-Info (Get-LocalizedString 'CoreDefenderThirdParty')
+        Write-Info (Get-LocalizedString 'CoreDefenderAutoDisabled')
         Write-Host ""
-        Write-Info "DEFENDER-KONFIGURATION WIRD UEBERSPRUNGEN!"
-        Write-Info "Ihr Drittanbieter-Antivirus bietet bereits Schutz."
+        Write-Info (Get-LocalizedString 'CoreDefenderSkipped')
+        Write-Info (Get-LocalizedString 'CoreDefenderThirdPartyProtection')
         Write-Host ""
         return  # Überspringe komplette Defender-Konfiguration
     }
@@ -392,15 +392,15 @@ function Set-DefenderBaselineSettings {
     try {
         $defenderService = Get-Service -Name WinDefend -ErrorAction Stop
         if ($defenderService.Status -ne 'Running') {
-            Write-Info "Defender Service wird gestartet (erforderlich fuer Konfiguration)..."
+            Write-Info (Get-LocalizedString 'CoreDefenderStarting')
             Start-Service -Name WinDefend -ErrorAction Stop
             Start-Sleep -Seconds 3  # Warte bis Service vollständig hochgefahren ist
             Write-Verbose "Defender Service erfolgreich gestartet"
         }
     }
     catch {
-        Write-Warning "Defender Service konnte nicht gestartet werden: $_"
-        Write-Info "Defender-Konfiguration wird uebersprungen (Drittanbieter-AV aktiv?)"
+        Write-Warning (Get-LocalizedString 'CoreDefenderStartFailed' $_)
+        Write-Info (Get-LocalizedString 'CoreDefenderConfigSkipped')
         return  # Überspringe Defender-Konfiguration
     }
     
@@ -441,7 +441,7 @@ function Set-DefenderBaselineSettings {
         # KNOWN ISSUE: 0x800106ba = Operation failed (Defender Service Timing)
         # HARMLOS: PUA funktioniert trotzdem via Registry-Checkboxen unten!
         Write-Verbose "Set-MpPreference PUA fehlgeschlagen (bekanntes Timing-Problem): $_"
-        Write-Info "PUA wird via Registry-Checkboxen aktiviert (funktioniert ohne Service)"
+        Write-Info (Get-LocalizedString 'CorePUARegistry')
     }
     
     # CRITICAL FIX: Aktiviere BEIDE Checkboxen (Apps + Downloads blockieren)
@@ -449,7 +449,7 @@ function Set-DefenderBaselineSettings {
     # LÖSUNG: Set-RegistryValueSmart nimmt automatisch Ownership wenn nötig
     $puaPath = "HKLM:\SOFTWARE\Microsoft\Windows Defender\Features"
     
-    Write-Info "Setze PUA Checkboxen (mit TrustedInstaller Ownership-Management)..."
+    Write-Info (Get-LocalizedString 'CorePUACheckboxes')
     
     # EnableAppInstallControl = Apps blockieren (mit automatischem Ownership-Management)
     $result1 = Set-RegistryValueSmart -Path $puaPath -Name "EnableAppInstallControl" -Value 1 -Type DWord `
@@ -460,13 +460,13 @@ function Set-DefenderBaselineSettings {
         -Description "PUA: Downloads blockieren (Checkbox)"
     
     if ($result1 -and $result2) {
-        Write-Success "PUA Checkboxen aktiviert: Apps + Downloads blockieren"
+        Write-Success (Get-LocalizedString 'CorePUAActivated')
     }
     else {
-        Write-Info "PUA Checkboxen konnten nicht per Script gesetzt werden (TrustedInstaller-Protected)"
-        Write-Info "Set-MpPreference ist bereits aktiv - PUA-Funktionalitaet ist gegeben"
-        Write-Info "OPTIONAL: Checkboxen manuell aktivieren in: Windows Security | Virus and threat protection |"
-        Write-Info "          Virus and threat protection settings | Potentially unwanted app blocking"
+        Write-Info (Get-LocalizedString 'CorePUAScriptFailed')
+        Write-Info (Get-LocalizedString 'CorePUAFunctional')
+        Write-Info (Get-LocalizedString 'CorePUAManual')
+        Write-Info (Get-LocalizedString 'CorePUAManualPath')
     }
     
     # Edge SmartScreen PUA Protection wird im Edge-Modul gesetzt (kein Duplikat)
@@ -478,7 +478,7 @@ function Set-DefenderBaselineSettings {
     # ===========================
     # MICROSOFT BASELINE 25H2: 6 DEFENDER SETTINGS
     # ===========================
-    Write-Info "Aktiviere 6 Defender-Settings (Baseline 25H2)..."
+    Write-Info (Get-LocalizedString 'CoreDefender6Settings')
     
     # 1. EDR in Block Mode
     # WICHTIG: Features-Key ist TrustedInstaller-geschuetzt (wie oben bei PUA)
@@ -518,8 +518,8 @@ function Set-DefenderBaselineSettings {
     Set-RegistryValue -Path $reportPath -Name "ReportDynamicSignatureDroppedEvent" -Value 1 -Type DWord `
         -Description "Dynamic Signature Dropped Events reporten"
     
-    Write-Success "6 Defender-Settings aktiviert (Microsoft Baseline 25H2)"
-    Write-Success "Defender Baseline-Settings aktiv"
+    Write-Success (Get-LocalizedString 'CoreDefender6Activated')
+    Write-Success (Get-LocalizedString 'CoreDefenderActive')
 }
 
 function Enable-ControlledFolderAccess {
@@ -536,7 +536,7 @@ function Enable-ControlledFolderAccess {
     [OutputType([void])]
     param()
     
-    Write-Section "Controlled Folder Access (Ransomware-Schutz)"
+    Write-Section (Get-LocalizedString 'CoreCFATitle')
     
     # CRITICAL CHECK: Ist Windows Defender überhaupt verfügbar?
     Write-Verbose "Pruefe ob Windows Defender verfuegbar ist..."
@@ -545,8 +545,8 @@ function Enable-ControlledFolderAccess {
         Write-Verbose "Defender ist verfuegbar"
     }
     catch {
-        Write-Warning "Windows Defender ist NICHT verfuegbar (Drittanbieter-AV aktiv)"
-        Write-Info "Controlled Folder Access uebersprungen - Ihr AV bietet bereits Schutz"
+        Write-Warning (Get-LocalizedString 'CoreCFAThirdParty')
+        Write-Info (Get-LocalizedString 'CoreCFASkipped')
         return
     }
     
@@ -555,14 +555,14 @@ function Enable-ControlledFolderAccess {
     try {
         $defenderService = Get-Service -Name WinDefend -ErrorAction Stop
         if ($defenderService.Status -ne 'Running') {
-            Write-Info "Defender Service wird gestartet..."
+            Write-Info (Get-LocalizedString 'CoreCFAStarting')
             Start-Service -Name WinDefend -ErrorAction Stop
             Start-Sleep -Seconds 3
             Write-Verbose "Defender Service gestartet"
         }
     }
     catch {
-        Write-Warning "Defender Service nicht verfuegbar - Controlled Folder Access uebersprungen"
+        Write-Warning (Get-LocalizedString 'CoreCFAServiceFailed')
         Write-Verbose "Details: $_"
         return
     }
@@ -584,17 +584,17 @@ function Enable-ControlledFolderAccess {
         # Check if property exists (Third-Party AV might not have this property)
         if ($mpPrefs -and $mpPrefs.PSObject.Properties['EnableControlledFolderAccess']) {
             if ($mpPrefs.EnableControlledFolderAccess -eq 1) {
-                Write-Success "Controlled Folder Access aktiviert"
-                Write-Info "Geschuetzt: Dokumente, Bilder, Videos, Desktop"
-                Write-Warning-Custom "WICHTIG: Legitime Anwendungen muessen ggf. zur Whitelist hinzugefuegt werden"
+                Write-Success (Get-LocalizedString 'CoreCFAActivated')
+                Write-Info (Get-LocalizedString 'CoreCFAProtected')
+                Write-Warning-Custom (Get-LocalizedString 'CoreCFAWhitelist')
             }
             else {
-                Write-Warning "Controlled Folder Access Status: Nicht aktiviert"
+                Write-Warning (Get-LocalizedString 'CoreCFANotActivated')
             }
         }
         else {
-            Write-Warning "Controlled Folder Access Status konnte nicht verifiziert werden"
-            Write-Info "Moeglicherweise Drittanbieter-AV aktiv oder Defender nicht vollstaendig verfuegbar"
+            Write-Warning (Get-LocalizedString 'CoreCFAVerifyFailed')
+            Write-Info (Get-LocalizedString 'CoreCFADefenderUnavailable')
         }
     }
     catch {
@@ -607,11 +607,11 @@ function Enable-ControlledFolderAccess {
                 $cfaPath = "HKLM:\SOFTWARE\Microsoft\Windows Defender\Windows Defender Exploit Guard\Controlled Folder Access"
                 [void](Set-RegistryValue -Path $cfaPath -Name "EnableControlledFolderAccess" -Value 1 -Type DWord `
                     -Description "Controlled Folder Access aktivieren")
-                Write-Success "Controlled Folder Access aktiviert (Registry)"
+                Write-Success (Get-LocalizedString 'CoreCFARegistry')
             }
             catch {
-                Write-Warning "Controlled Folder Access konnte nicht aktiviert werden: $_"
-                Write-Info "Manuell aktivieren: Windows Security | Ransomware Protection"
+                Write-Warning (Get-LocalizedString 'CoreCFAEnableFailed' $_)
+                Write-Info (Get-LocalizedString 'CoreCFAManual')
             }
         }
         else {
@@ -639,9 +639,9 @@ function Enable-ExploitProtection {
     [OutputType([void])]
     param()
     
-    Write-Section "Exploit Protection EXTENDED (Maximum Security)"
+    Write-Section (Get-LocalizedString 'CoreExploitTitle')
     
-    Write-Info "Konfiguriere ALLE Exploit Mitigations..."
+    Write-Info (Get-LocalizedString 'CoreExploitConfiguring')
     
     try {
         # Check ob Cmdlet verfuegbar ist (Windows 10 1709+)
@@ -711,19 +711,19 @@ function Enable-ExploitProtection {
             Write-Verbose "  [SKIP] Extension Points: $($_.Exception.Message)"
         }
         
-        Write-Success "Exploit Protection EXTENDED aktiviert!"
-        Write-Info "  - DEP (Data Execution Prevention)"
-        Write-Info "  - SEHOP (Structured Exception Handler Overwrite Protection)"
-        Write-Info "  - ASLR (Mandatory + Bottom-up + High Entropy 64-bit)"
-        Write-Info "  - CFG Strict Mode + Export Suppression (Anti-ROP)"
-        Write-Info "  - Heap Protection (Terminate on Corruption)"
-        Write-Info "  - Image Load Protection (Block Remote + Low Integrity)"
-        Write-Info "  - Extension Points Disabled (Legacy COM)"
-        Write-Info "ERWEITERTE MITIGATIONS: +8% Exploit Resistance vs. Standard"
+        Write-Success (Get-LocalizedString 'CoreExploitActivated')
+        Write-Info (Get-LocalizedString 'CoreExploitDEP')
+        Write-Info (Get-LocalizedString 'CoreExploitSEHOP')
+        Write-Info (Get-LocalizedString 'CoreExploitASLR')
+        Write-Info (Get-LocalizedString 'CoreExploitCFG')
+        Write-Info (Get-LocalizedString 'CoreExploitHeap')
+        Write-Info (Get-LocalizedString 'CoreExploitImageLoad')
+        Write-Info (Get-LocalizedString 'CoreExploitExtension')
+        Write-Info (Get-LocalizedString 'CoreExploitResistance')
     }
     catch {
-        Write-Warning-Custom "Exploit Protection konnte nicht vollstaendig konfiguriert werden: $_"
-        Write-Info "Manuell pruefen: Windows Security | App and browser control | Exploit protection"
+        Write-Warning-Custom (Get-LocalizedString 'CoreExploitFailed' $_)
+        Write-Info (Get-LocalizedString 'CoreExploitManual')
     }
 }
 
