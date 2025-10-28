@@ -659,7 +659,7 @@ function Enable-ExploitProtection {
         
         # Heap Protection (Terminate on Error)
         try {
-            Set-ProcessMitigation -System -Enable TerminateOnError -ErrorAction SilentlyContinue
+            Set-ProcessMitigation -System -Enable TerminateOnError -ErrorAction Stop
             Write-Verbose "  [OK] Heap Protection: Terminate on Error"
         }
         catch {
@@ -668,7 +668,7 @@ function Enable-ExploitProtection {
         
         # Control Flow Guard - Strict Mode
         try {
-            Set-ProcessMitigation -System -Enable StrictCFG -ErrorAction SilentlyContinue
+            Set-ProcessMitigation -System -Enable StrictCFG -ErrorAction Stop
             Write-Verbose "  [OK] CFG: Strict Mode"
         }
         catch {
@@ -677,7 +677,7 @@ function Enable-ExploitProtection {
         
         # CFG - Suppress Exports (Anti-ROP)
         try {
-            Set-ProcessMitigation -System -Enable SuppressExports -ErrorAction SilentlyContinue
+            Set-ProcessMitigation -System -Enable SuppressExports -ErrorAction Stop
             Write-Verbose "  [OK] CFG: Export Suppression (Anti-ROP)"
         }
         catch {
@@ -686,25 +686,25 @@ function Enable-ExploitProtection {
         
         # Image Load Protection - Block Remote Images
         try {
-            Set-ProcessMitigation -System -Enable BlockRemoteImageLoads -ErrorAction SilentlyContinue
+            Set-ProcessMitigation -System -Enable BlockRemoteImageLoads -ErrorAction Stop
             Write-Verbose "  [OK] Image Load: Block Remote (DLL Hijacking Protection)"
         }
         catch {
-            Write-Verbose "  [SKIP] Block Remote Images: $($_.Exception.Message)"
+            Write-Verbose "  [SKIP] Image Load Remote: $($_.Exception.Message)"
         }
         
         # Image Load Protection - Block Low Integrity Images
         try {
-            Set-ProcessMitigation -System -Enable BlockLowLabelImageLoads -ErrorAction SilentlyContinue
+            Set-ProcessMitigation -System -Enable BlockLowLabelImageLoads -ErrorAction Stop
             Write-Verbose "  [OK] Image Load: Block Low Integrity (Untrusted Sources)"
         }
         catch {
-            Write-Verbose "  [SKIP] Block Low Integrity: $($_.Exception.Message)"
+            Write-Verbose "  [SKIP] Image Load Low Integrity: $($_.Exception.Message)"
         }
         
         # Disable Extension Points (Legacy COM)
         try {
-            Set-ProcessMitigation -System -Enable DisableExtensionPoints -ErrorAction SilentlyContinue
+            Set-ProcessMitigation -System -Enable DisableExtensionPoints -ErrorAction Stop
             Write-Verbose "  [OK] Disable Extension Points (Legacy COM)"
         }
         catch {
@@ -1316,7 +1316,7 @@ function Disable-UnnecessaryServices {
                 $successCount++
             }
             else {
-                Write-Verbose "$($svc.DisplayName) konnte nicht deaktiviert werden"
+                Write-Warning-Custom "$($svc.DisplayName) konnte nicht deaktiviert werden (eventuell geschuetzt)"
             }
         }
         else {
@@ -1515,7 +1515,7 @@ function Set-SecureAdministratorAccount {
                 # Guest Account sollte bereits disabled sein (Windows default)
                 if ($guestAccount.Enabled) {
                     Disable-LocalUser -Name $guestAccount.Name -ErrorAction Stop
-                    Write-Verbose "Guest Account wurde deaktiviert"
+                    Write-Info "Guest Account wurde deaktiviert"
                 }
                 
                 # Umbenennen (Defense-in-Depth: Name verschleiern)
@@ -1530,11 +1530,12 @@ function Set-SecureAdministratorAccount {
                 Write-Success "Guest Account umbenannt: '$($guestAccount.Name)' zu '$newGuestName' + deaktiviert"
             }
             else {
-                Write-Verbose "Guest Account nicht gefunden (eventuell bereits entfernt)"
+                Write-Info "Guest Account nicht gefunden (bereits entfernt oder nicht vorhanden)"
             }
         }
         catch {
-            Write-Verbose "Guest Account Umbenennung fehlgeschlagen (nicht kritisch): $_"
+            Write-Warning-Custom "Guest Account Umbenennung fehlgeschlagen (nicht kritisch): $_"
+            Write-Info "Hinweis: Guest Account ist bereits deaktiviert (Windows Standard)"
         }
         
         return $true

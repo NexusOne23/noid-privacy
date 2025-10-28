@@ -15,17 +15,18 @@
 
 ### What You Get
 - ✅ **100% Microsoft Security Baseline 25H2 Compliance**
-- 🔒 **550+ Security Settings** - Enterprise-grade protection at home
-- 🛡️ **700+ Privacy Settings** - Zero telemetry to Microsoft
-- 🚀 **Modular Architecture** - 17 specialized modules, pick what you need
+- 🔒 **300+ Security Settings** - Enterprise-grade protection at home
+- 🛡️ **180+ Privacy Settings** - ~95% telemetry blocked
+- 🚀 **Modular Architecture** - 13 specialized modules, pick what you need
 - 🔄 **Complete Backup & Restore** - Can undo EVERYTHING
 - 🌐 **Multi-Language Support** - English/German with real-time switching
 - 📊 **Interactive Menu & CLI** - Easy GUI or automation-ready
+- 📜 **Complete Audit Trails** - 3 logging levels (Transcript, Console, Summary)
 
 ### Why This Matters to You
 **Security:** Your Windows is now as secure as Fortune 500 companies  
 **Privacy:** Microsoft gets ZERO usage data from your PC  
-**Performance:** 50+ bloatware apps removed, faster boot  
+**Performance:** Bloatware removal, faster boot, optimized background tasks  
 **Control:** YOU decide what runs, what uploads, what connects  
 **Peace of Mind:** Complete backup = risk-free experimentation
 
@@ -38,23 +39,23 @@
 ### 🛡️ Security Hardening - Enterprise Protection at Home
 
 **Your Computer Becomes a Fortress:**
-- **Microsoft Defender** → 11 protection layers = Real-time malware blocking + Cloud AI threat detection
+- **Microsoft Defender** → 6 protection layers = Real-time malware blocking + Cloud AI threat detection + PUA + EDR
 - **19 Attack Surface Reduction Rules** → 19 different attack types BLOCKED (ransomware, macros, exploits, credential theft)
-- **13 Exploit Mitigations** → Memory-based attacks fail (buffer overflows, ROP chains, code injection)
-- **Credential Protection** → Your passwords can't be stolen from memory (Mimikatz protection)
-- **BitLocker XTS-AES-256** → Stolen laptop = useless encrypted brick (TPM 2.0 + PIN)
-- **Strict Firewall** → Nothing gets in without your permission (block all incoming)
-- **Modern Network Only** → TLS 1.2/1.3, SMB encryption, no legacy protocols (LLMNR/NetBIOS/WPAD disabled)
+- **10 Exploit Mitigations** → Memory-based attacks fail (DEP, SEHOP, ASLR, CFG Strict, Heap Protection, Image Load Protection)
+- **Credential Protection** → Your passwords can't be stolen from memory (Credential Guard + LSA Protection + Mimikatz mitigation)
+- **BitLocker XTS-AES-256** → Stolen laptop = useless encrypted brick (TPM 2.0 + optional PIN)
+- **Strict Firewall** → Nothing gets in without your permission (block all incoming + 13 legacy protocol blocks)
+- **Modern Network Only** → TLS 1.2/1.3, SMB encryption, no legacy protocols (LLMNR/NetBIOS/WPAD/mDNS disabled)
 
 **Bottom Line:** You're now as secure as Fortune 500 companies
 
 ### 🔒 Privacy Protection - Zero Data to Microsoft
 
 **Your Privacy is Sacred:**
-- **Complete Telemetry Shutdown** → 25 services + 60 tasks + 180 registry keys = ZERO usage data sent
-- **AI Lockdown** → Windows Recall DISABLED (no screenshots of passwords!), Copilot blocked, no AI spying
-- **App Permission Control** → 37 categories default-DENY (apps can't spy without explicit permission)
-- **Clean System** → 50+ bloatware apps removed (Xbox, 3D apps, Candy Crush, etc.)
+- **Complete Telemetry Shutdown** → 10 telemetry services + ~14 tasks + 180 registry keys = ~95% usage data blocked
+- **AI Lockdown** → Windows Recall DISABLED (no screenshots of passwords!), Copilot blocked (4 layers), Click to Do disabled
+- **App Permission Control** → 33 categories default-DENY (apps can't spy without explicit permission)
+- **Clean System** → 84 bloatware app patterns checked (Xbox, 3D apps, Candy Crush, Teams Chat, Copilot, Widgets)
 - **80,000+ Trackers Blocked** → DNS-level blocking via Steven Black hosts + Cloudflare DoH
 
 **Bottom Line:** Microsoft gets ZERO data about how you use your PC
@@ -62,21 +63,21 @@
 ### ⚡ Performance - Faster & Cleaner
 
 **Your PC Breathes Easier:**
-- **50+ Background Tasks Disabled** → Less CPU/disk usage when idle
-- **Event Log Optimization** → Less disk I/O
-- **Visual Effects Optimized** → Faster UI (you can re-enable animations if you want)
-- **No Bloatware** → Faster boot, more disk space
+- **~20 Background Tasks Disabled** → Less CPU/disk usage when idle (Update/Defender tasks stay active!)
+- **Event Log Optimization** → Critical logs increased, noise logs reduced = less disk I/O
+- **Windows Search Optimized** → Local-only, no web/Bing queries
+- **No Bloatware** → Faster boot, more disk space, cleaner Start Menu
 
 **Bottom Line:** Windows feels snappier, boots faster
 
 ### 🎯 Advanced Features - Pro-Level Control
 
 **Power User Tools:**
-- **Windows LAPS** → Auto-rotating admin passwords (30 days, 20 chars)
-- **18 Audit Categories** → Complete security event logging for forensics
-- **Smart App Control** → AI-based app reputation (blocks unknown malware)
-- **Enhanced UAC** → Maximum privilege protection (always notify)
-- **Edge Privacy** → Tracking prevention STRICT, SmartScreen enforced, DoH enabled
+- **Windows LAPS** → Auto-rotating admin passwords (30 days, 20 chars, Entra/AD-Escrow)
+- **Advanced Auditing** → Complete security event logging (Object Access, Logon, DS, Policy, PnP, PS-Logging)
+- **Smart App Control** → AI-based app reputation (Windows evaluates & activates after 7-14 days)
+- **Enhanced UAC** → Maximum privilege protection (always notify + Enhanced Privilege Protection Mode ready)
+- **Edge Privacy** → Tracking prevention Balanced, SmartScreen enforced, DoH automatic, Site Isolation active
 
 **Bottom Line:** Enterprise-level features at home
 
@@ -125,7 +126,10 @@
 ### Software Requirements
 - **PowerShell:** 5.1 or higher (Windows built-in)
 - **Administrator Rights:** Required for all operations
-- **Internet Connection:** Required for DNS-over-HTTPS and blocklist download
+- **Internet Connection:** NOT required for script execution
+  - ✅ Hosts file (80K+ domains) included locally in project
+  - ✅ DNS-over-HTTPS is only configured (no download needed)
+  - ℹ️ Internet only needed for: git clone (initial download)
 
 ---
 
@@ -206,35 +210,32 @@ Some features (VBS, Credential Guard, BitLocker) require a system restart to act
 
 #### Batch File (for non-technical users)
 ```cmd
-# Double-click Start-NoID-Privacy.bat
-# Automatically opens PowerShell with correct permissions
+# Right-click Start-NoID-Privacy.bat → "Run as Administrator"
+# Automatically checks requirements and starts Interactive Mode
+# Note: Double-click won't work - Admin rights required!
 ```
 
 ---
 
 ## 🔧 Module Architecture
 
-The project uses a modular architecture with 17 specialized modules:
+The project uses a modular architecture with 13 specialized modules:
 
-| Module | Description | Settings |
-|--------|-------------|----------|
-| **Core** | Security baseline, Defender, Firewall, BitLocker | 350+ |
-| **Telemetry** | Privacy protection, App permissions, Services | 150+ |
-| **ASR** | Attack Surface Reduction rules | 19 |
-| **Advanced** | VBS, Credential Guard, LAPS, Auditing | 30+ |
-| **DNS** | DNS-over-HTTPS, DNSSEC, Blocklist | 80,101 domains |
-| **Bloatware** | App removal, Consumer features | 50+ apps |
-| **AI** | Recall, Copilot, AI tracking | 15+ |
-| **Performance** | Scheduled tasks, Event logs | 40+ |
-| **Edge** | Microsoft Edge security | 42 |
-| **OneDrive** | OneDrive privacy | 5 |
-| **UAC** | User Account Control enhancement | 3 |
-| **WindowsUpdate** | Update optimization | 7 |
-| **WirelessDisplay** | Miracast disablement | 4 |
-| **Interactive** | Menu system, User interface | - |
-| **Common** | Shared functions, Logging | - |
-| **Localization** | Multi-language support | - |
-| **RegistryOwnership** | TrustedInstaller handling | - |
+| Module | Description | Key Features |
+|--------|-------------|-------------|
+| **Core** | Security baseline, Defender, Firewall, Services | 25 services disabled, 13 firewall rules, 10 exploit mitigations, Admin/Guest account hardening |
+| **ASR** | Attack Surface Reduction rules | 19 ASR rules (Enforce mode), Smart App Control |
+| **Advanced** | VBS, Credential Guard, LAPS, Auditing | Credential Guard, VBS, HVCI, LSA-PPL, BitLocker policies, Windows LAPS, TLS/SSL hardening |
+| **DNS** | DNS-over-HTTPS, DNSSEC, Blocklist | Cloudflare DoH (4 servers), DNSSEC validation, 80,101 blocked domains, Strict Inbound Firewall |
+| **Bloatware** | App removal, Consumer features | 84 app patterns, Teams Chat/Copilot/Widgets disabled, Consumer Features blocked |
+| **Telemetry** | Privacy protection, App permissions | 10 services, 180 registry keys, 33 app permission categories, Camera/Mic controls |
+| **Performance** | Scheduled tasks, Event logs | ~20 tasks disabled, Event log optimization, Windows Search local-only, Prefetch/Superfetch tuning |
+| **AI** | Recall, Copilot, AI tracking | Recall disabled, Copilot blocked (4 layers), Click to Do/Paint AI/Settings Agent disabled |
+| **Edge** | Microsoft Edge security baseline | SmartScreen enforced, Tracking Prevention, DoH automatic, Site Isolation, Extension policies |
+| **OneDrive** | OneDrive privacy hardening | Tutorial/Feedback disabled, Network silent, KFM blocked, User-controlled uploads |
+| **UAC** | User Account Control enhancement | Maximum security (always notify), Enhanced Privilege Protection Mode (future-ready) |
+| **WindowsUpdate** | Update optimization | Hybrid mode (user preferences + policies), HTTP-only (no P2P), Preview Builds blocked |
+| **WirelessDisplay** | Miracast disablement | 4-layer blocking (Services, Registry, Firewall, Apps) |
 
 ---
 
@@ -259,7 +260,7 @@ All settings are configured for **maximum security with maintained usability**:
 - Services: Telemetry services disabled, critical services protected
 - Firewall: Inbound blocked, outbound allowed (with exceptions)
 - Privacy: Default-deny for app permissions, user can enable individually
-- BitLocker: XTS-AES-256 with TPM 2.0 + PIN (if TPM available)
+- BitLocker: XTS-AES-256 with TPM 2.0 (PIN optional, user must enable manually)
 
 ### Customization
 Edit module files in `/Modules/` to adjust settings:
@@ -390,14 +391,17 @@ The authors are not responsible for any damage or data loss caused by this scrip
 ## 📈 Project Status
 
 **Current Version:** 1.7.9  
-**Last Updated:** October 27, 2025  
+**Last Updated:** October 28, 2025  
 **Status:** Production-Ready ✅
 
-### Recent Updates
-- ✅ Guest Account renaming added (CIS Benchmark compliance)
-- ✅ Fixed `-Type` → `-PropertyType` in Telemetry module
-- ✅ Enhanced error handling for third-party AV compatibility
-- ✅ Improved Defender feature detection (ASR, PUA, Controlled Folder Access)
+### Recent Updates (v1.7.9)
+- ✅ **Complete Error Logging Overhaul** - 100% transparency with 3-level logging (Transcript, Console, Summary)
+- ✅ **Guest Account Hardening** - Visible status, randomized rename, CIS Benchmark compliance
+- ✅ **False Positive Elimination** - Handled errors removed from $Error array (clean status reports)
+- ✅ **Service Stop Visibility** - Critical failures now visible (WirelessDisplay, Core services)
+- ✅ **Event Log Config Reporting** - wevtutil failures now reported as warnings
+- ✅ **Exploit Protection Fix** - 6 Set-ProcessMitigation commands now use -ErrorAction Stop (catch blocks work!)
+- ✅ **Enhanced LastRun-Status.txt** - Detailed error summaries, categorized warnings, quick actions, next steps
 
 See [CHANGELOG.md](CHANGELOG.md) for full version history.
 

@@ -40,8 +40,8 @@ function Set-OneDrivePrivacyHardening {
     
     Write-Section "OneDrive Privacy Hardening"
     
-    Write-Info "OneDrive wird fuer Maximum Privacy gehaertet..."
-    Write-Info "Funktionalitaet bleibt erhalten - User hat KONTROLLE ueber Uploads"
+    Write-Info "$(Get-LocalizedString 'OneDriveHardeningStart')"
+    Write-Info "$(Get-LocalizedString 'OneDriveFunctionalityPreserved')"
     
     # CRITICAL FIX v1.7.6: Set BOTH paths (HKCU + HKLM) for maximum coverage!
     # HKCU = Current User (takes effect immediately)
@@ -51,47 +51,47 @@ function Set-OneDrivePrivacyHardening {
     
     # 1. Disable Tutorial (Privacy: less tracking on first start)
     Set-RegistryValue -Path $oneDrivePathHKCU -Name "DisableTutorial" -Value 1 -Type DWord `
-        -Description "OneDrive Tutorial deaktivieren (Privacy)"
+        -Description "$(Get-LocalizedString 'OneDriveTutorialDisabled')"
     Set-RegistryValue -Path $oneDrivePathHKLM -Name "DisableTutorial" -Value 1 -Type DWord `
-        -Description "OneDrive Tutorial deaktivieren (Privacy) - Default fuer neue User"
+        -Description "$(Get-LocalizedString 'OneDriveTutorialDisabledDefault')"
     
     # 2. Disable Feedback (Privacy: prevents data leaks via bug reports)
     Set-RegistryValue -Path $oneDrivePathHKCU -Name "DisableFeedback" -Value 1 -Type DWord `
-        -Description "OneDrive Feedback an Microsoft deaktivieren (Privacy)"
+        -Description "$(Get-LocalizedString 'OneDriveFeedbackDisabled')"
     Set-RegistryValue -Path $oneDrivePathHKLM -Name "DisableFeedback" -Value 1 -Type DWord `
-        -Description "OneDrive Feedback an Microsoft deaktivieren (Privacy) - Default fuer neue User"
+        -Description "$(Get-LocalizedString 'OneDriveFeedbackDisabledDefault')"
     
     # 3. BLOCK Network Traffic before User-Login (CRITICAL!)
     # OneDrive must NOT phone home without user consent!
     Set-RegistryValue -Path $oneDrivePathHKCU -Name "PreventNetworkTrafficPreUserSignIn" -Value 1 -Type DWord `
-        -Description "OneDrive darf nicht ohne User-Consent connecten (Privacy)"
+        -Description "$(Get-LocalizedString 'OneDriveNoConnectWithoutConsent')"
     Set-RegistryValue -Path $oneDrivePathHKLM -Name "PreventNetworkTrafficPreUserSignIn" -Value 1 -Type DWord `
-        -Description "OneDrive darf nicht ohne User-Consent connecten (Privacy) - Default fuer neue User"
+        -Description "$(Get-LocalizedString 'OneDriveNoConnectWithoutConsentDefault')"
     
     # 4. BLOCK Known Folder Move (prevent Auto-Upload!)
     # Prevents automatic upload of Desktop/Documents/Pictures
     # User has CONTROL over what gets uploaded (Privacy-First!)
     Set-RegistryValue -Path $oneDrivePathHKCU -Name "KFMBlockOptIn" -Value 1 -Type DWord `
-        -Description "Auto-Upload von Desktop/Dokumente/Bilder blockieren (Privacy)"
+        -Description "$(Get-LocalizedString 'OneDriveBlockAutoUpload')"
     Set-RegistryValue -Path $oneDrivePathHKLM -Name "KFMBlockOptIn" -Value 1 -Type DWord `
-        -Description "Auto-Upload von Desktop/Dokumente/Bilder blockieren (Privacy) - Default fuer neue User"
+        -Description "$(Get-LocalizedString 'OneDriveBlockAutoUploadDefault')"
     
     # 5. Do NOT block Personal OneDrive!
     # DisablePersonalSync would break Home users - only for Enterprise!
     # We keep Personal OneDrive active (no breaking change)
     
-    Write-Success "OneDrive Privacy Hardening: DONE"
+    Write-Success "$(Get-LocalizedString 'OneDriveHardeningDone')"
     Write-Host ""
-    Write-Info "OneDrive Privacy Status:"
-    Write-Info "  [OK] Tutorial deaktiviert (kein Tracking beim ersten Start)"
-    Write-Info "  [OK] Feedback deaktiviert (keine Data-Leaks via Bug-Reports)"
-    Write-Info "  [OK] Kein Network Traffic vor User-Login (kein Silent-Tracking)"
-    Write-Info "  [OK] Known Folder Move blockiert (kein Auto-Upload)"
-    Write-Info "  [OK] Optional Diagnostic Data deaktiviert (via Telemetry-Modul)"
+    Write-Info "$(Get-LocalizedString 'OneDrivePrivacyStatus')"
+    Write-Info "$(Get-LocalizedString 'OneDriveTutorialStatus')"
+    Write-Info "$(Get-LocalizedString 'OneDriveFeedbackStatus')"
+    Write-Info "$(Get-LocalizedString 'OneDriveNetworkStatus')"
+    Write-Info "$(Get-LocalizedString 'OneDriveKFMStatus')"
+    Write-Info "$(Get-LocalizedString 'OneDriveDiagnosticStatus')"
     Write-Host ""
-    Write-Info "OneDrive Funktionalitaet:"
-    Write-Info "  [OK] OneDrive funktioniert normal (Sync/Upload/Download)"
-    Write-Info "  [OK] Personal OneDrive aktiv (kein Breaking fuer Home-User)"
-    Write-Info "  [!] Auto-Backup (KFM) ist AUS - User muss Dateien manuell hochladen"
-    Write-Info "  [!] User hat KONTROLLE was in die Cloud hochgeladen wird (Privacy-First!)"
+    Write-Info "$(Get-LocalizedString 'OneDriveFunctionality')"
+    Write-Info "$(Get-LocalizedString 'OneDriveWorksNormally')"
+    Write-Info "$(Get-LocalizedString 'OneDrivePersonalActive')"
+    Write-Info "$(Get-LocalizedString 'OneDriveKFMOff')"
+    Write-Info "$(Get-LocalizedString 'OneDriveUserControl')"
 }

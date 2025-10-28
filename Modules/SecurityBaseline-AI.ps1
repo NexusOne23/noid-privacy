@@ -19,7 +19,7 @@ function Disable-WindowsRecall {
     [CmdletBinding()]
     param()
     
-    Write-Section "Windows Recall - KOMPLETT DEAKTIVIEREN"
+    Write-Section "$(Get-LocalizedString 'AIRecallTitle')"
     
     $aiPolicyPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI"
     
@@ -32,9 +32,9 @@ function Disable-WindowsRecall {
     Set-RegistryValue -Path $policyManagerPath -Name "value" -Value 1 -Type DWord `
         -Description "Recall Policy Manager: DISABLED"
     
-    Write-Success "Windows Recall: KOMPLETT DEAKTIVIERT"
-    Write-Warning "Recall war ein PRIVACY NIGHTMARE - Screenshots von Passwoertern, Banking, etc.!"
-    Write-Info "Alle vorhandenen Snapshots werden beim naechsten Login geloescht"
+    Write-Success "$(Get-LocalizedString 'AIRecallDisabled')"
+    Write-Warning "$(Get-LocalizedString 'AIRecallNightmare')"
+    Write-Info "$(Get-LocalizedString 'AIRecallSnapshotsDeleted')"
 }
 
 function Disable-WindowsCopilot {
@@ -52,7 +52,7 @@ function Disable-WindowsCopilot {
     [CmdletBinding()]
     param()
     
-    Write-Section "Windows Copilot - MULTI-LAYER BLOCKING"
+    Write-Section "$(Get-LocalizedString 'AICopilotTitle')"
     
     # Layer 1: TurnOffWindowsCopilot (HKLM - not official but works)
     $aiPolicyPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI"
@@ -73,9 +73,9 @@ function Disable-WindowsCopilot {
     Set-RegistryValue -Path $explorerPath -Name "DisableWindowsCopilot" -Value 1 -Type DWord `
         -Description "Copilot: Layer 4 - Explorer Disable"
     
-    Write-Success "Windows Copilot: MULTI-LAYER BLOCKIERT"
-    Write-Info "Blockiert auf 4 Ebenen (Microsoft aendert staendig die Pfade!)"
-    Write-Info "Copilot Icon wird von Taskbar entfernt"
+    Write-Success "$(Get-LocalizedString 'AICopilotBlocked')"
+    Write-Info "$(Get-LocalizedString 'AICopilot4Layers')"
+    Write-Info "$(Get-LocalizedString 'AICopilotIconRemoved')"
 }
 
 function Disable-ClickToDo {
@@ -89,14 +89,14 @@ function Disable-ClickToDo {
     [CmdletBinding()]
     param()
     
-    Write-Section "Click to Do - DEAKTIVIEREN"
+    Write-Section "$(Get-LocalizedString 'AIClickToDoTitle')"
     
     $aiPolicyPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI"
     Set-RegistryValue -Path $aiPolicyPath -Name "DisableClickToDo" -Value 1 -Type DWord `
         -Description "Click to Do deaktivieren (AI Screenshot Analysis)"
     
-    Write-Success "Click to Do: DEAKTIVIERT"
-    Write-Info "Keine AI-basierten Screenshot-Analysen mehr"
+    Write-Success "$(Get-LocalizedString 'AIClickToDoDisabled')"
+    Write-Info "$(Get-LocalizedString 'AIClickToDoNoAnalysis')"
 }
 
 function Disable-PaintAIFeatures {
@@ -110,7 +110,7 @@ function Disable-PaintAIFeatures {
     [CmdletBinding()]
     param()
     
-    Write-Section "Paint AI Features - DEAKTIVIEREN"
+    Write-Section "$(Get-LocalizedString 'AIPaintTitle')"
     
     $aiPolicyPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI"
     
@@ -126,8 +126,8 @@ function Disable-PaintAIFeatures {
     Set-RegistryValue -Path $aiPolicyPath -Name "DisableImageCreator" -Value 1 -Type DWord `
         -Description "Paint Image Creator deaktivieren (AI Art)"
     
-    Write-Success "Paint AI Features: ALLE DEAKTIVIERT"
-    Write-Info "Cocreator, Generative Fill, Image Creator = AUS"
+    Write-Success "$(Get-LocalizedString 'AIPaintDisabled')"
+    Write-Info "$(Get-LocalizedString 'AIPaintFeatures')"
 }
 
 function Disable-SettingsAgent {
@@ -141,13 +141,13 @@ function Disable-SettingsAgent {
     [CmdletBinding()]
     param()
     
-    Write-Section "Settings Agent - DEAKTIVIEREN"
+    Write-Section "$(Get-LocalizedString 'AISettingsAgentTitle')"
     
     $aiPolicyPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI"
     Set-RegistryValue -Path $aiPolicyPath -Name "DisableSettingsAgent" -Value 1 -Type DWord `
         -Description "Settings Agent deaktivieren (AI in Settings)"
     
-    Write-Success "Settings Agent: DEAKTIVIERT"
+    Write-Success "$(Get-LocalizedString 'AISettingsAgentDisabled')"
 }
 
 function Disable-CopilotProactive {
@@ -160,14 +160,14 @@ function Disable-CopilotProactive {
     [CmdletBinding()]
     param()
     
-    Write-Section "Copilot Best Practice 25H2 - DEAKTIVIEREN"
+    Write-Section "$(Get-LocalizedString 'AICopilotProactiveTitle')"
     
     # Disable Copilot Proactive
     $copilotPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsCopilot"
     Set-RegistryValue -Path $copilotPath -Name "DisableCopilotProactive" -Value 1 -Type DWord `
         -Description "Copilot Proactive deaktivieren (keine ungewollten Vorschlaege)"
     
-    Write-Success "Copilot Proactive: DEAKTIVIERT"
+    Write-Success "$(Get-LocalizedString 'AICopilotProactiveDisabled')"
 }
 
 function Set-RecallMaximumStorage {
@@ -181,7 +181,7 @@ function Set-RecallMaximumStorage {
     [CmdletBinding()]
     param()
     
-    Write-Section "Recall Storage Limits - MINIMUM"
+    Write-Section "$(Get-LocalizedString 'AIRecallStorageTitle')"
     
     $aiPolicyPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI"
     
@@ -193,8 +193,8 @@ function Set-RecallMaximumStorage {
     Set-RegistryValue -Path $aiPolicyPath -Name "SetMaximumStorageDurationForRecallSnapshots" -Value 1 -Type DWord `
         -Description "Recall: Max Duration = 1 Tag (Minimum, falls reaktiviert)"
     
-    Write-Success "Recall Storage Limits: AUF MINIMUM gesetzt"
-    Write-Info "Fallback falls Recall reaktiviert wird: Nur 10GB fuer 1 Tag"
+    Write-Success "$(Get-LocalizedString 'AIRecallStorageMinimum')"
+    Write-Info "$(Get-LocalizedString 'AIRecallStorageFallback')"
 }
 
 function Show-AILockdownReport {
@@ -207,28 +207,28 @@ function Show-AILockdownReport {
     
     Write-Host ""
     Write-Host "========================================" -ForegroundColor Cyan
-    Write-Host "  AI LOCKDOWN - ZUSAMMENFASSUNG" -ForegroundColor Cyan
+    Write-Host "$(Get-LocalizedString 'AILockdownSummary')" -ForegroundColor Cyan
     Write-Host "========================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "DEAKTIVIERT:" -ForegroundColor Green
-    Write-Host "  [X] Windows Recall (Screenshots)" -ForegroundColor Green
-    Write-Host "  [X] Windows Copilot (Multi-Layer)" -ForegroundColor Green
-    Write-Host "  [X] Click to Do (AI Analysis)" -ForegroundColor Green
-    Write-Host "  [X] Paint AI (Cocreator, Gen Fill, Image Creator)" -ForegroundColor Green
-    Write-Host "  [X] Settings Agent (AI in Settings)" -ForegroundColor Green
-    Write-Host "  [X] Copilot Proactive Features" -ForegroundColor Green
+    Write-Host "$(Get-LocalizedString 'AIDisabled')" -ForegroundColor Green
+    Write-Host "$(Get-LocalizedString 'AIRecallScreenshots')" -ForegroundColor Green
+    Write-Host "$(Get-LocalizedString 'AICopilotMultiLayer')" -ForegroundColor Green
+    Write-Host "$(Get-LocalizedString 'AIClickToDoAnalysis')" -ForegroundColor Green
+    Write-Host "$(Get-LocalizedString 'AIPaintAI')" -ForegroundColor Green
+    Write-Host "$(Get-LocalizedString 'AISettingsAgent')" -ForegroundColor Green
+    Write-Host "$(Get-LocalizedString 'AICopilotProactive')" -ForegroundColor Green
     Write-Host ""
-    Write-Host "FALLBACK:" -ForegroundColor Yellow
-    Write-Host "  [!] Recall Storage auf Minimum (10GB, 1 Tag)" -ForegroundColor Yellow
+    Write-Host "$(Get-LocalizedString 'AIFallback'):" -ForegroundColor Yellow
+    Write-Host "$(Get-LocalizedString 'AIRecallMinimum')" -ForegroundColor Yellow
     Write-Host ""
-    Write-Host "STATUS:" -ForegroundColor Cyan
-    Write-Host "  [OK] Alle AI Features system-weit blockiert (HKLM)" -ForegroundColor Green
-    Write-Host "  [OK] Gilt fuer ALLE User" -ForegroundColor Green
-    Write-Host "  [OK] Multi-Layer Blocking (mehrere Registry Pfade)" -ForegroundColor Green
+    Write-Host "$(Get-LocalizedString 'AIStatus'):" -ForegroundColor Cyan
+    Write-Host "$(Get-LocalizedString 'AISystemWideBlocked')" -ForegroundColor Green
+    Write-Host "$(Get-LocalizedString 'AIAllUsers')" -ForegroundColor Green
+    Write-Host "$(Get-LocalizedString 'AIMultiLayerBlocking')" -ForegroundColor Green
     Write-Host ""
-    Write-Host "HINWEIS:" -ForegroundColor Yellow
-    Write-Host "  Microsoft aendert staendig AI-Implementierung!" -ForegroundColor Yellow
-    Write-Host "  Wir blockieren auf mehreren Ebenen fuer Zukunftssicherheit." -ForegroundColor Yellow
+    Write-Host "$(Get-LocalizedString 'AINote'):" -ForegroundColor Yellow
+    Write-Host "$(Get-LocalizedString 'AIMicrosoftChanges')" -ForegroundColor Yellow
+    Write-Host "$(Get-LocalizedString 'AIFutureProof')" -ForegroundColor Yellow
     Write-Host ""
 }
 

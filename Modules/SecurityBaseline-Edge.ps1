@@ -31,7 +31,7 @@ function Set-EdgeSecurityBaseline {
     [OutputType([void])]
     param()
     
-    Write-Section "Microsoft Edge Security Baseline v139+ (User-Friendly)"
+    Write-Section "$(Get-LocalizedString 'EdgeBaselineTitle')"
     
     # IMPORTANT: Policies vs. Preferences!
     # Policies (greyed out):  HKLM:\SOFTWARE\Policies\Microsoft\Edge
@@ -41,7 +41,7 @@ function Set-EdgeSecurityBaseline {
     $edgePrefPath = "HKLM:\SOFTWARE\Microsoft\Edge"                  # For User-Friendly (changeable)
     
     # === SmartScreen & Security (POLICIES - GREYED OUT!) ===
-    Write-Info "Konfiguriere SmartScreen und Site Isolation..."
+    Write-Info "$(Get-LocalizedString 'EdgeSmartScreenConfig')"
     
     # CRITICAL FIX v1.7.6: SmartScreenEnabled MUST be set (even if deprecated!)
     # Is checked in Compliance-Report and also set by SecurityBaseline-Core
@@ -62,7 +62,7 @@ function Set-EdgeSecurityBaseline {
         -Description "Enable Site Isolation"
     
     # === Tracking Prevention (POLICIES - GREYED OUT!) ===
-    Write-Info "Konfiguriere Tracking Prevention (Strict)..."
+    Write-Info "$(Get-LocalizedString 'EdgeTrackingConfig')"
     
     # CRITICAL FIX v1.7.6: Tracking Prevention auf Strict (2) setzen!
     # 0 = Off, 1 = Balanced, 2 = Strict
@@ -74,7 +74,7 @@ function Set-EdgeSecurityBaseline {
         -Description "Allow Third-Party Cookies (normal websites work)"
     
     # === DNS over HTTPS (POLICIES - GREYED OUT!) ===
-    Write-Info "Konfiguriere DNS over HTTPS..."
+    Write-Info "$(Get-LocalizedString 'EdgeDNSConfig')"
     
     Set-RegistryValue -Path $edgePolicyPath -Name "DnsOverHttpsMode" -Value "automatic" -Type String `
         -Description "DNS over HTTPS: Automatic (not enforced)"
@@ -83,7 +83,7 @@ function Set-EdgeSecurityBaseline {
         -Description "Enable Built-in DNS Client"
     
     # === Enhanced Security Mode (POLICIES - GREYED OUT!) ===
-    Write-Info "Konfiguriere Enhanced Security Mode (Balanced)..."
+    Write-Info "$(Get-LocalizedString 'EdgeEnhancedSecurityConfig')"
     
     # CRITICAL FIX v1.7.6: TYPO! It must be "EnhancedSecurityMode" (with "d")!
     # Enhanced Security Mode: Basic (not Strict!)
@@ -95,7 +95,7 @@ function Set-EdgeSecurityBaseline {
         -Description "Warn for dangerous downloads (not block)"
     
     # === Extensions (POLICIES - GREYED OUT!) ===
-    Write-Info "Konfiguriere Erweiterungs-Policies (User-Friendly)..."
+    Write-Info "$(Get-LocalizedString 'EdgeExtensionsConfig')"
     
     # Extensions: Only allow Microsoft Store (no complete blocking!)
     # IMPORTANT: ExtensionInstallSources MUST be a MultiString (Array)!
@@ -116,10 +116,10 @@ function Set-EdgeSecurityBaseline {
     # NO Blocklist - User can install extensions!
     # ExtensionInstallBlocklist = NOT set!
     
-    Write-Info "Erweiterungen aus Microsoft Edge Store sind ERLAUBT"
+    Write-Info "$(Get-LocalizedString 'EdgeExtensionsAllowed')"
     
     # === TLS/SSL Security ===
-    Write-Info "Konfiguriere TLS/SSL Security..."
+    Write-Info "$(Get-LocalizedString 'EdgeTLSConfig')"
     
     # NOTE: SSLVersionMin was removed in Edge v98 (deprecated)
     # TLS 1.2 is the default minimum version in modern Edge versions
@@ -129,10 +129,10 @@ function Set-EdgeSecurityBaseline {
     Set-RegistryValue -Path $edgePrefPath -Name "QuicAllowed" -Value 1 -Type DWord `
         -Description "QUIC/HTTP3 Default: Enabled (User can change)"
     
-    Write-Info "TLS 1.2+ ist standardmaessig aktiviert (Edge v98+)"
+    Write-Info "$(Get-LocalizedString 'EdgeTLSDefault')"
     
     # === AutoFill & Password Manager (PREFERENCES - USER CAN CHANGE!) ===
-    Write-Info "Konfiguriere AutoFill und Password Manager (Default: Aktiviert)..."
+    Write-Info "$(Get-LocalizedString 'EdgeAutoFillConfig')"
     
     # Password Manager as PREFERENCE (User can change!)
     Set-RegistryValue -Path $edgePrefPath -Name "PasswordManagerEnabled" -Value 1 -Type DWord `
@@ -150,10 +150,10 @@ function Set-EdgeSecurityBaseline {
     Set-RegistryValue -Path $edgePrefPath -Name "PaymentMethodQueryEnabled" -Value 1 -Type DWord `
         -Description "Payment Methods Default: Enabled (User can disable)"
     
-    Write-Info "AutoFill und Password Manager sind als DEFAULT aktiviert (User KANN aendern!)"
+    Write-Info "$(Get-LocalizedString 'EdgeAutoFillDefault')"
     
     # === WebRTC IP-Leak Prevention (PREFERENCE - USER CAN CHANGE!) ===
-    Write-Info "Konfiguriere WebRTC IP-Leak Prevention..."
+    Write-Info "$(Get-LocalizedString 'EdgeWebRTCConfig')"
     
     Set-RegistryValue -Path $edgePrefPath -Name "WebRtcLocalhostIpHandling" -Value "default_public_interface_only" -Type String `
         -Description "WebRTC IP-Leak Prevention Default (User can change)"
@@ -164,39 +164,39 @@ function Set-EdgeSecurityBaseline {
     # Auto-Updates are enabled by default
     
     # === InPrivate Mode (PREFERENCE - USER CAN CHANGE!) ===
-    Write-Info "Konfiguriere InPrivate Mode..."
+    Write-Info "$(Get-LocalizedString 'EdgeInPrivateConfig')"
     
     # InPrivate Mode as PREFERENCE (User can change!)
     Set-RegistryValue -Path $edgePrefPath -Name "InPrivateModeAvailability" -Value 0 -Type DWord `
         -Description "InPrivate Mode Default: Available (User can change)"
     
-    Write-Success "Microsoft Edge Security Baseline v139+ angewendet (HYBRID Mode)"
+    Write-Success "$(Get-LocalizedString 'EdgeBaselineApplied')"
     Write-Host ""
-    Write-Info "KONFIGURATION (Hybrid: Policies + Preferences):"
+    Write-Info "$(Get-LocalizedString 'EdgeConfiguration')"
     Write-Host ""
-    Write-Host "  POLICIES (AUSGEGRAUT - User kann NICHT aendern):" -ForegroundColor Yellow
-    Write-Info "  [OK] SmartScreen: Aktiv (nicht umgehbar)"
-    Write-Info "  [OK] Tracking Prevention: Balanced"
-    Write-Info "  [OK] DNS over HTTPS: Automatic"
-    Write-Info "  [OK] Enhanced Security: Basic"
-    Write-Info "  [OK] TLS: 1.2+ Standard (Edge v98+)"
-    Write-Info "  [OK] Site Isolation: Aktiviert"
-    Write-Info "  [OK] Erweiterungen: Nur Microsoft Store"
+    Write-Host "$(Get-LocalizedString 'EdgePoliciesGreyed')" -ForegroundColor Yellow
+    Write-Info "$(Get-LocalizedString 'EdgeSmartScreenActive')"
+    Write-Info "$(Get-LocalizedString 'EdgeTrackingBalanced')"
+    Write-Info "$(Get-LocalizedString 'EdgeDNSAutomatic')"
+    Write-Info "$(Get-LocalizedString 'EdgeSecurityBasic')"
+    Write-Info "$(Get-LocalizedString 'EdgeTLSStandard')"
+    Write-Info "$(Get-LocalizedString 'EdgeSiteIsolation')"
+    Write-Info "$(Get-LocalizedString 'EdgeExtensionsMSOnly')"
     Write-Host ""
-    Write-Host "  PREFERENCES (DEFAULT - User KANN aendern!):" -ForegroundColor Cyan
-    Write-Info "  [~] AutoFill Address: Default AN"
-    Write-Info "  [~] AutoFill Credit Card: Default AN"
-    Write-Info "  [~] Password Manager: Default AN"
-    Write-Info "  [~] Payment Methods: Default AN"
-    Write-Info "  [~] InPrivate Mode: Default VERFUEGBAR"
-    Write-Info "  [~] QUIC/HTTP3: Default AN"
-    Write-Info "  [~] WebRTC IP-Leak Prevention: Default AN"
+    Write-Host "$(Get-LocalizedString 'EdgePreferencesChangeable')" -ForegroundColor Cyan
+    Write-Info "$(Get-LocalizedString 'EdgeAutoFillAddress')"
+    Write-Info "$(Get-LocalizedString 'EdgeAutoFillCard')"
+    Write-Info "$(Get-LocalizedString 'EdgePasswordManager')"
+    Write-Info "$(Get-LocalizedString 'EdgePaymentMethods')"
+    Write-Info "$(Get-LocalizedString 'EdgeInPrivateAvailable')"
+    Write-Info "$(Get-LocalizedString 'EdgeQUIC')"
+    Write-Info "$(Get-LocalizedString 'EdgeWebRTCDefault')"
     Write-Host ""
-    Write-Host "  HYBRID-MODUS = Best of Both Worlds:" -ForegroundColor Green
-    Write-Info "  [OK] Security-kritische Settings: ERZWUNGEN (Policies)"
-    Write-Info "  [OK] User-Friendly Settings: STANDARD aber AENDERBAR (Preferences)"
+    Write-Host "$(Get-LocalizedString 'EdgeHybridMode')" -ForegroundColor Green
+    Write-Info "$(Get-LocalizedString 'EdgeSecurityEnforced')"
+    Write-Info "$(Get-LocalizedString 'EdgeUserFriendly')"
     Write-Host ""
-    Write-Warning-Custom "Edge-Neustart erforderlich fuer vollstaendige Anwendung!"
+    Write-Warning-Custom "$(Get-LocalizedString 'EdgeRestartRequired')"
 }
 
 # Note: Export-ModuleMember is NOT needed for dot-sourced scripts

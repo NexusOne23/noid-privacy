@@ -1459,17 +1459,97 @@ finally {
     if ($realErrors.Count -gt 0) {
         $completionLog = Join-Path $LogPath "LastRun-Status.txt"
         try {
+            # Kategorisiere Warnings
+            $harmlessWarnings = @($Error | Where-Object {
+                $msg = $_.Exception.Message
+                ($msg -like "*wurden keine*gefunden*") -or
+                ($msg -like "*Cannot find*") -or
+                ($msg -like "*not installed*") -or
+                ($msg -like "*bereits vorhanden*")
+            })
+            
+            $serviceWarnings = @($harmlessWarnings | Where-Object { $_.Exception.Message -like "*Service*" -or $_.Exception.Message -like "*Dienst*" })
+            $registryWarnings = @($harmlessWarnings | Where-Object { $_.Exception.Message -like "*Registry*" -or $_.Exception.Message -like "*already exists*" })
+            $appWarnings = @($harmlessWarnings | Where-Object { $_.Exception.Message -like "*App*" -or $_.Exception.Message -like "*Package*" })
+            $otherWarnings = @($harmlessWarnings | Where-Object { 
+                $_ -notin $serviceWarnings -and 
+                $_ -notin $registryWarnings -and 
+                $_ -notin $appWarnings 
+            })
+            
+            # Top 10 Critical Errors mit Details
+            $criticalErrorDetails = $realErrors | Select-Object -First 10 | ForEach-Object {
+                "  - $($_.Exception.Message)"
+                if ($_.InvocationInfo.ScriptLineNumber) {
+                    "    Location: Line $($_.InvocationInfo.ScriptLineNumber) in $($_.InvocationInfo.ScriptName | Split-Path -Leaf)"
+                }
+            }
+            # Join BEFORE the here-string to avoid backtick escaping issues
+            $criticalErrorText = $criticalErrorDetails -join "`n"
+            
+            # Quick Actions basierend auf Error-Typ (ausserhalb des Here-Strings!)
+            $quickActions = ""
+            if ($realErrors[0].Exception.Message -like "*Registrierungszugriff*" -or $realErrors[0].Exception.Message -like "*registry access*") {
+                $quickActions = @"
+  [!] Registry Access Denied detected!
+  [>] Solution: Run script as Administrator (Right-click | Run as administrator)
+"@
+            }
+            elseif ($realErrors[0].Exception.Message -like "*Defender*" -or $realErrors[0].Exception.Message -like "*MpPreference*") {
+                $quickActions = @"
+  [!] Windows Defender error detected!
+  [>] Solution: Check if third-party antivirus is installed
+  [>] Disable third-party AV temporarily or configure via AV interface
+"@
+            }
+            else {
+                $quickActions = @"
+  [>] Review critical errors above for specific issues
+  [>] Check transcript log for full details
+  [>] Run script again after fixing issues
+"@
+            }
+            
+            # Transcript Path (ausserhalb des Here-Strings!)
+            $transcriptInfo = if ($script:transcriptPath) { $script:transcriptPath } else { 'No transcript log created (early error)' }
+            
             $statusInfo = @"
 Last Run: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')
 Status: INCOMPLETE (Errors occurred)
 Mode: $Mode
 Selected Modules: $($SelectedModules -join ', ')
+
+========================================
+ERROR SUMMARY
+========================================
 Critical Errors: $($realErrors.Count)
 Filtered Harmless Warnings: $($Error.Count - $realErrors.Count)
-Last Error: $($realErrors[0].Exception.Message)
+
+========================================
+TOP CRITICAL ERRORS (First 10)
+========================================
+$criticalErrorText
+
+========================================
+WARNINGS BREAKDOWN
+========================================
+Service-Related: $($serviceWarnings.Count) (Services not found or already disabled)
+Registry-Related: $($registryWarnings.Count) (Keys already exist or not found)
+App-Related: $($appWarnings.Count) (Apps not installed or already removed)
+Other Warnings: $($otherWarnings.Count)
+
+========================================
+QUICK ACTIONS
+========================================
+$quickActions
+
+========================================
+LOGS & DETAILS
+========================================
+Transcript Log: $transcriptInfo
 
 NOTE: Some changes may have been partially applied.
-Review transcript log for details: $(if ($script:transcriptPath) { $script:transcriptPath } else { 'No transcript log created (early error)' })
+Run script again after resolving errors - it is idempotent (safe to re-run).
 "@
             # Ensure absolute path and force creation
             $absoluteLog = if ([System.IO.Path]::IsPathRooted($completionLog)) { $completionLog } else { Join-Path (Get-Location) $completionLog }
@@ -1486,17 +1566,84 @@ Review transcript log for details: $(if ($script:transcriptPath) { $script:trans
         # SUCCESS: Keine echten Fehler - schreibe SUCCESS Status
         $completionLog = Join-Path $LogPath "LastRun-Status.txt"
         try {
+            # Kategorisiere Warnings auch bei SUCCESS
+            $harmlessWarnings = @($Error | Where-Object {
+                $msg = $_.Exception.Message
+                ($msg -like "*wurden keine*gefunden*") -or
+                ($msg -like "*Cannot find*") -or
+                ($msg -like "*not installed*") -or
+                ($msg -like "*bereits vorhanden*")
+            })
+            
+            $serviceWarnings = @($harmlessWarnings | Where-Object { $_.Exception.Message -like "*Service*" -or $_.Exception.Message -like "*Dienst*" })
+            $registryWarnings = @($harmlessWarnings | Where-Object { $_.Exception.Message -like "*Registry*" -or $_.Exception.Message -like "*already exists*" })
+            $appWarnings = @($harmlessWarnings | Where-Object { $_.Exception.Message -like "*App*" -or $_.Exception.Message -like "*Package*" })
+            $otherWarnings = @($harmlessWarnings | Where-Object { 
+                $_ -notin $serviceWarnings -and 
+                $_ -notin $registryWarnings -and 
+                $_ -notin $appWarnings 
+            })
+            
+            # Next Steps basierend auf Mode (ausserhalb des Here-Strings!)
+            $nextSteps = ""
+            if ($Mode -eq 'Enforce') {
+                $nextSteps = @"
+  [>] REBOOT REQUIRED for some changes to take effect:
+      - VBS and Credential Guard
+      - BitLocker Policies  
+      - Firewall Rules
+      - Service Changes
+      
+  [>] After Reboot:
+      - Check Windows Security settings
+      - Verify ASR Rules are active
+      - Test DNS-over-HTTPS (nslookup cloudflare.com)
+"@
+            }
+            else {
+                $nextSteps = @"
+  [>] Audit completed - no changes applied
+  [>] Review transcript log for recommendations
+  [>] Run with -Mode Enforce to apply changes
+"@
+            }
+            
+            # Transcript Path (ausserhalb des Here-Strings!)
+            $transcriptInfo = if ($script:transcriptPath) { $script:transcriptPath } else { 'No transcript log created (early completion)' }
+            
             $statusInfo = @"
 Last Run: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')
 Status: SUCCESS (All critical changes applied)
 Mode: $Mode
 Selected Modules: $($SelectedModules -join ', ')
+
+========================================
+SUCCESS SUMMARY
+========================================
+[OK] All changes applied successfully!
+[OK] No real errors occurred
+
 Non-Fatal Warnings: $($Error.Count) (harmless, filtered out)
 
-All changes applied successfully!
-No real errors occurred. The warnings were harmless (missing optional features, etc.)
+========================================
+WARNINGS BREAKDOWN (Non-Critical)
+========================================
+Service-Related: $($serviceWarnings.Count) (Services not found - OK if not installed)
+Registry-Related: $($registryWarnings.Count) (Keys already exist - idempotent, OK)
+App-Related: $($appWarnings.Count) (Apps already removed - OK)
+Other Warnings: $($otherWarnings.Count) (Harmless)
 
-Review transcript log for details: $(if ($script:transcriptPath) { $script:transcriptPath } else { 'No transcript log created (early completion)' })
+========================================
+NEXT STEPS
+========================================
+$nextSteps
+
+========================================
+LOGS & DETAILS
+========================================
+Transcript Log: $transcriptInfo
+
+NOTE: Script is idempotent - safe to run multiple times.
 "@
             $absoluteLog = if ([System.IO.Path]::IsPathRooted($completionLog)) { $completionLog } else { Join-Path (Get-Location) $completionLog }
             # [OK] BEST PRACTICE: UTF-8 ohne BOM (PowerShell 5.1 compatible)

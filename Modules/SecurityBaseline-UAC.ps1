@@ -23,7 +23,7 @@ function Set-MaximumUAC {
     [OutputType([void])]
     param()
     
-    Write-Section "UAC Maximum Security (Immer benachrichtigen)"
+    Write-Section "$(Get-LocalizedString 'UACMaximumSecurityTitle')"
     
     $securityPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System"
     
@@ -55,10 +55,10 @@ function Set-MaximumUAC {
     Set-RegistryValue -Path $securityPath -Name "EnableSecureUIAPaths" -Value 1 -Type DWord `
         -Description "UAC: Only allow secure UIAccess paths"
     
-    Write-Success "UAC auf MAXIMUM gesetzt (Immer benachrichtigen)"
-    Write-Info "Slider Position: Ganz oben (Position 1 von 4)"
-    Write-Info "Jede Admin-Aktion erfordert Bestaetigung auf Secure Desktop!"
-    Write-Warning "Dies ist die sicherste Einstellung - aber kann laestig sein bei vielen Admin-Tasks!"
+    Write-Success "$(Get-LocalizedString 'UACMaximumSet')"
+    Write-Info "$(Get-LocalizedString 'UACSliderPosition')"
+    Write-Info "$(Get-LocalizedString 'UACEveryActionRequires')"
+    Write-Warning "$(Get-LocalizedString 'UACMostSecureSetting')"
 }
 
 function Enable-EnhancedPrivilegeProtectionMode {
@@ -78,12 +78,12 @@ function Enable-EnhancedPrivilegeProtectionMode {
     
     Write-Section "UAC Enhanced Privilege Protection Mode"
     
-    Write-Warning-Custom "HINWEIS: Enhanced Privilege Protection ist ein KOMMENDES Feature!"
-    Write-Info "Microsoft hat diese Settings in der Baseline 25H2 angekuendigt,"
-    Write-Info "aber das Feature ist noch NICHT aktiv in Windows 11 25H2."
+    Write-Warning-Custom "$(Get-LocalizedString 'UACEPPUpcomingFeature')"
+    Write-Info "$(Get-LocalizedString 'UACEPPAnnouncedBaseline')"
+    Write-Info "$(Get-LocalizedString 'UACEPPNotYetActive')"
     Write-Info "Mehr Info: https://techcommunity.microsoft.com/blog/windows-itpro-blog/administrator-protection-on-windows-11/4303482"
     Write-Host ""
-    Write-Info "Wir setzen die Registry-Keys TROTZDEM (fuer zukuenftige Windows Updates)..."
+    Write-Info "$(Get-LocalizedString 'UACEPPSettingAnyway')"
     
     # Security Options: Enhanced Privilege Protection Mode
     # Behavior of the elevation prompt for administrators in Enhanced Privilege Protection Mode
@@ -98,9 +98,9 @@ function Enable-EnhancedPrivilegeProtectionMode {
     Set-RegistryValue -Path $securityPath -Name "AdminApprovalModeType" -Value 1 -Type DWord `
         -Description "UAC: Admin Approval Mode with Enhanced Privilege Protection"
     
-    Write-Success "Enhanced Privilege Protection Mode Settings gesetzt"
-    Write-Warning-Custom "WICHTIG: Feature ist NOCH NICHT aktiv - wird in zukuenftigen Updates aktiviert!"
-    Write-Info "Diese Settings sind 'Future-Proof' - bereit fuer kommende Windows Updates"
+    Write-Success "$(Get-LocalizedString 'UACEPPSettingsSet')"
+    Write-Warning-Custom "$(Get-LocalizedString 'UACEPPNotActiveYet')"
+    Write-Info "$(Get-LocalizedString 'UACEPPFutureProof')"
 }
 
 # Note: Export-ModuleMember is NOT needed for dot-sourced scripts

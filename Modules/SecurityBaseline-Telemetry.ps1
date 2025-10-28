@@ -748,7 +748,9 @@ function Disable-CameraAndMicrophone {
                 }
             }
         }
-        catch { }
+        catch {
+            Write-Verbose "Kamera Apps Enumeration Fehler (nicht kritisch): $_"
+        }
     }
     catch {
         Write-Warning "Kamera HKCU Fehler: $_"
@@ -792,7 +794,9 @@ function Disable-CameraAndMicrophone {
                 }
             }
         }
-        catch { }
+        catch {
+            Write-Verbose "Mikrofon Apps Enumeration Fehler (nicht kritisch): $_"
+        }
     }
     catch {
         Write-Warning "Mikrofon HKCU Fehler: $_"
@@ -1051,7 +1055,9 @@ function Set-LocationServicesDefault {
                 }
             }
         }
-        catch { }
+        catch {
+            Write-Verbose "Location Apps Enumeration Fehler (nicht kritisch): $_"
+        }
     }
     catch {
         Write-Warning "Location HKCU Fehler: $_"
@@ -1410,7 +1416,9 @@ function Disable-AllAppPermissionsDefaults {
                     }
                 }
             }
-            catch { }
+            catch {
+                Write-Verbose "Permission '$permission' Apps Enumeration Fehler (nicht kritisch): $_"
+            }
         }
         catch {
             Write-Warning "HKCU Permission '$permission' Fehler: $_"

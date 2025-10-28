@@ -22,12 +22,12 @@ function Disable-WirelessDisplay {
     [OutputType([void])]
     param()
     
-    Write-Section "Wireless Display / Miracast KOMPLETT deaktivieren (4 Ebenen)"
+    Write-Section "$(Get-LocalizedString 'WDDisableTitle')"
     
-    Write-Info "Deaktiviere auf ALLEN Ebenen: Services, Registry, Firewall, Apps..."
+    Write-Info "$(Get-LocalizedString 'WDDisableAllLevels')"
     
     # === LEVEL 1: SERVICES ===
-    Write-Info "Ebene 1/4: Services deaktivieren..."
+    Write-Info "$(Get-LocalizedString 'WDLevel1Services')"
     
     $wirelessServices = @(
         @{Name="ProjSvc"; DisplayName="Windows Projection Service (Miracast)"},
@@ -42,7 +42,7 @@ function Disable-WirelessDisplay {
                 Write-Verbose "     $($svc.DisplayName) deaktiviert"
             }
             else {
-                Write-Verbose "     $($svc.DisplayName) konnte nicht deaktiviert werden"
+                Write-Warning-Custom "$($svc.DisplayName) konnte nicht deaktiviert werden (eventuell geschuetzt)"
             }
         }
     }
@@ -68,7 +68,7 @@ function Disable-WirelessDisplay {
     }
     
     # === LEVEL 2: REGISTRY ===
-    Write-Info "Ebene 2/4: Registry haerten..."
+    Write-Info "$(Get-LocalizedString 'WDLevel2Registry')"
     
     # PlayToReceiver (DLNA/Cast)
     $playToPath = "HKLM:\SOFTWARE\Microsoft\PlayToReceiver"
@@ -98,7 +98,7 @@ function Disable-WirelessDisplay {
         -Description "Disable Wi-Fi Direct OSU")
     
     # === LEVEL 3: FIREWALL ===
-    Write-Info "Ebene 3/4: Firewall-Regeln blockieren..."
+    Write-Info "$(Get-LocalizedString 'WDLevel3Firewall')"
     
     $wirelessFirewallRules = @(
         "Wireless Display",
@@ -152,7 +152,7 @@ function Disable-WirelessDisplay {
     Write-Verbose "Miracast Ports: Blockierung abgeschlossen"
     
     # === LEVEL 4: REMOVE APPS ===
-    Write-Info "Ebene 4/4: Wireless Display Apps entfernen..."
+    Write-Info "$(Get-LocalizedString 'WDLevel4Apps')"
     
     $wirelessApps = @(
         "Microsoft.Windows.SecondaryTileExperience",
@@ -176,15 +176,15 @@ function Disable-WirelessDisplay {
         }
     }
     
-    Write-Success "Wireless Display KOMPLETT deaktiviert auf ALLEN 4 Ebenen:"
-    Write-Success "  [OK] Ebene 1: Services gestoppt"
-    Write-Success "  [OK] Ebene 2: Registry gehaertet"
-    Write-Success "  [OK] Ebene 3: Firewall blockiert"
-    Write-Success "  [OK] Ebene 4: Apps entfernt"
+    Write-Success "$(Get-LocalizedString 'WDCompletelyDisabled')"
+    Write-Success "$(Get-LocalizedString 'WDLevel1Done')"
+    Write-Success "$(Get-LocalizedString 'WDLevel2Done')"
+    Write-Success "$(Get-LocalizedString 'WDLevel3Done')"
+    Write-Success "$(Get-LocalizedString 'WDLevel4Done')"
     Write-Host ""
-    Write-Warning "Miracast / Cast zu Smart TV funktioniert NICHT MEHR!"
-    Write-Info "HINWEIS: 'Wiedergeben'-Button bleibt in Quick Settings (manuell entfernen: Windows-Taste + A | Bearbeiten)"
-    Write-Info "Klick auf Button ist harmlos - Services sind deaktiviert, Feature funktioniert nicht"
+    Write-Warning "$(Get-LocalizedString 'WDMiracastNotWorking')"
+    Write-Info "$(Get-LocalizedString 'WDQuickSettingsNote')"
+    Write-Info "$(Get-LocalizedString 'WDClickHarmless')"
 }
 
 # Note: Export-ModuleMember is NOT needed for dot-sourced scripts

@@ -29,7 +29,7 @@ function Set-WindowsUpdateDefaults {
     [CmdletBinding()]
     param()
     
-    Write-Section "Windows Update - Empfohlene Defaults (HYBRID)"
+    Write-Section "$(Get-LocalizedString 'WUDefaultsTitle')"
     
     # HYBRID APPROACH:
     # 1. Set User Preferences (works with toggles)
@@ -60,19 +60,19 @@ function Set-WindowsUpdateDefaults {
     Set-RegistryValue -Path $policyPath -Name "ManagePreviewBuildsPolicyValue" -Value 0 -Type DWord `
         -Description "Preview Builds Policy: NO Preview Builds (guaranteed!)"
     
-    Write-Success "Windows Update Defaults gesetzt (HYBRID)"
-    Write-Info "Konfiguration:"
-    Write-Info "  [+] Updates fuer andere MS-Produkte: EIN (User kann aendern)"
-    Write-Info "  [+] Sich auf aktuellen Stand bringen: EIN (User kann aendern)"
-    Write-Info "  [+] Updates ueber getaktete Verbindungen: EIN (Security First!)"
-    Write-Info "  [+] Neustart-Benachrichtigungen: EIN (User kann aendern)"
-    Write-Info "  [+] Neueste Updates sofort: EIN (User kann aendern)"
-    Write-Info "  [!] Preview Builds: AUS (Policy = GARANTIERT!)"
+    Write-Success "$(Get-LocalizedString 'WUDefaultsSet')"
+    Write-Info "$(Get-LocalizedString 'WUConfiguration')"
+    Write-Info "$(Get-LocalizedString 'WUOtherMSProducts')"
+    Write-Info "$(Get-LocalizedString 'WUGetLatestUpdates')"
+    Write-Info "$(Get-LocalizedString 'WUMeteredConnections')"
+    Write-Info "$(Get-LocalizedString 'WURestartNotifications')"
+    Write-Info "$(Get-LocalizedString 'WULatestUpdatesImmediately')"
+    Write-Info "$(Get-LocalizedString 'WUPreviewBuilds')"
     Write-Host ""
-    Write-Host "HYBRID-MODUS:" -ForegroundColor Cyan
-    Write-Info "  [OK] User-Preferences = Toggle funktionieren!"
-    Write-Info "  [OK] Policies fuer kritische Settings (Preview Builds)"
-    Write-Info "  [OK] Best of Both Worlds!"
+    Write-Host "$(Get-LocalizedString 'WUHybridMode')" -ForegroundColor Cyan
+    Write-Info "$(Get-LocalizedString 'WUUserPreferences')"
+    Write-Info "$(Get-LocalizedString 'WUPoliciesCritical')"
+    Write-Info "$(Get-LocalizedString 'WUBestOfBoth')"
 }
 
 function Set-DeliveryOptimizationDefaults {
@@ -94,7 +94,7 @@ function Set-DeliveryOptimizationDefaults {
     [CmdletBinding()]
     param()
     
-    Write-Section "Delivery Optimization - HTTP-Only (HYBRID)"
+    Write-Section "$(Get-LocalizedString 'DOHTTPOnlyTitle')"
     
     # HYBRID APPROACH:
     # 1. Set Policy (guarantees that it applies)
@@ -107,18 +107,18 @@ function Set-DeliveryOptimizationDefaults {
     Set-RegistryValue -Path $configPath -Name "DODownloadMode" -Value 0 -Type DWord `
         -Description "Delivery Optimization Config: HTTP-Only (Fallback)"
     
-    Write-Success "Delivery Optimization: HTTP-Only Mode (HYBRID)"
-    Write-Info "GARANTIERT: Updates kommen NUR von Microsoft-Servern (HTTP)"
-    Write-Info "KEIN P2P-Sharing, KEIN LAN-Scanning"
+    Write-Success "$(Get-LocalizedString 'DOHTTPOnlySet')"
+    Write-Info "$(Get-LocalizedString 'DOGuaranteed')"
+    Write-Info "$(Get-LocalizedString 'DONoPeerToPeer')"
     Write-Host ""
-    Write-Host "HYBRID-MODUS:" -ForegroundColor Cyan
-    Write-Info "  [OK] Policy gesetzt = GARANTIERT dass Setting greift"
-    Write-Info "  [OK] Config gesetzt = Toggle-Unterstuetzung"
+    Write-Host "$(Get-LocalizedString 'DOHybridMode')" -ForegroundColor Cyan
+    Write-Info "$(Get-LocalizedString 'DOPolicySet')"
+    Write-Info "$(Get-LocalizedString 'DOConfigSet')"
     Write-Host ""
-    Write-Host "User kann aendern durch:" -ForegroundColor Yellow
-    Write-Info "  1. In Settings Toggle aendern (entfernt Policy automatisch)"
-    Write-Info "  2. Oder Policy manuell loeschen via Registry:"
-    Write-Info "     Remove-ItemProperty -Path HKLM:\SOFTWARE\Policies\Microsoft\Windows\DeliveryOptimization -Name DODownloadMode"
+    Write-Host "$(Get-LocalizedString 'DOUserCanChange')" -ForegroundColor Yellow
+    Write-Info "$(Get-LocalizedString 'DOChangeToggle')"
+    Write-Info "$(Get-LocalizedString 'DODeletePolicy')"
+    Write-Info "$(Get-LocalizedString 'DODeleteCommand')"
 }
 
 # Note: Export-ModuleMember is NOT needed for dot-sourced scripts

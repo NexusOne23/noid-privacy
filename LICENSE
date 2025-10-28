@@ -20,20 +20,25 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
----
+===============================================================================
 
-## Third-Party Components
+THIRD-PARTY COMPONENTS
 
 This project includes the following third-party components:
 
-### Steven Black Unified Hosts File
+-------------------------------------------------------------------------------
+Steven Black Unified Hosts File
+-------------------------------------------------------------------------------
 
-**Source**: https://github.com/StevenBlack/hosts  
-**License**: MIT License  
-**Copyright**: Copyright (c) Steven Black and contributors  
-**Usage**: DNS blocklist (hosts file) with 80,101 domains
+Source: https://github.com/StevenBlack/hosts
+License: MIT License
+Copyright: Copyright (c) Steven Black and contributors
+Usage: DNS blocklist (hosts file) with 80,101 domains
 
-The hosts file included in this project is derived from the Steven Black Unified Hosts repository, which consolidates and extends hosts files from several well-curated sources. The file has been optimized for Windows DNS Cache performance by compressing multiple domains per line.
+The hosts file included in this project is derived from the Steven Black 
+Unified Hosts repository, which consolidates and extends hosts files from 
+several well-curated sources. The file has been optimized for Windows DNS 
+Cache performance by compressing multiple domains per line.
 
 For the full list of sources and contributors, please visit:
 https://github.com/StevenBlack/hosts

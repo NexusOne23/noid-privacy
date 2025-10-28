@@ -277,7 +277,7 @@ function Optimize-EventLogs {
                     Write-Verbose "     Grund: $($log.Reason)"
                 }
                 else {
-                    Write-Verbose "wevtutil fehlgeschlagen (Exit: $LASTEXITCODE) fuer $($log.Name)"
+                    Write-Warning-Custom "Event Log '$($log.Name)' konnte nicht konfiguriert werden (Exit: $LASTEXITCODE)"
                 }
             }
         }
@@ -313,9 +313,9 @@ function Optimize-EventLogs {
                     Write-Verbose "     Deaktiviert: $logName (Noise-Log)"
                 }
                 else {
-                    Write-Verbose "wevtutil fehlgeschlagen (Exit: $LASTEXITCODE) fuer $logName"
+                    Write-Warning-Custom "Event Log '$logName' konnte nicht deaktiviert werden (Exit: $LASTEXITCODE)"
                     if ($result) {
-                        Write-Verbose "Details: $result"
+                        Write-Info "Details: $result"
                     }
                 }
             }

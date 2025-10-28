@@ -577,11 +577,12 @@ function Set-RegistryValueSmart {
         }
         
         if ($isAccessDenied) {
-            Write-Verbose "Access Denied erkannt: $errorMsg"
-            Write-Verbose "Verwende Ownership-Management..."
-            
-            # STEP 2: Ownership-Management
-            return Set-RegistryValueWithOwnership -Path $Path -Name $Name -Value $Value -Type $Type -Description $Description
+            # Access Denied - das ist ERWARTET bei TrustedInstaller Keys!
+            # Caller (z.B. Core-Modul) hat Fallback (Set-RegistryValueWithOwnership)
+            # WICHTIG: Entferne Error aus $Error Array (wird von Caller behandelt!)
+            $Error.RemoveAt(0)
+            Write-Verbose "Access Denied bei $Path\$Name (erwartet, Caller hat Fallback)"
+            return $false
         }
         else {
             # Anderer Fehler - nur Verbose, kein Error (Caller entscheidet ob Warning)
