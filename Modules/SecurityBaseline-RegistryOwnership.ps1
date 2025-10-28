@@ -521,20 +521,11 @@ function Set-RegistryValueSmart {
         $null = New-Item -Path $Path -Force
     }
     
-    # Prüfe ob Wert existiert mit Try-Catch
-    # CRITICAL FIX: -ErrorAction SilentlyContinue statt Stop!
-    # Stop überschreibt $ErrorActionPreference und schreibt Error ins Transcript!
-    $valueExists = $false
-    try {
-        $testValue = Get-ItemProperty -Path $Path -Name $Name -ErrorAction SilentlyContinue
-        if ($null -ne $testValue) {
-            $valueExists = $true
-        }
-    }
-    catch {
-        # Property existiert nicht - das ist OK
-        $valueExists = $false
-    }
+    # Prüfe ob Wert existiert (SAFE method - no error records!)
+    # Get ALL properties first, then check if our property is in the list
+    # This prevents error records from being created when property doesn't exist
+    $item = Get-ItemProperty -Path $Path -ErrorAction SilentlyContinue
+    $valueExists = $item -and ($item.PSObject.Properties.Name -contains $Name)
     
     # Track Errors NACH dem Exists-Check
     $errorBefore = $Error.Count

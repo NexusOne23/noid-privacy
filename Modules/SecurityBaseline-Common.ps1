@@ -154,8 +154,10 @@ function Set-RegistryValue {
             $null = New-Item -Path $Path -Force -ErrorAction Stop
         }
         
-        # Check if value exists
-        $valueExists = Get-ItemProperty -Path $Path -Name $Name -ErrorAction SilentlyContinue
+        # Check if value exists (SAFE method - no error records!)
+        # Get ALL properties first, then check if our property is in the list
+        $item = Get-ItemProperty -Path $Path -ErrorAction SilentlyContinue
+        $valueExists = $item -and ($item.PSObject.Properties.Name -contains $Name)
         
         if ($valueExists) {
             # Value exists - Set-ItemProperty (NO -Type parameter in PS 5.1!)
