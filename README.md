@@ -5,7 +5,7 @@
 [![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-blue.svg)](https://github.com/PowerShell/PowerShell)
 [![Windows 11](https://img.shields.io/badge/Windows%2011-25H2-0078D4.svg)](https://www.microsoft.com/windows/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-1.7.9-blue.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.7.10-blue.svg)](CHANGELOG.md)
 
 ---
 
@@ -392,14 +392,14 @@ The authors are not responsible for any damage or data loss caused by this scrip
 
 ## 📈 Project Status
 
-**Current Version:** 1.7.9  
+**Current Version:** 1.7.10  
 **Last Updated:** October 28, 2025  
 **Status:** Production-Ready ✅
 
-### Recent Updates (v1.7.9)
-- ✅ **Complete Error Logging Overhaul** - 100% transparency with 3-level logging (Transcript, Console, Summary)
-- ✅ **Guest Account Hardening** - Visible status, randomized rename, CIS Benchmark compliance
-- ✅ **False Positive Elimination** - Handled errors removed from $Error array (clean status reports)
+### Recent Updates (v1.7.10)
+- ✅ **Critical Registry Bug Fixes** - Eliminated 116+ false error records (all Get-ItemProperty -Name bugs fixed)
+- ✅ **Complete Core.ps1 Internationalization** - 205 strings (EN + DE), full multilingual support
+- ✅ **Set-MpPreference Fix** - No more TerminatingError messages in logs (clean UX)
 - ✅ **Service Stop Visibility** - Critical failures now visible (WirelessDisplay, Core services)
 - ✅ **Event Log Config Reporting** - wevtutil failures now reported as warnings
 - ✅ **Exploit Protection Fix** - 6 Set-ProcessMitigation commands now use -ErrorAction Stop (catch blocks work!)

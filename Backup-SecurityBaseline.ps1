@@ -945,7 +945,7 @@ $registryKeys = @(
     # =====================================================================================
     # CRITICAL: Diese Keys werden vom Script fuer den AKTUELLEN User gesetzt!
     # WICHTIG: HKCU muss gebackuped werden damit Restore funktioniert!
-    # Neu in Version 1.7.9: HKCU Backup Support
+    # Neu in Version 1.7.10: HKCU Backup Support
     # CRITICAL FIX v1.7.11: NUR "Value" sichern (KEINE LastUsedTime*!)
     # LastUsedTime* sind FORENSIC-TRACKING (von Windows verwaltet)
     

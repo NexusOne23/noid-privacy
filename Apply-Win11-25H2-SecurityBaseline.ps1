@@ -1,3 +1,6 @@
+#Requires -Version 5.1
+#Requires -RunAsAdministrator
+
 <#
 .SYNOPSIS
     NoID Privacy v1.7 - Windows 11 25H2 Security & Privacy Hardening
@@ -21,10 +24,10 @@
     - Privacy Protection: +200% above baseline (700+ privacy settings)
     
 .NOTES
-    Version:        1.7.9
+    Version:        1.7.10
     Baseline:       Microsoft Security Baseline 25H2 (September 30, 2025)
     Author:         NoID Privacy Project
-    Last Updated:   October 26, 2025
+    Last Updated:   October 28, 2025
     Requires:       Windows 11 25H2/24H2/23H2, PowerShell 5.1+, Admin Rights
     
     Changelog 1.7.9 (26. Oktober 2025):
@@ -151,9 +154,6 @@ param(
     [Parameter(Mandatory = $false)]
     [string]$LogPath = "$env:ProgramData\SecurityBaseline\Logs"
 )
-
-#Requires -Version 5.1
-#Requires -RunAsAdministrator
 
 # Strict Mode aktivieren (CRITICAL!)
 # Fängt undefinierte Variablen, nicht-existente Properties, etc. ab
@@ -1112,7 +1112,7 @@ Write-Host "               Maximum Security + Privacy + Performance" -Foreground
 Write-Host "" -ForegroundColor Cyan
 Write-Host "=============================================================================" -ForegroundColor Cyan
 Write-Host ""
-Write-Host "  Version: 1.7.9 | Modus: $Mode" -ForegroundColor Cyan
+Write-Host "  Version: 1.7.10 | Modus: $Mode" -ForegroundColor Cyan
 if ($Interactive) {
     Write-Host "  Mode: Interactive Menu" -ForegroundColor Cyan
 }
