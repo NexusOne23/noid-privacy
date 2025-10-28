@@ -111,17 +111,17 @@ function Set-RegistryValue {
         NOTE: For TrustedInstaller-protected keys use Set-RegistryValueSmart
               from the RegistryOwnership module!
     .PARAMETER Path
-        Registry-Pfad
+        Registry path
     .PARAMETER Name
-        Wert-Name
+        Value name
     .PARAMETER Value
-        Wert
+        Value
     .PARAMETER Type
-        Registry-Typ (DWord, String, etc.)
+        Registry type (DWord, String, etc.)
     .PARAMETER Description
         Optional description for logging
     .OUTPUTS
-        [bool] $true bei Erfolg, $false bei Fehler
+        [bool] $true on success, $false on error
     .EXAMPLE
         Set-RegistryValue -Path "HKLM:\SOFTWARE\Test" -Name "Value" -Value 1 -Type DWord
     #>
@@ -150,7 +150,7 @@ function Set-RegistryValue {
     try {
         # Create key if not exists
         if (-not (Test-Path -Path $Path)) {
-            Write-Verbose "Erstelle Registry-Key: $Path"
+            Write-Verbose (Get-LocalizedString 'CommonCreatingKey' -f $Path)
             $null = New-Item -Path $Path -Force -ErrorAction Stop
         }
         
@@ -170,13 +170,13 @@ function Set-RegistryValue {
             Write-Verbose "     $Description : $Name = $Value"
         }
         else {
-            Write-Verbose "     Registry gesetzt: $Path\$Name = $Value"
+            Write-Verbose (Get-LocalizedString 'CommonRegistrySet' -f $Path, $Name, $Value)
         }
         
         return $true
     }
     catch {
-        Write-Error-Custom "Fehler bei Registry-Aenderung: $Path\$Name - $_"
+        Write-Error-Custom (Get-LocalizedString 'CommonRegistryError' -f $Path, $Name, $_)
         Write-Verbose "Details: $($_.Exception.Message)"
         return $false
     }
@@ -200,11 +200,11 @@ function Stop-ServiceSafe {
             3. Wait until service actually stopped (max. MaxWaitSeconds)
             4. Final check if really Disabled
     .PARAMETER ServiceName
-        Name des Service
+        Service name
     .PARAMETER MaxWaitSeconds
         Maximum wait time in seconds (default: 10)
     .OUTPUTS
-        [bool] $true bei Erfolg, $false bei Fehler
+        [bool] $true on success, $false on error
     .EXAMPLE
         Stop-ServiceSafe -ServiceName "DiagTrack"
     .EXAMPLE
@@ -225,11 +225,11 @@ function Stop-ServiceSafe {
     try {
         $service = Get-Service -Name $ServiceName -ErrorAction SilentlyContinue
         if (-not $service) {
-            Write-Verbose "Service '$ServiceName' nicht gefunden (normal bei Legacy-Services in Windows 11)"
+            Write-Verbose (Get-LocalizedString 'CommonServiceNotFound' -f $ServiceName)
             return $false
         }
         
-        Write-Verbose "Deaktiviere Service: $ServiceName (Status: $($service.Status))"
+        Write-Verbose (Get-LocalizedString 'CommonDisablingService' -f $ServiceName, $service.Status)
         
         # === STEP 1: Set StartupType to Disabled FIRST ===
         # CRITICAL: Prevents service from restarting between Stop and SetStartupType
@@ -244,7 +244,7 @@ function Stop-ServiceSafe {
             Write-Verbose "     StartupType: Disabled"
         } else {
             # Error = Legacy service not configurable
-            Write-Verbose "     Set-Service fehlgeschlagen (Legacy Service nicht konfigurierbar)"
+            Write-Verbose "     $(Get-LocalizedString 'CommonSetServiceFailed')"
             return $false
         }
         
@@ -252,7 +252,7 @@ function Stop-ServiceSafe {
         if ($service.Status -ne "Stopped") {
             # === STEP 3: Stop service ===
             Stop-Service -Name $ServiceName -Force -NoWait -ErrorAction Stop
-            Write-Verbose "     Stop-Command gesendet"
+            Write-Verbose "     Stop-Command sent"
             
             # === STEP 4: Wait until actually stopped ===
             $waited = 0
@@ -262,12 +262,12 @@ function Stop-ServiceSafe {
                 
                 $service = Get-Service -Name $ServiceName
                 if ($service.Status -eq "Stopped") {
-                    Write-Verbose "     Service gestoppt nach ${waited}s"
+                    Write-Verbose ("     " + (Get-LocalizedString 'CommonServiceStopped' -f $waited))
                     break
                 }
                 
                 if ($waited -ge $MaxWaitSeconds) {
-                    Write-Warning "Service $ServiceName stoppt nicht - Timeout nach ${MaxWaitSeconds}s"
+                    Write-Warning (Get-LocalizedString 'CommonServiceTimeout' -f $ServiceName, $MaxWaitSeconds)
                     Write-Warning "  Status: $($service.Status)"
                     # Not critical - StartupType=Disabled is more important
                     break
@@ -275,7 +275,7 @@ function Stop-ServiceSafe {
             } while ($true)
         }
         else {
-            Write-Verbose "     Service war bereits gestoppt"
+            Write-Verbose "     $(Get-LocalizedString 'CommonServiceAlreadyStopped')"
         }
         
         # === STEP 5: Final check ===
@@ -284,36 +284,36 @@ function Stop-ServiceSafe {
         try {
             $serviceCim = Get-CimInstance -ClassName Win32_Service -Filter "Name='$ServiceName'" -ErrorAction Stop
             if ($serviceCim.StartMode -eq "Disabled") {
-                $service = Get-Service -Name $ServiceName  # Refresh für Status
+                $service = Get-Service -Name $ServiceName  # Refresh for Status
                 if ($service.Status -eq "Stopped") {
                     Write-Verbose "[OK] $($ServiceName) - Disabled + Stopped"
                     return $true
                 }
                 else {
                     # StartupType=Disabled is reached, status is less critical
-                    Write-Verbose "[OK] $($ServiceName) - Disabled (Status=$($service.Status) - wird beim naechsten Reboot nicht starten)"
+                    Write-Verbose (Get-LocalizedString 'CommonServiceDisabledWillNotStart' -f $ServiceName, $service.Status)
                     return $true
                 }
             }
             else {
-                Write-Error-Custom "Service $ServiceName konnte nicht deaktiviert werden (StartMode=$($serviceCim.StartMode))"
+                Write-Error-Custom (Get-LocalizedString 'CommonServiceCouldNotDisable' -f $ServiceName, $serviceCim.StartMode)
                 return $false
             }
         }
         catch {
-            Write-Verbose "CIM-Check fehlgeschlagen, verwende Fallback: $_"
+            Write-Verbose (Get-LocalizedString 'CommonCIMCheckFailed' -f $_)
             # Fallback: Assume Set-Service was successful
-            Write-Verbose "[OK] $($ServiceName) - Disabled (angenommen - Set-Service war erfolgreich)"
+            Write-Verbose (Get-LocalizedString 'CommonServiceDisabledAssumed' -f $ServiceName)
             return $true
         }
     }
     catch [Microsoft.PowerShell.Commands.ServiceCommandException] {
         # Service doesn't exist - that's OK (already uninstalled or never installed)
-        Write-Verbose "Service $ServiceName nicht gefunden (OK - nicht installiert)"
+        Write-Verbose (Get-LocalizedString 'CommonServiceNotInstalled' -f $ServiceName)
         return $true
     }
     catch {
-        Write-Error-Custom "Fehler beim Deaktivieren von Service $ServiceName : $_"
+        Write-Error-Custom (Get-LocalizedString 'CommonServiceDisableError' -f $ServiceName, $_)
         Write-Verbose "Details: $($_.Exception.Message)"
         return $false
     }

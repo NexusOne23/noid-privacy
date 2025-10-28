@@ -1441,16 +1441,18 @@ finally {
             ($msg -like "*already exists*") -or
             ($msg -like "*not installed*") -or  # App nicht installiert
             ($msg -like "*nicht installiert*") -or
-            ($msg -like "*Falscher Parameter*") -or  # DNS NRPT "falscher Parameter" (nicht kritisch)
+            ($msg -like "*Falscher Parameter*" -and $msg -like "*NRPT*") -or  # DNS NRPT "falscher Parameter" (nicht kritisch)
             ($categoryInfo -eq 'ObjectNotFound') -or  # PowerShell Standard "nicht gefunden" Fehler
             ($categoryInfo -eq 'ResourceUnavailable') -or  # Ressource nicht verfuegbar
             ($categoryInfo -eq 'NotSpecified')  # Unspezifizierte Fehler
         
         # WICHTIG: Nur echte KRITISCHE Fehler zaehlen
         # Kriterien: TerminatingError ODER WriteError UND nicht harmlos
+        # PLUS: ParameterBindingException ist IMMER critical!
         $isCritical = ($fullErrorMsg -match "TerminatingError") -or 
                      ($fullErrorMsg -match "WriteError") -or
-                     ($categoryInfo -in @('InvalidOperation', 'PermissionDenied', 'SecurityError'))
+                     ($fullErrorMsg -match "ParameterBindingException") -or
+                     ($categoryInfo -in @('InvalidOperation', 'PermissionDenied', 'SecurityError', 'InvalidArgument'))
         
         # Nur zaehlen wenn: Kritisch UND NICHT harmlos
         $isCritical -and (-not $isHarmless)

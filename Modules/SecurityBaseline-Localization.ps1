@@ -238,6 +238,178 @@ $Global:Strings = @{
         AIMicrosoftChanges = "  Microsoft constantly changes AI implementation!"
         AIFutureProof = "  We block on multiple levels for future-proofing."
         
+        # DNS Module
+        DNSSECActivating = "Activating DNSSEC (DNS-Spoofing Protection)..."
+        DNSSECModeOpportunistic = "DNSSEC Mode: Opportunistic (secure + compatible)"
+        DNSSECActivated = "DNSSEC Validation activated"
+        DNSSECResponsesValidated = "DNS responses are checked for authenticity (Anti-Spoofing)"
+        DNSBlocklistInstalling = "Installing DNS Blocklist (80K+ Domains)..."
+        DNSBlocklistOptimization = "OPTIMIZATION: 9 domains per line (DNS-Cache-optimized)"
+        DNSBlocklistCompressed = "Steven Black's unified hosts - compressed for performance"
+        DNSAntivirusCompatibility = "ANTIVIRUS COMPATIBILITY: hosts file with 80K+ entries"
+        DNSBitdefenderWarning = "Bitdefender users: Protection | Vulnerability | Settings | 'Scan hosts file' DISABLE!"
+        DNSInternetBlock = "Otherwise internet access may be blocked!"
+        DNSAlreadyInstalled = "Steven Black's Hosts is already installed"
+        DNSSkipDownload = "Skipping download (idempotent)"
+        DNSBackupOriginal = "Original hosts file backed up: {0}"
+        DNSBackupFailed = "Hosts file backup failed: {0}"
+        DNSBackupExists = "Original backup already exists: {0}"
+        DNSUsingLocal = "Using local hosts file from project directory..."
+        DNSCriticalError = "CRITICAL ERROR: Local hosts file not found!"
+        DNSExpected = "Expected: {0}"
+        DNSCannotInstall = "DNS-Blocklist CANNOT be installed!"
+        DNSInvalidHeader = "Local hosts file has invalid header!"
+        DNSExpectedHeader = "Expected: '# Title: StevenBlack/hosts'"
+        DNSValidated = "Local hosts file validated: {0} domains"
+        DNSInstalling = "Installing hosts file (atomic replace)..."
+        DNSFileTooSmall = "Copied file too small ({0} lines < 1000)!"
+        DNSAtomicSuccess = "Atomic replace successful"
+        DNSInstallFailed = "Hosts file installation failed: {0}"
+        DNSFlushingCache = "Flushing DNS cache..."
+        DNSCacheFlushed = "DNS cache successfully flushed"
+        DNSFlushTimeout = "DNS cache flush timeout (10s) - skipping"
+        DNSFlushError = "DNS cache flush error (not critical): {0}"
+        DNSBlocklistInstalled = "Steven Black's Blocklist installed ({0} domains)"
+        DNSBlockedTypes = "Blocked: Malware, Tracking, Ads, Coin-Miners, Phishing"
+        DNSSource = "Source: Local file (NoID Privacy Project)"
+        DNSLegitimateWarning = "Some legitimate websites may be affected!"
+        DNSInstallationFailed = "Installation failed: {0}"
+        DNSNotInstalled = "DNS-Blocklist was NOT installed!"
+        FirewallConfiguring = "Setting firewall to maximum inbound security..."
+        FirewallProfileError = "Could not configure firewall profile {0}: {1}"
+        FirewallActivated = "Strict Inbound Firewall activated"
+        FirewallInbound = "Inbound: ALL BLOCKED (including allowed apps!)"
+        FirewallOutbound = "Outbound: ALL ALLOWED (Internet works normally)"
+        FirewallMaxSecurity = "MAXIMUM SECURITY: NOTHING can get in from outside!"
+        FirewallCheckbox = "Checkbox 'Block all incoming connections' is now ACTIVE!"
+        
+        # Common Module
+        CommonCreatingKey = "Creating registry key: {0}"
+        CommonRegistrySet = "Registry set: {0}\\{1} = {2}"
+        CommonRegistryError = "Error changing registry: {0}\\{1} - {2}"
+        CommonServiceNotFound = "Service '{0}' not found (normal for legacy services in Windows 11)"
+        CommonDisablingService = "Disabling service: {0} (Status: {1})"
+        CommonSetServiceFailed = "Set-Service failed (legacy service not configurable)"
+        CommonServiceStopped = "Service stopped after {0}s"
+        CommonServiceAlreadyStopped = "Service was already stopped"
+        CommonServiceNotInstalled = "Service {0} not found (OK - not installed)"
+        CommonServiceTimeout = "Service {0} is not stopping - Timeout after {1}s"
+        CommonServiceDisabledWillNotStart = "[OK] {0} - Disabled (Status={1} - will not start on next reboot)"
+        CommonServiceCouldNotDisable = "Service {0} could not be disabled (StartMode={1})"
+        CommonServiceDisableError = "Error disabling service {0}: {1}"
+        CommonCIMCheckFailed = "CIM check failed, using fallback: {0}"
+        CommonServiceDisabledAssumed = "[OK] {0} - Disabled (assumed - Set-Service was successful)"
+        
+        # Bloatware Module
+        BloatwareRemoving = "Removing bloatware..."
+        BloatwareScanning = "Scanning for bloatware..."
+        BloatwareCheckingPatterns = "Checking {0} app patterns..."
+        BloatwareLoadingPackages = "Loading Provisioned Packages (once, ~5 seconds)..."
+        BloatwarePackagesLoaded = "{0} Provisioned Packages loaded"
+        BloatwareLoadFailed = "Get-AppxProvisionedPackage failed: {0}"
+        BloatwarePackagesSkipped = "Provisioned Packages could not be loaded - skipping"
+        BloatwareProgress = "Progress: {0}/{1} apps checked..."
+        BloatwareCompleted = "Completed: {0}/{1} apps checked"
+        BloatwareRemovalDone = "Bloatware removal completed"
+        BloatwareRemoved = "Removed: {0} apps"
+        BloatwareFailed = "Failed: {0} apps (possibly not installed)"
+        BloatwareStoreNote = "NOTE: Removed apps can be reinstalled via Microsoft Store"
+        BloatwareProvisionedNote = "IMPORTANT: Provisioned packages removed - new user profiles won't have these apps!"
+        ConsumerFeaturesDisabling = "Disabling consumer features and promoted apps..."
+        ConsumerFeaturesDisabled = "Consumer features and promoted/stub apps disabled"
+        ConsumerFeaturesLinkedIn = "[OK] LinkedIn and other stub apps will be removed from Start Menu"
+        ConsumerFeaturesNoAutoInstall = "[OK] No automatic app installation"
+        ConsumerFeaturesRestartNote = "[!] NOTE: Restart required to update Start Menu!"
+        ConsumerFeaturesNoMoreAuto = "Windows will NO LONGER automatically install apps"
+        SpecificAppsRemoving = "Removing specific apps..."
+        SpecificAppsCortanaRemoving = "Removing Cortana app..."
+        SpecificAppsCortanaRemoved = "Cortana app removed"
+        SpecificAppsTeamsDisabling = "Disabling Teams Chat icon..."
+        SpecificAppsTeamsDisabled = "Teams Chat icon disabled"
+        SpecificAppsCopilotDisabling = "Disabling Windows Copilot..."
+        SpecificAppsCopilotDisabled = "Windows Copilot disabled"
+        SpecificAppsWidgetsDisabling = "Disabling Widgets..."
+        SpecificAppsWidgetsDisabled = "Widgets disabled"
+        
+        # ASR Module
+        ASRMode = "ASR Mode: {0}"
+        ASRAuditWarning = "AUDIT mode active! Does NOT block, only logging!"
+        ASREvaluateLogs = "Evaluate the logs and then switch to Enforce mode"
+        ASRCheckingDefender = "Checking if Windows Defender is available..."
+        ASRDefenderAvailable = "Defender is available"
+        ASRDefenderNotAvailable = "Windows Defender is NOT available (third-party AV active)"
+        ASRConfigSkipped = "ASR configuration skipped - Your AV already provides protection"
+        ASRCheckingService = "Checking Defender service status before ASR configuration..."
+        ASRStartingService = "Starting Defender service (required for ASR)..."
+        ASRWaitingInit = "Waiting 3 seconds for Defender initialization..."
+        ASRServiceStarted = "Defender service started and initialized"
+        ASRWaitingStability = "Waiting 1 second for Defender stability..."
+        ASRServiceNotAvailable = "Defender service not available - ASR configuration skipped"
+        ASRServiceSolution = "Solution: Start-Service -Name WinDefend or skip ASR module in Custom Mode"
+        ASRExistingRules = "Existing ASR rules found ({0} rules)"
+        ASRWillOverwrite = "These will be overwritten by new configuration"
+        ASRConfigured = "ASR rules configured: {0} rules"
+        ASRModeSet = "Mode: {0}"
+        ASRCannotSetScript = "ASR rules could not be set via script"
+        ASRPropertyNotFound = "The property 'AttackSurfaceReductionRules_Ids' was not found"
+        ASRManualActivation = "MANUAL ACTIVATION: Windows Security | Virus and threat protection | Manage settings | Attack surface reduction rules"
+        ASRReasonThirdParty = "Reason: Possibly third-party AV active or Defender not fully available"
+        ASRAuditModeActive = "ASR in AUDIT mode! Check events in Defender logs."
+        ASRSwitchToEnforce = "After evaluation, switch to Enforce!"
+        ASRExclusionsNote = "ASR Exclusions can be set via Add-MpPreference -AttackSurfaceReductionOnlyExclusions"
+        ASRPreferencesError = "Defender Preferences could not be read"
+        ASRNoRulesConfigured = "No ASR rules configured"
+        ASRConfiguredRules = "Configured ASR rules: {0}"
+        USBConfiguring = "Configuring USB Device Control..."
+        USBActivated = "USB Device Control activated (No Execute)"
+        USBNote = "USB sticks: Read + Write OK, but .exe/.bat/.ps1 will NOT execute"
+        USBProtection = "PROTECTION: BadUSB malware CANNOT be executed!"
+        SACConfiguring = "Configuring Smart App Control..."
+        SACStatus = "Smart App Control Status: {0}"
+        SACNotConfigured = "Smart App Control Status: Not configured (Windows decides)"
+        SACWindowsManages = "Smart App Control: Windows manages status automatically"
+        SACEvaluationPeriod = "After 7-14 days evaluation, Windows can activate SAC"
+        SACSmartScreenActive = "SmartScreen active"
+        
+        # Advanced Module
+        AdvancedLAPSNotAvailable = "Windows LAPS not available on this edition/version"
+        AdvancedLAPSSkipped = "LAPS skipped (Pro/Enterprise/Education only)"
+        AdvancedLAPSHint = "Hint: Use Microsoft LAPS for Home/Pro or Legacy LAPS"
+        AdvancedLAPSConfigured = "Windows LAPS configured (30-day rotation, 20 characters, Entra/AD-Escrow)"
+        AdvancedLAPSModule = "LAPS PowerShell Module: Install-Module -Name LAPS"
+        AdvancedAuditSetting = "Setting advanced audit policies..."
+        AdvancedAuditPoliciesFailed = "Audit Policies could not be set - possibly locale problem"
+        AdvancedAuditPoliciesGPO = "Audit Policies will be set via GPO or registry alternative"
+        AdvancedAuditTranscriptError = "Could not create PSTranscripts directory: {0}"
+        AdvancedAuditActivated = "Advanced Auditing activated (Object Access, Logon, DS, Policy, PnP, PS-Logging)"
+        AdvancedAuditLogSizes = "Event Log sizes: Security=500MB, System/App=100MB, PS=50MB"
+        AdvancedNTLMActivating = "NTLM Auditing is being activated (Microsoft Baseline 25H2)..."
+        AdvancedNTLMActivated = "NTLM Auditing activated (Audit-Only, no blocking)"
+        AdvancedNTLMEventIDs = "Event IDs: 4624 (NTLM Logon), 8004 (NTLM Auth), 8002 (NTLM Blocked)"
+        AdvancedNTLMGoal = "Goal: Detect legacy NTLM usage for migration to Kerberos"
+        AdvancedNTLMNotBlocked = "NTLM is NOT blocked - only logged! (Best practice for compatibility)"
+        AdvancedTLSSHA1Warning = "SHA-1 is being disabled for TLS/SSL (SCHANNEL) - legacy websites may be affected"
+        AdvancedTLSCodeSigningOK = "Code signing with SHA-1 remains ALLOWED (legacy software compatibility)"
+        AdvancedTLSSHA1Scope = "SHA-1 Scope: ONLY TLS/SSL blocked - code signing/VPN/legacy apps work!"
+        AdvancedTLSLegacyWebsites = "For legacy website issues: Re-enable SHA-1 manually"
+        AdvancedTLSCompleted = "TLS/SSL hardening completed (TLS 1.2+1.3, GCM/CHACHA only, SHA-2, no CBC/RC4/3DES/MD5)"
+        AdvancedTLSEventLogging = "Schannel Event Logging activated (Level 7)"
+        AdvancedPrintAdding = "Adding RESTRICTED SERVICES\\PrintSpoolerService to User Rights..."
+        AdvancedPrintExportFailed = "Security Policy Export failed"
+        AdvancedPrintNotCritical = "NOT CRITICAL: Windows Protected Print works anyway"
+        AdvancedPrintNotFound = "SeImpersonatePrivilege not found in Security Policy"
+        AdvancedPrintDefaultsKept = "NOT CRITICAL: Defaults remain"
+        AdvancedPrintAlreadyPresent = "Print Spooler Service User Right already present"
+        AdvancedPrintAdded = "Print Spooler User Right added"
+        AdvancedPrintUserRight = "  - User Right: SeImpersonatePrivilege"
+        AdvancedPrintSIDAdded = "  - SID Added: S-1-5-99-0-0-0-0 (RESTRICTED SERVICES\\PrintSpoolerService)"
+        AdvancedPrintPurpose = "  - Purpose: Windows Protected Print Support (Forward-Compat)"
+        AdvancedPrintBaseline = "MICROSOFT BASELINE 25H2: 100% FULFILLED!"
+        AdvancedPrintImportFailed = "Security Policy Import failed (Exit Code: {0})"
+        AdvancedPrintPrintingWorks = "NOT CRITICAL: Printing works anyway"
+        AdvancedPrintAssignmentFailed = "User Right Assignment failed: {0}"
+        AdvancedPrintStandardPerms = "NOT CRITICAL: Windows Protected Print works with standard permissions"
+        
         # Edge Module
         EdgeBaselineTitle = "Microsoft Edge Security Baseline v139+ (User-Friendly)"
         EdgeSmartScreenConfig = "Configuring SmartScreen and Site Isolation..."
@@ -273,7 +445,8 @@ $Global:Strings = @{
         EdgeHybridMode = "  HYBRID MODE = Best of Both Worlds:"
         EdgeSecurityEnforced = "  [OK] Security-critical settings: ENFORCED (Policies)"
         EdgeUserFriendly = "  [OK] User-friendly settings: DEFAULT but CHANGEABLE (Preferences)"
-        EdgeRestartRequired = "Edge restart required for full application!"
+        EdgeRestartRequired = "Restart Edge for full effect"
+        EdgeExtensionSourcesSet = "ExtensionInstallSources set as MultiString"
         
         # WirelessDisplay Module
         WDDisableTitle = "Wireless Display / Miracast - COMPLETE Disablement (4 Levels)"
@@ -684,6 +857,7 @@ $Global:Strings = @{
         
         # Confirmations
         ConfirmContinue = "Moechten Sie fortfahren? [J/N]:"
+        ConfirmWarning = "Letzte Warnung! Sind Sie SICHER? [J/N]:"
         ConfirmYes = "J"
         ConfirmNo = "N"
         
@@ -729,6 +903,178 @@ $Global:Strings = @{
         AINote = "HINWEIS:"
         AIMicrosoftChanges = "  Microsoft aendert staendig AI-Implementierung!"
         AIFutureProof = "  Wir blockieren auf mehreren Ebenen fuer Zukunftssicherheit."
+        
+        # DNS Module
+        DNSSECActivating = "DNSSEC wird aktiviert (DNS-Spoofing-Schutz)..."
+        DNSSECModeOpportunistic = "DNSSEC Mode: Opportunistic (sicher + kompatibel)"
+        DNSSECActivated = "DNSSEC Validation aktiviert"
+        DNSSECResponsesValidated = "DNS-Antworten werden auf Authentizitaet geprueft (Anti-Spoofing)"
+        DNSBlocklistInstalling = "DNS Blocklist wird installiert (80K+ Domains)..."
+        DNSBlocklistOptimization = "OPTIMIERUNG: 9 Domains pro Zeile (DNS-Cache-optimiert)"
+        DNSBlocklistCompressed = "Steven Black's unified hosts - komprimiert fuer Performance"
+        DNSAntivirusCompatibility = "ANTIVIRUS-KOMPATIBILITAET: hosts-Datei mit 80K+ Eintraegen"
+        DNSBitdefenderWarning = "Bitdefender-User: Protection | Vulnerability | Settings | 'Scan hosts file' DEAKTIVIEREN!"
+        DNSInternetBlock = "Sonst kann Internet-Zugriff blockiert werden!"
+        DNSAlreadyInstalled = "Steven Black's Hosts ist bereits installiert"
+        DNSSkipDownload = "Ueberspringe Download (idempotent)"
+        DNSBackupOriginal = "Original Hosts-File gesichert: {0}"
+        DNSBackupFailed = "Hosts-File Backup fehlgeschlagen: {0}"
+        DNSBackupExists = "Original Backup existiert bereits: {0}"
+        DNSUsingLocal = "Verwende lokale hosts-Datei aus Projektverzeichnis..."
+        DNSCriticalError = "KRITISCHER FEHLER: Lokale hosts-Datei nicht gefunden!"
+        DNSExpected = "Erwartet: {0}"
+        DNSCannotInstall = "DNS-Blocklist kann NICHT installiert werden!"
+        DNSInvalidHeader = "Lokale hosts-Datei hat ungueltigen Header!"
+        DNSExpectedHeader = "Erwartet: '# Title: StevenBlack/hosts'"
+        DNSValidated = "Lokale hosts-Datei validiert: {0} Domains"
+        DNSInstalling = "Installiere hosts-Datei (atomarer Replace)..."
+        DNSFileTooSmall = "Kopierte Datei zu klein ({0} Zeilen < 1000)!"
+        DNSAtomicSuccess = "Atomarer Replace erfolgreich"
+        DNSInstallFailed = "Hosts-Datei Installation fehlgeschlagen: {0}"
+        DNSFlushingCache = "DNS-Cache wird geleert..."
+        DNSCacheFlushed = "DNS Cache erfolgreich geleert"
+        DNSFlushTimeout = "DNS Cache Flush Timeout (10s) - wird uebersprungen"
+        DNSFlushError = "DNS Cache Flush Fehler (nicht kritisch): {0}"
+        DNSBlocklistInstalled = "Steven Black's Blocklist installiert ({0} Domains)"
+        DNSBlockedTypes = "Blockiert: Malware, Tracking, Werbung, Coin-Miner, Phishing"
+        DNSSource = "Quelle: Lokale Datei (NoID Privacy Project)"
+        DNSLegitimateWarning = "Einige legitime Websites koennen betroffen sein!"
+        DNSInstallationFailed = "Installation fehlgeschlagen: {0}"
+        DNSNotInstalled = "DNS-Blocklist wurde NICHT installiert!"
+        FirewallConfiguring = "Firewall wird auf Maximum Inbound Security gesetzt..."
+        FirewallProfileError = "Konnte Firewall-Profil {0} nicht konfigurieren: {1}"
+        FirewallActivated = "Strict Inbound Firewall aktiviert"
+        FirewallInbound = "Eingehend: ALLES BLOCKIERT (auch erlaubte Apps!)"
+        FirewallOutbound = "Ausgehend: ALLES ERLAUBT (Internet funktioniert normal)"
+        FirewallMaxSecurity = "MAXIMUM SECURITY: NICHTS kann von aussen rein!"
+        FirewallCheckbox = "Checkbox 'Blockiert alle eingehenden Verbindungen' ist jetzt AKTIV!"
+        
+        # Common Module
+        CommonCreatingKey = "Erstelle Registry-Key: {0}"
+        CommonRegistrySet = "Registry gesetzt: {0}\\{1} = {2}"
+        CommonRegistryError = "Fehler bei Registry-Aenderung: {0}\\{1} - {2}"
+        CommonServiceNotFound = "Service '{0}' nicht gefunden (normal bei Legacy-Services in Windows 11)"
+        CommonDisablingService = "Deaktiviere Service: {0} (Status: {1})"
+        CommonSetServiceFailed = "Set-Service fehlgeschlagen (Legacy Service nicht konfigurierbar)"
+        CommonServiceStopped = "Service gestoppt nach {0}s"
+        CommonServiceAlreadyStopped = "Service war bereits gestoppt"
+        CommonServiceNotInstalled = "Service {0} nicht gefunden (OK - nicht installiert)"
+        CommonServiceTimeout = "Service {0} stoppt nicht - Timeout nach {1}s"
+        CommonServiceDisabledWillNotStart = "[OK] {0} - Disabled (Status={1} - wird beim naechsten Reboot nicht starten)"
+        CommonServiceCouldNotDisable = "Service {0} konnte nicht deaktiviert werden (StartMode={1})"
+        CommonServiceDisableError = "Fehler beim Deaktivieren von Service {0}: {1}"
+        CommonCIMCheckFailed = "CIM-Check fehlgeschlagen, verwende Fallback: {0}"
+        CommonServiceDisabledAssumed = "[OK] {0} - Disabled (angenommen - Set-Service war erfolgreich)"
+        
+        # Bloatware Module
+        BloatwareRemoving = "Bloatware wird entfuernt..."
+        BloatwareScanning = "Scanne nach Bloatware..."
+        BloatwareCheckingPatterns = "Pruefe {0} App-Muster..."
+        BloatwareLoadingPackages = "Lade Provisioned Packages (einmalig, ~5 Sekunden)..."
+        BloatwarePackagesLoaded = "{0} Provisioned Packages geladen"
+        BloatwareLoadFailed = "Get-AppxProvisionedPackage fehlgeschlagen: {0}"
+        BloatwarePackagesSkipped = "Provisioned Packages konnten nicht geladen werden - wird uebersprungen"
+        BloatwareProgress = "Fortschritt: {0}/{1} Apps geprueft..."
+        BloatwareCompleted = "Abgeschlossen: {0}/{1} Apps geprueft"
+        BloatwareRemovalDone = "Bloatware-Removal abgeschlossen"
+        BloatwareRemoved = "Entfuernt: {0} Apps"
+        BloatwareFailed = "Fehlgeschlagen: {0} Apps (evtl. nicht installiert)"
+        BloatwareStoreNote = "HINWEIS: Entfuernte Apps koennen ueber Microsoft Store neu installiert werden"
+        BloatwareProvisionedNote = "WICHTIG: Provisioned Packages wurden entfernt - neue Benutzer-Profile haben diese Apps nicht!"
+        ConsumerFeaturesDisabling = "Consumer Features und Promoted Apps werden deaktiviert..."
+        ConsumerFeaturesDisabled = "Consumer Features und Promoted/Stub-Apps deaktiviert"
+        ConsumerFeaturesLinkedIn = "[OK] LinkedIn und andere Stub-Apps werden aus Startmenu entfernt"
+        ConsumerFeaturesNoAutoInstall = "[OK] Kein automatisches Installieren von Apps"
+        ConsumerFeaturesRestartNote = "[!] HINWEIS: Neustart erforderlich um Startmenu zu aktualisieren!"
+        ConsumerFeaturesNoMoreAuto = "Windows wird KEINE Apps mehr automatisch installieren"
+        SpecificAppsRemoving = "Entfuerne spezifische Apps..."
+        SpecificAppsCortanaRemoving = "Entfuerne Cortana App..."
+        SpecificAppsCortanaRemoved = "Cortana App entfuernt"
+        SpecificAppsTeamsDisabling = "Deaktiviere Teams Chat Icon..."
+        SpecificAppsTeamsDisabled = "Teams Chat Icon deaktiviert"
+        SpecificAppsCopilotDisabling = "Deaktiviere Windows Copilot..."
+        SpecificAppsCopilotDisabled = "Windows Copilot deaktiviert"
+        SpecificAppsWidgetsDisabling = "Deaktiviere Widgets..."
+        SpecificAppsWidgetsDisabled = "Widgets deaktiviert"
+        
+        # ASR Module
+        ASRMode = "ASR-Modus: {0}"
+        ASRAuditWarning = "AUDIT-Modus aktiv! Blockiert NICHT, nur Logging!"
+        ASREvaluateLogs = "Evaluieren Sie die Logs und wechseln Sie danach zu Enforce-Modus"
+        ASRCheckingDefender = "Pruefe ob Windows Defender verfuegbar ist..."
+        ASRDefenderAvailable = "Defender ist verfuegbar"
+        ASRDefenderNotAvailable = "Windows Defender ist NICHT verfuegbar (Drittanbieter-AV aktiv)"
+        ASRConfigSkipped = "ASR-Konfiguration wird uebersprungen - Ihr AV bietet bereits Schutz"
+        ASRCheckingService = "Pruefe Defender Service Status vor ASR-Konfiguration..."
+        ASRStartingService = "Defender Service wird gestartet (erforderlich fuer ASR)..."
+        ASRWaitingInit = "Warte 3 Sekunden auf Defender-Initialisierung..."
+        ASRServiceStarted = "Defender Service gestartet und initialisiert"
+        ASRWaitingStability = "Warte 1 Sekunde fuer Defender-Stabilitaet..."
+        ASRServiceNotAvailable = "Defender Service nicht verfuegbar - ASR-Konfiguration wird uebersprungen"
+        ASRServiceSolution = "Loesung: Start-Service -Name WinDefend oder ASR-Modul in Custom Mode skippen"
+        ASRExistingRules = "Bestehende ASR-Regeln gefunden ({0} Regeln)"
+        ASRWillOverwrite = "Diese werden durch neue Konfiguration ueberschrieben"
+        ASRConfigured = "ASR-Regeln konfiguriert: {0} Regeln"
+        ASRModeSet = "Modus: {0}"
+        ASRCannotSetScript = "ASR-Regeln konnten nicht per Script gesetzt werden"
+        ASRPropertyNotFound = "Die Eigenschaft 'AttackSurfaceReductionRules_Ids' wurde nicht gefunden"
+        ASRManualActivation = "MANUELL AKTIVIEREN: Windows Security | Virus and threat protection | Manage settings | Attack surface reduction rules"
+        ASRReasonThirdParty = "Grund: Moeglicherweise Drittanbieter-AV aktiv oder Defender nicht vollstaendig verfuegbar"
+        ASRAuditModeActive = "ASR im AUDIT-Modus! Events in Defender-Logs pruefen."
+        ASRSwitchToEnforce = "Nach Evaluierung auf Enforce umstellen!"
+        ASRExclusionsNote = "ASR Exclusions koennen via Add-MpPreference -AttackSurfaceReductionOnlyExclusions gesetzt werden"
+        ASRPreferencesError = "Defender Preferences konnten nicht gelesen werden"
+        ASRNoRulesConfigured = "Keine ASR-Regeln konfiguriert"
+        ASRConfiguredRules = "Konfigurierte ASR-Regeln: {0}"
+        USBConfiguring = "USB Device Control wird konfiguriert..."
+        USBActivated = "USB Device Control aktiviert (No Execute)"
+        USBNote = "USB-Sticks: Lesen + Schreiben OK, aber .exe/.bat/.ps1 werden NICHT ausgefuehrt"
+        USBProtection = "SCHUTZ: BadUSB-Malware kann NICHT ausgefuehrt werden!"
+        SACConfiguring = "Smart App Control wird konfiguriert..."
+        SACStatus = "Smart App Control Status: {0}"
+        SACNotConfigured = "Smart App Control Status: Nicht konfiguriert (Windows entscheidet)"
+        SACWindowsManages = "Smart App Control: Windows verwaltet Status automatisch"
+        SACEvaluationPeriod = "Nach 7-14 Tagen Evaluation kann Windows SAC aktivieren"
+        SACSmartScreenActive = "SmartScreen aktiv"
+        
+        # Advanced Module
+        AdvancedLAPSNotAvailable = "Windows LAPS nicht verfuegbar auf dieser Edition/Version"
+        AdvancedLAPSSkipped = "LAPS wird uebersprungen (nur Pro/Enterprise/Education)"
+        AdvancedLAPSHint = "Hinweis: Verwenden Sie Microsoft LAPS fuer Home/Pro oder Legacy LAPS"
+        AdvancedLAPSConfigured = "Windows LAPS konfiguriert (30-Tage-Rotation, 20 Zeichen, Entra/AD-Escrow)"
+        AdvancedLAPSModule = "LAPS PowerShell Module: Install-Module -Name LAPS"
+        AdvancedAuditSetting = "Setze erweiterte Audit-Policies..."
+        AdvancedAuditPoliciesFailed = "Audit Policies konnten nicht gesetzt werden - moeglicherweise Locale-Problem"
+        AdvancedAuditPoliciesGPO = "Audit Policies werden via GPO oder Registry-Alternative gesetzt"
+        AdvancedAuditTranscriptError = "Konnte PSTranscripts-Verzeichnis nicht erstellen: {0}"
+        AdvancedAuditActivated = "Advanced Auditing aktiviert (Object Access, Logon, DS, Policy, PnP, PS-Logging)"
+        AdvancedAuditLogSizes = "Event Log Groessen: Security=500MB, System/App=100MB, PS=50MB"
+        AdvancedNTLMActivating = "NTLM Auditing wird aktiviert (Microsoft Baseline 25H2)..."
+        AdvancedNTLMActivated = "NTLM Auditing aktiviert (Audit-Only, kein Blocking)"
+        AdvancedNTLMEventIDs = "Event IDs: 4624 (NTLM Logon), 8004 (NTLM Auth), 8002 (NTLM Blocked)"
+        AdvancedNTLMGoal = "Ziel: Legacy-NTLM-Nutzung erkennen fuer Migration zu Kerberos"
+        AdvancedNTLMNotBlocked = "NTLM wird NICHT blockiert - nur geloggt! (Best Practice fuer Kompatibilitaet)"
+        AdvancedTLSSHA1Warning = "SHA-1 wird fuer TLS/SSL deaktiviert (SCHANNEL) - Legacy-Webseiten koennen betroffen sein"
+        AdvancedTLSCodeSigningOK = "Code-Signing mit SHA-1 bleibt ERLAUBT (Legacy-Software-Kompatibilitaet)"
+        AdvancedTLSSHA1Scope = "SHA-1 Scope: NUR TLS/SSL blockiert - Code-Signing/VPN/Legacy-Apps funktionieren!"
+        AdvancedTLSLegacyWebsites = "Bei Problemen mit Legacy-Webseiten: SHA-1 manuell wieder aktivieren"
+        AdvancedTLSCompleted = "TLS/SSL Haertung abgeschlossen (TLS 1.2+1.3, GCM/CHACHA only, SHA-2, keine CBC/RC4/3DES/MD5)"
+        AdvancedTLSEventLogging = "Schannel Event Logging aktiviert (Level 7)"
+        AdvancedPrintAdding = "Fuege RESTRICTED SERVICES\\PrintSpoolerService zu User Rights hinzu..."
+        AdvancedPrintExportFailed = "Security Policy Export fehlgeschlagen"
+        AdvancedPrintNotCritical = "NICHT KRITISCH: Windows Protected Print funktioniert trotzdem"
+        AdvancedPrintNotFound = "SeImpersonatePrivilege nicht gefunden in Security Policy"
+        AdvancedPrintDefaultsKept = "NICHT KRITISCH: Standardwerte bleiben erhalten"
+        AdvancedPrintAlreadyPresent = "Print Spooler Service User Right bereits vorhanden"
+        AdvancedPrintAdded = "Print Spooler User Right hinzugefuegt"
+        AdvancedPrintUserRight = "  - User Right: SeImpersonatePrivilege"
+        AdvancedPrintSIDAdded = "  - SID Added: S-1-5-99-0-0-0-0 (RESTRICTED SERVICES\\PrintSpoolerService)"
+        AdvancedPrintPurpose = "  - Purpose: Windows Protected Print Support (Forward-Compat)"
+        AdvancedPrintBaseline = "MICROSOFT BASELINE 25H2: 100% ERFUELLT!"
+        AdvancedPrintImportFailed = "Security Policy Import fehlgeschlagen (Exit Code: {0})"
+        AdvancedPrintPrintingWorks = "NICHT KRITISCH: Drucken funktioniert trotzdem"
+        AdvancedPrintAssignmentFailed = "User Right Assignment fehlgeschlagen: {0}"
+        AdvancedPrintStandardPerms = "NICHT KRITISCH: Windows Protected Print funktioniert mit Standard-Permissions"
         
         # Edge Module
         EdgeBaselineTitle = "Microsoft Edge Security Baseline v139+ (User-Friendly)"
@@ -1030,11 +1376,14 @@ function Get-LocalizedString {
     [CmdletBinding()]
     [OutputType([string])]
     param(
-        [Parameter(Mandatory=$true)]
+        [Parameter(Mandatory=$true, Position=0)]
         [string]$Key,
         
+        [Parameter(Mandatory=$false, Position=1, ValueFromRemainingArguments=$true)]
+        [object[]]$FormatArgs,
+        
         [Parameter(Mandatory=$false)]
-        [string]$FallbackLanguage = 'en'
+        [string]$DefaultLanguage = 'en'
     )
     
     # Validate global state
@@ -1045,26 +1394,41 @@ function Get-LocalizedString {
     
     # Ensure current language is set
     if (-not (Test-Path Variable:\Global:CurrentLanguage) -or [string]::IsNullOrEmpty($Global:CurrentLanguage)) {
-        Write-Verbose "CurrentLanguage not set - using fallback: $FallbackLanguage"
-        $Global:CurrentLanguage = $FallbackLanguage
+        Write-Verbose "CurrentLanguage not set - using fallback: $DefaultLanguage"
+        $Global:CurrentLanguage = $DefaultLanguage
     }
+    
+    # Get the localized string
+    $result = $null
     
     # Try current language first
     if ($Global:Strings.ContainsKey($Global:CurrentLanguage) -and 
         $Global:Strings[$Global:CurrentLanguage].ContainsKey($Key)) {
-        return $Global:Strings[$Global:CurrentLanguage][$Key]
+        $result = $Global:Strings[$Global:CurrentLanguage][$Key]
     }
-    
     # Try fallback language
-    if ($Global:Strings.ContainsKey($FallbackLanguage) -and 
-        $Global:Strings[$FallbackLanguage].ContainsKey($Key)) {
-        Write-Verbose "Key '$Key' not found in '$Global:CurrentLanguage' - using fallback: $FallbackLanguage"
-        return $Global:Strings[$FallbackLanguage][$Key]
+    elseif ($Global:Strings.ContainsKey($DefaultLanguage) -and 
+        $Global:Strings[$DefaultLanguage].ContainsKey($Key)) {
+        Write-Verbose "Key '$Key' not found in '$Global:CurrentLanguage' - using fallback: $DefaultLanguage"
+        $result = $Global:Strings[$DefaultLanguage][$Key]
+    }
+    # Last resort: return the key itself
+    else {
+        Write-Warning "Localization key '$Key' not found in any language - returning key as string"
+        $result = $Key
     }
     
-    # Last resort: return the key itself
-    Write-Warning "Localization key '$Key' not found in any language - returning key as string"
-    return $Key
+    # Apply formatting if Format parameters provided
+    if ($FormatArgs -and $FormatArgs.Count -gt 0) {
+        try {
+            $result = $result -f $FormatArgs
+        }
+        catch {
+            Write-Warning "String formatting failed for key '$Key': $_"
+        }
+    }
+    
+    return $result
 }
 
 <#

@@ -1,6 +1,6 @@
 # NoID Privacy - Windows 11 25H2 Security Baseline
 
-> **Enterprise-Grade Security & Privacy Hardening for Windows 11 25H2**
+> **Enterprise-Grade Security & Privacy Hardening Tool for Windows 11 25H2**
 
 [![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-blue.svg)](https://github.com/PowerShell/PowerShell)
 [![Windows 11](https://img.shields.io/badge/Windows%2011-25H2-0078D4.svg)](https://www.microsoft.com/windows/)

@@ -2,7 +2,7 @@
 # SecurityBaseline-Bloatware.ps1 - Remove Pre-Installed Bloatware
 # =======================================================================================
 
-# Best Practice 25H2: Strict Mode aktivieren
+# Best Practice 25H2: Enable Strict Mode
 Set-StrictMode -Version Latest
 
 function Remove-BloatwareApps {
@@ -20,7 +20,7 @@ function Remove-BloatwareApps {
     
     Write-Section "Bloatware Removal (Conservative)"
     
-    Write-Info "Bloatware wird entfuernt..."
+    Write-Info "$(Get-LocalizedString 'BloatwareRemoving')"
     
     # List of bloatware apps to remove (CONSERVATIVE - only obvious junk)
     $bloatwareList = @(
@@ -136,22 +136,22 @@ function Remove-BloatwareApps {
         "*XING*"
     )
     
-    Write-Info "Scanne nach Bloatware..."
-    Write-Host "  [i] Pruefe $($bloatwareList.Count) App-Muster..." -ForegroundColor Gray
+    Write-Info "$(Get-LocalizedString 'BloatwareScanning')"
+    Write-Host ("  [i] " + (Get-LocalizedString 'BloatwareCheckingPatterns' -f $bloatwareList.Count)) -ForegroundColor Gray
     
-    # PERFORMANCE FIX: Get-AppxProvisionedPackage -Online einmal laden statt 78x!
-    Write-Host "  [i] Lade Provisioned Packages (einmalig, ~5 Sekunden)..." -ForegroundColor Gray
+    # PERFORMANCE FIX: Load Get-AppxProvisionedPackage -Online once instead of 78x!
+    Write-Host ("  [i] " + (Get-LocalizedString 'BloatwareLoadingPackages')) -ForegroundColor Gray
     
-    # CRITICAL FIX: Try-Catch um Terminating Errors zu fangen
-    # ErrorAction SilentlyContinue allein reicht NICHT bei Terminating Errors!
+    # CRITICAL FIX: Try-Catch to catch Terminating Errors
+    # ErrorAction SilentlyContinue alone is NOT enough for Terminating Errors!
     $allProvisionedPackages = @()
     try {
         $allProvisionedPackages = @(Get-AppxProvisionedPackage -Online -ErrorAction Stop)
-        Write-Host "  [OK] $($allProvisionedPackages.Count) Provisioned Packages geladen" -ForegroundColor Green
+        Write-Host ("  [OK] " + (Get-LocalizedString 'BloatwarePackagesLoaded' -f $allProvisionedPackages.Count)) -ForegroundColor Green
     }
     catch {
-        Write-Verbose "Get-AppxProvisionedPackage fehlgeschlagen: $_"
-        Write-Host "  [!] Provisioned Packages konnten nicht geladen werden - wird uebersprungen" -ForegroundColor Yellow
+        Write-Verbose (Get-LocalizedString 'BloatwareLoadFailed' -f $_)
+        Write-Host ("  [!] " + (Get-LocalizedString 'BloatwarePackagesSkipped')) -ForegroundColor Yellow
     }
     Write-Host ""
     
@@ -161,38 +161,38 @@ function Remove-BloatwareApps {
     
     foreach ($app in $bloatwareList) {
         $currentIndex++
-        # Progress-Anzeige alle 10 Apps
+        # Progress display every 10 apps
         if ($currentIndex % 10 -eq 0) {
-            Write-Host "     Fortschritt: $currentIndex/$($bloatwareList.Count) Apps geprueft..." -ForegroundColor DarkGray
+            Write-Host ("     " + (Get-LocalizedString 'BloatwareProgress' -f $currentIndex, $bloatwareList.Count)) -ForegroundColor DarkGray
         }
-        Write-Verbose "Pruefe: $app"
+        Write-Verbose "Checking: $app"
         
-        # Get all matching apps (schnell!)
+        # Get all matching apps (fast!)
         $packages = Get-AppxPackage -Name $app -AllUsers -ErrorAction SilentlyContinue
         
         foreach ($package in $packages) {
             try {
-                Write-Verbose "     Entfuerne: $($package.Name)"
+                Write-Verbose "     Removing: $($package.Name)"
                 Remove-AppxPackage -Package $package.PackageFullName -ErrorAction Stop | Out-Null
                 $removedCount++
             }
             catch {
-                Write-Verbose "     Fehler: $_"
+                Write-Verbose "     Error: $_"
                 $failedCount++
             }
         }
         
-        # Filtern aus bereits geladener Liste (SCHNELL!)
-        # Statt 78x Get-AppxProvisionedPackage -Online aufzurufen (LANGSAM!)
+        # Filter from already loaded list (FAST!)
+        # Instead of calling Get-AppxProvisionedPackage -Online 78x (SLOW!)
         $provisionedPackages = $allProvisionedPackages | Where-Object { $_.DisplayName -like $app }
         
         foreach ($provPackage in $provisionedPackages) {
-            Write-Verbose "     Entfuerne Provisioned: $($provPackage.DisplayName)"
-            Write-Verbose "     HINWEIS: Neue Benutzer erhalten diese App nicht mehr"
+            Write-Verbose "     Removing Provisioned: $($provPackage.DisplayName)"
+            Write-Verbose "     NOTE: New users will no longer receive this app"
             
-            # CRITICAL FIX v2: Unterdrücke TerminatingErrors komplett (auch im Transcript!)
-            # PowerShell schreibt manche TerminatingErrors ins Transcript BEVOR Try-Catch greift
-            # Lösung: $ErrorActionPreference temporär auf 'SilentlyContinue' setzen
+            # CRITICAL FIX v2: Suppress TerminatingErrors completely (even in Transcript!)
+            # PowerShell writes some TerminatingErrors to Transcript BEFORE Try-Catch catches them
+            # Solution: Set $ErrorActionPreference temporarily to 'SilentlyContinue'
             try {
                 $previousErrorAction = $ErrorActionPreference
                 $ErrorActionPreference = 'SilentlyContinue'
@@ -205,32 +205,32 @@ function Remove-BloatwareApps {
                 # Prüfe ob erfolgreich (kein Error in $Error)
                 if ($?) {
                     $removedCount++
-                    Write-Verbose "     Provisioned Package erfolgreich entfernt"
+                    Write-Verbose "     Provisioned package successfully removed"
                 }
                 else {
-                    Write-Verbose "     Provisioned Package konnte nicht entfernt werden (Package existiert nicht oder geschuetzt)"
+                    Write-Verbose "     Provisioned package could not be removed (package does not exist or is protected)"
                     $failedCount++
                 }
             }
             catch {
                 $ErrorActionPreference = $previousErrorAction
-                Write-Verbose "     Provisioned Package konnte nicht entfernt werden (Package existiert nicht oder geschuetzt)"
+                Write-Verbose "     Provisioned package could not be removed (package does not exist or is protected)"
                 $failedCount++
             }
         }
     }
     
     Write-Host ""
-    Write-Host "     Abgeschlossen: $($bloatwareList.Count)/$($bloatwareList.Count) Apps geprueft" -ForegroundColor Green
+    Write-Host ("     " + (Get-LocalizedString 'BloatwareCompleted' -f $bloatwareList.Count, $bloatwareList.Count)) -ForegroundColor Green
     
-    Write-Success "Bloatware-Removal abgeschlossen"
-    Write-Info "Entfuernt: $removedCount Apps"
+    Write-Success "$(Get-LocalizedString 'BloatwareRemovalDone')"
+    Write-Info (Get-LocalizedString 'BloatwareRemoved' -f $removedCount)
     if ($failedCount -gt 0) {
-        Write-Warning "Fehlgeschlagen: $failedCount Apps (evtl. nicht installiert)"
+        Write-Warning (Get-LocalizedString 'BloatwareFailed' -f $failedCount)
     }
     
-    Write-Info "HINWEIS: Entfuernte Apps koennen ueber Microsoft Store neu installiert werden"
-    Write-Warning-Custom "WICHTIG: Provisioned Packages wurden entfernt - neue Benutzer-Profile haben diese Apps nicht!"
+    Write-Info "$(Get-LocalizedString 'BloatwareStoreNote')"
+    Write-Warning-Custom "$(Get-LocalizedString 'BloatwareProvisionedNote')"
 }
 
 function Disable-ConsumerFeatures {
@@ -247,58 +247,58 @@ function Disable-ConsumerFeatures {
     
     Write-Section "Consumer Features (Auto-Install Bloatware)"
     
-    Write-Info "Consumer Features und Promoted Apps werden deaktiviert..."
+    Write-Info "$(Get-LocalizedString 'ConsumerFeaturesDisabling')"
     
     # Disable consumer features (auto-install of suggested apps)
     $cloudContentPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent"
     
     Set-RegistryValue -Path $cloudContentPath -Name "DisableWindowsConsumerFeatures" -Value 1 -Type DWord `
-        -Description "Consumer Features deaktivieren (keine Auto-Install-Apps)"
+        -Description "Disable Consumer Features (no auto-install apps)"
     
     # Disable automatic app installation
     Set-RegistryValue -Path $cloudContentPath -Name "DisableSoftLanding" -Value 1 -Type DWord `
-        -Description "Soft Landing deaktivieren (keine App-Vorschlaege)"
+        -Description "Disable Soft Landing (no app suggestions)"
     
     # Disable cloud-optimized content
     Set-RegistryValue -Path $cloudContentPath -Name "DisableCloudOptimizedContent" -Value 1 -Type DWord `
-        -Description "Cloud-optimierte Inhalte deaktivieren"
+        -Description "Disable cloud-optimized content"
     
-    # WICHTIG: Stub-Apps (LinkedIn, etc.) aus Startmenu entfernen
+    # IMPORTANT: Remove stub apps (LinkedIn, etc.) from Start Menu
     Set-RegistryValue -Path $cloudContentPath -Name "DisableThirdPartySuggestions" -Value 1 -Type DWord `
-        -Description "Drittanbieter-Vorschlaege im Startmenu deaktivieren"
+        -Description "Disable third-party suggestions in Start Menu"
     
     Set-RegistryValue -Path $cloudContentPath -Name "DisableWindowsSpotlightFeatures" -Value 1 -Type DWord `
-        -Description "Windows Spotlight Features deaktivieren"
+        -Description "Disable Windows Spotlight features"
     
-    # ContentDeliveryManager Settings (zusaetzlich zu CloudContent)
+    # ContentDeliveryManager Settings (in addition to CloudContent)
     $cdmPath = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager"
     
     Set-RegistryValue -Path $cdmPath -Name "SubscribedContent-338388Enabled" -Value 0 -Type DWord `
-        -Description "Vorgeschlagene Apps im Startmenu deaktivieren (Stub-Apps)"
+        -Description "Disable suggested apps in Start Menu (stub apps)"
     
     Set-RegistryValue -Path $cdmPath -Name "SubscribedContent-338389Enabled" -Value 0 -Type DWord `
-        -Description "Tipps und Tricks deaktivieren"
+        -Description "Disable tips and tricks"
     
     Set-RegistryValue -Path $cdmPath -Name "SubscribedContent-310093Enabled" -Value 0 -Type DWord `
-        -Description "App-Vorschlaege nach Windows Update deaktivieren"
+        -Description "Disable app suggestions after Windows Update"
     
     Set-RegistryValue -Path $cdmPath -Name "SubscribedContent-353698Enabled" -Value 0 -Type DWord `
-        -Description "Timeline-Vorschlaege deaktivieren"
+        -Description "Disable Timeline suggestions"
     
     Set-RegistryValue -Path $cdmPath -Name "SilentInstalledAppsEnabled" -Value 0 -Type DWord `
-        -Description "Silent Installation von Apps deaktivieren"
+        -Description "Disable silent installation of apps"
     
     Set-RegistryValue -Path $cdmPath -Name "SystemPaneSuggestionsEnabled" -Value 0 -Type DWord `
-        -Description "Vorschlaege in Einstellungen deaktivieren"
+        -Description "Disable suggestions in Settings"
     
     Set-RegistryValue -Path $cdmPath -Name "PreInstalledAppsEnabled" -Value 0 -Type DWord `
-        -Description "Vorinstallierte Apps-Werbung deaktivieren"
+        -Description "Disable pre-installed app advertising"
     
-    Write-Success "Consumer Features und Promoted/Stub-Apps deaktiviert"
-    Write-Info "  [OK] LinkedIn und andere Stub-Apps werden aus Startmenu entfernt"
-    Write-Info "  [OK] Kein automatisches Installieren von Apps"
-    Write-Info "  [!] HINWEIS: Neustart erforderlich um Startmenu zu aktualisieren!"
-    Write-Info "Windows wird KEINE Apps mehr automatisch installieren"
+    Write-Success "$(Get-LocalizedString 'ConsumerFeaturesDisabled')"
+    Write-Info "  $(Get-LocalizedString 'ConsumerFeaturesLinkedIn')"
+    Write-Info "  $(Get-LocalizedString 'ConsumerFeaturesNoAutoInstall')"
+    Write-Info "  $(Get-LocalizedString 'ConsumerFeaturesRestartNote')"
+    Write-Info "$(Get-LocalizedString 'ConsumerFeaturesNoMoreAuto')"
 }
 
 function Remove-SpecificApps {
@@ -315,55 +315,55 @@ function Remove-SpecificApps {
     
     Write-Section "Specific App Removal"
     
-    Write-Info "Entfuerne spezifische Apps..."
+    Write-Info "$(Get-LocalizedString 'SpecificAppsRemoving')"
     
     # Cortana App (Windows 11)
     try {
         $cortana = Get-AppxPackage -Name "Microsoft.549981C3F5F10" -AllUsers -ErrorAction SilentlyContinue
         if ($cortana) {
-            Write-Info "Entfuerne Cortana App..."
+            Write-Info "$(Get-LocalizedString 'SpecificAppsCortanaRemoving')"
             Remove-AppxPackage -Package $cortana.PackageFullName -ErrorAction Stop
-            Write-Success "Cortana App entfuernt"
+            Write-Success "$(Get-LocalizedString 'SpecificAppsCortanaRemoved')"
         }
     }
     catch {
-        Write-Verbose "Cortana App nicht entfuernt: $_"
+        Write-Verbose "Cortana app not removed: $_"
     }
     
     # Teams Chat (Windows 11)
     try {
-        Write-Info "Deaktiviere Teams Chat Icon..."
+        Write-Info "$(Get-LocalizedString 'SpecificAppsTeamsDisabling')"
         $teamsPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Chat"
         Set-RegistryValue -Path $teamsPath -Name "ChatIcon" -Value 3 -Type DWord `
-            -Description "Teams Chat Icon deaktivieren"
-        Write-Success "Teams Chat Icon deaktiviert"
+            -Description "Disable Teams Chat icon"
+        Write-Success "$(Get-LocalizedString 'SpecificAppsTeamsDisabled')"
     }
     catch {
-        Write-Verbose "Teams Chat nicht deaktiviert: $_"
+        Write-Verbose "Teams Chat not disabled: $_"
     }
     
     # Windows Copilot (Windows 11 23H2+)
     try {
-        Write-Info "Deaktiviere Windows Copilot..."
+        Write-Info "$(Get-LocalizedString 'SpecificAppsCopilotDisabling')"
         $copilotPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsCopilot"
         Set-RegistryValue -Path $copilotPath -Name "TurnOffWindowsCopilot" -Value 1 -Type DWord `
-            -Description "Windows Copilot deaktivieren"
-        Write-Success "Windows Copilot deaktiviert"
+            -Description "Disable Windows Copilot"
+        Write-Success "$(Get-LocalizedString 'SpecificAppsCopilotDisabled')"
     }
     catch {
-        Write-Verbose "Windows Copilot nicht deaktiviert: $_"
+        Write-Verbose "Windows Copilot not disabled: $_"
     }
     
     # Widgets (Windows 11)
     try {
-        Write-Info "Deaktiviere Widgets..."
+        Write-Info "$(Get-LocalizedString 'SpecificAppsWidgetsDisabling')"
         $widgetsPath = "HKLM:\SOFTWARE\Policies\Microsoft\Dsh"
         Set-RegistryValue -Path $widgetsPath -Name "AllowNewsAndInterests" -Value 0 -Type DWord `
-            -Description "Widgets deaktivieren"
-        Write-Success "Widgets deaktiviert"
+            -Description "Disable Widgets"
+        Write-Success "$(Get-LocalizedString 'SpecificAppsWidgetsDisabled')"
     }
     catch {
-        Write-Verbose "Widgets nicht deaktiviert: $_"
+        Write-Verbose "Widgets not disabled: $_"
     }
 }
 

@@ -39,10 +39,10 @@ function Disable-WirelessDisplay {
         if ($service) {
             # Stop and disable service (race-condition free)
             if (Stop-ServiceSafe -ServiceName $svc.Name) {
-                Write-Verbose "     $($svc.DisplayName) deaktiviert"
+                Write-Verbose "     $($svc.DisplayName) disabled"
             }
             else {
-                Write-Warning-Custom "$($svc.DisplayName) konnte nicht deaktiviert werden (eventuell geschuetzt)"
+                Write-Warning-Custom "$($svc.DisplayName) could not be disabled (possibly protected)"
             }
         }
     }
@@ -59,11 +59,11 @@ function Disable-WirelessDisplay {
             $svcRegPath = "HKLM:\SYSTEM\CurrentControlSet\Services\$($svc.Reg)"
             if (Test-Path $svcRegPath) {
                 Set-ItemProperty -Path $svcRegPath -Name "Start" -Value 4 -ErrorAction SilentlyContinue
-                Write-Verbose "$($svc.Name) deaktiviert (via Registry)"
+                Write-Verbose "$($svc.Name) disabled (via Registry)"
             }
         }
         catch {
-            Write-Verbose "Fehler bei $($svc.Name): $_"
+            Write-Verbose "Error with $($svc.Name): $_"
         }
     }
     
@@ -114,11 +114,11 @@ function Disable-WirelessDisplay {
             
             if ($rules) {
                 $rules | Disable-NetFirewallRule -ErrorAction Stop
-                Write-Verbose "Firewall-Regel '$ruleName' deaktiviert"
+                Write-Verbose "Firewall rule '$ruleName' disabled"
             }
         }
         catch {
-            Write-Verbose "Firewall-Regel '$ruleName': $_"
+            Write-Verbose "Firewall rule '$ruleName': $_"
         }
     }
     
@@ -130,9 +130,9 @@ function Disable-WirelessDisplay {
             $null = New-NetFirewallRule -DisplayName "NoID-Block-Miracast-TCP-7236" `
                 -Direction Inbound -Protocol TCP -LocalPort 7236 `
                 -Action Block -Profile Any -Enabled True -ErrorAction Stop
-            Write-Verbose "     Firewall-Regel erstellt: Miracast TCP 7236"
+            Write-Verbose "     Firewall rule created: Miracast TCP 7236"
         } else {
-            Write-Verbose "     Firewall-Regel existiert bereits: Miracast TCP 7236"
+            Write-Verbose "     Firewall rule already exists: Miracast TCP 7236"
         }
         
         $rule7250 = Get-NetFirewallRule -DisplayName "NoID-Block-Miracast-TCP-7250" -ErrorAction SilentlyContinue
@@ -140,16 +140,16 @@ function Disable-WirelessDisplay {
             $null = New-NetFirewallRule -DisplayName "NoID-Block-Miracast-TCP-7250" `
                 -Direction Inbound -Protocol TCP -LocalPort 7250 `
                 -Action Block -Profile Any -Enabled True -ErrorAction Stop
-            Write-Verbose "     Firewall-Regel erstellt: Miracast TCP 7250"
+            Write-Verbose "     Firewall rule created: Miracast TCP 7250"
         } else {
-            Write-Verbose "     Firewall-Regel existiert bereits: Miracast TCP 7250"
+            Write-Verbose "     Firewall rule already exists: Miracast TCP 7250"
         }
     }
     catch {
-        Write-Verbose "Miracast Port-Regeln Fehler: $_"
+        Write-Verbose "Miracast port rules error: $_"
     }
     
-    Write-Verbose "Miracast Ports: Blockierung abgeschlossen"
+    Write-Verbose "Miracast ports: Blocking completed"
     
     # === LEVEL 4: REMOVE APPS ===
     Write-Info "$(Get-LocalizedString 'WDLevel4Apps')"
@@ -169,10 +169,10 @@ function Disable-WirelessDisplay {
                 Where-Object {$_.DisplayName -like $appPattern} | 
                 Remove-AppxProvisionedPackage -Online -ErrorAction SilentlyContinue
             
-            Write-Verbose "App '$appPattern' entfernt"
+            Write-Verbose "App '$appPattern' removed"
         }
         catch {
-            Write-Verbose "App '$appPattern' nicht gefunden"
+            Write-Verbose "App '$appPattern' not found"
         }
     }
     

@@ -19,14 +19,14 @@ function Enable-DNSSEC {
     
     Write-Section "DNSSEC Validation"
     
-    Write-Info "DNSSEC wird aktiviert (DNS-Spoofing-Schutz)..."
+    Write-Info "$(Get-LocalizedString 'DNSSECActivating')"
     
     # Enable DNSSEC validation
     $dnsPath = "HKLM:\SYSTEM\CurrentControlSet\Services\Dnscache\Parameters"
     
     # Enable DNSSEC validation
     Set-RegistryValue -Path $dnsPath -Name "EnableDnssec" -Value 1 -Type DWord `
-        -Description "DNSSEC Validation aktivieren"
+        -Description "Enable DNSSEC Validation"
     
     # DNSSEC Mode: Opportunistic (Mode 1 - Best Practice 25H2)
     # Mode 1 = Opportunistic (validate if available, don't fail if not)
@@ -36,14 +36,14 @@ function Enable-DNSSEC {
     Set-RegistryValue -Path $dnsPath -Name "DnssecMode" -Value 1 -Type DWord `
         -Description "DNSSEC Mode: 1 = Opportunistic (validate if available)"
     
-    Write-Info "DNSSEC Mode: Opportunistic (sicher + kompatibel)"
+    Write-Info "$(Get-LocalizedString 'DNSSECModeOpportunistic')"
     
     # Enable DNSSEC for IPv6
     Set-RegistryValue -Path $dnsPath -Name "EnableDnssecIPv6" -Value 1 -Type DWord `
-        -Description "DNSSEC fuer IPv6"
+        -Description "DNSSEC for IPv6"
     
-    Write-Success "DNSSEC Validation aktiviert"
-    Write-Info "DNS-Antworten werden auf Authentizitaet geprueft (Anti-Spoofing)"
+    Write-Success "$(Get-LocalizedString 'DNSSECActivated')"
+    Write-Info "$(Get-LocalizedString 'DNSSECResponsesValidated')"
 }
 
 function Install-DNSBlocklist {
@@ -71,14 +71,14 @@ function Install-DNSBlocklist {
     
     Write-Section "DNS Blocklist (Malware/Tracking/Ads)"
     
-    Write-Info "DNS Blocklist wird installiert (80K+ Domains)..."
-    Write-Info "OPTIMIERUNG: 9 Domains pro Zeile (DNS-Cache-optimiert)"
-    Write-Info "Steven Black's unified hosts - komprimiert fuer Performance"
+    Write-Info "$(Get-LocalizedString 'DNSBlocklistInstalling')"
+    Write-Info "$(Get-LocalizedString 'DNSBlocklistOptimization')"
+    Write-Info "$(Get-LocalizedString 'DNSBlocklistCompressed')"
     
-    # WICHTIG: Bitdefender/Antivirus Warnung
-    Write-Warning "ANTIVIRUS-KOMPATIBILITAET: hosts-Datei mit 80K+ Eintraegen"
-    Write-Warning "Bitdefender-User: Protection | Vulnerability | Settings | 'Scan hosts file' DEAKTIVIEREN!"
-    Write-Warning "Sonst kann Internet-Zugriff blockiert werden!"
+    # IMPORTANT: Bitdefender/Antivirus warning
+    Write-Warning "$(Get-LocalizedString 'DNSAntivirusCompatibility')"
+    Write-Warning "$(Get-LocalizedString 'DNSBitdefenderWarning')"
+    Write-Warning "$(Get-LocalizedString 'DNSInternetBlock')"
     
     # Check if Steven Black's Hosts is already installed (idempotency)
     $hostsPath = "$env:SystemRoot\System32\drivers\etc\hosts"
@@ -86,8 +86,8 @@ function Install-DNSBlocklist {
     $alreadyInstalled = $currentHosts | Select-String "# Title: StevenBlack/hosts"
     
     if ($alreadyInstalled) {
-        Write-Info "Steven Black's Hosts ist bereits installiert"
-        Write-Verbose "Ueberspringe Download (idempotent)"
+        Write-Info "$(Get-LocalizedString 'DNSAlreadyInstalled')"
+        Write-Verbose "$(Get-LocalizedString 'DNSSkipDownload')"
         return
     }
     
@@ -97,14 +97,14 @@ function Install-DNSBlocklist {
     if (-not (Test-Path $hostsBackup)) {
         try {
             Copy-Item -Path $hostsPath -Destination $hostsBackup -Force
-            Write-Verbose "Original Hosts-File gesichert: $hostsBackup"
+            Write-Verbose (Get-LocalizedString 'DNSBackupOriginal' -f $hostsBackup)
         }
         catch {
-            Write-Warning "Hosts-File Backup fehlgeschlagen: $_"
+            Write-Warning (Get-LocalizedString 'DNSBackupFailed' -f $_)
         }
     }
     else {
-        Write-Verbose "Original Backup existiert bereits: $hostsBackup"
+        Write-Verbose (Get-LocalizedString 'DNSBackupExists' -f $hostsBackup)
     }
     
     # Best Practice 25H2: Use LOCAL hosts file from project directory!
@@ -141,16 +141,16 @@ function Install-DNSBlocklist {
     $projectRoot = Split-Path -Parent $scriptDir
     $localHostsFile = Join-Path $projectRoot "hosts"
     
-    Write-Verbose "Projekt-Root: $projectRoot"
+    Write-Verbose "Project-Root: $projectRoot"
     
-    Write-Info "Verwende lokale hosts-Datei aus Projektverzeichnis..."
-    Write-Verbose "Pfad: $localHostsFile"
+    Write-Info "$(Get-LocalizedString 'DNSUsingLocal')"
+    Write-Verbose "Path: $localHostsFile"
     
     # Check if local file exists
     if (-not (Test-Path $localHostsFile)) {
-        Write-Error "KRITISCHER FEHLER: Lokale hosts-Datei nicht gefunden!"
-        Write-Error "Erwartet: $localHostsFile"
-        Write-Error "DNS-Blocklist kann NICHT installiert werden!"
+        Write-Error "$(Get-LocalizedString 'DNSCriticalError')"
+        Write-Error (Get-LocalizedString 'DNSExpected' -f $localHostsFile)
+        Write-Error "$(Get-LocalizedString 'DNSCannotInstall')"
         return
     }
     
@@ -160,8 +160,8 @@ function Install-DNSBlocklist {
         $hasValidHeader = $localContent | Where-Object { $_ -match "# Title: StevenBlack/hosts" }
         
         if (-not $hasValidHeader) {
-            Write-Error "Lokale hosts-Datei hat ungueltigen Header!"
-            Write-Error "Erwartet: '# Title: StevenBlack/hosts'"
+            Write-Error "$(Get-LocalizedString 'DNSInvalidHeader')"
+            Write-Error "$(Get-LocalizedString 'DNSExpectedHeader')"
             return
         }
         
@@ -169,11 +169,11 @@ function Install-DNSBlocklist {
         $allContent = Get-Content $localHostsFile -ErrorAction Stop
         $blockedDomains = ($allContent | Where-Object { $_ -match '^0\.0\.0\.0\s+' }).Count
         
-        Write-Success "Lokale hosts-Datei validiert: $blockedDomains Domains"
-        Write-Verbose "Datei-Groesse: $([Math]::Round((Get-Item $localHostsFile).Length / 1MB, 2)) MB"
+        Write-Success (Get-LocalizedString 'DNSValidated' -f $blockedDomains)
+        Write-Verbose "File-Size: $([Math]::Round((Get-Item $localHostsFile).Length / 1MB, 2)) MB"
         
         # Install via ATOMIC REPLACE (Best Practice 25H2)
-        Write-Info "Installiere hosts-Datei (atomarer Replace)..."
+        Write-Info "$(Get-LocalizedString 'DNSInstalling')"
         
         $hostsTemp = "$hostsPath.new"
         try {
@@ -183,23 +183,23 @@ function Install-DNSBlocklist {
             # Validate copy
             $newContent = Get-Content $hostsTemp -ErrorAction Stop
             if ($newContent.Count -lt 1000) {
-                throw "Kopierte Datei zu klein ($($newContent.Count) Zeilen < 1000)!"
+                throw (Get-LocalizedString 'DNSFileTooSmall' -f $newContent.Count)
             }
             
             # Atomic replace: temp -> final
             Move-Item -Path $hostsTemp -Destination $hostsPath -Force -ErrorAction Stop
-            Write-Verbose "Atomarer Replace erfolgreich"
+            Write-Verbose "$(Get-LocalizedString 'DNSAtomicSuccess')"
         }
         catch {
             # Cleanup temp file on error
             if (Test-Path $hostsTemp) {
                 Remove-Item $hostsTemp -Force -ErrorAction SilentlyContinue
             }
-            throw "Hosts-Datei Installation fehlgeschlagen: $_"
+            throw (Get-LocalizedString 'DNSInstallFailed' -f $_)
         }
         
         # Flush DNS cache (with timeout - prevents hang)
-        Write-Info "DNS-Cache wird geleert..."
+        Write-Info "$(Get-LocalizedString 'DNSFlushingCache')"
         $dnsJob = $null
         try {
             $dnsJob = Start-Job -ScriptBlock { ipconfig /flushdns 2>&1 }
@@ -207,15 +207,15 @@ function Install-DNSBlocklist {
             
             if ($dnsJob.State -eq 'Completed') {
                 $null = Receive-Job $dnsJob -ErrorAction SilentlyContinue
-                Write-Verbose "DNS Cache erfolgreich geleert"
+                Write-Verbose "$(Get-LocalizedString 'DNSCacheFlushed')"
             }
             elseif ($dnsJob.State -eq 'Running') {
                 Stop-Job $dnsJob -ErrorAction SilentlyContinue
-                Write-Warning "DNS Cache Flush Timeout (10s) - wird uebersprungen"
+                Write-Warning "$(Get-LocalizedString 'DNSFlushTimeout')"
             }
         }
         catch {
-            Write-Verbose "DNS Cache Flush Fehler (nicht kritisch): $_"
+            Write-Verbose (Get-LocalizedString 'DNSFlushError' -f $_)
         }
         finally {
             # Guaranteed job cleanup
@@ -225,14 +225,14 @@ function Install-DNSBlocklist {
         }
         
         # SUCCESS!
-        Write-Success "Steven Black's Blocklist installiert ($blockedDomains Domains)"
-        Write-Info "Blockiert: Malware, Tracking, Werbung, Coin-Miner, Phishing"
-        Write-Info "Quelle: Lokale Datei (NoID Privacy Project)"
-        Write-Warning "Einige legitime Websites koennen betroffen sein!"
+        Write-Success (Get-LocalizedString 'DNSBlocklistInstalled' -f $blockedDomains)
+        Write-Info "$(Get-LocalizedString 'DNSBlockedTypes')"
+        Write-Info "$(Get-LocalizedString 'DNSSource')"
+        Write-Warning "$(Get-LocalizedString 'DNSLegitimateWarning')"
     }
     catch {
-        Write-Error "Installation fehlgeschlagen: $_"
-        Write-Error "DNS-Blocklist wurde NICHT installiert!"
+        Write-Error (Get-LocalizedString 'DNSInstallationFailed' -f $_)
+        Write-Error "$(Get-LocalizedString 'DNSNotInstalled')"
     }
 }
 
@@ -269,12 +269,12 @@ function Set-StrictInboundFirewall {
     
     Write-Section "Strict Inbound Firewall (BLOCK ALL INCOMING)"
     
-    Write-Info "Firewall wird auf Maximum Inbound Security gesetzt..."
+    Write-Info "$(Get-LocalizedString 'FirewallConfiguring')"
     
     # Set firewall to block ALL inbound (Maximum Security!)
     foreach ($firewallProfile in @('Domain', 'Private', 'Public')) {
         try {
-            Write-Verbose "Konfiguriere ${firewallProfile} Profil..."
+            Write-Verbose "Configuring ${firewallProfile} profile..."
             
             # Block all inbound by default
             Set-NetFirewallProfile -Name $firewallProfile -DefaultInboundAction Block -ErrorAction Stop
@@ -291,15 +291,15 @@ function Set-StrictInboundFirewall {
             Write-Verbose "     ${firewallProfile}: Inbound=BLOCK ALL (incl. allowed apps), Outbound=ALLOW"
         }
         catch {
-            Write-Warning "Konnte Firewall-Profil $firewallProfile nicht konfigurieren: $_"
+            Write-Warning (Get-LocalizedString 'FirewallProfileError' -f $firewallProfile, $_)
         }
     }
     
-    Write-Success "Strict Inbound Firewall aktiviert"
-    Write-Info "Eingehend: ALLES BLOCKIERT (auch erlaubte Apps!)"
-    Write-Info "Ausgehend: ALLES ERLAUBT (Internet funktioniert normal)"
-    Write-Warning "MAXIMUM SECURITY: NICHTS kann von aussen rein!"
-    Write-Warning "Checkbox 'Blockiert alle eingehenden Verbindungen' ist jetzt AKTIV!"
+    Write-Success "$(Get-LocalizedString 'FirewallActivated')"
+    Write-Info "$(Get-LocalizedString 'FirewallInbound')"
+    Write-Info "$(Get-LocalizedString 'FirewallOutbound')"
+    Write-Warning "$(Get-LocalizedString 'FirewallMaxSecurity')"
+    Write-Warning "$(Get-LocalizedString 'FirewallCheckbox')"
 }
 
 # Note: Export-ModuleMember is NOT needed for dot-sourced scripts

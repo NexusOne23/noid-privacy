@@ -185,13 +185,13 @@ function Set-RecallMaximumStorage {
     
     $aiPolicyPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI"
     
-    # Maximum Storage auf 10GB (Minimum)
+    # Maximum Storage to 10GB (Minimum)
     Set-RegistryValue -Path $aiPolicyPath -Name "SetMaximumStorageSpaceForRecallSnapshots" -Value 10 -Type DWord `
-        -Description "Recall: Max Storage = 10GB (Minimum, falls reaktiviert)"
+        -Description "Recall: Max Storage = 10GB (Minimum, if reactivated)"
     
-    # Maximum Duration auf 1 Tag (Minimum)
+    # Maximum Duration to 1 Day (Minimum)
     Set-RegistryValue -Path $aiPolicyPath -Name "SetMaximumStorageDurationForRecallSnapshots" -Value 1 -Type DWord `
-        -Description "Recall: Max Duration = 1 Tag (Minimum, falls reaktiviert)"
+        -Description "Recall: Max Duration = 1 Day (Minimum, if reactivated)"
     
     Write-Success "$(Get-LocalizedString 'AIRecallStorageMinimum')"
     Write-Info "$(Get-LocalizedString 'AIRecallStorageFallback')"

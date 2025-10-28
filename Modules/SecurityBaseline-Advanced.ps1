@@ -1,9 +1,9 @@
-﻿# ============================================================================
+# ============================================================================
 # SecurityBaseline-Advanced.ps1
 # NoID Privacy - Advanced Security Controls (Baseline 25H2 compliant)
 # ============================================================================
 
-# Best Practice 25H2: Strict Mode aktivieren
+# Best Practice 25H2: Enable Strict Mode
 Set-StrictMode -Version Latest
 
 #region WINDOWS LAPS
@@ -11,9 +11,9 @@ Set-StrictMode -Version Latest
 function Enable-WindowsLAPS {
     <#
     .SYNOPSIS
-        Konfiguriert Windows LAPS (Local Admin Password Solution)
+        Configure Windows LAPS (Local Admin Password Solution)
     .DESCRIPTION
-        Aktiviert Windows LAPS mit 30-Tage-Rotation, 20-Zeichen-Passwoertern und Entra/AD-Backup.
+        Activates Windows LAPS with 30-day rotation, 20-character passwords and Entra/AD backup.
         Best Practice 25H2: Feature availability check before configuration.
     .EXAMPLE
         Enable-WindowsLAPS
@@ -41,32 +41,32 @@ function Enable-WindowsLAPS {
     }
     
     if (-not $lapsAvailable) {
-        Write-Warning "Windows LAPS nicht verfuegbar auf dieser Edition/Version"
-        Write-Info "LAPS wird uebersprungen (nur Pro/Enterprise/Education)"
-        Write-Info "Hinweis: Verwenden Sie Microsoft LAPS fuer Home/Pro oder Legacy LAPS"
+        Write-Warning "$(Get-LocalizedString 'AdvancedLAPSNotAvailable')"
+        Write-Info "$(Get-LocalizedString 'AdvancedLAPSSkipped')"
+        Write-Info "$(Get-LocalizedString 'AdvancedLAPSHint')"
         return
     }
     
     $lapsPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\LAPS\Config"
     
-    # LAPS aktivieren
-    Set-RegistryValue -Path $lapsPath -Name "Enabled" -Value 1 -Type DWord -Description "LAPS aktivieren"
+    # Enable LAPS
+    Set-RegistryValue -Path $lapsPath -Name "Enabled" -Value 1 -Type DWord -Description "Enable LAPS"
     
-    # Password Rotation (30 Tage)
-    Set-RegistryValue -Path $lapsPath -Name "PasswordAgeDays" -Value 30 -Type DWord -Description "PW-Rotation alle 30 Tage"
+    # Password Rotation (30 days)
+    Set-RegistryValue -Path $lapsPath -Name "PasswordAgeDays" -Value 30 -Type DWord -Description "PW rotation every 30 days"
     
     # Password Complexity (128-bit)
-    Set-RegistryValue -Path $lapsPath -Name "PasswordComplexity" -Value 4 -Type DWord -Description "Max. Komplexitaet"
-    Set-RegistryValue -Path $lapsPath -Name "PasswordLength" -Value 20 -Type DWord -Description "PW-Laenge 20 Zeichen"
+    Set-RegistryValue -Path $lapsPath -Name "PasswordComplexity" -Value 4 -Type DWord -Description "Max complexity"
+    Set-RegistryValue -Path $lapsPath -Name "PasswordLength" -Value 20 -Type DWord -Description "PW length 20 characters"
     
-    # Backup zu Entra ID / AD
-    Set-RegistryValue -Path $lapsPath -Name "BackupDirectory" -Value 2 -Type DWord -Description "Backup zu AD/Entra"
+    # Backup to Entra ID / AD
+    Set-RegistryValue -Path $lapsPath -Name "BackupDirectory" -Value 2 -Type DWord -Description "Backup to AD/Entra"
     
     # Post-Authentication Actions
-    Set-RegistryValue -Path $lapsPath -Name "PostAuthenticationActions" -Value 3 -Type DWord -Description "Reset PW nach Auth"
+    Set-RegistryValue -Path $lapsPath -Name "PostAuthenticationActions" -Value 3 -Type DWord -Description "Reset PW after auth"
     
-    Write-Success "Windows LAPS konfiguriert (30-Tage-Rotation, 20 Zeichen, Entra/AD-Escrow)"
-    Write-Info "LAPS PowerShell Module: Install-Module -Name LAPS"
+    Write-Success "$(Get-LocalizedString 'AdvancedLAPSConfigured')"
+    Write-Info "$(Get-LocalizedString 'AdvancedLAPSModule')"
 }
 
 #endregion
@@ -76,10 +76,10 @@ function Enable-WindowsLAPS {
 function Enable-AdvancedAuditing {
     <#
     .SYNOPSIS
-        Aktiviert erweiterte Audit-Policies fuer Security-Monitoring
+        Activates advanced audit policies for security monitoring
     .DESCRIPTION
-        Konfiguriert Advanced Auditing fuer Logon, Object Access, Policy Change, etc.
-        Setzt Event Log Groessen und aktiviert PowerShell Logging.
+        Configures Advanced Auditing for Logon, Object Access, Policy Change, etc.
+        Sets Event Log sizes and activates PowerShell Logging.
         Best Practice 25H2: CmdletBinding + auditpol Exit-Code Checks.
     .EXAMPLE
         Enable-AdvancedAuditing
@@ -90,10 +90,10 @@ function Enable-AdvancedAuditing {
     
     Write-Section "Advanced Auditing"
     
-    Write-Info "Setze erweiterte Audit-Policies..."
+    Write-Info "$(Get-LocalizedString 'AdvancedAuditSetting')"
     
     # Best Practice 25H2: Use GUIDs for subcategories to avoid locale issues
-    # Fehler 0x00000057 = ERROR_INVALID_PARAMETER bei falschen Namen
+    # Error 0x00000057 = ERROR_INVALID_PARAMETER with wrong names
     $auditCategories = @(
         @{ Name = "Logon"; GUID = "{0CCE9215-69AE-11D9-BED3-505054503030}" },
         @{ Name = "Logoff"; GUID = "{0CCE9216-69AE-11D9-BED3-505054503030}" },
@@ -125,29 +125,29 @@ function Enable-AdvancedAuditing {
             $result = & auditpol.exe /set /subcategory:"$($category.GUID)" /success:enable /failure:enable 2>&1
             
             if ($LASTEXITCODE -eq 0) {
-                Write-Verbose "     Aktiviert: $($category.Name)"
+                Write-Verbose "     Activated: $($category.Name)"
                 $successCount++
             }
             else {
-                Write-Verbose "     Fehler bei $($category.Name) (Exit: $LASTEXITCODE): $result"
+                Write-Verbose "     Error with $($category.Name) (Exit: $LASTEXITCODE): $result"
                 $failCount++
             }
         }
         catch {
-            Write-Verbose "     Exception bei $($category.Name): $_"
+            Write-Verbose "     Exception with $($category.Name): $_"
             $failCount++
         }
     }
     
     if ($successCount -gt 0) {
-        Write-Verbose "Audit Policies: $successCount erfolgreich, $failCount fehlgeschlagen"
+        Write-Verbose "Audit Policies: $successCount successful, $failCount failed"
     }
     else {
-        Write-Warning-Custom "Audit Policies konnten nicht gesetzt werden - moeglicherweise Locale-Problem"
-        Write-Info "Audit Policies werden via GPO oder Registry-Alternative gesetzt"
+        Write-Warning-Custom "$(Get-LocalizedString 'AdvancedAuditPoliciesFailed')"
+        Write-Info "$(Get-LocalizedString 'AdvancedAuditPoliciesGPO')"
     }
     
-    # Event Log Groessen und Retention
+    # Event Log sizes and retention
     $logSizes = @{
         "Security"    = 524288000   # 500 MB (statt 2 GB)
         "System"      = 104857600   # 100 MB (statt 512 MB)
@@ -167,7 +167,7 @@ function Enable-AdvancedAuditing {
             }
         }
         catch {
-            Write-Verbose "  Log $logName nicht verfuegbar oder Fehler"
+            Write-Verbose "  Log $logName not available or error"
         }
     }
     
@@ -186,19 +186,19 @@ function Enable-AdvancedAuditing {
     Set-RegistryValue -Path $psTransPath -Name "OutputDirectory" -Value $transcriptDir -Type String `
         -Description "Transcript Output Dir"
     
-    # Sicherstellen, dass Transcript-Dir existiert
+    # Ensure that Transcript-Dir exists
     try {
         if (-not (Test-Path $transcriptDir)) {
             $null = New-Item -Path $transcriptDir -ItemType Directory -Force -ErrorAction Stop
-            Write-Verbose "     PSTranscripts-Verzeichnis erstellt"
+            Write-Verbose "     PSTranscripts directory created"
         }
     }
     catch {
-        Write-Warning "Konnte PSTranscripts-Verzeichnis nicht erstellen: $_"
+        Write-Warning (Get-LocalizedString 'AdvancedAuditTranscriptError' -f $_)
     }
     
-    Write-Success "Advanced Auditing aktiviert (Object Access, Logon, DS, Policy, PnP, PS-Logging)"
-    Write-Info "Event Log Groessen: Security=500MB, System/App=100MB, PS=50MB"
+    Write-Success "$(Get-LocalizedString 'AdvancedAuditActivated')"
+    Write-Info "$(Get-LocalizedString 'AdvancedAuditLogSizes')"
 }
 
 #endregion
@@ -208,10 +208,10 @@ function Enable-AdvancedAuditing {
 function Enable-NTLMAuditing {
     <#
     .SYNOPSIS
-        Aktiviert NTLM Authentication Auditing
+        Activates NTLM Authentication Auditing
     .DESCRIPTION
-        Microsoft Security Baseline 25H2: NTLM Auditing aktivieren um Legacy-NTLM-Nutzung zu erkennen.
-        Hilft bei Migration zu Kerberos und zur Erkennung von Pass-the-Hash Angriffen.
+        Microsoft Security Baseline 25H2: Enable NTLM Auditing to detect legacy NTLM usage.
+        Helps with migration to Kerberos and detection of Pass-the-Hash attacks.
     .EXAMPLE
         Enable-NTLMAuditing
     #>
@@ -221,33 +221,33 @@ function Enable-NTLMAuditing {
     
     Write-Section "NTLM Authentication Auditing"
     
-    Write-Info "NTLM Auditing wird aktiviert (Microsoft Baseline 25H2)..."
+    Write-Info "$(Get-LocalizedString 'AdvancedNTLMActivating')"
     
     # NTLM Auditing in Domain
     $netlogonPath = "HKLM:\SYSTEM\CurrentControlSet\Services\Netlogon\Parameters"
     
     # AuditNTLMInDomain = 7 (Audit all NTLM authentication in domain)
-    # Werte: 0=Off, 1=Audit DC, 2=Audit DC accounts, 4=Audit trusted domains, 7=All
+    # Values: 0=Off, 1=Audit DC, 2=Audit DC accounts, 4=Audit trusted domains, 7=All
     Set-RegistryValue -Path $netlogonPath -Name "AuditNTLMInDomain" -Value 7 -Type DWord `
-        -Description "NTLM Auditing: Alle NTLM-Auth im Domain tracken"
+        -Description "NTLM Auditing: Track all NTLM auth in domain"
     
     # RestrictNTLMInDomain = 1 (Audit only, no blocking)
     # Werte: 0=Off, 1=Audit, 2-7=Various blocking levels
     Set-RegistryValue -Path $netlogonPath -Name "RestrictNTLMInDomain" -Value 1 -Type DWord `
-        -Description "NTLM Restriction: Audit-Only (kein Blocking)"
+        -Description "NTLM Restriction: Audit-Only (no blocking)"
     
-    # NTLM Auditing fuer Outbound (Client-Seite)
+    # NTLM Auditing for Outbound (Client-Side)
     $lsaPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Lsa\MSV1_0"
     Set-RegistryValue -Path $lsaPath -Name "AuditReceivingNTLMTraffic" -Value 2 -Type DWord `
-        -Description "Audit eingehenden NTLM-Traffic (2=Enable)"
+        -Description "Audit incoming NTLM traffic (2=Enable)"
     
     Set-RegistryValue -Path $lsaPath -Name "RestrictReceivingNTLMTraffic" -Value 1 -Type DWord `
         -Description "NTLM Restriction Outbound: Audit-Only"
     
-    Write-Success "NTLM Auditing aktiviert (Audit-Only, kein Blocking)"
-    Write-Info "Event IDs: 4624 (NTLM Logon), 8004 (NTLM Auth), 8002 (NTLM Blocked)"
-    Write-Info "Ziel: Legacy-NTLM-Nutzung erkennen fuer Migration zu Kerberos"
-    Write-Warning-Custom "NTLM wird NICHT blockiert - nur geloggt! (Best Practice fuer Kompatibilitaet)"
+    Write-Success "$(Get-LocalizedString 'AdvancedNTLMActivated')"
+    Write-Info "$(Get-LocalizedString 'AdvancedNTLMEventIDs')"
+    Write-Info "$(Get-LocalizedString 'AdvancedNTLMGoal')"
+    Write-Warning-Custom "$(Get-LocalizedString 'AdvancedNTLMNotBlocked')"
 }
 
 #endregion
@@ -257,11 +257,11 @@ function Enable-NTLMAuditing {
 function Set-TLSHardening {
     <#
     .SYNOPSIS
-        Haertet TLS/SSL-Konfiguration (TLS 1.2+ only, GCM/CHACHA Ciphers, SHA-2)
+        Hardens TLS/SSL configuration (TLS 1.2+ only, GCM/CHACHA Ciphers, SHA-2)
     .DESCRIPTION
-        Deaktiviert schwache Protokolle (SSL 2/3, TLS 1.0/1.1), schwache Ciphers (RC4, 3DES, CBC).
-        Aktiviert nur TLS 1.2 + 1.3 mit AEAD-Ciphers (GCM/CHACHA only, keine CBC).
-        Best Practice 25H2: Kleinere Angriffsflaeche, keine Legacy-CBC-Kanten.
+        Disables weak protocols (SSL 2/3, TLS 1.0/1.1), weak ciphers (RC4, 3DES, CBC).
+        Enables only TLS 1.2 + 1.3 with AEAD ciphers (GCM/CHACHA only, no CBC).
+        Best Practice 25H2: Smaller attack surface, no legacy CBC edges.
     .EXAMPLE
         Set-TLSHardening
     #>
@@ -269,37 +269,37 @@ function Set-TLSHardening {
     [OutputType([void])]
     param()
     
-    Write-Section "TLS/SSL Haertung"
+    Write-Section "TLS/SSL Hardening"
     
-    # Schwache Protokolle deaktivieren (SSL 2.0, SSL 3.0, TLS 1.0, TLS 1.1)
+    # Disable weak protocols (SSL 2.0, SSL 3.0, TLS 1.0, TLS 1.1)
     $weakProtocols = @("SSL 2.0", "SSL 3.0", "TLS 1.0", "TLS 1.1")
     
     foreach ($protocol in $weakProtocols) {
         $serverPath = "HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\$protocol\Server"
         $clientPath = "HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\$protocol\Client"
         
-        Set-RegistryValue -Path $serverPath -Name "Enabled" -Value 0 -Type DWord -Description "$protocol Server deaktivieren"
-        Set-RegistryValue -Path $serverPath -Name "DisabledByDefault" -Value 1 -Type DWord -Description "$protocol Server Default aus"
+        Set-RegistryValue -Path $serverPath -Name "Enabled" -Value 0 -Type DWord -Description "Disable $protocol Server"
+        Set-RegistryValue -Path $serverPath -Name "DisabledByDefault" -Value 1 -Type DWord -Description "$protocol Server default off"
         
-        Set-RegistryValue -Path $clientPath -Name "Enabled" -Value 0 -Type DWord -Description "$protocol Client deaktivieren"
-        Set-RegistryValue -Path $clientPath -Name "DisabledByDefault" -Value 1 -Type DWord -Description "$protocol Client Default aus"
+        Set-RegistryValue -Path $clientPath -Name "Enabled" -Value 0 -Type DWord -Description "Disable $protocol Client"
+        Set-RegistryValue -Path $clientPath -Name "DisabledByDefault" -Value 1 -Type DWord -Description "$protocol Client default off"
     }
     
-    # TLS 1.2 und TLS 1.3 aktivieren und erzwingen
+    # Enable and enforce TLS 1.2 and TLS 1.3
     $strongProtocols = @("TLS 1.2", "TLS 1.3")
     
     foreach ($protocol in $strongProtocols) {
         $serverPath = "HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\$protocol\Server"
         $clientPath = "HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\$protocol\Client"
         
-        Set-RegistryValue -Path $serverPath -Name "Enabled" -Value 1 -Type DWord -Description "$protocol Server aktivieren"
-        Set-RegistryValue -Path $serverPath -Name "DisabledByDefault" -Value 0 -Type DWord -Description "$protocol Server Default an"
+        Set-RegistryValue -Path $serverPath -Name "Enabled" -Value 1 -Type DWord -Description "Enable $protocol Server"
+        Set-RegistryValue -Path $serverPath -Name "DisabledByDefault" -Value 0 -Type DWord -Description "$protocol Server default on"
         
-        Set-RegistryValue -Path $clientPath -Name "Enabled" -Value 1 -Type DWord -Description "$protocol Client aktivieren"
-        Set-RegistryValue -Path $clientPath -Name "DisabledByDefault" -Value 0 -Type DWord -Description "$protocol Client Default an"
+        Set-RegistryValue -Path $clientPath -Name "Enabled" -Value 1 -Type DWord -Description "Enable $protocol Client"
+        Set-RegistryValue -Path $clientPath -Name "DisabledByDefault" -Value 0 -Type DWord -Description "$protocol Client default on"
     }
     
-    # Schwache Ciphers deaktivieren
+    # Disable weak ciphers
     $weakCiphers = @(
         "DES 56/56",
         "NULL",
@@ -315,10 +315,10 @@ function Set-TLSHardening {
     
     foreach ($cipher in $weakCiphers) {
         $cipherPath = "HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Ciphers\$cipher"
-        Set-RegistryValue -Path $cipherPath -Name "Enabled" -Value 0 -Type DWord -Description "$cipher deaktivieren"
+        Set-RegistryValue -Path $cipherPath -Name "Enabled" -Value 0 -Type DWord -Description "Disable $cipher"
     }
     
-    # Starke Ciphers aktivieren
+    # Enable strong ciphers
     $strongCiphers = @(
         "AES 128/128",
         "AES 256/256"
@@ -326,11 +326,11 @@ function Set-TLSHardening {
     
     foreach ($cipher in $strongCiphers) {
         $cipherPath = "HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Ciphers\$cipher"
-        Set-RegistryValue -Path $cipherPath -Name "Enabled" -Value 0xFFFFFFFF -Type DWord -Description "$cipher aktivieren"
+        Set-RegistryValue -Path $cipherPath -Name "Enabled" -Value 0xFFFFFFFF -Type DWord -Description "Enable $cipher"
     }
     
-    # Cipher Suite Order (Best Practice fuer 2025 - GCM/CHACHA only)
-    # Rationale: Kleinere Angriffsflaeche, keine Legacy-CBC-Kanten, nur AEAD-Ciphers
+    # Cipher Suite Order (Best Practice for 2025 - GCM/CHACHA only)
+    # Rationale: Smaller attack surface, no legacy CBC edges, AEAD ciphers only
     $cipherSuiteOrder = @(
         "TLS_AES_256_GCM_SHA384",
         "TLS_AES_128_GCM_SHA256",
@@ -343,23 +343,23 @@ function Set-TLSHardening {
     
     $cipherSuitePath = "HKLM:\SOFTWARE\Policies\Microsoft\Cryptography\Configuration\SSL\00010002"
     Set-RegistryValue -Path $cipherSuitePath -Name "Functions" -Value $cipherSuiteOrder -Type String `
-        -Description "Cipher Suite Order (TLS 1.3 + 1.2 GCM/CHACHA only, keine CBC)"
+        -Description "Cipher Suite Order (TLS 1.3 + 1.2 GCM/CHACHA only, no CBC)"
     
-    # SHA-1 NUR fuer TLS/SSL deaktivieren (NICHT fuer Code-Signing!)
-    # Best Practice 25H2: SHA-1 in TLS ist unsicher (SHATTERED-Angriff)
-    # ABER: Legacy Code-Signing Zertifikate nutzen noch SHA-1 - diese NICHT blockieren!
-    Write-Warning-Custom "SHA-1 wird fuer TLS/SSL deaktiviert (SCHANNEL) - Legacy-Webseiten koennen betroffen sein"
-    Write-Info "Code-Signing mit SHA-1 bleibt ERLAUBT (Legacy-Software-Kompatibilitaet)"
+    # SHA-1 ONLY for TLS/SSL disabled (NOT for code signing!)
+    # Best Practice 25H2: SHA-1 in TLS is insecure (SHATTERED attack)
+    # BUT: Legacy code signing certificates still use SHA-1 - do NOT block these!
+    Write-Warning-Custom "$(Get-LocalizedString 'AdvancedTLSSHA1Warning')"
+    Write-Info "$(Get-LocalizedString 'AdvancedTLSCodeSigningOK')"
     
-    # SCHANNEL Hashes (nur TLS/SSL, NICHT Code-Signing)
+    # SCHANNEL Hashes (TLS/SSL only, NOT code signing)
     $hashPath = "HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Hashes"
-    Set-RegistryValue -Path "$hashPath\SHA" -Name "Enabled" -Value 0 -Type DWord -Description "SHA-1 fuer TLS/SSL deaktivieren"
-    Set-RegistryValue -Path "$hashPath\SHA256" -Name "Enabled" -Value 0xFFFFFFFF -Type DWord -Description "SHA-256 aktivieren"
-    Set-RegistryValue -Path "$hashPath\SHA384" -Name "Enabled" -Value 0xFFFFFFFF -Type DWord -Description "SHA-384 aktivieren"
-    Set-RegistryValue -Path "$hashPath\SHA512" -Name "Enabled" -Value 0xFFFFFFFF -Type DWord -Description "SHA-512 aktivieren"
+    Set-RegistryValue -Path "$hashPath\SHA" -Name "Enabled" -Value 0 -Type DWord -Description "Disable SHA-1 for TLS/SSL"
+    Set-RegistryValue -Path "$hashPath\SHA256" -Name "Enabled" -Value 0xFFFFFFFF -Type DWord -Description "Enable SHA-256"
+    Set-RegistryValue -Path "$hashPath\SHA384" -Name "Enabled" -Value 0xFFFFFFFF -Type DWord -Description "Enable SHA-384"
+    Set-RegistryValue -Path "$hashPath\SHA512" -Name "Enabled" -Value 0xFFFFFFFF -Type DWord -Description "Enable SHA-512"
     
-    Write-Info "SHA-1 Scope: NUR TLS/SSL blockiert - Code-Signing/VPN/Legacy-Apps funktionieren!"
-    Write-Info "Bei Problemen mit Legacy-Webseiten: SHA-1 manuell wieder aktivieren"
+    Write-Info "$(Get-LocalizedString 'AdvancedTLSSHA1Scope')"
+    Write-Info "$(Get-LocalizedString 'AdvancedTLSLegacyWebsites')"
     
     # .NET Framework Strong Crypto
     $dotNetPaths = @(
@@ -372,13 +372,13 @@ function Set-TLSHardening {
         Set-RegistryValue -Path $path -Name "SystemDefaultTlsVersions" -Value 1 -Type DWord -Description ".NET System TLS Versions"
     }
     
-    # Schannel Event Logging aktivieren (Transparenz/Audit)
+    # Enable Schannel Event Logging (Transparency/Audit)
     $schannelPath = "HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL"
     Set-RegistryValue -Path $schannelPath -Name "EventLogging" -Value 7 -Type DWord `
-        -Description "Schannel Event Logging (alle Events)"
+        -Description "Schannel Event Logging (all events)"
     
-    Write-Success "TLS/SSL Haertung abgeschlossen (TLS 1.2+1.3, GCM/CHACHA only, SHA-2, keine CBC/RC4/3DES/MD5)"
-    Write-Success "Schannel Event Logging aktiviert (Level 7)"
+    Write-Success "$(Get-LocalizedString 'AdvancedTLSCompleted')"
+    Write-Success "$(Get-LocalizedString 'AdvancedTLSEventLogging')"
 }
 
 #endregion
@@ -415,12 +415,12 @@ function Set-TLSHardening {
 function Add-PrintSpoolerUserRight {
     <#
     .SYNOPSIS
-        Fuegt Print Spooler Service zu "Impersonate a client" User Right hinzu
+        Adds Print Spooler Service to "Impersonate a client" User Right
     .DESCRIPTION
-        Microsoft Security Baseline Windows 11 25H2 Anforderung:
-        User Right "Impersonate a client after authentication" muss
-        RESTRICTED SERVICES\PrintSpoolerService enthalten fuer Windows Protected Print.
-        Best Practice Januar 2026: Forward-Compatibility mit WPP
+        Microsoft Security Baseline Windows 11 25H2 requirement:
+        User Right "Impersonate a client after authentication" must
+        contain RESTRICTED SERVICES\PrintSpoolerService for Windows Protected Print.
+        Best Practice January 2026: Forward-Compatibility with WPP
     .EXAMPLE
         Add-PrintSpoolerUserRight
     #>
@@ -430,7 +430,7 @@ function Add-PrintSpoolerUserRight {
     
     Write-Section "Print Spooler User Rights Assignment"
     
-    Write-Info "Fuege RESTRICTED SERVICES\PrintSpoolerService zu User Rights hinzu..."
+    Write-Info "$(Get-LocalizedString 'AdvancedPrintAdding')"
     
     try {
         # Export current security policy
@@ -438,8 +438,8 @@ function Add-PrintSpoolerUserRight {
         $null = secedit /export /cfg $tempFile /quiet
         
         if (-not (Test-Path $tempFile)) {
-            Write-Warning-Custom "Security Policy Export fehlgeschlagen"
-            Write-Info "NICHT KRITISCH: Windows Protected Print funktioniert trotzdem"
+            Write-Warning-Custom "$(Get-LocalizedString 'AdvancedPrintExportFailed')"
+            Write-Info "$(Get-LocalizedString 'AdvancedPrintNotCritical')"
             return
         }
         
@@ -450,30 +450,30 @@ function Add-PrintSpoolerUserRight {
         $impersonateLine = $content | Where-Object { $_ -match '^SeImpersonatePrivilege\s*=' }
         
         if (-not $impersonateLine) {
-            Write-Warning-Custom "SeImpersonatePrivilege nicht gefunden in Security Policy"
-            Write-Info "NICHT KRITISCH: Standardwerte bleiben erhalten"
+            Write-Warning-Custom "$(Get-LocalizedString 'AdvancedPrintNotFound')"
+            Write-Info "$(Get-LocalizedString 'AdvancedPrintDefaultsKept')"
             Remove-Item $tempFile -Force -ErrorAction SilentlyContinue
             return
         }
         
         # Check if PrintSpoolerService SID already present
-        # SID Format: *S-1-5-99-0-0-0-0 (kann variieren je nach System)
+        # SID Format: *S-1-5-99-0-0-0-0 (can vary by system)
         if ($impersonateLine -match 'S-1-5-99') {
-            Write-Info "Print Spooler Service User Right bereits vorhanden"
+            Write-Info "$(Get-LocalizedString 'AdvancedPrintAlreadyPresent')"
             Remove-Item $tempFile -Force -ErrorAction SilentlyContinue
             return
         }
         
         # Add PrintSpoolerService SID to the line
-        # Standard SIDs die bereits vorhanden sein sollten:
+        # Standard SIDs that should already be present:
         # *S-1-5-19 = NT AUTHORITY\LOCAL SERVICE
         # *S-1-5-20 = NT AUTHORITY\NETWORK SERVICE
         # *S-1-5-32-544 = BUILTIN\Administrators
         # *S-1-5-6 = NT AUTHORITY\SERVICE
         
         $newLine = $impersonateLine.TrimEnd() + ',*S-1-5-99-0-0-0-0'
-        Write-Verbose "Alte Zeile: $impersonateLine"
-        Write-Verbose "Neue Zeile: $newLine"
+        Write-Verbose "Old line: $impersonateLine"
+        Write-Verbose "New line: $newLine"
         
         # Replace line in content
         $newContent = $content -replace [regex]::Escape($impersonateLine), $newLine
@@ -482,21 +482,21 @@ function Add-PrintSpoolerUserRight {
         $newContent | Set-Content $tempFile -Encoding Unicode -Force
         
         # Import modified security policy
-        Write-Verbose "Importiere modifizierte Security Policy..."
+        Write-Verbose "Importing modified Security Policy..."
         $importResult = secedit /configure /db secedit.sdb /cfg $tempFile /quiet 2>&1
         
         if ($LASTEXITCODE -eq 0) {
-            Write-Success "Print Spooler User Right hinzugefuegt"
-            Write-Info "  - User Right: SeImpersonatePrivilege"
-            Write-Info "  - SID Added: S-1-5-99-0-0-0-0 (RESTRICTED SERVICES\PrintSpoolerService)"
-            Write-Info "  - Purpose: Windows Protected Print Support (Forward-Compat)"
+            Write-Success "$(Get-LocalizedString 'AdvancedPrintAdded')"
+            Write-Info "$(Get-LocalizedString 'AdvancedPrintUserRight')"
+            Write-Info "$(Get-LocalizedString 'AdvancedPrintSIDAdded')"
+            Write-Info "$(Get-LocalizedString 'AdvancedPrintPurpose')"
             Write-Host ""
-            Write-Info "MICROSOFT BASELINE 25H2: 100% ERFUELLT!"
+            Write-Info "$(Get-LocalizedString 'AdvancedPrintBaseline')"
         }
         else {
-            Write-Warning-Custom "Security Policy Import fehlgeschlagen (Exit Code: $LASTEXITCODE)"
+            Write-Warning-Custom (Get-LocalizedString 'AdvancedPrintImportFailed' -f $LASTEXITCODE)
             Write-Verbose "secedit Output: $importResult"
-            Write-Info "NICHT KRITISCH: Drucken funktioniert trotzdem"
+            Write-Info "$(Get-LocalizedString 'AdvancedPrintPrintingWorks')"
         }
         
         # Cleanup
@@ -504,8 +504,8 @@ function Add-PrintSpoolerUserRight {
         Remove-Item "$env:windir\security\database\secedit.sdb" -Force -ErrorAction SilentlyContinue
     }
     catch {
-        Write-Warning-Custom "User Right Assignment fehlgeschlagen: $_"
-        Write-Info "NICHT KRITISCH: Windows Protected Print funktioniert mit Standard-Permissions"
+        Write-Warning-Custom (Get-LocalizedString 'AdvancedPrintAssignmentFailed' -f $_)
+        Write-Info "$(Get-LocalizedString 'AdvancedPrintStandardPerms')"
         
         # Cleanup on error
         if (Test-Path $tempFile) {

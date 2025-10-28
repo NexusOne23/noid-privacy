@@ -64,12 +64,12 @@ function Set-EdgeSecurityBaseline {
     # === Tracking Prevention (POLICIES - GREYED OUT!) ===
     Write-Info "$(Get-LocalizedString 'EdgeTrackingConfig')"
     
-    # CRITICAL FIX v1.7.6: Tracking Prevention auf Strict (2) setzen!
+    # CRITICAL FIX v1.7.6: Set Tracking Prevention to Strict (2)!
     # 0 = Off, 1 = Balanced, 2 = Strict
     Set-RegistryValue -Path $edgePolicyPath -Name "TrackingPrevention" -Value 2 -Type DWord `
         -Description "Tracking Prevention: Strict (2) - Maximum Privacy"
     
-    # Third-Party Cookies: NUR im InPrivate blockieren
+    # Third-Party Cookies: Block ONLY in InPrivate
     Set-RegistryValue -Path $edgePolicyPath -Name "BlockThirdPartyCookies" -Value 0 -Type DWord `
         -Description "Allow Third-Party Cookies (normal websites work)"
     
@@ -107,10 +107,10 @@ function Set-EdgeSecurityBaseline {
             Remove-ItemProperty -Path $edgePolicyPath -Name "ExtensionInstallSources" -Force
         }
         New-ItemProperty -Path $edgePolicyPath -Name "ExtensionInstallSources" -Value $extensionSources -PropertyType MultiString -Force | Out-Null
-        Write-Verbose "ExtensionInstallSources als MultiString gesetzt"
+        Write-Verbose "ExtensionInstallSources set as MultiString"
     }
     catch {
-        Write-Warning "ExtensionInstallSources konnte nicht gesetzt werden: $_"
+        Write-Warning "ExtensionInstallSources could not be set: $_"
     }
     
     # NO Blocklist - User can install extensions!
