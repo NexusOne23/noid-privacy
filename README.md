@@ -209,10 +209,10 @@ Some features (VBS, Credential Guard, BitLocker) require a system restart to act
 5. Confirm and execute
 
 #### Batch File (for non-technical users)
-```cmd
-# Right-click Start-NoID-Privacy.bat → "Run as Administrator"
-# Automatically checks requirements and starts Interactive Mode
-# Note: Double-click won't work - Admin rights required!
+```text
+Right-click Start-NoID-Privacy.bat → "Run as Administrator"
+Automatically checks requirements and starts Interactive Mode
+Note: Double-click won't work - Admin rights required!
 ```
 
 ---
