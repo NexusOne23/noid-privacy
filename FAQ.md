@@ -267,13 +267,13 @@ For domain environments:
 **Why Cloudflare?**
 - ✅ Privacy-first (no user tracking)
 - ✅ Fast (one of the fastest DNS resolvers globally)
-- ✅ Supports DNSSEC
+- ✅ Supports DNSSEC (validated by Cloudflare resolver)
 - ✅ Free and open
 - ✅ Better privacy than ISP DNS
 
 ### How many domains are blocked?
 
-**80,101 unique domains** from Steven Black Unified Hosts list.
+**79,776 unique domains** from Steven Black Unified Hosts list (8,864 lines × 9 domains per line).
 
 **Categories:**
 - Malware domains
@@ -288,14 +288,14 @@ For domain environments:
 **Compression for Windows DNS Cache performance!**
 
 **The Problem:**
-- Steven Black original: 80,101 domains = 80,101 lines
+- Steven Black original: ~80,000+ domains = ~80,000+ lines
 - Windows DNS Cache limit: ~20,000 entries
 - 80k+ lines would cause cache overflow
 - Result: Slow DNS lookups
 
 **Our Solution:**
-- ✅ **9 domains per line** (Windows supports this!)
-- ✅ 80,101 domains ÷ 9 = ~8,864 lines
+- ✅ **9 domains per line** (community best practice)
+- ✅ 79,776 domains compressed to 8,864 lines
 - ✅ **Full protection, zero performance impact**
 - ✅ DNS cache stays fast and efficient
 

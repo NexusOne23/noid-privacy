@@ -333,7 +333,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 - DNS-over-HTTPS (Cloudflare 1.1.1.1)
 - DNSSEC opportunistic mode
-- DNS blocklist (80,101 domains, compressed to 8,864 lines)
+- DNS blocklist (79,776 domains, compressed to 8,864 lines)
 
 ## [1.2.0] - 2025-09-22
 

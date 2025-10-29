@@ -25,7 +25,7 @@
 
 ### Why This Matters to You
 **Security:** Your Windows is now as secure as Fortune 500 companies  
-**Privacy:** Microsoft gets ZERO usage data from your PC  
+**Privacy:** Telemetry minimized to essential security data only (Defender Cloud Protection)  
 **Performance:** Bloatware removal, faster boot, optimized background tasks  
 **Control:** YOU decide what runs, what uploads, what connects  
 **Peace of Mind:** Complete backup = risk-free experimentation
@@ -49,16 +49,16 @@
 
 **Bottom Line:** You're now as secure as Fortune 500 companies
 
-### 🔒 Privacy Protection - Zero Data to Microsoft
+### 🔒 Privacy Protection - Minimal Telemetry
 
 **Your Privacy is Sacred:**
 - **Complete Telemetry Shutdown** → 10 telemetry services + ~14 tasks + 180 registry keys = ~95% usage data blocked
 - **AI Lockdown** → Windows Recall DISABLED (no screenshots of passwords!), Copilot blocked (4 layers), Click to Do disabled
 - **App Permission Control** → 33 categories default-DENY (apps can't spy without explicit permission)
 - **Clean System** → 84 bloatware app patterns checked (Xbox, 3D apps, Candy Crush, Teams Chat, Copilot, Widgets)
-- **80,000+ Trackers Blocked** → DNS-level blocking via Steven Black hosts + Cloudflare DoH
+- **79,776 Trackers Blocked** → DNS-level blocking via Steven Black hosts + Cloudflare DoH
 
-**Bottom Line:** Microsoft gets ZERO data about how you use your PC
+**Bottom Line:** Telemetry minimized - only essential security data (Defender Cloud Protection)
 
 ### ⚡ Performance - Faster & Cleaner
 
@@ -75,7 +75,7 @@
 **Power User Tools:**
 - **Windows LAPS** → Auto-rotating admin passwords (30 days, 20 chars, Entra/AD-Escrow)
 - **Advanced Auditing** → Complete security event logging (Object Access, Logon, DS, Policy, PnP, PS-Logging)
-- **Smart App Control** → AI-based app reputation (Windows evaluates & activates after 7-14 days)
+- **Smart App Control** → AI-based app reputation (requires clean install - script prepares policies)
 - **Enhanced UAC** → Maximum privilege protection (always notify + Enhanced Privilege Protection Mode ready)
 - **Edge Privacy** → Tracking prevention Balanced, SmartScreen enforced, DoH automatic, Site Isolation active
 
@@ -86,12 +86,12 @@
 **Cloudflare DNS-over-HTTPS (DoH)**
 - ✅ Encrypted DNS queries (1.1.1.1 / 1.0.0.1)
 - ✅ Privacy-first DNS provider (no user tracking)
-- ✅ DNSSEC validation enabled
+- ✅ DNSSEC validation (by Cloudflare resolver)
 - ✅ Faster response times than ISP DNS
 - ✅ Blocks DNS-based tracking and censorship
 
 **Steven Black Unified Hosts File (Optimized)**
-- ✅ **80,101 malicious/tracking domains blocked** (full list!)
+- ✅ **79,776 malicious/tracking domains blocked** (full list!)
 - ✅ **Compressed to 8,864 lines** (9 domains per line)
 - ✅ Optimized for Windows DNS Cache performance
 - ✅ Blocks ads, malware, trackers, telemetry at DNS level
@@ -105,7 +105,7 @@
 - Result: Full protection + Fast DNS resolution
 
 **Benefits:**
-- 🚫 80,000+ ads & trackers blocked before they load
+- 🚫 79,776 ads & trackers blocked before they load
 - 🔒 DNS queries encrypted (ISP can't see)
 - ⚡ Faster browsing (Cloudflare's CDN)
 - 🛡️ Malware domains blocked at DNS level
@@ -226,7 +226,7 @@ The project uses a modular architecture with 13 specialized modules:
 | **Core** | Security baseline, Defender, Firewall, Services | 25 services disabled, 13 firewall rules, 10 exploit mitigations, Admin/Guest account hardening |
 | **ASR** | Attack Surface Reduction rules | 19 ASR rules (Enforce mode), Smart App Control |
 | **Advanced** | VBS, Credential Guard, LAPS, Auditing | Credential Guard, VBS, HVCI, LSA-PPL, BitLocker policies, Windows LAPS, TLS/SSL hardening |
-| **DNS** | DNS-over-HTTPS, DNSSEC, Blocklist | Cloudflare DoH (4 servers), DNSSEC validation, 80,101 blocked domains, Strict Inbound Firewall |
+| **DNS** | DNS-over-HTTPS, DNSSEC, Blocklist | Cloudflare DoH (4 servers), DNSSEC validation, 79,776 blocked domains, Strict Inbound Firewall |
 | **Bloatware** | App removal, Consumer features | 84 app patterns, Teams Chat/Copilot/Widgets disabled, Consumer Features blocked |
 | **Telemetry** | Privacy protection, App permissions | 10 services, 180 registry keys, 33 app permission categories, Camera/Mic controls |
 | **Performance** | Scheduled tasks, Event logs | ~20 tasks disabled, Event log optimization, Windows Search local-only, Prefetch/Superfetch tuning |
