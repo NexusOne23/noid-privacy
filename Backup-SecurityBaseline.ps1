@@ -171,8 +171,8 @@ Write-Host "    Normal: 2-3 Minuten" -ForegroundColor Gray
 Write-Host "    Maximal: 6 Minuten (bei langsamen Systemen)" -ForegroundColor Gray
 Write-Host ""
 
-# Best Practice 25H2: Disk Space Check BEVOR Backup startet!
-Write-Host "[i] Pruefe verfuegbaren Speicherplatz..." -ForegroundColor Cyan
+# Best Practice 25H2: Disk Space Check BEFORE Backup starts!
+Write-Host "[i] Checking available disk space..." -ForegroundColor Cyan
 try {
     # Extrahiere Laufwerksbuchstaben vom Backup-Pfad
     $driveLetter = (Get-Item $BackupPath -ErrorAction Stop).PSDrive.Name
@@ -181,19 +181,19 @@ try {
     $freeSpaceGB = [Math]::Round($drive.Free / 1GB, 2)
     $requiredSpaceGB = 0.1  # 100 MB Minimum für Backup
     
-    Write-Host "  Laufwerk: $($driveLetter):" -ForegroundColor Gray
-    Write-Host "  Frei: $freeSpaceGB GB" -ForegroundColor Gray
+    Write-Host "  Drive: $($driveLetter):" -ForegroundColor Gray
+    Write-Host "  Free: $freeSpaceGB GB" -ForegroundColor Gray
     
     if ($drive.Free -lt ($requiredSpaceGB * 1GB)) {
         Write-Host ""
-        Write-Host "[ERROR] Nicht genug Speicherplatz!" -ForegroundColor Red
-        Write-Host "  Benoetigt: Mindestens $requiredSpaceGB GB" -ForegroundColor Red
-        Write-Host "  Verfuegbar: $freeSpaceGB GB" -ForegroundColor Red
+        Write-Host "[ERROR] Insufficient disk space!" -ForegroundColor Red
+        Write-Host "  Required: At least $requiredSpaceGB GB" -ForegroundColor Red
+        Write-Host "  Available: $freeSpaceGB GB" -ForegroundColor Red
         Write-Host ""
         throw "Insufficient disk space for backup"
     }
     
-    Write-Host "  [OK] Ausreichend Speicherplatz verfuegbar" -ForegroundColor Green
+    Write-Host "  [OK] Sufficient disk space available" -ForegroundColor Green
 }
 catch {
     Write-Warning "Disk Space Check fehlgeschlagen: $_"
@@ -311,7 +311,7 @@ Write-Host "[3/14] $(Get-LocalizedString 'BackupApps')" -ForegroundColor Yellow
 # User Apps (mit Timeout-Protection)
 $installedApps = @()
 try {
-    Write-Host "  [i] Lese installierte Apps (max 60s)..." -ForegroundColor Gray
+    Write-Host "  [i] Reading installed apps (max 60s)..." -ForegroundColor Gray
     
     # TIMEOUT: 60 Sekunden max für AppX-Enumeration
     $job = Start-Job -ScriptBlock { Get-AppxPackage -ErrorAction SilentlyContinue }
@@ -1197,11 +1197,12 @@ try {
                 $regPath = "HKLM:\System\CurrentControlSet\Services\Dnscache\InterfaceSpecificParameters\$adapterGuid\DohInterfaceSettings\Doh\$ip"
                 if (Test-Path $regPath) {
                     try {
-                        $dohFlags = Get-ItemProperty -Path $regPath -Name 'DohFlags' -ErrorAction SilentlyContinue
-                        if ($dohFlags) {
+                        # BEST PRACTICE: Avoid error records with -Name parameter
+                        $regItem = Get-ItemProperty -Path $regPath -ErrorAction SilentlyContinue
+                        if ($regItem -and ($regItem.PSObject.Properties.Name -contains 'DohFlags')) {
                             $adapterBackup.IPv4Servers += @{
                                 IP = $ip
-                                DohFlags = $dohFlags.DohFlags
+                                DohFlags = $regItem.DohFlags
                             }
                         }
                     }
@@ -1217,11 +1218,12 @@ try {
                 $regPath = "HKLM:\System\CurrentControlSet\Services\Dnscache\InterfaceSpecificParameters\$adapterGuid\DohInterfaceSettings\Doh6\$ip"
                 if (Test-Path $regPath) {
                     try {
-                        $dohFlags = Get-ItemProperty -Path $regPath -Name 'DohFlags' -ErrorAction SilentlyContinue
-                        if ($dohFlags) {
+                        # BEST PRACTICE: Avoid error records with -Name parameter
+                        $regItem = Get-ItemProperty -Path $regPath -ErrorAction SilentlyContinue
+                        if ($regItem -and ($regItem.PSObject.Properties.Name -contains 'DohFlags')) {
                             $adapterBackup.IPv6Servers += @{
                                 IP = $ip
-                                DohFlags = $dohFlags.DohFlags
+                                DohFlags = $regItem.DohFlags
                             }
                         }
                     }
@@ -1314,7 +1316,7 @@ Write-Host ""
 #endregion
 
 #region Device-Level App Permission SubKeys Backup
-Write-Host "[14/14] Backup Device-Level App Permissions..." -ForegroundColor Yellow
+Write-Host "[14/14] Backup Device-Level App Permissions..." -ForegroundColor Yellow  # Intentionally English
 
 $deviceLevelBackup = @{
     Apps = @()
