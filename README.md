@@ -14,7 +14,7 @@
 **NoID Privacy** is a comprehensive PowerShell-based security hardening solution for Windows 11 25H2, implementing the Microsoft Security Baseline with extensive privacy enhancements.
 
 ### What You Get
-- ✅ **100% Microsoft Security Baseline 25H2 Compliance**
+- ✅ **100% Microsoft Security Baseline 25H2 Coverage**
 - 🔒 **300+ Security Settings** - Enterprise-grade protection at home
 - 🛡️ **180+ Privacy Settings** - ~95% telemetry blocked
 - 🚀 **Modular Architecture** - 13 specialized modules, pick what you need
@@ -243,7 +243,7 @@ The project uses a modular architecture with 13 specialized modules:
 
 | Standard | Coverage | Details |
 |----------|----------|---------|
-| **Microsoft Baseline 25H2** | 100% | Full compliance with September 30, 2025 baseline |
+| **Microsoft Baseline 25H2** | 100% | Full coverage of September 30, 2025 baseline (all settings implemented) |
 | **CIS Benchmark Level 1** | ~85% | Majority of recommendations (standalone focus) |
 | **CIS Benchmark Level 2** | ~90% | Enhanced security with privacy extensions |
 | **DoD STIG** | ~75% | Core security controls (non-domain environment) |

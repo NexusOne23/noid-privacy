@@ -289,9 +289,9 @@ For domain environments:
 
 **The Problem:**
 - Steven Black original: ~80,000+ domains = ~80,000+ lines
-- Windows DNS Cache limit: ~20,000 entries
+- Windows DNS Cache: Performance issues with large hosts files (community best practice: keep under ~20k entries)
 - 80k+ lines would cause cache overflow
-- Result: Slow DNS lookups
+- Result: Slow DNS lookups, network issues
 
 **Our Solution:**
 - ✅ **9 domains per line** (community best practice)
