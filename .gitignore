@@ -8,6 +8,8 @@ $RECYCLE.BIN/
 # PowerShell Transcript Logs
 *.log
 *.txt
+*.db
+*.csv
 Logs/
 *-Transcript-*.txt
 SecurityBaseline-*.log
