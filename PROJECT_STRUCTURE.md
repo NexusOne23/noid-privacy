@@ -12,7 +12,7 @@ noid-privacy/
 ├── 📄 Apply-Win11-25H2-SecurityBaseline.ps1  # Main application script
 ├── 📄 Backup-SecurityBaseline.ps1            # Backup system state
 ├── 📄 Restore-SecurityBaseline.ps1           # Restore from backup
-├── 📄 Verify-SecurityBaseline.ps1            # Compliance verification
+├── 📄 Verify-SecurityBaseline.ps1            # Configuration verification
 ├── 📄 Start-NoID-Privacy.bat                 # Convenience launcher
 │
 ├── 📂 Modules/                               # PowerShell modules (17 files)
@@ -133,7 +133,7 @@ noid-privacy/
 ---
 
 ### Verify-SecurityBaseline.ps1
-**Purpose**: Quick compliance check
+**Purpose**: Quick configuration check
 
 **Verifies**:
 - Windows 11 25H2 build
@@ -635,7 +635,7 @@ flowchart TB
 11. Load remaining modules (based on dependencies)
 12. Validate all module functions loaded
 13. Execute selected hardening operations
-14. Generate compliance report (optional)
+14. Generate verification report (optional)
 15. Prompt for reboot (if needed)
 16. Stop transcript
 17. Release mutex
@@ -654,7 +654,7 @@ C:\ProgramData\SecurityBaseline\
 │   └── SecurityBaseline-Enforce-YYYYMMDD-HHMMSS.log
 ├── Backups\                           # JSON backups
 │   └── SecurityBaseline-Backup-YYYYMMDD-HHMMSS.json
-└── Verification\                      # Compliance reports
+└── Verification\                      # Verification reports
     └── Verification-YYYYMMDD-HHMMSS.csv
 ```
 

@@ -1014,7 +1014,7 @@ Solitaire, Candy Crush, Bubble Witch
 **Want Control?**
 → Custom Mode = Pick specific modules
 
-**Want Proof of Compliance?**
+**Want Proof of Configuration?**
 → Verification Mode (Verify-SecurityBaseline.ps1)
 
 **Made a Mistake?**

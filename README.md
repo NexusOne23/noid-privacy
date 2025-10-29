@@ -99,9 +99,9 @@
 - ✅ Updated regularly from Steven Black repository
 
 **Why Compression?**
-- Windows DNS Cache limit: ~20,000 entries
+- Windows DNS Cache: Performance issues with large hosts files (community best practice: keep under ~20k entries)
 - Original 80k+ lines would cause cache overflow
-- Our format: **MAX 9 domains per line** (Windows limit)
+- Our format: **MAX 9 domains per line** (community best practice)
 - Result: Full protection + Fast DNS resolution
 
 **Benefits:**
@@ -190,9 +190,9 @@ Some features (VBS, Credential Guard, BitLocker) require a system restart to act
 .\Restore-SecurityBaseline.ps1 -BackupFile "C:\Backups\MyBackup.json"
 ```
 
-#### Verify Compliance
+#### Verify Configuration
 ```powershell
-# Quick compliance check
+# Quick configuration check
 .\Verify-SecurityBaseline.ps1
 
 # With CSV export

@@ -189,7 +189,7 @@ Your Windows 11 is now hardened to enterprise security standards!
 **What Changed?**
 - 🛡️ Security: 550+ settings
 - 🔒 Privacy: 700+ settings
-- 📊 Compliance: Microsoft Baseline 25H2 (100%)
+- 📊 Coverage: Microsoft Baseline 25H2 (100%)
 
 **Enjoy your secure and private Windows!** 🚀
 

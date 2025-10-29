@@ -177,7 +177,7 @@ shutdown /r /t 3600 /c "System reboot for security features"
 
 #### 5.2 Verify Installation
 ```powershell
-# After reboot, verify compliance
+# After reboot, verify configuration
 .\Verify-SecurityBaseline.ps1
 
 # With report export
@@ -310,7 +310,7 @@ Get-Tpm
 
 ## 🔄 Post-Installation Management
 
-### Verify Compliance
+### Verify Configuration
 ```powershell
 # Quick check
 .\Verify-SecurityBaseline.ps1
