@@ -130,6 +130,33 @@ function Disable-PaintAIFeatures {
     Write-Info "$(Get-LocalizedString 'AIPaintFeatures')"
 }
 
+function Disable-NotepadAIFeatures {
+    <#
+    .SYNOPSIS
+        Disables AI Features in Notepad (Copilot integration)
+    .DESCRIPTION
+        Windows 11 Notepad has integrated Copilot AI features
+        This function disables the Copilot button and AI assistance in Notepad
+        Official Microsoft documentation: https://learn.microsoft.com/en-us/windows/client-management/manage-notepad
+    .NOTES
+        Supported: Windows 11 22H2+ with Notepad 11.2503.16.0+
+    #>
+    [CmdletBinding()]
+    param()
+    
+    Write-Section "$(Get-LocalizedString 'AINotepadTitle')"
+    
+    # Official Microsoft registry path for Notepad AI features
+    $notepadPolicyPath = "HKLM:\SOFTWARE\Policies\WindowsNotepad"
+    
+    # Disable AI Features in Notepad (Copilot integration)
+    Set-RegistryValue -Path $notepadPolicyPath -Name "DisableAIFeatures" -Value 1 -Type DWord `
+        -Description "Notepad AI Features deaktivieren (Copilot Button + AI Assistance)"
+    
+    Write-Success "$(Get-LocalizedString 'AINotepadDisabled')"
+    Write-Info "$(Get-LocalizedString 'AINotepadFeatures')"
+}
+
 function Disable-SettingsAgent {
     <#
     .SYNOPSIS
@@ -215,6 +242,7 @@ function Show-AILockdownReport {
     Write-Host "$(Get-LocalizedString 'AICopilotMultiLayer')" -ForegroundColor Green
     Write-Host "$(Get-LocalizedString 'AIClickToDoAnalysis')" -ForegroundColor Green
     Write-Host "$(Get-LocalizedString 'AIPaintAI')" -ForegroundColor Green
+    Write-Host "$(Get-LocalizedString 'AINotepadAI')" -ForegroundColor Green
     Write-Host "$(Get-LocalizedString 'AISettingsAgent')" -ForegroundColor Green
     Write-Host "$(Get-LocalizedString 'AICopilotProactive')" -ForegroundColor Green
     Write-Host ""

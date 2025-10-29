@@ -1320,6 +1320,7 @@ try {
         Disable-WindowsCopilot
         Disable-ClickToDo
         Disable-PaintAIFeatures
+        Disable-NotepadAIFeatures
         Disable-SettingsAgent
         Disable-CopilotProactive
         Set-RecallMaximumStorage

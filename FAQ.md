@@ -67,6 +67,31 @@ NoID Privacy is a comprehensive PowerShell-based security hardening solution for
 
 **Yes!** The script is idempotent - you can run it as many times as you want without issues.
 
+### What happens after Windows Updates?
+
+**It depends on the update type:**
+
+| Update Type | Frequency | Impact on Settings | Action Required |
+|-------------|-----------|-------------------|------------------|
+| **Monthly Quality Updates** | Every month (Patch Tuesday) | ✅ Minimal - settings stay intact | ❌ No re-run needed |
+| **Cumulative Updates** | As released | ✅ Minimal - settings stay intact | ❌ No re-run needed |
+| **Feature Updates** | 1-2x per year (e.g., 25H2 → 26H2) | ⚠️ **Can reset many settings** | ✅ **Re-run script recommended** |
+| **Preview/Insider Builds** | Beta releases | 🔴 Can reset everything | ✅ Disabled by script (Module 12) |
+
+**What gets reset in Feature Updates?**
+- ❌ Privacy Toggles (Camera, Microphone, Location - **must set manually**)
+- ❌ Start Menu Layout, Taskbar Settings
+- ⚠️ Telemetry Settings (often back to 'Basic')
+- ⚠️ OneDrive Auto-Backup, Consumer Features
+- ✅ Most critical settings stay (Services, Firewall, ASR, VBS, DoH, hosts file)
+
+**When to re-run the script:**
+1. **After Feature Updates** (e.g., Windows 11 26H2 in ~September 2026)
+2. **If you notice:** New apps installed, telemetry running, web search results in Start Menu
+3. **Anytime you want** - script is idempotent and safe to repeat!
+
+**Next major update:** Windows 11 26H2 (~September 2026) - re-run script after upgrade!
+
 ---
 
 ## 🛡️ Security Questions
@@ -228,10 +253,16 @@ For domain environments:
 ### What DNS provider is used?
 
 **Cloudflare DNS-over-HTTPS (DoH)**
+
+**IPv4:**
 - Primary: 1.1.1.1
 - Secondary: 1.0.0.1
-- Fallback: 8.8.8.8 (Google, if Cloudflare unreachable)
-- Protocol: DNS-over-HTTPS (encrypted)
+
+**IPv6:**
+- Primary: 2606:4700:4700::1111
+- Secondary: 2606:4700:4700::1001
+
+**Protocol:** DNS-over-HTTPS (encrypted, no fallback to unencrypted DNS)
 
 **Why Cloudflare?**
 - ✅ Privacy-first (no user tracking)
