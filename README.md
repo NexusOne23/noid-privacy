@@ -14,9 +14,9 @@
 **NoID Privacy** is a comprehensive PowerShell-based security hardening solution for Windows 11 25H2, implementing the Microsoft Security Baseline with extensive privacy enhancements.
 
 ### What You Get
-- ✅ **100% Microsoft Security Baseline 25H2 Coverage**
+- ✅ **Based on Microsoft Security Baseline 25H2** (~95% coverage + extended hardening) - [See Mapping](SECURITY_MAPPING.md)
 - 🔒 **300+ Security Settings** - Enterprise-grade protection at home
-- 🛡️ **180+ Privacy Settings** - ~95% telemetry blocked
+- 🛡️ **180+ Privacy Settings** - Minimizes telemetry to Security-Essential level
 - 🚀 **Modular Architecture** - 13 specialized modules, pick what you need
 - 🔄 **Complete Backup & Restore** - Can undo EVERYTHING
 - 🌐 **Multi-Language Support** - English/German with real-time switching
@@ -24,8 +24,8 @@
 - 📜 **Complete Audit Trails** - 3 logging levels (Transcript, Console, Summary)
 
 ### Why This Matters to You
-**Security:** Your Windows is now as secure as Fortune 500 companies  
-**Privacy:** Telemetry minimized to essential security data only (Defender Cloud Protection)  
+**Security:** Enterprise-grade hardening based on Microsoft Security Baseline 25H2  
+**Privacy:** Minimizes telemetry to Security-Essential level (Required Diagnostic Data for Windows Update/Defender)  
 **Performance:** Bloatware removal, faster boot, optimized background tasks  
 **Control:** YOU decide what runs, what uploads, what connects  
 **Peace of Mind:** Complete backup = risk-free experimentation
@@ -40,7 +40,7 @@
 
 **Your Computer Becomes a Fortress:**
 - **Microsoft Defender** → 6 protection layers = Real-time malware blocking + Cloud AI threat detection + PUA + EDR
-- **19 Attack Surface Reduction Rules** → 19 different attack types BLOCKED (ransomware, macros, exploits, credential theft)
+- **16 Attack Surface Reduction Rules** → Blocks ransomware, macros, exploits, credential theft - [See ASR Details](ASR_RULES.md)
 - **10 Exploit Mitigations** → Memory-based attacks fail (DEP, SEHOP, ASLR, CFG Strict, Heap Protection, Image Load Protection)
 - **Credential Protection** → Your passwords can't be stolen from memory (Credential Guard + LSA Protection + Mimikatz mitigation)
 - **BitLocker XTS-AES-256** → Stolen laptop = useless encrypted brick (TPM 2.0 + optional PIN)
@@ -49,16 +49,23 @@
 
 **Bottom Line:** You're now as secure as Fortune 500 companies
 
-### 🔒 Privacy Protection - Minimal Telemetry
+### 🔒 Privacy Protection - Minimized Telemetry
 
-**Your Privacy is Sacred:**
-- **Complete Telemetry Shutdown** → 10 telemetry services + ~14 tasks + 180 registry keys = ~95% usage data blocked
+**Your Privacy is Maximized:**
+- **Telemetry Minimized** → 10 telemetry services + ~14 tasks + 180 registry keys configured for minimum data collection
 - **AI Lockdown** → Windows Recall DISABLED (no screenshots of passwords!), Copilot blocked (4 layers), Click to Do disabled
 - **App Permission Control** → 33 categories default-DENY (apps can't spy without explicit permission)
 - **Clean System** → 84 bloatware app patterns checked (Xbox, 3D apps, Candy Crush, Teams Chat, Copilot, Widgets)
 - **79,776 Trackers Blocked** → DNS-level blocking via Steven Black hosts + Cloudflare DoH
 
-**Bottom Line:** Telemetry minimized - only essential security data (Defender Cloud Protection)
+**Bottom Line:** Telemetry reduced to Security-Essential level (Required Diagnostic Data for Windows Update/Defender)
+
+**ℹ️ Reality Check:** Windows 11 requires minimum telemetry for:
+- Windows Update (security patches)
+- Microsoft Defender updates (malware signatures)
+- Compatibility checks (driver updates)
+
+This project minimizes telemetry via Registry, Services, Firewall, and DNS blocking - but cannot eliminate it entirely without breaking core functionality.
 
 ### ⚡ Performance - Faster & Cleaner
 
@@ -356,6 +363,34 @@ Contributions are welcome! Please follow these guidelines:
 ## 📜 License
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 📚 Security Documentation
+
+### Baseline Compliance & Verification
+
+- **[Security Baseline Mapping](SECURITY_MAPPING.md)** - Complete mapping to Microsoft Security Baseline 25H2
+  - Policy-by-policy comparison
+  - GPO paths and registry keys
+  - Verification commands
+  - ~95% baseline coverage + extended hardening
+
+- **[ASR Rules Reference](ASR_RULES.md)** - Attack Surface Reduction rules detailed breakdown
+  - All 16 rule GUIDs and descriptions
+  - Deployment modes (Audit/Warn/Block)
+  - False positive guidance
+  - Event monitoring and troubleshooting
+
+- **[Known Issues](KNOWN_ISSUES.md)** - Compatibility notes and workarounds
+- **[Security Policy](SECURITY.md)** - Vulnerability disclosure and security practices
+
+### Why These Documents Matter
+
+**For Auditors:** Provides verifiable evidence of baseline compliance  
+**For IT Admins:** Shows exact GPO/Registry mappings for enterprise deployment  
+**For Power Users:** Understand what each setting does and why  
+**For Security Researchers:** Full transparency into implementation
 
 ---
 
