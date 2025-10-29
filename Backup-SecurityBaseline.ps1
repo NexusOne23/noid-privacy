@@ -691,7 +691,10 @@ $registryKeys = @(
     @{Path="HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI"; Name="DisableImageCreator"},
     @{Path="HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI"; Name="DisableSettingsAgent"},
     @{Path="HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI"; Name="SetMaximumStorageSpaceForRecallSnapshots"},
-    @{Path="HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI"; Name="SetMaximumStorageDurationForRecallSnapshots"}
+    @{Path="HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI"; Name="SetMaximumStorageDurationForRecallSnapshots"},
+    
+    # Notepad AI Features
+    @{Path="HKLM:\SOFTWARE\Policies\WindowsNotepad"; Name="DisableAIFeatures"}
     
     # Edge Browser (NEW - Security Policies)
     # Note: Edge policies are in HKLM:\SOFTWARE\Policies\Microsoft\Edge
