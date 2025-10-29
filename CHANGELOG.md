@@ -5,6 +5,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.11] - 2025-10-29
+
+### Added
+- **IPv6 DoH Encryption Support** - Full IPv6 DNS-over-HTTPS encryption with dedicated Doh6 registry branch
+- **Notepad AI Copilot Disable** - New `Disable-NotepadAIFeatures` function to remove Copilot button from Windows Notepad
+- **DoH Encryption Backup/Restore** - DoH IPv4 and IPv6 encryption settings now backed up and restored
+- **Notepad AI Backup/Restore** - Notepad AI settings (DisableAIFeatures) now backed up and restored
+- **Windows Update FAQ** - Comprehensive guide on Windows Update types and when to re-run the script
+
+### Fixed
+- **Domain Count Calculation** - Corrected to 79,776 domains (×9 for optimized hosts file) instead of incorrect 8,064
+- **lastrun.txt Creation** - Moved `Invoke-RebootPrompt` after finally-block to ensure lastrun.txt is always written before reboot
+- **PowerShell 5.1 Compatibility** - Removed `-LiteralPath` parameter that doesn't exist in PowerShell 5.1 (IPv6 DoH configuration)
+- **DNS Documentation** - Fixed DNS info in FAQ.md (added IPv6 servers, removed false Google fallback)
+- **Year Correction** - Fixed Windows 11 26H2 release date to September 2026 (not 2025) in FAQ
+
+### Changed
+- **DoH Global Setting** - Changed from `doh=yes` to `doh=auto` for stricter DNS-over-HTTPS enforcement
+- **IPv6 DoH Implementation** - Uses step-by-step path creation for PowerShell 5.1 compatibility
+- **AI Module Enhancement** - AI Lockdown now includes 7 features (added Notepad AI to existing 6)
+
+### Technical Details
+- IPv4 DoH: `HKLM:\System\...\Doh\<IPv4>` with DohFlags=1
+- IPv6 DoH: `HKLM:\System\...\Doh6\<IPv6>` with DohFlags=1 (separate branch!)
+- Notepad AI: `HKLM:\SOFTWARE\Policies\WindowsNotepad\DisableAIFeatures=1`
+- Domain count: 8,864 lines × 9 domains per line = 79,776 total domains
+- Reboot prompt moved from inside try-block to after finally-block
+
 ## [1.7.10] - 2025-10-28
 
 ### Added

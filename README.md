@@ -5,7 +5,7 @@
 [![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-blue.svg)](https://github.com/PowerShell/PowerShell)
 [![Windows 11](https://img.shields.io/badge/Windows%2011-25H2-0078D4.svg)](https://www.microsoft.com/windows/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-1.7.10-blue.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.7.11-blue.svg)](CHANGELOG.md)
 
 ---
 
@@ -392,18 +392,17 @@ The authors are not responsible for any damage or data loss caused by this scrip
 
 ## 📈 Project Status
 
-**Current Version:** 1.7.10  
-**Last Updated:** October 28, 2025  
+**Current Version:** 1.7.11  
+**Last Updated:** October 29, 2025  
 **Status:** Production-Ready ✅
 
-### Recent Updates (v1.7.10)
-- ✅ **Critical Registry Bug Fixes** - Eliminated 116+ false error records (all Get-ItemProperty -Name bugs fixed)
-- ✅ **Complete Core.ps1 Internationalization** - 205 strings (EN + DE), full multilingual support
-- ✅ **Set-MpPreference Fix** - No more TerminatingError messages in logs (clean UX)
-- ✅ **Service Stop Visibility** - Critical failures now visible (WirelessDisplay, Core services)
-- ✅ **Event Log Config Reporting** - wevtutil failures now reported as warnings
-- ✅ **Exploit Protection Fix** - 6 Set-ProcessMitigation commands now use -ErrorAction Stop (catch blocks work!)
-- ✅ **Enhanced LastRun-Status.txt** - Detailed error summaries, categorized warnings, quick actions, next steps
+### Recent Updates (v1.7.11)
+- ✅ **IPv6 DoH Encryption** - Full IPv6 DNS-over-HTTPS support (Doh6 registry branch)
+- ✅ **Notepad AI Copilot Disable** - Removes Copilot button from Windows Notepad
+- ✅ **Domain Count Fix** - Corrected calculation (79,776 domains instead of 8,064)
+- ✅ **lastrun.txt Creation Fix** - Reboot prompt moved after finally-block
+- ✅ **Backup/Restore Enhancement** - DoH & Notepad AI settings now backed up
+- ✅ **FAQ Documentation** - Added Windows Update guide, fixed DNS info, corrected 26H2 year
 
 See [CHANGELOG.md](CHANGELOG.md) for full version history.
 

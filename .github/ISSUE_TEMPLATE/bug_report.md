@@ -32,7 +32,7 @@ A clear and concise description of what actually happened.
 - **CPU**: [e.g., Intel i7-11700 / AMD Ryzen 5 5600X]
 - **TPM**: [e.g., 2.0 Present / Not Present]
 - **Third-Party AV**: [e.g., None / Bitdefender / Norton]
-- **Script Version**: [e.g., 1.7.10]
+- **Script Version**: [e.g., 1.7.11]
 - **Execution Mode**: [e.g., Interactive / Audit / Enforce]
 
 ## 📝 Transcript Log
