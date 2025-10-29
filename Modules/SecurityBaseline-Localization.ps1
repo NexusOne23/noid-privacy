@@ -2,12 +2,12 @@
 # SecurityBaseline-Localization.ps1 - Multi-Language Support (EN/DE)
 # =======================================================================================
 
-# Strict Mode aktivieren
+# Enable Strict Mode
 Set-StrictMode -Version Latest
 
-# Default: English (nur wenn noch nicht gesetzt!)
-# WICHTIG: Nicht überschreiben wenn bereits gesetzt (z.B. von Parent-Script)
-# WICHTIG: Test-Path verwenden wegen Strict Mode!
+# Default: English (only if not set yet!)
+# IMPORTANT: Do not overwrite if already set (e.g. from parent script)
+# IMPORTANT: Use Test-Path because of Strict Mode!
 if (-not (Test-Path Variable:\Global:CurrentLanguage)) {
     $Global:CurrentLanguage = "en"
 }
@@ -1052,7 +1052,7 @@ $Global:Strings = @{
         BackupAbortStep3 = "3. Oder: Manuelle Restore Point erstellen und fortfahren"
         BackupValidationSuccess = "[SUCCESS] BACKUP ERFOLGREICH VALIDIERT!"
         
-        # Privacy Settings User Messages (App-Berechtigungen, NICHT Hardware!)
+        # Privacy Settings User Messages (App permissions, NOT hardware!)
         CameraMicDefaultOff = "App-Berechtigungen fuer Kamera und Mikrofon: ENTFERNT"
         CameraMicUserCan = "Um Apps wieder zu erlauben: Settings | Datenschutz | Kamera/Mikrofon:"
         CameraMicStep1 = "  1. Master-Switch EINschalten"
@@ -1915,7 +1915,7 @@ function Select-Language {
     [OutputType([string])]
     param()
     
-    # Best Practice 25H2: Strict Mode aktivieren for Clear-Host in non-interactive sessions
+    # Best Practice 25H2: Enable Strict Mode for Clear-Host in non-interactive sessions
     try {
         Clear-Host
     }

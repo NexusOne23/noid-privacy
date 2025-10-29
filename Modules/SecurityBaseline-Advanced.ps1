@@ -385,25 +385,25 @@ function Set-TLSHardening {
 
 #region WINDOWS UPDATE
 
-# WINDOWS UPDATE POLICIES ENTFERNT!
+# WINDOWS UPDATE POLICIES REMOVED!
 # 
 # Grund: User mÃ¶chte Windows Update selbst kontrollieren
 #
-# Was das bedeutet:
-# - Windows verwendet STANDARD-Verhalten (Settings-App Kontrolle)
-# - User kann in Settings | Windows Update selbst konfigurieren
-# - KEINE erzwungenen Updates, KEINE Deadlines, KEINE Auto-Reboots
-# - User behÃ¤lt volle Kontrolle Ã¼ber Update-Timing
+# What this means:
+# - Windows uses STANDARD behavior (Settings App control)
+# - User can configure themselves in Settings | Windows Update
+# - NO forced updates, NO deadlines, NO auto-reboots
+# - User retains full control over update timing
 #
 # Empfehlung:
-# - Gehe zu Settings | Windows Update | Advanced options
-# - Konfiguriere nach Bedarf:
-#   * "Active hours" setzen (verhindert Neustart wÃ¤hrend Arbeit)
-#   * "Download over metered connections" nach Wunsch
-#   * "Get me up to date" fÃ¼r schnelle Updates
-#   * "Pause updates" bei Bedarf
+# - Go to Settings | Windows Update | Advanced options
+# - Configure as needed:
+#   * Set "Active hours" (prevents restart during work)
+#   * "Download over metered connections" as desired
+#   * "Get me up to date" for quick updates
+#   * "Pause updates" if needed
 #
-# Windows Update funktioniert weiterhin NORMAL, aber ohne Policy-Enforcement!
+# Windows Update continues to work NORMALLY, but without policy enforcement!
 
 #endregion
 

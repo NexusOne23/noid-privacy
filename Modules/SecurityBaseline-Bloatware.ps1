@@ -202,7 +202,7 @@ function Remove-BloatwareApps {
                 
                 $ErrorActionPreference = $previousErrorAction
                 
-                # Prüfe ob erfolgreich (kein Error in $Error)
+                # Check if successful (no error in $Error)
                 if ($?) {
                     $removedCount++
                     Write-Verbose "     Provisioned package successfully removed"

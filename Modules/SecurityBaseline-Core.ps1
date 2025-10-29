@@ -3,7 +3,7 @@
 # NoID Privacy - Core Security Functions (Baseline 25H2 compliant)
 # ============================================================================
 
-# Best Practice 25H2: Strict Mode aktivieren
+# Best Practice 25H2: Enable Strict Mode
 Set-StrictMode -Version Latest
 
 #region CONSTANTS & MAGIC NUMBERS
@@ -27,15 +27,15 @@ New-Variable -Name 'BITLOCKER_XTS_AES_256' -Value 7 -Option Constant -Scope Scri
 #endregion
 
 # NOTE: Helper Functions (Write-Section, Write-Info, Write-Success, Write-Warning-Custom,
-# Write-Error-Custom, Set-RegistryValue) wurden nach SecurityBaseline-Common.ps1 verschoben,
-# um Code-Duplikation zu vermeiden. Die Funktionen werden von dort exportiert.
+# Write-Error-Custom, Set-RegistryValue) were moved to SecurityBaseline-Common.ps1
+# to avoid code duplication. The functions are exported from there.
 
 #region SYSTEM VALIDATION
 
 function Test-SystemRequirements {
     <#
     .SYNOPSIS
-        Prueft System-Anforderungen fuer Security Baseline
+        Checks system requirements for Security Baseline
     .DESCRIPTION
         Validiert Windows Version, TPM und VBS Status.
         Best Practice 25H2: Try-Catch fuer alle CIM/WMI-Calls, throw ersetzt durch Write-Error.
@@ -71,7 +71,7 @@ function Test-SystemRequirements {
         return $false
     }
     
-    # TPM pruefen
+    # Check TPM
     try {
         $tpm = Get-Tpm -ErrorAction Stop
         if ($tpm -and $tpm.TpmPresent -and $tpm.TpmReady) {
@@ -86,7 +86,7 @@ function Test-SystemRequirements {
         Write-Verbose "Manche Features (BitLocker, Credential Guard) benoetigen TPM 2.0"
     }
     
-    # VBS pruefen
+    # Check VBS
     try {
         $vbs = Get-CimInstance -ClassName Win32_DeviceGuard -Namespace root\Microsoft\Windows\DeviceGuard -ErrorAction Stop
         if ($vbs -and $vbs.VirtualizationBasedSecurityStatus -eq 2) {
@@ -140,7 +140,7 @@ function Set-NetBIOSDisabled {
     
     # Pro Adapter
     try {
-        # Best Practice 25H2: @() Wrapper verhindert Count-Fehler bei null/single item
+        # Best Practice 25H2: @() wrapper prevents Count error with null/single item
         $adapters = @(Get-CimInstance -ClassName Win32_NetworkAdapterConfiguration -ErrorAction Stop | 
             Where-Object { $_.IPEnabled })
         
@@ -181,13 +181,13 @@ function Set-ProcessAuditingWithCommandLine {
     
     Write-Section (Get-LocalizedString 'CoreProcessAuditing')
     
-    # Registry: Command Line Logging aktivieren
+    # Registry: Enable Command Line Logging
     $auditPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System\Audit"
     [void](Set-RegistryValue -Path $auditPath -Name "ProcessCreationIncludeCmdLine_Enabled" -Value 1 -Type DWord `
         -Description "Command Line in Event ID 4688")
     
-    # auditpol.exe: Process Creation Auditing aktivieren
-    # Best Practice 25H2: GUIDs statt Namen verwenden (Locale-unabhaengig!)
+    # auditpol.exe: Enable Process Creation Auditing
+    # Best Practice 25H2: Use GUIDs instead of names (locale-independent!)
     try {
         $auditpolPath = "$env:SystemRoot\System32\auditpol.exe"
         
@@ -197,7 +197,7 @@ function Set-ProcessAuditingWithCommandLine {
             # Continue - Registry setting above is already active
         }
         else {
-            # GUID fuer "Process Creation" - funktioniert auf Deutsch UND Englisch!
+            # GUID for "Process Creation" - works in German AND English!
             $processCreationGuid = "{0CCE922B-69AE-11D9-BED3-505054503030}"
             $result = & $auditpolPath /set /subcategory:$processCreationGuid /success:enable /failure:enable 2>&1
             
@@ -296,7 +296,7 @@ SeImpersonatePrivilege = *S-1-5-19,*S-1-5-20,*S-1-5-32-544,*S-1-5-99-0-0-0-0-0
         Write-Verbose "Schreibe Security Policy nach $tempInf"
         $secPolicy | Out-File -FilePath $tempInf -Encoding unicode -Force -ErrorAction Stop
         
-        # secedit.exe ausfuehren
+        # Execute secedit.exe
         $seceditPath = "$env:SystemRoot\System32\secedit.exe"
         
         if (-not (Test-Path -Path $seceditPath)) {
@@ -369,12 +369,12 @@ function Set-DefenderBaselineSettings {
     
     Write-Section (Get-LocalizedString 'CoreDefenderBaseline')
     
-    # CRITICAL CHECK: Ist Windows Defender überhaupt verfügbar?
-    # BitDefender/Norton/Kaspersky etc. deaktivieren Defender automatisch!
-    Write-Verbose "Pruefe ob Windows Defender verfuegbar ist..."
+    # CRITICAL CHECK: Is Windows Defender available at all?
+    # BitDefender/Norton/Kaspersky etc. disable Defender automatically!
+    Write-Verbose "Checking if Windows Defender is available..."
     try {
         [void](Get-MpComputerStatus -ErrorAction Stop)
-        Write-Verbose "Defender ist verfuegbar und aktiv"
+        Write-Verbose "Defender is available and active"
     }
     catch {
         Write-Warning (Get-LocalizedString 'CoreDefenderNotAvailable')
@@ -384,24 +384,24 @@ function Set-DefenderBaselineSettings {
         Write-Info (Get-LocalizedString 'CoreDefenderSkipped')
         Write-Info (Get-LocalizedString 'CoreDefenderThirdPartyProtection')
         Write-Host ""
-        return  # Überspringe komplette Defender-Konfiguration
+        return  # Skip complete Defender configuration
     }
     
-    # CRITICAL FIX: Defender Service MUSS laufen für PUA/ASR Configuration!
-    Write-Verbose "Pruefe Defender Service Status..."
+    # CRITICAL FIX: Defender Service MUST be running for PUA/ASR Configuration!
+    Write-Verbose "Checking Defender Service status..."
     try {
         $defenderService = Get-Service -Name WinDefend -ErrorAction Stop
         if ($defenderService.Status -ne 'Running') {
             Write-Info (Get-LocalizedString 'CoreDefenderStarting')
             Start-Service -Name WinDefend -ErrorAction Stop
-            Start-Sleep -Seconds 3  # Warte bis Service vollständig hochgefahren ist
-            Write-Verbose "Defender Service erfolgreich gestartet"
+            Start-Sleep -Seconds 3  # Wait until service is fully started
+            Write-Verbose "Defender Service started successfully"
         }
     }
     catch {
         Write-Warning (Get-LocalizedString 'CoreDefenderStartFailed' $_)
         Write-Info (Get-LocalizedString 'CoreDefenderConfigSkipped')
-        return  # Überspringe Defender-Konfiguration
+        return  # Skip Defender configuration
     }
     
     $defenderPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender"
@@ -422,43 +422,43 @@ function Set-DefenderBaselineSettings {
     [void](Set-RegistryValue -Path "$defenderPath\Reporting" -Name "ReportDynamicSignatureDroppedEvent" -Value 1 -Type DWord `
         -Description "Dynamic Signature Events")
     
-    # Quick Scan inkl. Exclusions
+    # Quick Scan including Exclusions
     [void](Set-RegistryValue -Path "$defenderPath\Scan" -Name "CheckExclusions" -Value 1 -Type DWord `
-        -Description "Scan auch Exclusions")
+        -Description "Scan Exclusions too")
     
     # Cloud Protection High
     [void](Set-RegistryValue -Path "$defenderPath\MpEngine" -Name "MpCloudBlockLevel" -Value 2 -Type DWord `
         -Description "Cloud Protection Level High")
     
     # PUA Protection - BEST PRACTICE: Use Set-MpPreference instead of Registry Policy!
-    # Registry Policy (HKLM\Policies) würde GUI ausgrauen
-    # Set-MpPreference lässt User die Option in GUI ändern (flexibility!)
+    # Registry Policy (HKLM\Policies) would gray out GUI
+    # Set-MpPreference allows user to change option in GUI (flexibility!)
     # Best Practice 25H2: SilentlyContinue to avoid TerminatingError in logs
     $null = Set-MpPreference -PUAProtection Enabled -ErrorAction SilentlyContinue
     if ($?) {
-        Write-Verbose "PUA Protection aktiviert via Set-MpPreference (GUI bleibt editierbar)"
+        Write-Verbose "PUA Protection enabled via Set-MpPreference (GUI remains editable)"
     }
     else {
         # KNOWN ISSUE: 0x800106ba = Operation failed (Defender Service not running or 3rd-party AV active)
-        # HARMLOS: PUA funktioniert trotzdem via Registry-Checkboxen unten!
-        Write-Verbose "Set-MpPreference PUA fehlgeschlagen (Defender Service oder Drittanbieter-AV) - verwende Registry-Checkboxen"
+        # HARMLESS: PUA still works via Registry checkboxes below!
+        Write-Verbose "Set-MpPreference PUA failed (Defender Service or 3rd-party AV) - using Registry checkboxes"
         Write-Info (Get-LocalizedString 'CorePUARegistry')
     }
     
-    # CRITICAL FIX: Aktiviere BEIDE Checkboxen (Apps + Downloads blockieren)
-    # WICHTIG: Diese Registry-Keys sind TrustedInstaller-geschuetzt!
-    # LÖSUNG: Set-RegistryValueSmart nimmt automatisch Ownership wenn nötig
+    # CRITICAL FIX: Enable BOTH checkboxes (block Apps + Downloads)
+    # IMPORTANT: These Registry keys are TrustedInstaller-protected!
+    # SOLUTION: Set-RegistryValueSmart automatically takes ownership when needed
     $puaPath = "HKLM:\SOFTWARE\Microsoft\Windows Defender\Features"
     
     Write-Info (Get-LocalizedString 'CorePUACheckboxes')
     
-    # EnableAppInstallControl = Apps blockieren (mit automatischem Ownership-Management)
+    # EnableAppInstallControl = Block apps (with automatic ownership management)
     $result1 = Set-RegistryValueSmart -Path $puaPath -Name "EnableAppInstallControl" -Value 1 -Type DWord `
-        -Description "PUA: Apps blockieren (Checkbox)"
+        -Description "PUA: Block apps (Checkbox)"
     
-    # EnableDownloadFileTypeExtensionsList = Downloads blockieren (mit automatischem Ownership-Management)
+    # EnableDownloadFileTypeExtensionsList = Block downloads (with automatic ownership management)
     $result2 = Set-RegistryValueSmart -Path $puaPath -Name "EnableDownloadFileTypeExtensionsList" -Value 1 -Type DWord `
-        -Description "PUA: Downloads blockieren (Checkbox)"
+        -Description "PUA: Block downloads (Checkbox)"
     
     if ($result1 -and $result2) {
         Write-Success (Get-LocalizedString 'CorePUAActivated')
@@ -470,7 +470,7 @@ function Set-DefenderBaselineSettings {
         Write-Info (Get-LocalizedString 'CorePUAManualPath')
     }
     
-    # Edge SmartScreen PUA Protection wird im Edge-Modul gesetzt (kein Duplikat)
+    # Edge SmartScreen PUA Protection is set in Edge module (no duplicate)
     
     # Network Protection
     [void](Set-RegistryValue -Path "$defenderPath\Windows Defender Exploit Guard\Network Protection" -Name "EnableNetworkProtection" -Value 1 -Type DWord `
@@ -482,42 +482,42 @@ function Set-DefenderBaselineSettings {
     Write-Info (Get-LocalizedString 'CoreDefender6Settings')
     
     # 1. EDR in Block Mode
-    # WICHTIG: Features-Key ist TrustedInstaller-geschuetzt (wie oben bei PUA)
-    # LÖSUNG: Set-RegistryValueSmart nimmt automatisch Ownership wenn nötig
+    # IMPORTANT: Features key is TrustedInstaller-protected (like PUA above)
+    # SOLUTION: Set-RegistryValueSmart automatically takes ownership when needed
     $edrPath = "$defenderPath\Features"
     $edrResult = Set-RegistryValueSmart -Path $edrPath -Name "EnableEDRInBlockMode" -Value 1 -Type DWord `
         -Description "EDR in Block Mode (Endpoint Detection & Response)"
     
     if ($edrResult) {
-        Write-Verbose "EDR Block Mode: Erfolgreich aktiviert"
+        Write-Verbose "EDR Block Mode: Successfully activated"
     }
     else {
-        Write-Verbose "EDR Block Mode: Fehler beim Setzen"
+        Write-Verbose "EDR Block Mode: Error setting value"
     }
     
     # 2. Network Inspection: Convert Warn to Block
     $nisPath = "$defenderPath\NIS"
     Set-RegistryValue -Path $nisPath -Name "ConvertWarnToBlock" -Value 1 -Type DWord `
-        -Description "Network Inspection: Warnungen automatisch zu Blocks konvertieren"
+        -Description "Network Inspection: Auto-convert warnings to blocks"
     
     # 3. Exclusions visible to local users (Control)
     Set-RegistryValue -Path $defenderPath -Name "ExclusionsVisibleToLocalUsers" -Value 1 -Type DWord `
-        -Description "Exclusions fuer lokale User sichtbar (Transparenz)"
+        -Description "Exclusions visible to local users (transparency)"
     
     # 4. Real-time Protection during OOBE (Out-Of-Box Experience)
     $rtpPath = "$defenderPath\Real-Time Protection"
     Set-RegistryValue -Path $rtpPath -Name "ConfigureRealTimeProtectionOOBE" -Value 1 -Type DWord `
-        -Description "Real-Time Protection bereits waehrend OOBE Setup aktiv"
+        -Description "Real-Time Protection active during OOBE setup"
     
     # 5. Scan excluded files during quick scans
     $scanPath = "$defenderPath\Scan"
     Set-RegistryValue -Path $scanPath -Name "ScanExcludedFilesInQuickScan" -Value 1 -Type DWord `
-        -Description "Auch ausgeschlossene Dateien in Quick Scans pruefen"
+        -Description "Also check excluded files in quick scans"
     
     # 6. Report Dynamic Signature dropped events
     $reportPath = "$defenderPath\Reporting"
     Set-RegistryValue -Path $reportPath -Name "ReportDynamicSignatureDroppedEvent" -Value 1 -Type DWord `
-        -Description "Dynamic Signature Dropped Events reporten"
+        -Description "Report dynamic signature dropped events"
     
     Write-Success (Get-LocalizedString 'CoreDefender6Activated')
     Write-Success (Get-LocalizedString 'CoreDefenderActive')
@@ -539,11 +539,11 @@ function Enable-ControlledFolderAccess {
     
     Write-Section (Get-LocalizedString 'CoreCFATitle')
     
-    # CRITICAL CHECK: Ist Windows Defender überhaupt verfügbar?
-    Write-Verbose "Pruefe ob Windows Defender verfuegbar ist..."
+    # CRITICAL CHECK: Is Windows Defender available at all?
+    Write-Verbose "Checking if Windows Defender is available..."
     try {
         [void](Get-MpComputerStatus -ErrorAction Stop)
-        Write-Verbose "Defender ist verfuegbar"
+        Write-Verbose "Defender is available"
     }
     catch {
         Write-Warning (Get-LocalizedString 'CoreCFAThirdParty')
@@ -551,15 +551,15 @@ function Enable-ControlledFolderAccess {
         return
     }
     
-    # CRITICAL FIX: Defender Service MUSS laufen!
-    Write-Verbose "Pruefe Defender Service Status..."
+    # CRITICAL FIX: Defender Service MUST be running!
+    Write-Verbose "Checking Defender Service status..."
     try {
         $defenderService = Get-Service -Name WinDefend -ErrorAction Stop
         if ($defenderService.Status -ne 'Running') {
             Write-Info (Get-LocalizedString 'CoreCFAStarting')
             Start-Service -Name WinDefend -ErrorAction Stop
             Start-Sleep -Seconds 3
-            Write-Verbose "Defender Service gestartet"
+            Write-Verbose "Defender Service started"
         }
     }
     catch {
@@ -570,7 +570,7 @@ function Enable-ControlledFolderAccess {
     
     try {
         # Enable Controlled Folder Access via PowerShell
-        # CRITICAL: 3 Sekunden Delay NACH Service-Start wegen Defender-Initialisierung
+        # CRITICAL: 3 second delay AFTER service start due to Defender initialization
         Write-Verbose "Warte 3 Sekunden auf Defender-Initialisierung..."
         Start-Sleep -Seconds 3
         
@@ -578,7 +578,7 @@ function Enable-ControlledFolderAccess {
         # Suppress unwanted output
         $null = Set-MpPreference -EnableControlledFolderAccess Enabled -ErrorAction SilentlyContinue
         
-        # Verify nach weiteren 2 Sekunden
+        # Verify after additional 2 seconds
         Start-Sleep -Seconds 2
         $mpPrefs = Get-MpPreference -ErrorAction SilentlyContinue
         
@@ -599,8 +599,8 @@ function Enable-ControlledFolderAccess {
         }
     }
     catch {
-        # Ignore bekanntes Defender Timing-Problem (0x800106ba)
-        # Funktionalitaet wird trotzdem aktiviert - Fehler ist kosmetisch
+        # Ignore known Defender timing issue (0x800106ba)
+        # Functionality will still be activated - error is cosmetic
         if ($_.Exception.Message -notmatch '0x800106ba') {
             # Fallback: Registry method
             Write-Verbose "PowerShell cmdlet failed, using Registry method"
@@ -645,7 +645,7 @@ function Enable-ExploitProtection {
     Write-Info (Get-LocalizedString 'CoreExploitConfiguring')
     
     try {
-        # Check ob Cmdlet verfuegbar ist (Windows 10 1709+)
+        # Check if cmdlet is available (Windows 10 1709+)
         if (-not (Get-Command Set-ProcessMitigation -ErrorAction SilentlyContinue)) {
             Write-Warning-Custom "Set-ProcessMitigation Cmdlet nicht verfuegbar (Windows 10 1709+ erforderlich)"
             return
@@ -754,13 +754,13 @@ function Disable-AutoPlayAndAutoRun {
     # Machine-Level (HKLM) - System-weite Einstellung
     $explorerPathMachine = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer"
     
-    # 0xFF = 11111111 in binary = Alle Laufwerkstypen
+    # 0xFF = 11111111 in binary = All drive types
     # Bit 0x01: Unknown, 0x02: Removable, 0x04: Fixed, 0x08: Network
     # 0x10: CD-ROM, 0x20: RAM Disk, 0x40-0x80: Reserved
     [void](Set-RegistryValue -Path $explorerPathMachine -Name "NoDriveTypeAutoRun" -Value 0xFF -Type DWord `
         -Description "AutoPlay auf allen Laufwerkstypen deaktiviert")
     
-    # AutoRun komplett deaktivieren (autorun.inf ignorieren)
+    # Disable AutoRun completely (ignore autorun.inf)
     [void](Set-RegistryValue -Path $explorerPathMachine -Name "NoAutorun" -Value 1 -Type DWord `
         -Description "AutoRun global deaktiviert (autorun.inf ignoriert)")
     
@@ -773,7 +773,7 @@ function Disable-AutoPlayAndAutoRun {
     [void](Set-RegistryValue -Path $explorerPathUser -Name "NoAutorun" -Value 1 -Type DWord `
         -Description "AutoRun User-Level deaktiviert")
     
-    # Alternative Registry-Pfad (fuer aeltere Windows-Versionen)
+    # Alternative Registry path (for older Windows versions)
     $autorunPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer\NoDriveTypeAutoRun"
     if (Test-Path $autorunPath) {
         [void](Set-RegistryValue -Path $autorunPath -Name "NoDriveTypeAutoRun" -Value 0xFF -Type DWord `
@@ -814,14 +814,14 @@ function Set-SmartScreenExtended {
     
     # RequireAdmin = Unbekannte Apps brauchen Admin-Rechte
     # Warn = Warnung (default)
-    # Off = Deaktiviert (NICHT empfohlen!)
+    # Off = Disabled (NOT recommended!)
     [void](Set-RegistryValue -Path $appsPath -Name "SmartScreenEnabled" -Value "RequireAdmin" -Type String `
         -Description "SmartScreen: Unbekannte Apps brauchen Admin-Prompt")
     
     # ===== EDGE SMARTSCREEN =====
     $edgePath = "HKLM:\SOFTWARE\Policies\Microsoft\Edge"
     
-    # SmartScreen aktiviert
+    # SmartScreen enabled
     [void](Set-RegistryValue -Path $edgePath -Name "SmartScreenEnabled" -Value 1 -Type DWord `
         -Description "Edge: SmartScreen aktiviert")
     
@@ -834,22 +834,22 @@ function Set-SmartScreenExtended {
     # ===== PHISHING FILTER =====
     $phishingPathHKCU = "HKCU:\SOFTWARE\Policies\Microsoft\MicrosoftEdge\PhishingFilter"
     
-    # Phishing Filter aktiviert
+    # Phishing Filter enabled
     [void](Set-RegistryValue -Path $phishingPathHKCU -Name "EnabledV9" -Value 1 -Type DWord `
         -Description "Phishing Filter aktiviert")
     
-    # Prevent Override (User kann Warnung NICHT ignorieren)
+    # Prevent Override (user CANNOT ignore warning)
     [void](Set-RegistryValue -Path $phishingPathHKCU -Name "PreventOverride" -Value 1 -Type DWord `
-        -Description "Phishing-Warnungen koennen nicht uebersprungen werden")
+        -Description "Phishing warnings cannot be bypassed")
     
     # ===== ENHANCED PHISHING PROTECTION (Windows 11) =====
-    # HINWEIS: WTDS = Windows Threat Detection Service
-    # Diese Keys koennen TrustedInstaller-protected sein oder nicht existieren
+    # NOTE: WTDS = Windows Threat Detection Service
+    # These keys can be TrustedInstaller-protected or may not exist
     $enhancedPhishingPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WTDS\Components"
     
-    # Enhanced Phishing Protection aktivieren (mit Ownership-Management)
+    # Enable Enhanced Phishing Protection (with ownership management)
     if (Get-Command Set-RegistryValueWithOwnership -ErrorAction SilentlyContinue) {
-        # Verwende Ownership-Management falls verfuegbar (TrustedInstaller-protected Keys)
+        # Use ownership management if available (TrustedInstaller-protected keys)
         Set-RegistryValueWithOwnership -Path $enhancedPhishingPath -Name "ServiceEnabled" -Value 1 -Type DWord `
             -Description "Enhanced Phishing Protection (Win11)" | Out-Null
         
@@ -860,7 +860,7 @@ function Set-SmartScreenExtended {
             -Description "Warnung bei Start unsicherer Apps" | Out-Null
     }
     else {
-        # Fallback ohne Ownership (koennte fehlschlagen)
+        # Fallback without ownership (could fail)
         Write-Verbose "Set-RegistryValueWithOwnership nicht verfuegbar - verwende Standard-Methode"
         [void](Set-RegistryValue -Path $enhancedPhishingPath -Name "ServiceEnabled" -Value 1 -Type DWord `
             -Description "Enhanced Phishing Protection (Win11)")
@@ -912,7 +912,7 @@ function Set-SMBHardening {
     $smbServerPath = "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters"
     
     # 1. SMB Authentication Rate Limiter (NEW in Baseline)
-    # Schutz gegen Brute-Force Angriffe: 2000ms Delay zwischen fehlgeschlagenen Auth-Versuchen
+    # Protection against brute-force attacks: 2000ms delay between failed auth attempts
     Set-RegistryValue -Path $smbServerPath -Name "InvalidAuthenticationDelayTimeInMs" -Value 2000 -Type DWord `
         -Description "SMB Auth Rate Limiter: 2000ms delay (Brute-Force Protection)"
     Set-RegistryValue -Path $smbServerPath -Name "EnableAuthenticationRateLimiter" -Value 1 -Type DWord `
@@ -971,15 +971,15 @@ function Set-SMBHardening {
     Write-Success "SMB Client Hardening abgeschlossen"
     
     # ===========================
-    # SMB1 DEAKTIVIEREN (CRITICAL!)
+    # DISABLE SMB1 (CRITICAL!)
     # ===========================
     Write-Info "Deaktiviere SMB1 (Legacy-Protokoll)..."
     
-    # SMB1 Server deaktivieren
+    # Disable SMB1 Server
     Set-RegistryValue -Path $smbServerPath -Name "SMB1" -Value 0 -Type DWord `
         -Description "SMB1 Server deaktivieren (unsicher!)"
     
-    # SMB1 Client deaktivieren
+    # Disable SMB1 Client
     Set-RegistryValue -Path $smbClientPath -Name "DisableSmb1" -Value 1 -Type DWord `
         -Description "SMB1 Client deaktivieren"
     
@@ -1015,7 +1015,7 @@ function Set-SMBHardening {
     Set-RegistryValue -Path $ntlmPath -Name "RequireSignOrSeal" -Value 1 -Type DWord `
         -Description "NTLM Sign/Seal erzwingen"
     
-    # LLMNR AUS
+    # LLMNR OFF
     $llmnrPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\DNSClient"
     [void](Set-RegistryValue -Path $llmnrPath -Name "EnableMulticast" -Value 0 -Type DWord -Description "LLMNR deaktivieren")
     
@@ -1042,14 +1042,14 @@ function Disable-AnonymousSIDEnumeration {
     $lsaPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Lsa"
     
     # 1. EveryoneIncludesAnonymous = 0
-    # Verhindert dass "Everyone" Gruppe auch anonyme User beinhaltet
-    # Ohne das: Anonymous User koennen alle User-Accounts sehen!
+    # Prevents "Everyone" group from including anonymous users
+    # Without this: Anonymous users can see all user accounts!
     Set-RegistryValue -Path $lsaPath -Name "EveryoneIncludesAnonymous" -Value 0 -Type DWord `
         -Description "Everyone beinhaltet KEINE anonymen User"
     
     # 2. NoLMHash = 1
-    # Deaktiviert LM Hashes komplett (unsicher, DES-basiert)
-    # LM Hash kann in Sekunden geknackt werden!
+    # Disables LM hashes completely (insecure, DES-based)
+    # LM hash can be cracked in seconds!
     Set-RegistryValue -Path $lsaPath -Name "NoLMHash" -Value 1 -Type DWord `
         -Description "LM Hashes deaktivieren (veraltet seit 1992)"
     
@@ -1074,17 +1074,17 @@ function Disable-NetworkLegacyProtocols {
     
     Write-Section "Legacy-Netzwerkprotokolle deaktivieren (mDNS/WPAD)"
     
-    # WPAD (Web Proxy Auto-Discovery) deaktivieren
+    # Disable WPAD (Web Proxy Auto-Discovery)
     $wpadPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\Wpad"
     [void](Set-RegistryValue -Path $wpadPath -Name "DoNotUseWPAD" -Value 1 -Type DWord `
         -Description "WPAD deaktivieren")
     
-    # WinHTTP Auto-Proxy deaktivieren
+    # Disable WinHTTP Auto-Proxy
     $winHttpPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\WinHttp"
     [void](Set-RegistryValue -Path $winHttpPath -Name "DisableWpad" -Value 1 -Type DWord `
         -Description "WinHTTP WPAD deaktivieren")
     
-    # ===== TRIPLE-KILL: Firewall-Regeln fuer ALLE Legacy-Protokolle =====
+    # ===== TRIPLE-KILL: Firewall rules for ALL legacy protocols =====
     Write-Info "Firewall-Regeln werden erstellt (Triple-Kill Mode)..."
     
     # All rules have unique NoID- prefix for idempotency
@@ -1141,12 +1141,12 @@ function Disable-NetworkLegacyProtocols {
     
     Write-Success "Triple-Kill Firewall-Regeln: $createdRules neu erstellt, $($firewallRules.Count - $createdRules) bereits vorhanden"
     
-    # WlanSvc mDNS deaktivieren (Windows 11 spezifisch)
+    # Disable WlanSvc mDNS (Windows 11 specific)
     $wlanPath = "HKLM:\SYSTEM\CurrentControlSet\Services\WlanSvc\Parameters"
     [void](Set-RegistryValue -Path $wlanPath -Name "DisableMdnsDiscovery" -Value 1 -Type DWord `
         -Description "WlanSvc mDNS Discovery deaktivieren")
     
-    # LLMNR (bereits in Set-SMBHardening, aber sicherstellen)
+    # LLMNR (already in Set-SMBHardening, but ensure)
     $llmnrPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\DNSClient"
     [void](Set-RegistryValue -Path $llmnrPath -Name "EnableMulticast" -Value 0 -Type DWord `
         -Description "LLMNR deaktivieren (redundant check)")
@@ -1173,7 +1173,7 @@ function Enable-NetworkStealthMode {
     
     Write-Info "Network Discovery und Broadcasting wird deaktiviert..."
     
-    # Network Discovery komplett deaktivieren (Registry)
+    # Disable Network Discovery completely (Registry)
     $netDiscPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Network\NewNetworkWindowOff"
     if (-not (Test-Path -Path $netDiscPath)) {
         try {
@@ -1190,11 +1190,11 @@ function Enable-NetworkStealthMode {
     [void](Set-RegistryValue -Path $ndGpPath -Name "NC_ShowSharedAccessUI" -Value 0 -Type DWord `
         -Description "Network Discovery UI deaktivieren")
     
-    # File and Printer Sharing deaktivieren (Firewall-Regeln)
+    # Disable File and Printer Sharing (Firewall rules)
     try {
         Write-Info "File and Printer Sharing Firewall-Regeln werden deaktiviert..."
         
-        # SilentlyContinue wenn Regeln nicht existieren (Windows 11 25H2)
+        # SilentlyContinue if rules don't exist (Windows 11 25H2)
         Disable-NetFirewallRule -DisplayGroup "File and Printer Sharing" -ErrorAction SilentlyContinue
         Disable-NetFirewallRule -DisplayGroup "Network Discovery" -ErrorAction SilentlyContinue
         
@@ -1204,10 +1204,10 @@ function Enable-NetworkStealthMode {
         Write-Verbose "Firewall-Regeln Fehler: $_"
     }
     
-    # Network Location Awareness (NLA) - nur Core behalten
-    # NICHT deaktivieren! Wird fuer WLAN benoetigt
+    # Network Location Awareness (NLA) - keep core only
+    # DO NOT disable! Required for WLAN
     
-    # HomeGroup Services (Legacy - Windows 11 hat diese nicht mehr)
+    # HomeGroup Services (Legacy - Windows 11 no longer has these)
     $homegroupServices = @("HomeGroupListener", "HomeGroupProvider")
     foreach ($hgSvc in $homegroupServices) {
         if (Stop-ServiceSafe -ServiceName $hgSvc) {
@@ -1223,12 +1223,12 @@ function Enable-NetworkStealthMode {
     [void](Set-RegistryValue -Path $nlmPath -Name "NC_AllowNetBridge_NLA" -Value 0 -Type DWord `
         -Description "Network Bridge deaktivieren")
     
-    # Wi-Fi Sense deaktivieren (automatisches Teilen von WLAN-Passwoertern)
+    # Disable Wi-Fi Sense (automatic sharing of WLAN passwords)
     $wifiSensePath = "HKLM:\SOFTWARE\Microsoft\WcmSvc\wifinetworkmanager\config"
     [void](Set-RegistryValue -Path $wifiSensePath -Name "AutoConnectAllowedOEM" -Value 0 -Type DWord `
         -Description "Wi-Fi Sense Auto-Connect deaktivieren")
     
-    # Windows Connect Now (WCN) deaktivieren
+    # Disable Windows Connect Now (WCN)
     $wcnPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WCN\Registrars"
     [void](Set-RegistryValue -Path $wcnPath -Name "EnableRegistrars" -Value 0 -Type DWord `
         -Description "Windows Connect Now deaktivieren")
@@ -1236,7 +1236,7 @@ function Enable-NetworkStealthMode {
     [void](Set-RegistryValue -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WCN\UI" -Name "DisableWcnUi" -Value 1 -Type DWord `
         -Description "WCN UI deaktivieren")
     
-    # Peer-to-Peer Networking deaktivieren (Registry-Level)
+    # Disable Peer-to-Peer Networking (Registry-Level)
     $p2pPath = "HKLM:\SOFTWARE\Policies\Microsoft\Peernet"
     [void](Set-RegistryValue -Path $p2pPath -Name "Disabled" -Value 1 -Type DWord `
         -Description "Peer-to-Peer Networking deaktivieren")
@@ -1269,7 +1269,7 @@ function Disable-UnnecessaryServices {
     
     Write-Section (Get-LocalizedString 'CoreServicesTitle')
     
-    # Service-Liste zum Deaktivieren (CIS Level 1 + Level 2)
+    # Service list to disable (CIS Level 1 + Level 2)
     $servicesToDisable = @(
         @{Name="RemoteRegistry"; DisplayName="Remote Registry"}
         @{Name="SSDPSRV"; DisplayName="SSDP Discovery (UPnP)"}
@@ -1287,9 +1287,9 @@ function Disable-UnnecessaryServices {
         @{Name="RpcLocator"; DisplayName="Remote Procedure Call (RPC) Locator"}
         @{Name="RemoteAccess"; DisplayName="Routing and Remote Access"}
         # [OK] Smart Card Services BLEIBEN AKTIV (User-Request)
-        # @{Name="SCardSvr"; DisplayName="Smart Card"}  # NICHT DEAKTIVIEREN
-        # @{Name="ScDeviceEnum"; DisplayName="Smart Card Device Enumeration"}  # NICHT DEAKTIVIEREN
-        # @{Name="SCPolicySvc"; DisplayName="Smart Card Removal Policy"}  # NICHT DEAKTIVIEREN
+        # @{Name="SCardSvr"; DisplayName="Smart Card"}  # DO NOT DISABLE
+        # @{Name="ScDeviceEnum"; DisplayName="Smart Card Device Enumeration"}  # DO NOT DISABLE
+        # @{Name="SCPolicySvc"; DisplayName="Smart Card Removal Policy"}  # DO NOT DISABLE
         @{Name="SNMPTRAP"; DisplayName="SNMP Trap"}
         @{Name="WwanSvc"; DisplayName="WWAN AutoConfig (Mobile Broadband)"}
         @{Name="fdPHost"; DisplayName="Function Discovery Provider Host"}
@@ -1346,7 +1346,7 @@ function Disable-AdministrativeShares {
     
     Write-Info (Get-LocalizedString 'CoreAdminSharesDisabling')
     
-    # Registry: Administrative Shares deaktivieren (Server & Workstation)
+    # Registry: Disable Administrative Shares (Server & Workstation)
     $autoSharePath = "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters"
     
     # Server (Windows Server)
@@ -1360,11 +1360,11 @@ function Disable-AdministrativeShares {
     Write-Success (Get-LocalizedString 'CoreAdminSharesDisabled')
     Write-Warning-Custom (Get-LocalizedString 'CoreAdminSharesIPCWarning')
     
-    # File and Printer Sharing wird bereits in Enable-NetworkStealthMode deaktiviert (kein Duplikat)
+    # File and Printer Sharing is already disabled in Enable-NetworkStealthMode (no duplicate)
     
     Write-Info (Get-LocalizedString 'CoreAdminSharesRebootNote')
     
-    # IPC$ HaeRTEN (kann nicht deaktiviert werden, aber wir schraenken Anonymous Access ein)
+    # Harden IPC$ (cannot be disabled, but we restrict Anonymous Access)
     Write-Info (Get-LocalizedString 'CoreAdminSharesIPCHardening')
     
     # Restrict anonymous access to Named Pipes and Shares
@@ -1424,7 +1424,7 @@ function Set-SecureAdministratorAccount {
     $rng = $null
     $rngPassword = $null
     
-    # Administrator SID ist immer gleich: S-1-5-21-*-500
+    # Administrator SID is always the same: S-1-5-21-*-500
     try {
         $adminAccount = Get-LocalUser -ErrorAction Stop | Where-Object { $_.SID -like "*-500" }
         
@@ -1442,7 +1442,7 @@ function Set-SecureAdministratorAccount {
         $randomNumber = [System.BitConverter]::ToUInt32($randomBytes, 0) % 9000 + 1000
         $newAdminName = "SecAdmin_$randomNumber"
         
-        # Umbenennen
+        # Rename
         try {
             Rename-LocalUser -Name $adminAccount.Name -NewName $newAdminName -ErrorAction Stop
             Write-Success (Get-LocalizedString 'CoreAdminAccountRenamed' -FormatArgs $adminAccount.Name, $newAdminName)
@@ -1462,17 +1462,17 @@ function Set-SecureAdministratorAccount {
         $rngPass.GetBytes($passwordBytes)
         $rngPass.Dispose()
         
-        # Convert zu Base64 (sicher und komplex)
+        # Convert to Base64 (secure and complex)
         $securePasswordString = [Convert]::ToBase64String($passwordBytes)
         
-        # SecureString erstellen (OHNE -AsPlainText!)
+        # Create SecureString (WITHOUT -AsPlainText!)
         $securePassword = New-Object System.Security.SecureString
         foreach ($char in $securePasswordString.ToCharArray()) {
             $securePassword.AppendChar($char)
         }
         $securePassword.MakeReadOnly()
         
-        # Passwort setzen
+        # Set password
         try {
             Set-LocalUser -Name $newAdminName -Password $securePassword -ErrorAction Stop
             Write-Success (Get-LocalizedString 'CoreAdminAccountPasswordSet')
@@ -1482,7 +1482,7 @@ function Set-SecureAdministratorAccount {
             return $false
         }
         
-        # Account DEAKTIVIEREN (CIS Best Practice)
+        # Account DISABLE (CIS Best Practice)
         try {
             Disable-LocalUser -Name $newAdminName -ErrorAction Stop
             Write-Success (Get-LocalizedString 'CoreAdminAccountDisabled')
@@ -1505,21 +1505,21 @@ function Set-SecureAdministratorAccount {
         Write-Warning-Custom (Get-LocalizedString 'CoreAdminAccountWarning5')
         Write-Warning-Custom (Get-LocalizedString 'CoreAdminAccountWarning1')
         
-        # GUEST ACCOUNT UMBENENNEN (CIS Benchmark + Defense-in-Depth)
+        # GUEST ACCOUNT RENAME (CIS Benchmark + Defense-in-Depth)
         Write-Info (Get-LocalizedString 'CoreAdminAccountGuestHardening')
         
         try {
-            # Guest SID ist immer gleich: S-1-5-21-*-501
+            # Guest SID is always the same: S-1-5-21-*-501
             $guestAccount = Get-LocalUser -ErrorAction Stop | Where-Object { $_.SID -like "*-501" }
             
             if ($guestAccount) {
-                # Guest Account sollte bereits disabled sein (Windows default)
+                # Guest Account should already be disabled (Windows default)
                 if ($guestAccount.Enabled) {
                     Disable-LocalUser -Name $guestAccount.Name -ErrorAction Stop
                     Write-Info (Get-LocalizedString 'CoreAdminAccountGuestDisabled')
                 }
                 
-                # Umbenennen (Defense-in-Depth: Name verschleiern)
+                # Rename (Defense-in-Depth: Name verschleiern)
                 $rngGuest = [System.Security.Cryptography.RandomNumberGenerator]::Create()
                 $randomBytesGuest = New-Object byte[] 4
                 $rngGuest.GetBytes($randomBytesGuest)
@@ -1577,25 +1577,25 @@ function Enable-CloudflareDNSoverHTTPS {
         Aktiviert Windows 11 native DoH und setzt DNS auf Cloudflare 1.1.1.1.
         Best Practice 25H2: CmdletBinding, Try-Catch fuer DNS-Ops, Restart-Service Error-Handling.
         
-        [!] WICHTIG - KEIN DNS FALLBACK AUS SICHERHEITSGRÜNDEN!
+        [!] IMPORTANT - NO DNS FALLBACK FOR SECURITY REASONS!
         
-        DESIGN-ENTSCHEIDUNG: Diese Funktion implementiert BEWUSST KEINEN automatischen
-        Fallback zu den alten DNS-Servern wenn Cloudflare nicht erreichbar ist.
+        DESIGN DECISION: This function deliberately implements NO automatic
+        fallback to old DNS servers if Cloudflare is unreachable.
         
-        GRÜNDE (Security & Privacy First):
-        1. PRIVACY: ISP DNS-Server tracken User-Verhalten (welche Domains besucht werden)
-        2. SECURITY: Unsichere DNS-Server (kein DoH) sind anfällig für DNS-Spoofing
-        3. TRANSPARENZ: User soll bewusst merken wenn Cloudflare down ist
-        4. KEINE SILENT FAILURES: Lieber kurz kein Internet als unsicher/tracked
+        REASONS (Security & Privacy First):
+        1. PRIVACY: ISP DNS servers track user behavior (which domains are visited)
+        2. SECURITY: Insecure DNS servers (no DoH) are vulnerable to DNS spoofing
+        3. TRANSPARENCY: User should consciously notice when Cloudflare is down
+        4. NO SILENT FAILURES: Better to have no internet than insecure/tracked
         
-        WENN Cloudflare down ist:
-        - Internet funktioniert NICHT -> User merkt es sofort
-        - User kann manuell DNS ändern (z.B. auf Quad9 oder Google)
-        - Besser: Bewusste Entscheidung statt automatischer Fallback zu unsicher
+        IF Cloudflare is down:
+        - Internet will NOT work -> User notices immediately
+        - User can manually change DNS (e.g. to Quad9 or Google)
+        - Better: Conscious decision instead of automatic fallback to insecure
         
-        ALTERNATIVE für Corporate/VPN:
-        - Corporate Networks sollten ihre eigenen DNS-Server verwenden
-        - VPN-Adapter werden automatisch übersprungen (behalten ihre DNS)
+        ALTERNATIVE for Corporate/VPN:
+        - Corporate networks should use their own DNS servers
+        - VPN adapters are automatically skipped (keep their DNS)
     .EXAMPLE
         Enable-CloudflareDNSoverHTTPS
     #>
@@ -1611,79 +1611,79 @@ function Enable-CloudflareDNSoverHTTPS {
     Write-Host ""
     Write-Info (Get-LocalizedString 'CoreDNSSwitching')
     
-    # CRITICAL FIX v1.7.11: MS-DOKUMENTIERTE METHODE!
-    # Quelle: Microsoft Learn + netsh dnsclient Dokumentation
+    # CRITICAL FIX v1.7.11: MS-DOCUMENTED METHOD!
+    # Source: Microsoft Learn + netsh dnsclient documentation
     # 
-    # ALT (funktionierte nicht richtig):
-    # - Add-DnsClientDohServerAddress (nur basic mapping)
-    # - DohFlags Registry-Hacks (nicht supported!)
-    # - IPv6 DoH wurde nie validiert
+    # OLD (didn't work correctly):
+    # - Add-DnsClientDohServerAddress (only basic mapping)
+    # - DohFlags Registry hacks (not supported!)
+    # - IPv6 DoH was never validated
     # 
-    # NEU (MS-dokumentiert):
-    # - netsh dnsclient add encryption (offiziell!)
-    # - netsh dnsclient set global doh=yes (global aktivieren!)
-    # - IPv6 temporär nach vorne für Validierung
-    # - Funktioniert für IPv4 UND IPv6!
+    # NEW (MS-documented):
+    # - netsh dnsclient add encryption (official!)
+    # - netsh dnsclient set global doh=yes (global enable!)
+    # - IPv6 temporarily first for validation
+    # - Works for IPv4 AND IPv6!
     
     Write-Info (Get-LocalizedString 'CoreDNSStep1')
     
-    # A. DoH-Server-Mapping eintragen (IPv4 + IPv6)
-    # WICHTIG: Erst alte Einträge entfernen (idempotent!)
-    Write-Verbose "Entferne alte DoH-Eintraege (falls vorhanden)..."
+    # A. Register DoH server mapping (IPv4 + IPv6)
+    # IMPORTANT: Remove old entries first (idempotent!)
+    Write-Verbose "Removing old DoH entries (if present)..."
     
     $serversToRemove = @("1.1.1.1", "1.0.0.1", "2606:4700:4700::1111", "2606:4700:4700::1001")
     foreach ($server in $serversToRemove) {
         try {
             $null = netsh dnsclient delete encryption server=$server 2>&1
-            Write-Verbose "  Alter DoH-Eintrag entfernt: $server"
+            Write-Verbose "  Old DoH entry removed: $server"
         }
         catch {
-            Write-Verbose "  Kein alter Eintrag: $server (OK)"
+            Write-Verbose "  No old entry: $server (OK)"
         }
     }
     
     # IPv4 Primary (1.1.1.1)
-    Write-Verbose "Registriere DoH fuer 1.1.1.1..."
+    Write-Verbose "Registering DoH for 1.1.1.1..."
     $result = netsh dnsclient add encryption server=1.1.1.1 dohtemplate=https://cloudflare-dns.com/dns-query autoupgrade=yes udpfallback=no 2>&1
     if ($LASTEXITCODE -eq 0) {
-        Write-Verbose "  DoH registriert: 1.1.1.1"
+        Write-Verbose "  DoH registered: 1.1.1.1"
     } else {
-        Write-Warning "DoH fuer 1.1.1.1 konnte nicht registriert werden: $result"
+        Write-Warning "DoH for 1.1.1.1 could not be registered: $result"
     }
     
     # IPv4 Secondary (1.0.0.1)
-    Write-Verbose "Registriere DoH fuer 1.0.0.1..."
+    Write-Verbose "Registering DoH for 1.0.0.1..."
     $result = netsh dnsclient add encryption server=1.0.0.1 dohtemplate=https://cloudflare-dns.com/dns-query autoupgrade=yes udpfallback=no 2>&1
     if ($LASTEXITCODE -eq 0) {
-        Write-Verbose "  DoH registriert: 1.0.0.1"
+        Write-Verbose "  DoH registered: 1.0.0.1"
     } else {
-        Write-Verbose "  1.0.0.1 bereits registriert (OK): $result"
+        Write-Verbose "  1.0.0.1 already registered (OK): $result"
     }
     
     # IPv6 Primary (2606:4700:4700::1111)
-    Write-Verbose "Registriere DoH fuer 2606:4700:4700::1111..."
+    Write-Verbose "Registering DoH for 2606:4700:4700::1111..."
     $result = netsh dnsclient add encryption server=2606:4700:4700::1111 dohtemplate=https://cloudflare-dns.com/dns-query autoupgrade=yes udpfallback=no 2>&1
     if ($LASTEXITCODE -eq 0) {
-        Write-Verbose "  DoH registriert: 2606:4700:4700::1111"
+        Write-Verbose "  DoH registered: 2606:4700:4700::1111"
     } else {
-        Write-Verbose "  IPv6 Primary bereits registriert (OK): $result"
+        Write-Verbose "  IPv6 Primary already registered (OK): $result"
     }
     
     # IPv6 Secondary (2606:4700:4700::1001)
-    Write-Verbose "Registriere DoH fuer 2606:4700:4700::1001..."
+    Write-Verbose "Registering DoH for 2606:4700:4700::1001..."
     $result = netsh dnsclient add encryption server=2606:4700:4700::1001 dohtemplate=https://cloudflare-dns.com/dns-query autoupgrade=yes udpfallback=no 2>&1
     if ($LASTEXITCODE -eq 0) {
-        Write-Verbose "  DoH registriert: 2606:4700:4700::1001"
+        Write-Verbose "  DoH registered: 2606:4700:4700::1001"
     } else {
-        Write-Verbose "  IPv6 Secondary bereits registriert (OK): $result"
+        Write-Verbose "  IPv6 Secondary already registered (OK): $result"
     }
     
     Write-Success (Get-LocalizedString 'CoreDNSRegistered')
     
-    # B. Global DoH aktivieren
-    # CRITICAL FIX v1.7.11: doh=auto statt doh=yes für strengere Durchsetzung
-    # auto = nur DoH für bekannte/registrierte Server (kein Fallback!)
-    # yes = DoH wo möglich, aber Fallback erlaubt
+    # B. Enable global DoH
+    # CRITICAL FIX v1.7.11: doh=auto instead of doh=yes for stricter enforcement
+    # auto = only DoH for known/registered servers (no fallback!)
+    # yes = DoH where possible, but fallback allowed
     Write-Info (Get-LocalizedString 'CoreDNSStep2')
     $result = netsh dnsclient set global doh=auto 2>&1
     if ($LASTEXITCODE -eq 0) {
@@ -1692,15 +1692,15 @@ function Enable-CloudflareDNSoverHTTPS {
         Write-Warning (Get-LocalizedString 'CoreDNSGlobalError' -FormatArgs $result)
     }
     
-    # DNS Server auf allen Adaptern setzen (AUSSER VPN!)
+    # Set DNS servers on all adapters (EXCEPT VPN!)
     Write-Info (Get-LocalizedString 'CoreDNSAdapters')
     
     try {
-        # Hole alle aktiven Adapter
+        # Get all active adapters
         $allAdapters = Get-NetAdapter -ErrorAction Stop | Where-Object { $_.Status -eq "Up" }
         
-        # WICHTIG: VPN-Adapter MÜSSEN ausgeschlossen werden!
-        # VPN verwendet eigene DNS-Server - Überschreiben würde VPN-Tunnel brechen!
+        # IMPORTANT: VPN adapters MUST be excluded!
+        # VPN uses its own DNS servers - overwriting would break VPN tunnel!
         
         # Best Practice 25H2: Multi-Layer VPN Detection
         # Source: deploymentresearch.com + Microsoft Docs
@@ -1714,7 +1714,7 @@ function Enable-CloudflareDNSoverHTTPS {
             "*pangp*", "*juniper*", "*checkpoint*", "*sonicwall*"
         )
         
-        # Virtualization Patterns (AUSSCHLIESSEN von VPN-Check)
+        # Virtualization Patterns (EXCLUDE from VPN check)
         $virtualPatterns = @(
             "*Hyper-V*", "*VMware*", "*VirtualBox*", "*Docker*", "*WSL*"
         )
@@ -1757,29 +1757,29 @@ function Enable-CloudflareDNSoverHTTPS {
                     }
                 }
                 
-                # Check 2: InterfaceType (Best Practice von Microsoft)
+                # Check 2: InterfaceType (Best Practice from Microsoft)
                 # 6 = Ethernet, 71 = IEEE 802.11 wireless, 131 = Tunnel (VPN!)
                 if ($adapter.InterfaceType -eq 131) {
                     $isVPN = $true
                     $skipReason = "InterfaceType = 131 (Tunnel)"
                 }
                 
-                # Check 3: MediaType = "Tunnel" (Fallback für ältere PS-Versionen)
+                # Check 3: MediaType = "Tunnel" (fallback for older PS versions)
                 if ($adapter.MediaType -eq "Tunnel") {
                     $isVPN = $true
                     $skipReason = "MediaType = Tunnel"
                 }
                 
-                # Check 4: ComponentID prüfen (tiefere Ebene)
-                # TAP Adapter haben typische ComponentIDs
+                # Check 4: Check ComponentID (deeper level)
+                # TAP adapters have typical ComponentIDs
                 try {
                     if ($adapter.ComponentID -match "tap") {
                         $isVPN = $true
-                        $skipReason = "ComponentID enthält TAP"
+                        $skipReason = "ComponentID contains TAP"
                     }
                 }
                 catch {
-                    # ComponentID nicht verfügbar (nicht kritisch)
+                    # ComponentID not available (not critical)
                 }
             }
             
@@ -1788,10 +1788,10 @@ function Enable-CloudflareDNSoverHTTPS {
                 Write-Warning (Get-LocalizedString 'CoreDNSVPNSkipped' -FormatArgs $adapter.Name, $skipReason)
             }
             elseif ($isVirtualization) {
-                # CRITICAL FIX: Virtualisierungs-Adapter (VMware, Hyper-V, VirtualBox) AUCH skippen!
-                # GRUND: VMs haben eigene DNS-Server (oft Host-IP oder VM-interne DNS)
-                # DoH würde interne VM-DNS-Auflösung brechen!
-                Write-Verbose "Virtualisierungs-Adapter uebersprungen: '$($adapter.Name)' (VM-Adapter brauchen lokale DNS)"
+                # CRITICAL FIX: Skip virtualization adapters (VMware, Hyper-V, VirtualBox) too!
+                # REASON: VMs have their own DNS servers (often host IP or VM-internal DNS)
+                # DoH would break internal VM DNS resolution!
+                Write-Verbose "Virtualization adapter skipped: '$($adapter.Name)' (VM adapters need local DNS)"
             }
             else {
                 $adapters += $adapter
@@ -1816,44 +1816,44 @@ function Enable-CloudflareDNSoverHTTPS {
             try {
                 Write-Info (Get-LocalizedString 'CoreDNSStep3' -FormatArgs $adapter.Name)
                 
-                # CRITICAL FIX v1.7.11: IPv4 + IPv6 ZUSAMMEN setzen!
-                # WICHTIG: IPv6 temporär nach VORNE für Validierung, dann zurück
+                # CRITICAL FIX v1.7.11: Set IPv4 + IPv6 TOGETHER!
+                # IMPORTANT: IPv6 temporarily FIRST for validation, then back
                 
-                # Check ob IPv6 aktiv ist
+                # Check if IPv6 is active
                 $ipv6Binding = Get-NetAdapterBinding -InterfaceAlias $adapter.Name -ComponentID ms_tcpip6 -ErrorAction SilentlyContinue
                 $ipv6Enabled = ($ipv6Binding -and $ipv6Binding.Enabled)
                 
                 if ($ipv6Enabled) {
-                    Write-Verbose "IPv6 ist aktiv - setze IPv6 nach vorne für DoH-Validierung..."
+                    Write-Verbose "IPv6 is active - moving IPv6 to front for DoH validation..."
                     
-                    # IPv6 nach VORNE (temporär für Validierung)
+                    # IPv6 FIRST (temporarily for validation)
                     Set-DnsClientServerAddress -InterfaceAlias $adapter.Name `
                         -ServerAddresses @("2606:4700:4700::1111", "2606:4700:4700::1001", "1.1.1.1", "1.0.0.1") `
                         -ErrorAction Stop
                     
-                    Write-Verbose "IPv6 DNS nach vorne gesetzt (temporaer)"
+                    Write-Verbose "IPv6 DNS moved to front (temporarily)"
                 } else {
-                    Write-Verbose "IPv6 ist NICHT aktiv - nur IPv4..."
+                    Write-Verbose "IPv6 is NOT active - IPv4 only..."
                     
-                    # Nur IPv4
+                    # IPv4 only
                     Set-DnsClientServerAddress -InterfaceAlias $adapter.Name `
                         -ServerAddresses @("1.1.1.1", "1.0.0.1") `
                         -ErrorAction Stop
                 }
                 
-                # CRITICAL FIX v1.7.11: Warte für IPv6 DoH-Validierung
-                # Windows braucht Zeit um IPv6 DoH zu validieren
+                # CRITICAL FIX v1.7.11: Wait for IPv6 DoH validation
+                # Windows needs time to validate IPv6 DoH
                 if ($ipv6Enabled) {
                     Write-Info (Get-LocalizedString 'CoreDNSIPv6Wait')
                     Start-Sleep -Seconds 5
                     
-                    # Setze Reihenfolge zurueck (IPv4 zuerst - schneller)
-                    Write-Verbose "Setze DNS-Reihenfolge zurueck (IPv4 zuerst)..."
+                    # Reset order (IPv4 first - faster)
+                    Write-Verbose "Resetting DNS order (IPv4 first)..."
                     Set-DnsClientServerAddress -InterfaceAlias $adapter.Name `
                         -ServerAddresses @("1.1.1.1", "1.0.0.1", "2606:4700:4700::1111", "2606:4700:4700::1001") `
                         -ErrorAction Stop
                     
-                    Write-Verbose "DNS-Reihenfolge: IPv4 zuerst (optimal)"
+                    Write-Verbose "DNS order: IPv4 first (optimal)"
                     Write-Success (Get-LocalizedString 'CoreDNSAdapterIPv6' -FormatArgs $adapter.Name)
                 } else {
                     Write-Success (Get-LocalizedString 'CoreDNSAdapterIPv4' -FormatArgs $adapter.Name)
@@ -1930,7 +1930,7 @@ function Enable-CloudflareDNSoverHTTPS {
         Write-Error-Custom (Get-LocalizedString 'CoreDNSNetworkError' -FormatArgs $_)
     }
     
-    # DNS Cache leeren (mit Timeout - verhindert Hang)
+    # Clear DNS cache (with timeout - prevents hang)
     $job = $null
     try {
         Write-Info (Get-LocalizedString 'CoreDNSCacheFlushing')
@@ -1957,13 +1957,13 @@ function Enable-CloudflareDNSoverHTTPS {
         }
     }
     
-    # WICHTIG: Dnscache Service NICHT neu starten!
-    # Best Practice 25H2: Service ist geschuetzt und fuehrt zu Script-Hang
-    # DoH wird automatisch beim naechsten DNS-Request aktiviert
+    # IMPORTANT: Do NOT restart Dnscache service!
+    # Best Practice 25H2: Service is protected and leads to script hang
+    # DoH will automatically activate on next DNS request
     Write-Info (Get-LocalizedString 'CoreDNSActivation')
     Write-Verbose "DNS Client Service wird NICHT neu gestartet (geschuetzter Service)"
     
-    # VALIDIERUNG: Pruefe ob DoH wirklich konfiguriert ist
+    # VALIDATION: Check if DoH is really configured
     Write-Host ""
     Write-Info (Get-LocalizedString 'CoreDNSValidating')
     try {
@@ -2031,7 +2031,7 @@ function Disable-RemoteAccessCompletely {
     
     Write-Section (Get-LocalizedString 'CoreRemoteTitle')
     
-    # ===== RDP (Remote Desktop) IMMER deaktivieren (kein Optional!) =====
+    # ===== RDP (Remote Desktop) ALWAYS disable (not optional!) =====
     Write-Info (Get-LocalizedString 'CoreRemoteRDPDisabling')
     
     # Registry: RDP ausschalten
@@ -2039,7 +2039,7 @@ function Disable-RemoteAccessCompletely {
     Set-RegistryValue -Path $rdpPath -Name "fDenyTSConnections" -Value 1 -Type DWord `
         -Description "RDP-Verbindungen verweigern"
     
-    # RDP Service deaktivieren (race-condition-frei)
+    # Disable RDP Service (race-condition-free)
     $rdpServices = @("TermService", "UmRdpService")
     $successCount = 0
     
@@ -2061,10 +2061,10 @@ function Disable-RemoteAccessCompletely {
     
     # Firewall-Regeln HART blockieren
     try {
-        # SilentlyContinue wenn Regeln nicht existieren (Windows 11 25H2)
+        # SilentlyContinue if rules don't exist (Windows 11 25H2)
         Disable-NetFirewallRule -DisplayGroup "Remote Desktop" -ErrorAction SilentlyContinue
         
-        # Zusaetzlich: Explizite Block-Regel fuer RDP Port 3389 (eindeutiger Name)
+        # Additionally: Explicit block rule for RDP Port 3389 (unique name)
         $rdpBlockRule = Get-NetFirewallRule -DisplayName "NoID-Block-RDP-Port-3389" -ErrorAction SilentlyContinue
         if (-not $rdpBlockRule) {
             $null = New-NetFirewallRule -DisplayName "NoID-Block-RDP-Port-3389" `
@@ -2085,7 +2085,7 @@ function Disable-RemoteAccessCompletely {
         Write-Warning (Get-LocalizedString 'CoreRemoteRDPFirewallError' -FormatArgs $_)
     }
     
-    # ===== Remote Registry IMMER deaktivieren =====
+    # ===== Remote Registry ALWAYS disable =====
     Write-Info (Get-LocalizedString 'CoreRemoteRegDisabling')
     
     if (Stop-ServiceSafe -ServiceName "RemoteRegistry") {
@@ -2099,7 +2099,7 @@ function Disable-RemoteAccessCompletely {
     Set-RegistryValue -Path $remoteRegPath -Name "RemoteRegAccess" -Value 0 -Type DWord `
         -Description "Remote Registry Access verweigern"
     
-    # ===== Remote Assistance IMMER deaktivieren =====
+    # ===== Remote Assistance ALWAYS disable =====
     Write-Info (Get-LocalizedString 'CoreRemoteRADisabling')
     
     $raPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Remote Assistance"
@@ -2121,12 +2121,12 @@ function Disable-RemoteAccessCompletely {
     
     Write-Success (Get-LocalizedString 'CoreRemoteRADisabled')
     
-    # ===== Remote Scheduled Tasks deaktivieren =====
+    # ===== Disable Remote Scheduled Tasks =====
     $schedTaskPath = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule"
     Set-RegistryValue -Path $schedTaskPath -Name "DisableRpcOverTcp" -Value 1 -Type DWord `
         -Description "Remote Scheduled Tasks deaktivieren"
     
-    # ===== WinRM (PowerShell Remoting) DEAKTIVIEREN =====
+    # ===== DISABLE WinRM (PowerShell Remoting) =====
     Write-Info (Get-LocalizedString 'CoreRemoteWinRMDisabling')
     
     if (Stop-ServiceSafe -ServiceName "WinRM") {
@@ -2136,9 +2136,9 @@ function Disable-RemoteAccessCompletely {
         Write-Warning (Get-LocalizedString 'CoreRemoteWinRMFailed')
     }
     
-    # WinRM Firewall-Regeln deaktivieren
+    # Disable WinRM Firewall Rules
     try {
-        # SilentlyContinue wenn Regeln nicht existieren (Windows 11 25H2)
+        # SilentlyContinue if rules don't exist (Windows 11 25H2)
         Disable-NetFirewallRule -DisplayGroup "Windows Remote Management" -ErrorAction SilentlyContinue
         Write-Success (Get-LocalizedString 'CoreRemoteWinRMFirewall')
     }
@@ -2194,7 +2194,7 @@ function Set-KerberosPKINITHashAgility {
     
     $kerbPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System\Kerberos\Parameters"
     
-    # Alle modernen Encryption Types
+    # All modern encryption types
     [void](Set-RegistryValue -Path $kerbPath -Name "SupportedEncryptionTypes" -Value 0x7FFFFFFF -Type DWord `
         -Description "Alle modernen Kerberos Enc Types")
     
@@ -2204,7 +2204,7 @@ function Set-KerberosPKINITHashAgility {
     # SHA-256 = 0x8
     # SHA-384 = 0x10
     # SHA-512 = 0x20
-    # Baseline: 0x38 (SHA-256 + SHA-384 + SHA-512, OHNE SHA-1!)
+    # Baseline: 0x38 (SHA-256 + SHA-384 + SHA-512, WITHOUT SHA-1!)
     
     [void](Set-RegistryValue -Path $kerbPath -Name "PKINITHashAlgorithm" -Value 0x38 -Type DWord `
         -Description "PKINIT: SHA-256/384/512 (OHNE SHA-1!)")
@@ -2280,17 +2280,17 @@ function Enable-CredentialGuard {
     # Credential Guard (UEFI Lock)
     [void](Set-RegistryValue -Path $lsaPath -Name "LsaCfgFlags" -Value 1 -Type DWord -Description "Credential Guard (UEFI Lock)")
     
-    # CRITICAL FIX v1.7.6: Windows 11 25H2 benötigt ZUSÄTZLICH Scenarios Keys!
-    # Credential Guard Scenario (PFLICHT für Windows 11 25H2!)
+    # CRITICAL FIX v1.7.6: Windows 11 25H2 requires ADDITIONAL Scenarios keys!
+    # Credential Guard Scenario (REQUIRED for Windows 11 25H2!)
     $cgPath = "HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\CredentialGuard"
-    [void](Set-RegistryValue -Path $cgPath -Name "Enabled" -Value 1 -Type DWord -Description "Credential Guard Scenario aktivieren")
+    [void](Set-RegistryValue -Path $cgPath -Name "Enabled" -Value 1 -Type DWord -Description "Enable Credential Guard Scenario")
     
     # HVCI (Memory Integrity)
-    # WICHTIG: WasEnabledBy = 2 (User) damit GUI NICHT ausgegraut wird!
-    # 0 = System/Policy (GUI ausgegraut), 1 = OEM (GUI ausgegraut), 2 = User (GUI editierbar)
+    # IMPORTANT: WasEnabledBy = 2 (User) so GUI is NOT grayed out!
+    # 0 = System/Policy (GUI grayed), 1 = OEM (GUI grayed), 2 = User (GUI editable)
     $hvciPath = "HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity"
-    [void](Set-RegistryValue -Path $hvciPath -Name "Enabled" -Value 1 -Type DWord -Description "HVCI/Memory Integrity aktivieren")
-    [void](Set-RegistryValue -Path $hvciPath -Name "WasEnabledBy" -Value 2 -Type DWord -Description "HVCI via User aktiviert (GUI bleibt editierbar!)")
+    [void](Set-RegistryValue -Path $hvciPath -Name "Enabled" -Value 1 -Type DWord -Description "Enable HVCI/Memory Integrity")
+    [void](Set-RegistryValue -Path $hvciPath -Name "WasEnabledBy" -Value 2 -Type DWord -Description "HVCI enabled via User (GUI remains editable!)")
     
     # LSA Protection
     [void](Set-RegistryValue -Path $lsaPath -Name "RunAsPPL" -Value 1 -Type DWord -Description "LSA als PPL")
@@ -2308,46 +2308,46 @@ function Enable-BitLockerPolicies {
     .SYNOPSIS
         Konfiguriert BitLocker Policies
     .DESCRIPTION
-        Aktiviert XTS-AES-256 Encryption, TPM 2.0 + PIN Policies.
-        WICHTIG: Prüft ob BitLocker bereits aktiviert ist (Windows 11 Auto-Encryption!)
-        Best Practice 25H2: CmdletBinding + BitLocker-Status-Check.
+        Enables XTS-AES-256 Encryption, TPM 2.0 + PIN Policies.
+        IMPORTANT: Checks if BitLocker is already enabled (Windows 11 Auto-Encryption!)
+        Best Practice 25H2: CmdletBinding + BitLocker status check.
         
-        [INFO] WICHTIG - KEIN AUTO-BACKUP DES RECOVERY KEYS!
+        [INFO] IMPORTANT - NO AUTO-BACKUP OF RECOVERY KEY!
         
-        DESIGN-ENTSCHEIDUNG: Diese Funktion implementiert BEWUSST KEIN automatisches
-        Backup des BitLocker Recovery Keys.
+        DESIGN DECISION: This function deliberately implements NO automatic
+        backup of the BitLocker Recovery Key.
         
-        GRÜNDE (Windows 11 25H2 macht das automatisch):
+        REASONS (Windows 11 25H2 does this automatically):
         
         1. WINDOWS 11 AUTO-ENCRYPTION:
-           - Windows 11 25H2 aktiviert BitLocker AUTOMATISCH bei Neuinstallation
-           - Voraussetzungen: TPM 2.0 vorhanden + Microsoft-Konto angemeldet
-           - Geschieht ohne User-Interaktion im Hintergrund
+           - Windows 11 25H2 enables BitLocker AUTOMATICALLY on fresh install
+           - Requirements: TPM 2.0 present + Microsoft account logged in
+           - Happens without user interaction in background
         
-        2. RECOVERY KEY AUTOMATISCH IM MS-KONTO:
-           - Windows speichert Recovery Key AUTOMATISCH im Microsoft-Konto
-           - User kann Key jederzeit abrufen: https://account.microsoft.com/devices/recoverykey
-           - Synchronisiert über alle Geräte mit gleichem MS-Konto
+        2. RECOVERY KEY AUTOMATICALLY IN MS ACCOUNT:
+           - Windows stores Recovery Key AUTOMATICALLY in Microsoft account
+           - User can retrieve key anytime: https://account.microsoft.com/devices/recoverykey
+           - Synchronized across all devices with same MS account
         
-        3. KEIN ZUSÄTZLICHES BACKUP NÖTIG:
-           - Microsoft-Konto ist der sichere Speicherort (verschlüsselt)
-           - User kann Key bei Bedarf herunterladen/ausdrucken
-           - Backup in lokale Datei wäre WENIGER sicher (könnte verloren gehen)
+        3. NO ADDITIONAL BACKUP NEEDED:
+           - Microsoft account is the secure storage location (encrypted)
+           - User can download/print key if needed
+           - Backup to local file would be LESS secure (could be lost)
         
-        4. USER HAT KONTROLLE:
-           - User kann Recovery Key selbst verwalten über MS-Konto
-           - User kann Key zusätzlich exportieren/ausdrucken wenn gewünscht
-           - Keine Zwangs-Backups auf lokale Dateien/USB-Sticks
+        4. USER HAS CONTROL:
+           - User can manage Recovery Key via MS account
+           - User can additionally export/print key if desired
+           - No forced backups to local files/USB sticks
         
-        WENN BitLocker bereits aktiv ist:
-        - Diese Function setzt nur Policies für zukünftige Änderungen
-        - Recovery Key ist bereits im MS-Konto gespeichert (bei Auto-Encryption)
-        - User wird informiert wo Recovery Key angezeigt werden kann
+        IF BitLocker is already active:
+        - This function only sets policies for future changes
+        - Recovery Key is already stored in MS account (with Auto-Encryption)
+        - User is informed where Recovery Key can be viewed
         
-        MANUELLE AKTIVIERUNG (falls noch nicht aktiv):
-        - User kann BitLocker manuell aktivieren über Systemsteuerung
-        - Windows fragt dann nach Speicherort für Recovery Key
-        - Empfehlung: Microsoft-Konto (automatisch + sicher)
+        MANUAL ACTIVATION (if not yet active):
+        - User can manually enable BitLocker via Control Panel
+        - Windows will then ask for Recovery Key storage location
+        - Recommendation: Microsoft account (automatic + secure)
     .EXAMPLE
         Enable-BitLockerPolicies
     #>
@@ -2357,19 +2357,19 @@ function Enable-BitLockerPolicies {
     
     Write-Section "BitLocker Policies"
     
-    # CHECK 1: AES-NI Support (Hardware-Unterstuetzung fuer AES-256)
+    # CHECK 1: AES-NI Support (hardware support for AES-256)
     $hasAESNI = $false
     $cpuName = "Unknown"
     
     try {
-        # Pruefe direkt auf AES-NI Support (Intel/AMD CPU Feature Flag)
-        # AES-NI ist noetig fuer performante AES-256 Verschluesselung
+        # Check directly for AES-NI support (Intel/AMD CPU feature flag)
+        # AES-NI is required for performant AES-256 encryption
         $cpuFeatures = Get-CimInstance -ClassName Win32_Processor -ErrorAction Stop
         $cpuName = $cpuFeatures.Name
         
-        # Windows speichert CPU Features nicht direkt in Win32_Processor
-        # Aber wir koennen einen indirekten Check machen:
-        # Wenn BitLocker bereits mit AES-256 laeuft, wird AES-NI unterstuetzt
+        # Windows does not store CPU features directly in Win32_Processor
+        # But we can do an indirect check:
+        # If BitLocker already runs with AES-256, AES-NI is supported
         try {
             $blVolume = Get-BitLockerVolume -MountPoint "C:" -ErrorAction SilentlyContinue
             if ($blVolume -and ($blVolume.EncryptionMethod -eq 'XtsAes256' -or $blVolume.EncryptionMethod -eq 'Aes256')) {
@@ -2381,22 +2381,22 @@ function Enable-BitLockerPolicies {
             Write-Verbose "BitLocker-Check fehlgeschlagen: $_"
         }
         
-        # Fallback: Pruefe CPU Generation/Alter anhand Name
-        # AES-NI wurde eingefuehrt:
-        # - Intel: Core i-Serie Gen 3+ (Ivy Bridge 2012), Xeon 5600+ (2010)
-        # - AMD: Bulldozer+ (2011), Ryzen (alle)
-        # NICHT unterstuetzt:
-        # - Intel: Core 2, Core i Gen 1-2, Pentium, Celeron, Atom (alte)
-        # - AMD: Phenom II und aelter, alte Athlon
+        # Fallback: Check CPU generation/age based on name
+        # AES-NI was introduced:
+        # - Intel: Core i-series Gen 3+ (Ivy Bridge 2012), Xeon 5600+ (2010)
+        # - AMD: Bulldozer+ (2011), Ryzen (all)
+        # NOT supported:
+        # - Intel: Core 2, Core i Gen 1-2, Pentium, Celeron, Atom (old)
+        # - AMD: Phenom II and older, old Athlon
         
         if (-not $hasAESNI) {
-            # Pruefe auf alte CPUs OHNE AES-NI
-            # Intel Desktop: Core 2, Pentium (nicht Gold), Celeron, Atom
-            # Intel Server: Xeon 5500 und aelter (vor Westmere 2010)
-            # AMD Desktop: Athlon 64/FX/II, Phenom I/II (alles vor Bulldozer 2011)
-            # AMD Server: Opteron (vor Bulldozer 2011)
+            # Check for old CPUs WITHOUT AES-NI
+            # Intel Desktop: Core 2, Pentium (not Gold), Celeron, Atom
+            # Intel Server: Xeon 5500 and older (before Westmere 2010)
+            # AMD Desktop: Athlon 64/FX/II, Phenom I/II (all before Bulldozer 2011)
+            # AMD Server: Opteron (before Bulldozer 2011)
             if ($cpuName -match "Core 2|Pentium(?! Gold)|Celeron|Atom") {
-                # Intel alte CPUs - KEIN AES-NI
+                # Intel old CPUs - NO AES-NI
                 Write-Host ""
                 Write-Warning-Custom "CPU OHNE AES-NI SUPPORT ERKANNT: $cpuName"
                 Write-Warning-Custom "AES-256 wird nicht optimal unterstuetzt!"
@@ -2407,9 +2407,9 @@ function Enable-BitLockerPolicies {
                 Write-Host ""
                 return  # Beende Funktion - KEINE Policy setzen!
             }
-            # Intel Server alte CPUs - Xeon 5500 und aelter (vor Westmere 2010)
+            # Intel Server old CPUs - Xeon 5500 and older (before Westmere 2010)
             elseif ($cpuName -match "Xeon.*(5[0-5]\d{2}|3[0-4]\d{2}|7[0-4]\d{2})") {
-                # Xeon 5500 und aelter - KEIN AES-NI
+                # Xeon 5500 and older - NO AES-NI
                 Write-Host ""
                 Write-Warning-Custom "CPU OHNE AES-NI SUPPORT ERKANNT: $cpuName"
                 Write-Warning-Custom "Alter Intel Xeon (vor Westmere 2010) hat KEIN AES-NI!"
@@ -2420,9 +2420,9 @@ function Enable-BitLockerPolicies {
                 Write-Host ""
                 return
             }
-            # AMD Desktop alte CPUs - explizite Modelle OHNE AES-NI
+            # AMD Desktop old CPUs - explicit models WITHOUT AES-NI
             elseif ($cpuName -match "Athlon 64|Athlon FX|Athlon II|Phenom") {
-                # AMD K8/K10 Architektur - KEIN AES-NI
+                # AMD K8/K10 architecture - NO AES-NI
                 Write-Host ""
                 Write-Warning-Custom "CPU OHNE AES-NI SUPPORT ERKANNT: $cpuName"
                 Write-Warning-Custom "AMD K8/K10 Architektur (vor Bulldozer 2011) hat KEIN AES-NI!"
@@ -2433,9 +2433,9 @@ function Enable-BitLockerPolicies {
                 Write-Host ""
                 return
             }
-            # AMD Server alte CPUs - Opteron (vor Bulldozer 2011)
+            # AMD Server old CPUs - Opteron (before Bulldozer 2011)
             elseif ($cpuName -match "Opteron" -and $cpuName -notmatch "Opteron.*(62|63|64|65|66|67|68|69)\d{2}") {
-                # Opteron vor Bulldozer - KEIN AES-NI (62xx+ haben AES-NI)
+                # Opteron before Bulldozer - NO AES-NI (62xx+ have AES-NI)
                 Write-Host ""
                 Write-Warning-Custom "CPU OHNE AES-NI SUPPORT ERKANNT: $cpuName"
                 Write-Warning-Custom "Alter AMD Opteron (vor Bulldozer 2011) hat KEIN AES-NI!"
@@ -2446,11 +2446,11 @@ function Enable-BitLockerPolicies {
                 Write-Host ""
                 return
             }
-            # AMD generische Athlon-Erkennung (alte Athlon ohne 64/II/FX)
-            # ABER: Moderne Athlon (200GE, 3000G, Gold) sind Zen-basiert und HABEN AES-NI!
+            # AMD generic Athlon detection (old Athlon without 64/II/FX)
+            # BUT: Modern Athlon (200GE, 3000G, Gold) are Zen-based and HAVE AES-NI!
             elseif ($cpuName -match "\bAthlon\b" -and 
                     $cpuName -notmatch "Athlon\s+(Gold|Silver|[0-9]{3,4}[GU])") {
-                # Sehr alte oder unbekannte Athlon - wahrscheinlich kein AES-NI
+                # Very old or unknown Athlon - probably no AES-NI
                 Write-Host ""
                 Write-Warning-Custom "CPU OHNE AES-NI SUPPORT ERKANNT: $cpuName"
                 Write-Warning-Custom "Alte AMD Athlon CPU - wahrscheinlich kein AES-NI!"
@@ -2460,9 +2460,9 @@ function Enable-BitLockerPolicies {
                 Write-Host ""
                 return
             }
-            # Pruefe auf Intel Core i-Serie Gen 2 (Sandy Bridge 2011) - KEIN AES-NI
-            # CRITICAL: Nur Gen 2 (i7-2xxx) matchen, NICHT Gen 11+ (i7-11xxx)!
-            # Pattern: i7-2XXX (4-stellig, beginnt mit 2), dann kein weiteres Digit
+            # Check for Intel Core i-series Gen 2 (Sandy Bridge 2011) - NO AES-NI
+            # CRITICAL: Only match Gen 2 (i7-2xxx), NOT Gen 11+ (i7-11xxx)!
+            # Pattern: i7-2XXX (4-digit, starts with 2), then no additional digit
             elseif ($cpuName -match "i[357]-2\d{3}(?!\d)") {
                 Write-Host ""
                 Write-Warning-Custom "CPU OHNE AES-NI SUPPORT ERKANNT: $cpuName"
@@ -2488,7 +2488,7 @@ function Enable-BitLockerPolicies {
         $hasAESNI = $true  # Im Zweifelsfall Policy setzen
     }
     
-    # CHECK 2: Ist BitLocker bereits aktiviert? (Windows 11 aktiviert es oft automatisch!)
+    # CHECK 2: Is BitLocker already activated? (Windows 11 often activates it automatically!)
     $bitlockerActive = $false
     $bitlockerStatus = "Unknown"
     
@@ -2513,26 +2513,26 @@ function Enable-BitLockerPolicies {
     $fvePath = "HKLM:\SOFTWARE\Policies\Microsoft\FVE"
     
     # XTS-AES-256 Encryption Method Policy
-    # Gilt fuer NEUE BitLocker-Aktivierungen (nicht fuer bereits verschluesselte Laufwerke)
-    # CRITICAL FIX v1.7.6: Setze die RICHTIGEN Policy-Namen (mit XTS suffix)!
-    # Microsoft hat die Policy-Namen geändert - alte "EncryptionMethod" ist deprecated!
+    # Applies to NEW BitLocker activations (not for already encrypted drives)
+    # CRITICAL FIX v1.7.6: Set the CORRECT policy names (with XTS suffix)!
+    # Microsoft changed the policy names - old "EncryptionMethod" is deprecated!
     [void](Set-RegistryValue -Path $fvePath -Name "EncryptionMethodWithXtsOs" -Value 7 -Type DWord -Description "XTS-AES-256 OS Drives")
     [void](Set-RegistryValue -Path $fvePath -Name "EncryptionMethodWithXtsFdv" -Value 7 -Type DWord -Description "XTS-AES-256 Fixed Data Drives")
     [void](Set-RegistryValue -Path $fvePath -Name "EncryptionMethodWithXtsRdv" -Value 7 -Type DWord -Description "XTS-AES-256 Removable Drives")
     
-    # TPM Settings (erlaubt TPM, erzwingt es aber nicht)
-    # UseTPM = 1 (Allow) statt 2 (Require) - damit es auch ohne TPM funktioniert
+    # TPM Settings (allows TPM, but doesn't enforce it)
+    # UseTPM = 1 (Allow) instead of 2 (Require) - so it works without TPM too
     [void](Set-RegistryValue -Path $fvePath -Name "UseTPM" -Value 1 -Type DWord -Description "TPM erlauben")
     [void](Set-RegistryValue -Path $fvePath -Name "UseTPMPIN" -Value 1 -Type DWord -Description "TPM + PIN erlauben")
     [void](Set-RegistryValue -Path $fvePath -Name "UseAdvancedStartup" -Value 1 -Type DWord -Description "Advanced Startup")
     
-    # Recovery Key Escrow (KRITISCH: Nicht erzwingen ohne AD!)
-    # Windows 11 aktiviert BitLocker oft automatisch - dann wuerde "RequireActiveDirectoryBackup"
-    # ein gelbes Warnsymbol verursachen wenn kein AD vorhanden ist!
+    # Recovery Key Escrow (CRITICAL: Don't enforce without AD!)
+    # Windows 11 often activates BitLocker automatically - then "RequireActiveDirectoryBackup"
+    # would cause a yellow warning icon if no AD is present!
     [void](Set-RegistryValue -Path $fvePath -Name "ActiveDirectoryBackup" -Value 0 -Type DWord -Description "AD Backup optional")
     
-    # WICHTIG: RequireActiveDirectoryBackup wird BEWUSST NICHT gesetzt!
-    # Grund: Verursacht gelbes Warnsymbol bei bereits aktiviertem BitLocker ohne AD
+    # IMPORTANT: RequireActiveDirectoryBackup is INTENTIONALLY NOT set!
+    # Reason: Causes yellow warning icon with already activated BitLocker without AD
     
     Write-Success "BitLocker Policies konfiguriert (XTS-AES-256 + TPM Optional)"
     
@@ -2617,7 +2617,7 @@ function Test-BitLockerEncryptionMethod {
         Write-Host ""
         Write-Host "  IHRE CPU-KOMPATIBILITAET:" -ForegroundColor Cyan
         
-        # Prüfe CPU-Generation und gebe KLARE Empfehlung
+        # Check CPU generation and give CLEAR recommendation
         $cpuName = "Unknown"
         
         try {
@@ -2625,11 +2625,11 @@ function Test-BitLockerEncryptionMethod {
             $cpuName = $cpu.Name
             Write-Host "    CPU: $cpuName" -ForegroundColor White
             
-            # Prüfe ob alte CPU OHNE AES-NI Support
-            # Intel Desktop: Core 2, Pentium (nicht Gold), Celeron, Atom
-            # Intel Server: Xeon 5500 und aelter
+            # Check if old CPU WITHOUT AES-NI support
+            # Intel Desktop: Core 2, Pentium (not Gold), Celeron, Atom
+            # Intel Server: Xeon 5500 and older
             # AMD Desktop: Athlon 64/FX/II, Phenom I/II
-            # AMD Server: Opteron (vor Bulldozer 2011)
+            # AMD Server: Opteron (before Bulldozer 2011)
             if ($cpuName -match "Core 2|Pentium(?! Gold)|Celeron|Atom") {
                 Write-Host ""
                 Write-Host "    [!] IHRE CPU:" -ForegroundColor Red
@@ -2642,7 +2642,7 @@ function Test-BitLockerEncryptionMethod {
                 Write-Info "AES-128 ist sicher! Kein Upgrade noetig auf alter Hardware."
                 return  # Beende Funktion - keine Upgrade-Anleitung zeigen!
             }
-            # Intel Server alte CPUs - Xeon 5500 und aelter
+            # Intel Server old CPUs - Xeon 5500 and older
             elseif ($cpuName -match "Xeon.*(5[0-5]\d{2}|3[0-4]\d{2}|7[0-4]\d{2})") {
                 Write-Host ""
                 Write-Host "    [!] IHRE CPU:" -ForegroundColor Red
@@ -2655,7 +2655,7 @@ function Test-BitLockerEncryptionMethod {
                 Write-Info "AES-128 ist sicher! Kein Upgrade noetig auf alter Hardware."
                 return
             }
-            # AMD Desktop alte CPUs - explizite Modelle
+            # AMD Desktop old CPUs - explicit models
             elseif ($cpuName -match "Athlon 64|Athlon FX|Athlon II|Phenom") {
                 Write-Host ""
                 Write-Host "    [!] IHRE CPU:" -ForegroundColor Red
@@ -2668,7 +2668,7 @@ function Test-BitLockerEncryptionMethod {
                 Write-Info "AES-128 ist sicher! Kein Upgrade noetig auf alter Hardware."
                 return  # Beende Funktion - keine Upgrade-Anleitung zeigen!
             }
-            # AMD Server alte CPUs - Opteron (vor Bulldozer 2011)
+            # AMD Server old CPUs - Opteron (before Bulldozer 2011)
             elseif ($cpuName -match "Opteron" -and $cpuName -notmatch "Opteron.*(62|63|64|65|66|67|68|69)\d{2}") {
                 Write-Host ""
                 Write-Host "    [!] IHRE CPU:" -ForegroundColor Red
@@ -2681,7 +2681,7 @@ function Test-BitLockerEncryptionMethod {
                 Write-Info "AES-128 ist sicher! Kein Upgrade noetig auf alter Hardware."
                 return
             }
-            # AMD generische Athlon (alte ohne 64/II/FX), ABER NICHT moderne (Zen-basiert)
+            # AMD generic Athlon (old without 64/II/FX), BUT NOT modern (Zen-based)
             elseif ($cpuName -match "\bAthlon\b" -and 
                     $cpuName -notmatch "Athlon\s+(Gold|Silver|[0-9]{3,4}[GU])") {
                 Write-Host ""
@@ -2695,7 +2695,7 @@ function Test-BitLockerEncryptionMethod {
                 Write-Info "AES-128 ist sicher! Kein Upgrade noetig auf alter Hardware."
                 return
             }
-            # Intel Core i Gen 2 (Sandy Bridge 2011) - letzte ohne AES-NI
+            # Intel Core i Gen 2 (Sandy Bridge 2011) - last without AES-NI
             elseif ($cpuName -match "Core i[357]-2\d{3}(?!\d)") {
                 Write-Host ""
                 Write-Host "    [!] IHRE CPU:" -ForegroundColor Red
@@ -2884,9 +2884,9 @@ function New-ComplianceReport {
         $htmlContent = $html.ToString()
         
         # Write HTML to file
-        # [OK] BEST PRACTICE: UTF-8 ohne BOM (PowerShell 5.1 compatible)
-        # Out-File -Encoding utf8 in PS 5.1 erstellt Datei MIT BOM!
-        # Verwende .NET API für UTF-8 ohne BOM
+        # [OK] BEST PRACTICE: UTF-8 without BOM (PowerShell 5.1 compatible)
+        # Out-File -Encoding utf8 in PS 5.1 creates file WITH BOM!
+        # Use .NET API for UTF-8 without BOM
         $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
         [System.IO.File]::WriteAllText($OutputPath, $htmlContent, $utf8NoBom)
         

@@ -5,49 +5,49 @@
 
 <#
 .SYNOPSIS
-    Ermöglicht das Setzen von TrustedInstaller-geschützten Registry-Keys
+    Enables setting of TrustedInstaller-protected Registry keys
     
 .DESCRIPTION
-    Professionelles Ownership-Management für geschützte Registry-Keys.
+    Professional ownership management for protected Registry keys.
     
-    PROZESS:
-    1. Backup: Speichere Original-Owner und Permissions
-    2. Take Ownership: Ändere zu BUILTIN\Administrators
-    3. Grant Access: Gebe Administrators Full Control
-    4. Modify: Setze den gewünschten Wert
-    5. Restore: Stelle Original-Owner und Permissions wieder her
+    PROCESS:
+    1. Backup: Save original owner and permissions
+    2. Take Ownership: Change to BUILTIN\Administrators
+    3. Grant Access: Give Administrators Full Control
+    4. Modify: Set the desired value
+    5. Restore: Restore original owner and permissions
     
 .NOTES
     Version:        1.0.0
     Author:         NoID Privacy Team
     Creation Date:  January 2026
     
-    SICHERHEIT:
-    - Vollständiges Backup vor Änderungen
-    - Automatic Restore nach Änderungen
-    - Error-Handling auf jeder Ebene
+    SECURITY:
+    - Complete backup before changes
+    - Automatic restore after changes
+    - Error handling at every level
     
-    GETESTET MIT:
+    TESTED WITH:
     - HKLM:\SOFTWARE\Microsoft\Windows Defender\Features
-    - Andere TrustedInstaller-geschützte Keys
+    - Other TrustedInstaller-protected keys
 #>
 
-# Best Practice 25H2: Strict Mode aktivieren
+# Best Practice 25H2: Enable Strict Mode
 Set-StrictMode -Version Latest
 
-# ===== PRIVILEGE MANAGEMENT (KRITISCH FÜR TRUSTEDINSTALLER RESTORE!) =====
+# ===== PRIVILEGE MANAGEMENT (CRITICAL FOR TRUSTEDINSTALLER RESTORE!) ======
 
 function Enable-Privilege {
     <#
     .SYNOPSIS
-        Aktiviert Windows-Privilege für aktuellen Prozess
+        Enables Windows privilege for current process
     .DESCRIPTION
-        KRITISCH: SeRestorePrivilege wird benötigt um Ownership zurück zu TrustedInstaller zu setzen!
-        Basiert auf Best Practice aus StackOverflow (2025)
+        CRITICAL: SeRestorePrivilege is required to restore ownership back to TrustedInstaller!
+        Based on Best Practice from StackOverflow (2025)
     .PARAMETER Privilege
-        Privilege-Name (z.B. "SeRestorePrivilege", "SeBackupPrivilege", "SeTakeOwnershipPrivilege")
+        Privilege name (e.g. "SeRestorePrivilege", "SeBackupPrivilege", "SeTakeOwnershipPrivilege")
     .OUTPUTS
-        [bool] $true bei Erfolg
+        [bool] $true on success
     .LINK
         https://stackoverflow.com/questions/5467909/how-to-write-in-a-registry-key-own-by-trustedinstaller
     #>
@@ -60,7 +60,7 @@ function Enable-Privilege {
     )
     
     try {
-        # P/Invoke Definitions für Token Manipulation
+        # P/Invoke definitions for token manipulation
         $signature = @"
             [DllImport("advapi32.dll", SetLastError = true)]
             public static extern bool LookupPrivilegeValue(string host, string name, ref long pluid);
@@ -87,12 +87,12 @@ function Enable-Privilege {
             public const int TOKEN_ADJUST_PRIVILEGES = 0x00000020;
 "@
         
-        # Erstelle Typ falls noch nicht vorhanden
+        # Create type if not already present
         if (-not ([System.Management.Automation.PSTypeName]'TokenManipulator').Type) {
             Add-Type -MemberDefinition $signature -Name TokenManipulator -Namespace RegistryOwnership -ErrorAction Stop
         }
         
-        # Hole Current Process Token
+        # Get current process token
         $token = [IntPtr]::Zero
         $hProcess = [RegistryOwnership.TokenManipulator]::GetCurrentProcess()
         
@@ -101,18 +101,18 @@ function Enable-Privilege {
             [RegistryOwnership.TokenManipulator]::TOKEN_ADJUST_PRIVILEGES -bor [RegistryOwnership.TokenManipulator]::TOKEN_QUERY,
             [ref]$token
         )) {
-            Write-Verbose "Fehler beim Oeffnen des Process Token"
+            Write-Verbose "Error opening process token"
             return $false
         }
         
         # Lookup Privilege Value
         $luid = 0L
         if (-not [RegistryOwnership.TokenManipulator]::LookupPrivilegeValue($null, $Privilege, [ref]$luid)) {
-            Write-Verbose "Fehler beim Lookup von $Privilege"
+            Write-Verbose "Error looking up $Privilege"
             return $false
         }
         
-        # Prepare TOKEN_PRIVILEGES Struktur
+        # Prepare TOKEN_PRIVILEGES structure
         $tokPriv = New-Object RegistryOwnership.TokenManipulator+TokPriv1Luid
         $tokPriv.Count = 1
         $tokPriv.Luid = $luid
@@ -127,15 +127,15 @@ function Enable-Privilege {
             [IntPtr]::Zero,
             [IntPtr]::Zero
         )) {
-            Write-Verbose "Fehler beim AdjustTokenPrivileges fuer $Privilege"
+            Write-Verbose "Error adjusting token privileges for $Privilege"
             return $false
         }
         
-        Write-Verbose "Privilege aktiviert: $Privilege"
+        Write-Verbose "Privilege enabled: $Privilege"
         return $true
     }
     catch {
-        Write-Verbose "Fehler beim Aktivieren von $Privilege : $_"
+        Write-Verbose "Error enabling $Privilege : $_"
         return $false
     }
 }
@@ -143,22 +143,22 @@ function Enable-Privilege {
 function Set-RegistryValueWithOwnership {
     <#
     .SYNOPSIS
-        Setzt Registry-Wert auch bei TrustedInstaller-Protection
+        Sets Registry value even with TrustedInstaller protection
     .DESCRIPTION
-        Nimmt temporär Ownership, setzt Wert, restored Ownership.
-        Best Practice 2025: Vollständiges Backup/Restore
+        Temporarily takes ownership, sets value, restores ownership.
+        Best Practice 2025: Complete backup/restore
     .PARAMETER Path
-        Registry-Pfad
+        Registry path
     .PARAMETER Name
-        Wert-Name
+        Value name
     .PARAMETER Value
-        Wert
+        Value
     .PARAMETER Type
-        Registry-Typ (DWord, String, etc.)
+        Registry type (DWord, String, etc.)
     .PARAMETER Description
-        Beschreibung für Logging
+        Description for logging
     .OUTPUTS
-        [bool] $true bei Erfolg, $false bei Fehler
+        [bool] $true on success, $false on error
     .EXAMPLE
         Set-RegistryValueWithOwnership -Path "HKLM:\SOFTWARE\Microsoft\Windows Defender\Features" `
             -Name "EnableAppInstallControl" -Value 1 -Type DWord
@@ -185,7 +185,7 @@ function Set-RegistryValueWithOwnership {
         [string]$Description
     )
     
-    # WICHTIG: Konvertiere PowerShell-Path zu Registry-Path
+    # IMPORTANT: Convert PowerShell path to Registry path
     # "HKLM:\SOFTWARE\..." -> "HKEY_LOCAL_MACHINE\SOFTWARE\..."
     $registryPath = $Path -replace '^HKLM:\\', 'HKEY_LOCAL_MACHINE\' `
                          -replace '^HKCU:\\', 'HKEY_CURRENT_USER\' `
@@ -253,7 +253,7 @@ function Set-RegistryValueWithOwnership {
         Write-Verbose "Original ACL gesichert"
     }
     catch {
-        Write-Verbose "Fehler beim Lesen der Original-ACL: $_ (TrustedInstaller-Protected)"
+        Write-Verbose "Error reading original ACL: $_ (TrustedInstaller-Protected)"
         return $false
     }
     
@@ -261,19 +261,19 @@ function Set-RegistryValueWithOwnership {
     try {
         Write-Verbose "STEP 1: Take Ownership to BUILTIN\Administrators"
         
-        # KRITISCH: Enable SeTakeOwnershipPrivilege BEVOR wir OpenSubKey callen!
-        # Ohne dieses Privilege schlägt OpenSubKey mit "Access Denied" fehl!
+        # CRITICAL: Enable SeTakeOwnershipPrivilege BEFORE we call OpenSubKey!
+        # Without this privilege, OpenSubKey fails with "Access Denied"!
         Write-Verbose "     Activate SeTakeOwnershipPrivilege..."
         $takeOwnershipEnabled = Enable-Privilege -Privilege 'SeTakeOwnershipPrivilege'
         
         if (-not $takeOwnershipEnabled) {
-            Write-Verbose "SeTakeOwnershipPrivilege konnte nicht aktiviert werden (TrustedInstaller-Protected)"
-            Write-Verbose "Administrator-Rechte vorhanden aber Key ist geschuetzt"
+            Write-Verbose "SeTakeOwnershipPrivilege could not be enabled (TrustedInstaller-Protected)"
+            Write-Verbose "Administrator rights present but key is protected"
             return $false
         }
         
-        # Öffne Key mit TakeOwnership-Rechten
-        # WICHTIG: Wir brauchen ReadPermissions + TakeOwnership kombiniert!
+        # Open key with TakeOwnership rights
+        # IMPORTANT: We need ReadPermissions + TakeOwnership combined!
         $key = $hive.OpenSubKey(
             $subKeyPath,
             [Microsoft.Win32.RegistryKeyPermissionCheck]::ReadWriteSubTree,
@@ -282,21 +282,21 @@ function Set-RegistryValueWithOwnership {
         )
         
         if ($null -eq $key) {
-            Write-Verbose "Konnte Key nicht oeffnen fuer TakeOwnership: $Path (TrustedInstaller-Protected)"
+            Write-Verbose "Could not open key for TakeOwnership: $Path (TrustedInstaller-Protected)"
             return $false
         }
         
-        # Erstelle neue ACL mit Administrators als Owner
+        # Create new ACL with Administrators as owner
         $acl = $key.GetAccessControl()
         
-        # BUILTIN\Administrators als neuer Owner
-        # KRITISCH: Verwende SID statt Name (language-independent!)
-        # S-1-5-32-544 = BUILTIN\Administrators (auf allen Sprachen!)
+        # BUILTIN\Administrators as new owner
+        # CRITICAL: Use SID instead of name (language-independent!)
+        # S-1-5-32-544 = BUILTIN\Administrators (in all languages!)
         $adminsSid = New-Object System.Security.Principal.SecurityIdentifier("S-1-5-32-544")
         $administratorsGroup = $adminsSid.Translate([System.Security.Principal.NTAccount])
         $acl.SetOwner($administratorsGroup)
         
-        # Setze neue ACL
+        # Set new ACL
         $key.SetAccessControl($acl)
         $key.Close()
         
@@ -305,9 +305,9 @@ function Set-RegistryValueWithOwnership {
     catch {
         Write-Verbose "Take Ownership failed (TrustedInstaller too strong): $_"
         Write-Verbose "ACCEPTED: Registry-Key remains TrustedInstaller-protected (not critical)"
-        # KEINE weiteren Versuche! TrustedInstaller-Keys sind ABSICHTLICH geschuetzt!
-        # Die Funktionalitaet (z.B. PUA) funktioniert AUCH OHNE diese Registry-Werte!
-        # Set-MpPreference setzt die Einstellungen auf anderem Weg.
+        # NO further attempts! TrustedInstaller keys are INTENTIONALLY protected!
+        # The functionality (e.g. PUA) works EVEN WITHOUT these Registry values!
+        # Set-MpPreference sets the settings via a different way.
         return $false
     }
     
@@ -315,7 +315,7 @@ function Set-RegistryValueWithOwnership {
     try {
         Write-Verbose "STEP 2: Grant Full Control to Administrators"
         
-        # Öffne Key mit ChangePermissions-Rechten
+        # Open key with ChangePermissions rights
         $key = $hive.OpenSubKey(
             $subKeyPath,
             [Microsoft.Win32.RegistryKeyPermissionCheck]::ReadWriteSubTree,
@@ -324,9 +324,9 @@ function Set-RegistryValueWithOwnership {
         
         $acl = $key.GetAccessControl()
         
-        # Erstelle Full Control Rule für Administrators
-        # KRITISCH: Verwende SID statt Name (language-independent!)
-        # S-1-5-32-544 = BUILTIN\Administrators (auf allen Sprachen!)
+        # Create Full Control rule for Administrators
+        # CRITICAL: Use SID instead of name (language-independent!)
+        # S-1-5-32-544 = BUILTIN\Administrators (in all languages!)
         $adminsSid = New-Object System.Security.Principal.SecurityIdentifier("S-1-5-32-544")
         $administratorsGroup = $adminsSid.Translate([System.Security.Principal.NTAccount])
         $fullControlRule = New-Object System.Security.AccessControl.RegistryAccessRule(
@@ -337,7 +337,7 @@ function Set-RegistryValueWithOwnership {
             [System.Security.AccessControl.AccessControlType]::Allow
         )
         
-        # Füge Rule hinzu
+        # Add rule
         $acl.AddAccessRule($fullControlRule)
         $key.SetAccessControl($acl)
         $key.Close()
@@ -345,12 +345,12 @@ function Set-RegistryValueWithOwnership {
         Write-Verbose "  -> Full Control granted to: BUILTIN\Administrators"
     }
     catch {
-        Write-Verbose "Fehler beim Grant Access: $_ (TrustedInstaller-Protected)"
+        Write-Verbose "Error granting access: $_ (TrustedInstaller-Protected)"
         
-        # Versuche Restore
+        # Try restore
         try {
-            Write-Verbose "Versuche Original-ACL wiederherzustellen..."
-            # Enable SeRestorePrivilege für TrustedInstaller-Restore
+            Write-Verbose "Trying to restore original ACL..."
+            # Enable SeRestorePrivilege for TrustedInstaller restore
             $null = Enable-Privilege -Privilege 'SeRestorePrivilege'
             $key = $hive.OpenSubKey(
                 $subKeyPath,
@@ -360,10 +360,10 @@ function Set-RegistryValueWithOwnership {
             )
             $key.SetAccessControl($originalACL)
             $key.Close()
-            Write-Verbose "     Original-ACL wiederhergestellt"
+            Write-Verbose "     Original ACL restored"
         }
         catch {
-            Write-Warning-Custom "Konnte Original-ACL nicht wiederherstellen: $_"
+            Write-Warning-Custom "Could not restore original ACL: $_"
         }
         
         return $false
@@ -371,29 +371,29 @@ function Set-RegistryValueWithOwnership {
     
     # ===== STEP 3: MODIFY VALUE =====
     try {
-        Write-Verbose "STEP 3: Setze Registry-Wert"
+        Write-Verbose "STEP 3: Set Registry value"
         
-        # Prüfe ob Wert existiert
+        # Check if value exists
         $valueExists = Get-ItemProperty -Path $Path -Name $Name -ErrorAction SilentlyContinue
         
         if ($valueExists) {
-            # Wert existiert - Set-ItemProperty (KEIN -PropertyType Parameter in PS 5.1!)
+            # Value exists - Set-ItemProperty (NO -PropertyType parameter in PS 5.1!)
             Set-ItemProperty -Path $Path -Name $Name -Value $Value -Force -ErrorAction Stop
         }
         else {
-            # Wert existiert NICHT - New-ItemProperty (MIT -PropertyType!)
+            # Value does NOT exist - New-ItemProperty (WITH -PropertyType!)
             New-ItemProperty -Path $Path -Name $Name -Value $Value -PropertyType $Type -Force -ErrorAction Stop | Out-Null
         }
         
-        Write-Verbose "  -> Wert erfolgreich gesetzt: $Name = $Value"
+        Write-Verbose "  -> Value successfully set: $Name = $Value"
     }
     catch {
-        Write-Verbose "Fehler beim Setzen des Wertes: $_ (TrustedInstaller-Protected)"
+        Write-Verbose "Error setting value: $_ (TrustedInstaller-Protected)"
         
-        # Versuche Restore
+        # Try restore
         try {
-            Write-Verbose "Versuche Original-ACL wiederherzustellen..."
-            # Enable SeRestorePrivilege für TrustedInstaller-Restore
+            Write-Verbose "Trying to restore original ACL..."
+            # Enable SeRestorePrivilege for TrustedInstaller restore
             $null = Enable-Privilege -Privilege 'SeRestorePrivilege'
             $key = $hive.OpenSubKey(
                 $subKeyPath,
@@ -403,10 +403,10 @@ function Set-RegistryValueWithOwnership {
             )
             $key.SetAccessControl($originalACL)
             $key.Close()
-            Write-Verbose "     Original-ACL wiederhergestellt"
+            Write-Verbose "     Original ACL restored"
         }
         catch {
-            Write-Warning-Custom "Konnte Original-ACL nicht wiederherstellen: $_"
+            Write-Warning-Custom "Could not restore original ACL: $_"
         }
         
         return $false
@@ -416,18 +416,18 @@ function Set-RegistryValueWithOwnership {
     try {
         Write-Verbose "STEP 4: Restore Original Owner and Permissions"
         
-        # KRITISCH: Enable SeRestorePrivilege BEVOR wir TrustedInstaller-Ownership restaurieren!
-        # Ohne dieses Privilege schlägt SetAccessControl fehl bei TrustedInstaller-Owner!
+        # CRITICAL: Enable SeRestorePrivilege BEFORE we restore TrustedInstaller ownership!
+        # Without this privilege, SetAccessControl fails with TrustedInstaller owner!
         # Best Practice aus StackOverflow: https://stackoverflow.com/questions/5467909
         Write-Verbose "     Activate SeRestorePrivilege for TrustedInstaller-Restore..."
         $privilegeEnabled = Enable-Privilege -Privilege 'SeRestorePrivilege'
         
         if (-not $privilegeEnabled) {
-            Write-Verbose "     WARNING: SeRestorePrivilege konnte nicht aktiviert werden"
-            Write-Verbose "     Restore wird trotzdem versucht (funktioniert moeglicherweise nicht bei TrustedInstaller)"
+            Write-Verbose "     WARNING: SeRestorePrivilege could not be enabled"
+            Write-Verbose "     Restore will still be attempted (may not work with TrustedInstaller)"
         }
         
-        # Öffne Key mit vollen Rechten
+        # Open key with full rights
         $key = $hive.OpenSubKey(
             $subKeyPath,
             [Microsoft.Win32.RegistryKeyPermissionCheck]::ReadWriteSubTree,
@@ -435,29 +435,29 @@ function Set-RegistryValueWithOwnership {
             [System.Security.AccessControl.RegistryRights]::TakeOwnership
         )
         
-        # Restore Original-ACL (inkl. Owner)
-        # Mit SeRestorePrivilege kann auch TrustedInstaller als Owner gesetzt werden!
+        # Restore original ACL (including owner)
+        # With SeRestorePrivilege, TrustedInstaller can also be set as owner!
         $key.SetAccessControl($originalACL)
         $key.Close()
         
-        Write-Verbose "  -> Original Owner wiederhergestellt: $originalOwner"
-        Write-Verbose "  -> Original Permissions wiederhergestellt"
+        Write-Verbose "  -> Original owner restored: $originalOwner"
+        Write-Verbose "  -> Original permissions restored"
     }
     catch {
-        # NICHT KRITISCH! Registry-Wert wurde ERFOLGREICH gesetzt!
-        # Nur der Restore des Original-Owners ist fehlgeschlagen (meist TrustedInstaller)
-        Write-Verbose "Original-ACL Restore fehlgeschlagen (NICHT KRITISCH): $_"
-        Write-Verbose "Key-Owner bleibt: BUILTIN\Administrators (statt $originalOwner)"
-        Write-Verbose "Registry-Wert wurde ERFOLGREICH gesetzt - Windows funktioniert normal"
-        Write-Verbose "Moegliche Ursache: SeRestorePrivilege nicht verfuegbar oder TrustedInstaller-Restore blockiert"
-        # KEIN Error werfen - die Hauptfunktion (Registry-Wert setzen) war ERFOLGREICH!
+        # NOT CRITICAL! Registry value was SUCCESSFULLY set!
+        # Only the restore of the original owner failed (usually TrustedInstaller)
+        Write-Verbose "Original ACL restore failed (NOT CRITICAL): $_"
+        Write-Verbose "Key owner remains: BUILTIN\Administrators (instead of $originalOwner)"
+        Write-Verbose "Registry value was SUCCESSFULLY set - Windows functions normally"
+        Write-Verbose "Possible cause: SeRestorePrivilege not available or TrustedInstaller restore blocked"
+        # Do NOT throw error - the main function (setting Registry value) was SUCCESSFUL!
     }
     
     # ===== SUCCESS =====
     if ($Description) {
         Write-Verbose "[OK] $Description"
     }
-    Write-Verbose "[OK] Registry-Wert erfolgreich gesetzt (mit Ownership-Management)"
+    Write-Verbose "[OK] Registry value successfully set (with ownership management)"
     
     return $true
 }
@@ -465,23 +465,23 @@ function Set-RegistryValueWithOwnership {
 function Set-RegistryValueSmart {
     <#
     .SYNOPSIS
-        Intelligente Registry-Funktion mit automatischem Ownership-Management
+        Intelligent Registry function with automatic ownership management
     .DESCRIPTION
-        Versucht erst normales Set-ItemProperty.
-        Bei Access Denied -> automatisches Ownership-Management.
+        Tries normal Set-ItemProperty first.
+        On Access Denied -> automatic ownership management.
         Best Practice 2025: Try normal first, escalate only if needed
     .PARAMETER Path
-        Registry-Pfad
+        Registry path
     .PARAMETER Name
-        Wert-Name
+        Value name
     .PARAMETER Value
-        Wert
+        Value
     .PARAMETER Type
-        Registry-Typ
+        Registry type
     .PARAMETER Description
-        Beschreibung
+        Description
     .OUTPUTS
-        [bool] $true bei Erfolg
+        [bool] $true on success
     .EXAMPLE
         Set-RegistryValueSmart -Path $path -Name $name -Value $value -Type DWord
     #>
@@ -507,57 +507,57 @@ function Set-RegistryValueSmart {
         [string]$Description
     )
     
-    # STEP 1: Versuche normales Set-ItemProperty
-    Write-Verbose "Versuche normales Set-ItemProperty..."
+    # STEP 1: Try normal Set-ItemProperty
+    Write-Verbose "Trying normal Set-ItemProperty..."
     
-    # CRITICAL FIX: Set-ItemProperty mit ErrorActionPreference = 'SilentlyContinue'
-    # Unterdrückt Error im Transcript aber Try-Catch funktioniert trotzdem!
+    # CRITICAL FIX: Set-ItemProperty with ErrorActionPreference = 'SilentlyContinue'
+    # Suppresses error in transcript but Try-Catch still works!
     $oldPref = $ErrorActionPreference
     $ErrorActionPreference = 'SilentlyContinue'
     
-    # Erstelle Key falls nicht vorhanden
+    # Create key if not present
     if (-not (Test-Path -Path $Path -ErrorAction SilentlyContinue)) {
-        Write-Verbose "Erstelle Registry-Key: $Path"
+        Write-Verbose "Creating Registry key: $Path"
         $null = New-Item -Path $Path -Force
     }
     
-    # Prüfe ob Wert existiert (SAFE method - no error records!)
+    # Check if value exists (SAFE method - no error records!)
     # Get ALL properties first, then check if our property is in the list
     # This prevents error records from being created when property doesn't exist
     $item = Get-ItemProperty -Path $Path -ErrorAction SilentlyContinue
     $valueExists = $item -and ($item.PSObject.Properties.Name -contains $Name)
     
-    # Track Errors NACH dem Exists-Check
+    # Track errors AFTER the exists check
     $errorBefore = $Error.Count
     
     if ($valueExists) {
-        # Wert existiert - Set-ItemProperty (KEIN -PropertyType in PS 5.1!)
+        # Value exists - Set-ItemProperty (NO -PropertyType in PS 5.1!)
         Set-ItemProperty -Path $Path -Name $Name -Value $Value -Force
     }
     else {
-        # Wert existiert NICHT - New-ItemProperty (MIT -PropertyType!)
+        # Value does NOT exist - New-ItemProperty (WITH -PropertyType!)
         New-ItemProperty -Path $Path -Name $Name -Value $Value -PropertyType $Type -Force | Out-Null
     }
     
-    # Reset ErrorActionPreference SOFORT
+    # Reset ErrorActionPreference immediately
     $ErrorActionPreference = $oldPref
     
-    # Check ob Error aufgetreten ist (NUR von Set/New, nicht vom Exists-Check!)
+    # Check if error occurred (ONLY from Set/New, not from exists check!)
     $errorAfter = $Error.Count
     if ($errorAfter -eq $errorBefore) {
-        # Kein Error = Erfolg!
+        # No error = success!
         if ($Description) {
             Write-Verbose "     $Description : $Name = $Value"
         }
         return $true
     }
     else {
-        # Error aufgetreten - check ob Access Denied
+        # Error occurred - check if Access Denied
         $lastError = $Error[0]
         $errorMsg = $lastError.Exception.Message
         $isAccessDenied = $false
         
-        # Deutsche + Englische Fehlermeldungen
+        # German + English error messages
         if ($errorMsg -match "Access.*denied|Zugriff.*verweigert|unzulässig|angeforderte.*Registrierungszugriff") {
             $isAccessDenied = $true
         }
@@ -568,20 +568,20 @@ function Set-RegistryValueSmart {
         }
         
         if ($isAccessDenied) {
-            # Access Denied - das ist ERWARTET bei TrustedInstaller Keys!
-            # Caller (z.B. Core-Modul) hat Fallback (Set-RegistryValueWithOwnership)
-            # WICHTIG: Entferne Error aus $Error Array (wird von Caller behandelt!)
+            # Access Denied - this is EXPECTED with TrustedInstaller keys!
+            # Caller (e.g. Core module) has fallback (Set-RegistryValueWithOwnership)
+            # IMPORTANT: Remove error from $Error array (will be handled by caller!)
             $Error.RemoveAt(0)
-            Write-Verbose "Access Denied bei $Path\$Name (erwartet, Caller hat Fallback)"
+            Write-Verbose "Access Denied at $Path\$Name (expected, caller has fallback)"
             return $false
         }
         else {
-            # Anderer Fehler - nur Verbose, kein Error (Caller entscheidet ob Warning)
-            Write-Verbose "Fehler beim Setzen von $Path\$Name : $errorMsg"
+            # Other error - only Verbose, no Error (caller decides if Warning)
+            Write-Verbose "Error setting $Path\$Name : $errorMsg"
             return $false
         }
     }
 }
 
-# Export Functions (für Dot-Sourcing)
-# Functions sind automatisch verfügbar im calling scope
+# Export Functions (for dot-sourcing)
+# Functions are automatically available in calling scope

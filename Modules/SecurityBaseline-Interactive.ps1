@@ -2,7 +2,7 @@
 # SecurityBaseline-Interactive.ps1 - Interaktives Menue-System
 # =======================================================================================
 
-# Best Practice 25H2: Strict Mode aktivieren
+# Best Practice 25H2: Enable Strict Mode
 Set-StrictMode -Version Latest
 
 function Show-Banner {
@@ -23,7 +23,7 @@ function Show-Banner {
         Clear-Host
     }
     catch {
-        # Fallback fuer non-interactive sessions
+        # Fallback for non-interactive sessions
         Write-Verbose "Clear-Host nicht verfuegbar (non-interactive session)"
     }
     
@@ -60,7 +60,7 @@ function Show-MainMenu {
     
     Show-Banner
     
-    # Get-LocalizedString mit Fallback
+    # Get-LocalizedString with fallback
     $title = Get-LocalizedString "MainMenuTitle"
     if (-not $title) { $title = "MAIN MENU" }
     
@@ -173,15 +173,15 @@ function Get-UserChoice {
                 continue
             }
             
-            # Trim und Case-Insensitive
+            # Trim and case-insensitive
             $choice = $choice.Trim().ToUpper()
             
-            # Validiere gegen gÃ¼ltige Choices (Case-Insensitive)
+            # Validate against valid choices (case-insensitive)
             $validChoicesUpper = $ValidChoices | ForEach-Object { $_.ToUpper() }
             
             if ($choice -notin $validChoicesUpper) {
                 $errorMsg = Get-LocalizedString 'ErrorInvalidInput'
-                if (-not $errorMsg) { $errorMsg = "UngÃ¼ltige Eingabe! GÃ¼ltige Optionen:" }
+                if (-not $errorMsg) { $errorMsg = "Invalid input! Valid options:" }
                 
                 Write-Host "  [ERROR] $errorMsg " -NoNewline -ForegroundColor Red
                 Write-Host ($ValidChoices -join ', ') -NoNewline -ForegroundColor Yellow
@@ -229,7 +229,7 @@ function Show-ModuleSelection {
         return $null
     }
     
-    # WICHTIG: Check ob PowerShell ISE (Pfeiltasten funktionieren dort NICHT!)
+    # IMPORTANT: Check if PowerShell ISE (arrow keys do NOT work there!)
     if ($Host.Name -match "ISE") {
         Write-Host ""
         Write-Host "============================================================================" -ForegroundColor Red
@@ -370,10 +370,10 @@ function Show-ModuleSelection {
             $module = $modules[$i]
             $prefix = if ($i -eq $currentSelection) { "-> " } else { "  " }
             
-            # Pflicht-Module: Immer [X] und nicht änderbar
+            # Mandatory modules: Always [X] and not changeable
             if ($module.Mandatory) {
                 $checkbox = "[X]"
-                $checkColor = "Yellow"  # Gelb für Pflicht!
+                $checkColor = "Yellow"  # Yellow for mandatory!
                 $nameColor = "Yellow"   # Ganzer Name in Gelb
                 $mandatory = " [PFLICHT - KANN NICHT DEAKTIVIERT WERDEN]"
             }
@@ -402,7 +402,7 @@ function Show-ModuleSelection {
         Write-Host "============================================================================" -ForegroundColor Yellow
         Write-Host ""
         
-        # Warte auf Tastendruck mit Error-Handling
+        # Wait for keypress with error handling
         try {
             $key = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
         }
@@ -492,7 +492,7 @@ function Show-Progress {
         Write-Progress -Activity $Activity -Status $Status -PercentComplete $PercentComplete
     }
     catch {
-        # Fallback fuer non-interactive sessions
+        # Fallback for non-interactive sessions
         Write-Verbose "$Activity - $Status ($PercentComplete%)"
     }
 }
@@ -538,9 +538,9 @@ function Invoke-AuditMode {
         $confirm = $confirm.Trim().ToUpper()
     }
     
-    # Support fuer Deutsch (J/j) und English (Y/y)
+    # Support for German (J/j) and English (Y/y)
     if ($confirm -in @('J', 'Y')) {
-        # Best Practice 25H2: Explizit Hashtable mit allen Properties erstellen
+        # Best Practice 25H2: Explicitly create hashtable with all properties
         $auditConfig = @{
             Mode = 'Audit'
             Modules = @('Core', 'ASR', 'Advanced', 'DNS', 'Bloatware', 'Telemetry', 'Performance', 'AI', 'WirelessDisplay', 'OneDrive', 'UAC', 'WindowsUpdate', 'Edge')
@@ -620,13 +620,13 @@ function Invoke-EnforceMode {
         $confirm = $confirm.Trim().ToUpper()
     }
     
-    # Support fuer Deutsch (J) und English (Y)
+    # Support for German (J) and English (Y)
     if ($confirm -in @('J', 'Y')) {
         Write-Host ""
         Write-Host "  Starte Enforce Mode..." -ForegroundColor Green
         Write-Host ""
         
-        # Best Practice 25H2: Explizit Hashtable mit allen Properties erstellen
+        # Best Practice 25H2: Explicitly create hashtable with all properties
         $enforceConfig = @{
             Mode = 'Enforce'
             Modules = @('Core', 'ASR', 'Advanced', 'DNS', 'Bloatware', 'Telemetry', 'Performance', 'AI', 'WirelessDisplay', 'OneDrive', 'UAC', 'WindowsUpdate', 'Edge')
@@ -669,7 +669,7 @@ function Invoke-CustomMode {
         Write-Host ""
         Write-Host "  Druecken Sie eine Taste..." -ForegroundColor Gray
         
-        # ReadKey mit Error-Handling
+        # ReadKey with error handling
         try {
             if ($Host.UI.RawUI) {
                 $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
@@ -723,9 +723,9 @@ function Invoke-CustomMode {
         $confirm = $confirm.Trim().ToUpper()
     }
     
-    # Support fuer Deutsch (J) und English (Y)
+    # Support for German (J) and English (Y)
     if ($confirm -in @('J', 'Y')) {
-        # Best Practice 25H2: Explizit Hashtable mit allen Properties erstellen
+        # Best Practice 25H2: Explicitly create hashtable with all properties
         $customConfig = @{
             Mode = $mode
             Modules = $enabledModules
@@ -770,7 +770,7 @@ function Invoke-VerifyMode {
     }
     
     if ($confirm -in @('J', 'Y')) {
-        # $PSCommandPath Null-Check mit robustem Error-Handling
+        # $PSCommandPath null check with robust error handling
         if (-not $PSCommandPath) {
             Write-Host "  [ERROR] Script-Pfad konnte nicht ermittelt werden (dot-sourced script?)" -ForegroundColor Red
             Write-Host "  Bitte fuehren Sie das Verify-Skript direkt aus." -ForegroundColor Yellow
@@ -810,7 +810,7 @@ function Invoke-VerifyMode {
         Write-Host ""
         Write-Host "  Druecken Sie eine Taste..." -ForegroundColor Gray
         
-        # ReadKey mit Error-Handling
+        # ReadKey with error handling
         try {
             if ($Host.UI.RawUI) {
                 $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
@@ -892,12 +892,12 @@ function Invoke-RebootPrompt {
         Write-Host "[J/S]: " -NoNewline -ForegroundColor Gray
         $choice = Read-Host
         
-        # Input-Validierung: Trim und ToUpper mit Null-Check
+        # Input validation: Trim and ToUpper with null check
         if ($choice) {
             $choice = $choice.Trim().ToUpper()
         }
         
-        # Support fuer Y/N (English)
+        # Support for Y/N (English)
         if ($choice -eq 'Y') { $choice = 'J' }
         if ($choice -eq 'N') { $choice = 'S' }
         
@@ -931,7 +931,7 @@ function Invoke-RebootPrompt {
             Write-Host "  $(Get-LocalizedString 'RebootStarting')" -ForegroundColor Cyan
             Start-Sleep -Seconds 1
             
-            # Restart-Computer mit Error-Handling
+            # Restart-Computer with error handling
             try {
                 Restart-Computer -Force -ErrorAction Stop
             }
@@ -983,7 +983,7 @@ function Start-InteractiveMode {
         [string]$LogPath
     )
     
-    # Sprachauswahl beim ersten Start - mit Existenz-Check
+    # Language selection at first start - with existence check
     if (Get-Command -Name Select-Language -ErrorAction SilentlyContinue) {
         try {
             Select-Language
@@ -997,26 +997,26 @@ function Start-InteractiveMode {
         Write-Verbose "Select-Language Funktion nicht verfuegbar - verwende Fallback"
     }
     
-    # VERSION BANNER wurde entfernt - wird jetzt NACH Start-Transcript im Hauptscript angezeigt!
-    # Grund: Interactive Mode startet VOR dem Transcript, daher wÃ¼rde Banner nicht im Log erscheinen
+    # VERSION BANNER was removed - now shown AFTER Start-Transcript in main script!
+    # Reason: Interactive mode starts BEFORE transcript, so banner would not appear in log
     
-    # === NEU: BACKUP/RESTORE PROMPT (NACH SPRACHE, VOR MODULE!) ===
+    # === NEW: BACKUP/RESTORE PROMPT (AFTER LANGUAGE, BEFORE MODULES!) ===
     $backupChoice = Show-BackupPrompt
     
     # Handle Backup-Choice Actions
     if ($backupChoice.Action -eq 'Exit') {
-        # User hat abgebrochen
+        # User cancelled
         return $null
     }
     elseif ($backupChoice.Action -eq 'Restore') {
-        # User will Restore - gebe spezielles Config zurueck
+        # User wants restore - return special config
         return @{
             Action = 'Restore'
             Mode = 'Restore'
         }
     }
     
-    # Merke ob Backup oder NoBackup
+    # Remember if Backup or NoBackup
     $createRestorePoint = ($backupChoice.Action -eq 'NoBackup')
     $createBackup = ($backupChoice.Action -eq 'Backup')
     
@@ -1046,17 +1046,17 @@ function Start-InteractiveMode {
         }
         
         if ($null -ne $config) {
-            # Best Practice 25H2: UEBERSCHREIBE Backup/Restore Point Settings
-            # aus Show-BackupPrompt, nicht nur hinzufÃ¼gen!
+            # Best Practice 25H2: Overwrite Backup/Restore Point settings
+            # from Show-BackupPrompt, not just add!
             
-            # WICHTIG: $config ist eine Hashtable, NICHT PSCustomObject!
-            # Daher: Direkte Zuweisung verwenden, KEIN Add-Member!
+            # IMPORTANT: $config is a Hashtable, NOT PSCustomObject!
+            # Therefore: Use direct assignment, NO Add-Member!
             
-            # CreateRestorePoint Ã¼berschreiben (funktioniert bei Hashtables immer)
+            # Overwrite CreateRestorePoint (always works with hashtables)
             $config.CreateRestorePoint = $createRestorePoint
             Write-Verbose "CreateRestorePoint gesetzt: $createRestorePoint"
             
-            # CreateBackup Ã¼berschreiben (funktioniert bei Hashtables immer)
+            # Overwrite CreateBackup (always works with hashtables)
             $config.CreateBackup = $createBackup
             Write-Verbose "CreateBackup gesetzt: $createBackup"
             
@@ -1085,7 +1085,7 @@ function Show-BackupPrompt {
     [OutputType([hashtable])]
     param()
     
-    # Clear-Host mit Error-Handling
+    # Clear-Host with error handling
     try {
         Clear-Host
     }
@@ -1164,7 +1164,7 @@ function Show-BackupPrompt {
                 $choice = ''
             }
             
-            # Support fuer Y (English)
+            # Support for Y (English)
             if ($choice -eq 'Y') { $choice = 'J' }
             
             if ($choice -notin @('J', 'N', 'R', '0', '')) {
@@ -1255,7 +1255,7 @@ function Show-BackupPrompt {
                 $choice = ''
             }
             
-            # Support fuer J (German)
+            # Support for J (German)
             if ($choice -eq 'J') { $choice = 'Y' }
             
             if ($choice -notin @('Y', 'N', 'R', '0', '')) {

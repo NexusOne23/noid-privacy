@@ -22,12 +22,12 @@ param(
 #Requires -Version 5.1
 #Requires -RunAsAdministrator
 
-# Best Practice 25H2: Strict Mode aktivieren
+# Best Practice 25H2: Enable Strict Mode
 Set-StrictMode -Version Latest
 
 $ErrorActionPreference = 'Continue'
 
-# ===== CONSOLE ENCODING FUER UMLAUTE (Best Practice 25H2) ======
+# ===== CONSOLE ENCODING FOR UMLAUTS (Best Practice 25H2) ======
 try {
     [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
     $OutputEncoding = [System.Text.Encoding]::UTF8
@@ -203,7 +203,7 @@ Write-Host "  [!] NOTE: These features require REBOOT to be active!" -Foreground
 Write-Host "  [!] HINWEIS: Diese Features erfordern NEUSTART!" -ForegroundColor Yellow
 Write-Host "" 
 
-# CRITICAL FIX v1.7.6: Pruefe RUNTIME-Status statt nur Registry!
+# CRITICAL FIX v1.7.6: Check RUNTIME status instead of just registry!
 # Registry = Configured (geplant), CIM = Running (aktiv)
 try {
     $vbs = Get-CimInstance -ClassName Win32_DeviceGuard -Namespace root\Microsoft\Windows\DeviceGuard -ErrorAction Stop
@@ -238,7 +238,7 @@ try {
 catch {
     Write-Host "  [!] Win32_DeviceGuard CIM Check fehlgeschlagen - pruefe Registry..." -ForegroundColor Yellow
     
-    # Fallback auf Registry (nur Configured-Status)
+    # Fallback to Registry (only Configured status)
     $vbsReg = (Get-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard" -Name EnableVirtualizationBasedSecurity -ErrorAction SilentlyContinue).EnableVirtualizationBasedSecurity
     $cgReg = (Get-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Control\Lsa" -Name LsaCfgFlags -ErrorAction SilentlyContinue).LsaCfgFlags
     

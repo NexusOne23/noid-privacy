@@ -19,7 +19,7 @@
              ohne kritische Windows-Funktionen zu brechen!
 #>
 
-# Best Practice 25H2: Strict Mode aktivieren
+# Best Practice 25H2: Enable Strict Mode
 Set-StrictMode -Version Latest
 
 function Disable-TelemetryServices {
@@ -38,7 +38,7 @@ function Disable-TelemetryServices {
     
     Write-Info "Telemetrie-Services werden deaktiviert..."
     
-    # Liste der Telemetrie-Services (Best Practice 2025)
+    # List of telemetry services (Best Practice 2025)
     $telemetryServices = @(
         # Hauptakteur: Connected User Experiences and Telemetry
         @{
@@ -89,14 +89,14 @@ function Disable-TelemetryServices {
             Critical = $true  # VORSICHT: Windows Troubleshooter braucht das!
         },
         
-        # Remote Registry (sollte eh schon aus sein)
+        # Remote Registry (should already be off anyway)
         @{
             Name = "RemoteRegistry"
             DisplayName = "Remote Registry"
             Critical = $false
         },
         
-        # Xbox Live Services (Telemetrie fuer Gaming)
+        # Xbox Live Services (telemetry for gaming)
         @{
             Name = "XblAuthManager"
             DisplayName = "Xbox Live Auth Manager"
@@ -182,7 +182,7 @@ function Set-TelemetryRegistry {
     
     Write-Info "Registry-Keys fuer Privacy werden gesetzt..."
     
-    # ===== HAUPTSCHALTER: Telemetrie auf Security (0) setzen =====
+    # ===== MAIN SWITCH: Set telemetry to Security (0) =====
     $policiesPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection"
     
     Set-RegistryValue -Path $policiesPath -Name "AllowTelemetry" -Value 0 -Type DWord `
@@ -218,10 +218,10 @@ function Set-TelemetryRegistry {
     Set-RegistryValue -Path $advertisingPath -Name "DisabledByGroupPolicy" -Value 1 -Type DWord `
         -Description "Advertising ID deaktivieren"
     
-    # Per-User Setting via POLICY (gilt fuer ALLE User!)
+    # Per-User Setting via POLICY (applies to ALL users!)
     $userAdvertisingPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\AdvertisingInfo"
     Set-RegistryValue -Path $userAdvertisingPath -Name "DisabledByGroupPolicy" -Value 1 -Type DWord `
-        -Description "Advertising ID Policy (gilt fuer ALLE User)"
+        -Description "Advertising ID Policy (applies to ALL users)"
     
     # ===== PRIVACY | GENERAL - COMPLETE (5 TOGGLES) =====
     # Best Practice October 2025: All 5 toggles in Settings | Privacy and security | General
@@ -262,7 +262,7 @@ function Set-TelemetryRegistry {
         -Description "Settings Suggested Content OFF (3)"
     
     # Toggle 5: Show notifications in Settings app (NEW in 25H2!)
-    # CRITICAL FIX: Falscher Key! Muss AccountNotifications sein (Source: ElevenForum)
+    # CRITICAL FIX: Wrong key! Must be AccountNotifications (Source: ElevenForum)
     $settingsNotifPath = "HKCU:\Software\Microsoft\Windows\CurrentVersion\SystemSettings\AccountNotifications"
     try {
         if (-not (Test-Path $settingsNotifPath)) {
@@ -365,7 +365,7 @@ function Remove-TelemetryTasks {
     
     Write-Info "Telemetrie-Tasks werden deaktiviert..."
     
-    # Liste der Telemetrie-Tasks (Best Practice 2025)
+    # List of telemetry tasks (Best Practice 2025)
     $telemetryTasks = @(
         # Microsoft Compatibility Appraiser
         "\Microsoft\Windows\Application Experience\Microsoft Compatibility Appraiser",
@@ -419,7 +419,7 @@ function Remove-TelemetryTasks {
             $task = Get-ScheduledTask -TaskPath $parentPath -TaskName $taskName -ErrorAction SilentlyContinue
             
             if ($task) {
-                # Best Practice 25H2: Idempotenz - nur disable wenn nicht bereits disabled
+                # Best Practice 25H2: Idempotency - only disable if not already disabled)
                 if ($task.State -ne 'Disabled') {
                     # Disable task
                     [void](Disable-ScheduledTask -TaskName $task.TaskName -TaskPath $task.TaskPath -ErrorAction Stop)
@@ -464,25 +464,25 @@ function Block-TelemetryHosts {
     Write-Info "GRUND: Windows Firewall akzeptiert nur IP-Adressen, keine Hostnamen"
     Write-Info "ALTERNATIVE: Telemetrie wird via Registry + Services blockiert (bereits aktiv)"
     
-    # Telemetrie wird bereits blockiert durch:
-    # 1. Registry-Keys (AllowTelemetry = 0)
-    # 2. Services deaktiviert (DiagTrack, dmwappushservice, etc.)
-    # 3. Scheduled Tasks deaktiviert
-    # 4. DNS-Level blocking (wenn DNS Blocklist aktiv)
+    # Telemetry is already blocked through:
+    # 1. Registry keys (AllowTelemetry = 0)
+    # 2. Services disabled (DiagTrack, dmwappushservice, etc.)
+    # 3. Scheduled tasks disabled
+    # 4. DNS-level blocking (if DNS blocklist active)
     
     return
     
-    # Original-Code auskommentiert (funktioniert nicht mit Hostnamen)
-    # HINWEIS: Der komplette Firewall-Code wurde deaktiviert, da Windows Firewall
-    # keine Hostnamen akzeptiert (nur IP-Adressen). DNS-Resolution waere noetig,
-    # aber Telemetrie-IPs aendern sich staendig. Alternative: DNS Blocklist.
+    # Original code commented out (does not work with hostnames)
+    # NOTE: The complete firewall code was disabled because Windows Firewall
+    # does not accept hostnames (only IP addresses). DNS resolution would be needed,
+    # but telemetry IPs change constantly. Alternative: DNS blocklist.
     
     <#
-    # DIESER CODE IST DEAKTIVIERT - FUNKTIONIERT NICHT MIT HOSTNAMEN
+    # THIS CODE IS DISABLED - DOES NOT WORK WITH HOSTNAMES
     Write-Info "Telemetrie-Endpunkte werden blockiert..."
     
-    # Liste der Telemetrie-Hosts (Best Practice 2025)
-    # WICHTIG: Windows Update Hosts sind NICHT in dieser Liste!
+    # List of telemetry hosts (Best Practice 2025)
+    # IMPORTANT: Windows Update hosts are NOT in this list!
     $telemetryHosts = @(
         # Main Telemetry Endpoints
         "vortex.data.microsoft.com",
@@ -584,8 +584,8 @@ function Block-TelemetryHosts {
     #>
 }
 
-# NOTE: Disable-ConsumerFeatures wurde nach SecurityBaseline-Bloatware.ps1 verschoben
-# um Code-Duplikation zu vermeiden. Die Funktion wird dort exportiert.
+# NOTE: Disable-ConsumerFeatures was moved to SecurityBaseline-Bloatware.ps1
+# to avoid code duplication. The function is exported from there.
 
 function Get-TelemetryStatus {
     <#
@@ -719,9 +719,9 @@ function Disable-CameraAndMicrophone {
     
     Write-Info "Entferne Kamera und Mikrofon Berechtigungen fuer ALLE Apps..."
     
-    # CRITICAL FIX v1.7.10: NUR "Value"="Deny" setzen (MS-konform!)
-    # LastUsedTime* sind FORENSIC-TRACKING (werden von Windows automatisch verwaltet!)
-    # Quelle: MS Support Docs + ElevenForum + Forensics Research
+    # CRITICAL FIX v1.7.10: ONLY set "Value"="Deny" (MS-compliant!)
+    # LastUsedTime* are FORENSIC-TRACKING (managed automatically by Windows!)
+    # Source: MS Support Docs + ElevenForum + Forensics Research
     
     # ===== KAMERA (WEBCAM) =====
     
@@ -734,7 +734,7 @@ function Disable-CameraAndMicrophone {
         Set-ItemProperty -Path $cameraPathHKCU -Name "Value" -Value "Deny" -Type String -Force -ErrorAction Stop
         Write-Verbose "     Kamera HKCU: Value=Deny"
         
-        # Sub-Keys auch auf Deny setzen
+        # Sub-keys also set to Deny
         try {
             $cameraApps = Get-ChildItem -Path $cameraPathHKCU -ErrorAction SilentlyContinue
             if ($cameraApps) {
@@ -756,7 +756,7 @@ function Disable-CameraAndMicrophone {
         Write-Warning "Kamera HKCU Fehler: $_"
     }
     
-    # HKLM (neue User - Default)
+    # HKLM (new users - default)
     $cameraPathHKLM = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\webcam"
     try {
         if (-not (Test-Path $cameraPathHKLM)) {
@@ -780,7 +780,7 @@ function Disable-CameraAndMicrophone {
         Set-ItemProperty -Path $microphonePathHKCU -Name "Value" -Value "Deny" -Type String -Force -ErrorAction Stop
         Write-Verbose "     Mikrofon HKCU: Value=Deny"
         
-        # Sub-Keys auch auf Deny setzen
+        # Sub-keys also set to Deny
         try {
             $microphoneApps = Get-ChildItem -Path $microphonePathHKCU -ErrorAction SilentlyContinue
             if ($microphoneApps) {
@@ -802,7 +802,7 @@ function Disable-CameraAndMicrophone {
         Write-Warning "Mikrofon HKCU Fehler: $_"
     }
     
-    # HKLM (neue User - Default)
+    # HKLM (new users - default)
     $microphonePathHKLM = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\microphone"
     try {
         if (-not (Test-Path $microphonePathHKLM)) {
@@ -816,22 +816,22 @@ function Disable-CameraAndMicrophone {
     }
     
     # ===== CRITICAL FIX: DEVICE-LEVEL TOGGLE (Windows 11 25H2) =====
-    # Windows 11 hat ZWEI Toggles pro Permission:
-    # 1. "Zugriff auf Kamera" (Device-Level) = EnabledByUser in Capabilities\webcam\Apps
-    # 2. "Apps den Zugriff erlauben" (App-Level) = Value in ConsentStore\webcam
+    # Windows 11 has TWO toggles per permission:
+    # 1. "Access to Camera" (Device-Level) = EnabledByUser in Capabilities\webcam\Apps
+    # 2. "Allow apps to access" (App-Level) = Value in ConsentStore\webcam
     # 
-    # Wir muessen BEIDE auf AUS setzen!
+    # We must set BOTH to OFF!
     
     Write-Verbose "Setze Device-Level Toggles (Zugriff auf Kamera/Mikrofon)..."
     
-    # KAMERA: Device-Level Toggle AUS (TrustedInstaller-Protected!)
+    # CAMERA: Device-Level Toggle OFF (TrustedInstaller-Protected!)
     $cameraCapabilitiesPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\Capabilities\webcam\Apps"
     try {
         if (Test-Path $cameraCapabilitiesPath) {
             $cameraApps = Get-ChildItem -Path $cameraCapabilitiesPath -ErrorAction SilentlyContinue
             foreach ($app in $cameraApps) {
-                # CRITICAL: EnabledByUser Keys sind TrustedInstaller-Protected!
-                # Use Set-RegistryValueSmart (mit Ownership Management)
+                # CRITICAL: EnabledByUser Keys are TrustedInstaller-Protected!
+                # Use Set-RegistryValueSmart (with ownership management)
                 $appPath = $app.PSPath -replace 'Microsoft.PowerShell.Core\\Registry::', ''
                 $result = Set-RegistryValueSmart -Path $appPath -Name "EnabledByUser" -Value 0 -Type DWord `
                     -Description "Device-Toggle Kamera: $($app.PSChildName)"
@@ -845,14 +845,14 @@ function Disable-CameraAndMicrophone {
         Write-Verbose "Kamera Device-Level Toggle Fehler: $_"
     }
     
-    # MIKROFON: Device-Level Toggle AUS (TrustedInstaller-Protected!)
+    # MICROPHONE: Device-Level Toggle OFF (TrustedInstaller-Protected!)
     $microphoneCapabilitiesPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\Capabilities\microphone\Apps"
     try {
         if (Test-Path $microphoneCapabilitiesPath) {
             $microphoneApps = Get-ChildItem -Path $microphoneCapabilitiesPath -ErrorAction SilentlyContinue
             foreach ($app in $microphoneApps) {
-                # CRITICAL: EnabledByUser Keys sind TrustedInstaller-Protected!
-                # Use Set-RegistryValueSmart (mit Ownership Management)
+                # CRITICAL: EnabledByUser Keys are TrustedInstaller-Protected!
+                # Use Set-RegistryValueSmart (with ownership management)
                 $appPath = $app.PSPath -replace 'Microsoft.PowerShell.Core\\Registry::', ''
                 $result = Set-RegistryValueSmart -Path $appPath -Name "EnabledByUser" -Value 0 -Type DWord `
                     -Description "Device-Toggle Mikrofon: $($app.PSChildName)"
@@ -868,7 +868,7 @@ function Disable-CameraAndMicrophone {
     
     Write-Verbose "Device-Level Toggles gesetzt - 'Zugriff auf Kamera/Mikrofon' sollte jetzt AUS sein"
     
-    # Verification: Pruefe ob die Werte wirklich gesetzt wurden
+    # Verification: Check if values were really set
     Start-Sleep -Milliseconds 500  # Kurze Pause damit Registry committed
     
     $camValue = Get-ItemProperty -Path $cameraPathHKCU -Name "Value" -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Value
@@ -886,8 +886,8 @@ function Disable-CameraAndMicrophone {
         Write-Warning "Mikrofon ConsentStore: '$micValue' (erwartet: Deny)"
     }
     
-    # CRITICAL: Settings App UND Explorer muessen neu gestartet werden!
-    # Settings App cached die Privacy-Einstellungen im Memory!
+    # CRITICAL: Settings App AND Explorer must be restarted!
+    # Settings App caches privacy settings in memory!
     Write-Verbose "Stoppe Settings App damit Aenderungen sofort sichtbar werden..."
     try {
         Get-Process -Name SystemSettings -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
@@ -949,10 +949,10 @@ function Disable-PrivacyExperienceSettings {
     
     Write-Section "Privacy Experience Settings deaktivieren"
     
-    # Language List via POLICY (gilt fuer ALLE User!)
-    # NOTE: Es gibt keine direkte HKLM Policy fuer HttpAcceptLanguageOptOut
-    # Stattdessen verwenden wir DisableTailoredExperiencesWithDiagnosticData
-    # Das deckt Language List + andere personalisierte Inhalte ab
+    # Language List via POLICY (applies to ALL users!)
+    # NOTE: There is no direct HKLM policy for HttpAcceptLanguageOptOut
+    # Instead we use DisableTailoredExperiencesWithDiagnosticData
+    # This covers Language List + other personalized content
     
     $cloudContentPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent"
     Set-RegistryValue -Path $cloudContentPath -Name "DisableWindowsConsumerFeatures" -Value 1 -Type DWord -Description "Consumer Features deaktivieren"
@@ -977,7 +977,7 @@ function Disable-InkingAndTypingPersonalization {
     
     Write-Section "Freihand- und Eingabeanpassung deaktivieren"
     
-    # Input Personalization via POLICY (gilt fuer ALLE User!)
+    # Input Personalization via POLICY (applies to ALL users!)
     $inputPolicyPath = "HKLM:\SOFTWARE\Policies\Microsoft\InputPersonalization"
     Set-RegistryValue -Path $inputPolicyPath -Name "RestrictImplicitInkCollection" -Value 1 -Type DWord -Description "Freihand-Datensammlung einschraenken (Policy)"
     Set-RegistryValue -Path $inputPolicyPath -Name "RestrictImplicitTextCollection" -Value 1 -Type DWord -Description "Text-Datensammlung einschraenken (Policy)"
@@ -1030,18 +1030,18 @@ function Set-LocationServicesDefault {
     $sensorPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\LocationAndSensors"
     Set-RegistryValue -Path $sensorPath -Name "DisableLocation" -Value 1 -Type DWord -Description "Standortdienste deaktivieren"
     
-    # CRITICAL FIX v1.7.10: HKCU for current user (NUR Value!)
+    # CRITICAL FIX v1.7.10: HKCU for current user (ONLY Value!)
     Write-Verbose "Setze Location auch fuer aktuellen User (HKCU)..."
     $locationPathHKCU = "HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location"
     try {
         if (-not (Test-Path $locationPathHKCU)) {
             $null = New-Item -Path $locationPathHKCU -Force -ErrorAction Stop
         }
-        # NUR Value setzen - Windows managed LastUsedTime* selbst!
+        # ONLY set Value - Windows manages LastUsedTime* itself!
         Set-ItemProperty -Path $locationPathHKCU -Name "Value" -Value "Deny" -Type String -Force -ErrorAction Stop
         Write-Verbose "     Location HKCU: Value=Deny"
         
-        # Sub-Keys auch auf Deny setzen
+        # Sub-keys also set to Deny
         try {
             $locationApps = Get-ChildItem -Path $locationPathHKCU -ErrorAction SilentlyContinue
             if ($locationApps) {
@@ -1245,7 +1245,7 @@ function Disable-AllAppPermissionsDefaults {
     Set-RegistryValue -Path $appDiagPath -Name "LetAppsGetDiagnosticInfo" -Value 2 -Type DWord `
         -Description "Apps: Diagnostics OFF (Value 2 means User Denied)"
     
-    # ===== NEU: ALLE VERBLEIBENDEN KATEGORIEN (Windows 11 25H2 Complete) =====
+    # ===== NEW: ALL REMAINING CATEGORIES (Windows 11 25H2 Complete) =====
     
     # Activity (Activity History)
     Write-Verbose "Activity History Access OFF..."
@@ -1337,15 +1337,15 @@ function Disable-AllAppPermissionsDefaults {
     Set-RegistryValue -Path $wifiDirectPath -Name "Value" -Value "Deny" -Type String `
         -Description "Apps: WiFi Direct OFF"
     
-    # ===== CRITICAL FIX: HKCU FUER AKTUELLEN USER! =====
-    # HKLM setzt nur Defaults fuer NEUE User
-    # HKCU = Aktueller User (sofort wirksam!)
+    # ===== CRITICAL FIX: HKCU FOR CURRENT USER! =====
+    # HKLM only sets defaults for NEW users
+    # HKCU = Current user (takes effect immediately!)
     
     Write-Verbose "Setze Permissions auch fuer AKTUELLEN User (HKCU)..."
     $consentStoreCurrentUser = "HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore"
     
-    # Liste aller Permissions die auch fuer aktuellen User gesetzt werden sollen
-    # COMPLETE LIST: Alle 33 ConsentStore-Permissions
+    # List of all permissions that should also be set for current user
+    # COMPLETE LIST: All 33 ConsentStore permissions
     $permissions = @(
         # Original 18 Permissions
         "userNotificationListener",         # Notifications
@@ -1390,19 +1390,19 @@ function Disable-AllAppPermissionsDefaults {
     foreach ($permission in $permissions) {
         $hkcuPath = "$consentStoreCurrentUser\$permission"
         
-        # CRITICAL FIX v1.7.10: NUR "Value" setzen (MS-konform!)
-        # LastUsedTime* sind FORENSIC-TRACKING (werden von Windows verwaltet!)
+        # CRITICAL FIX v1.7.10: ONLY set "Value" (MS-compliant!)
+        # LastUsedTime* are FORENSIC-TRACKING (managed by Windows!)
         try {
             # Ensure path exists
             if (-not (Test-Path $hkcuPath)) {
                 $null = New-Item -Path $hkcuPath -Force -ErrorAction Stop
             }
             
-            # NUR Value setzen - Windows managed LastUsedTime* selbst!
+            # ONLY set Value - Windows manages LastUsedTime* itself!
             Set-ItemProperty -Path $hkcuPath -Name "Value" -Value "Deny" -Type String -Force -ErrorAction Stop
             Write-Verbose "     HKCU: $permission = Deny"
             
-            # Sub-Keys auch auf Deny setzen
+            # Sub-keys also set to Deny
             try {
                 $appSubKeys = Get-ChildItem -Path $hkcuPath -ErrorAction SilentlyContinue
                 if ($appSubKeys) {
@@ -1425,13 +1425,13 @@ function Disable-AllAppPermissionsDefaults {
         }
     }
     
-    # App Diagnostics auch fuer aktuellen User
+    # App Diagnostics also for current user
     $appDiagPathHKCU = "HKCU:\SOFTWARE\Policies\Microsoft\Windows\AppPrivacy"
     Set-RegistryValue -Path $appDiagPathHKCU -Name "LetAppsGetDiagnosticInfo" -Value 2 -Type DWord `
-        -Description "AKTUELLER USER: App Diagnostics OFF"
+        -Description "CURRENT USER: App Diagnostics OFF"
     
-    # CRITICAL: Settings App muss neu gestartet werden damit Aenderungen sichtbar werden!
-    # Settings App cached die Privacy-Einstellungen im Memory!
+    # CRITICAL: Settings App must be restarted for changes to become visible!
+    # Settings App caches privacy settings in memory!
     Write-Verbose "Stoppe Settings App damit Aenderungen sofort sichtbar werden..."
     try {
         $settingsProcess = Get-Process -Name SystemSettings -ErrorAction SilentlyContinue

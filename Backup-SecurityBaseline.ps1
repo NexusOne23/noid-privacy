@@ -1,53 +1,53 @@
 <#
 .SYNOPSIS
-    Vollstaendiges Backup aller System-Settings VOR Security Baseline-Anwendung
+    Complete backup of all system settings BEFORE Security Baseline application
 
 .DESCRIPTION
-    Erstellt ein vollstaendiges Backup aller Settings die durch das Security Baseline-Script geaendert werden.
-    Backup-Format: JSON fuer einfaches Lesen und Wiederherstellen.
+    Creates a complete backup of all settings changed by the Security Baseline script.
+    Backup format: JSON for easy reading and restoration.
     
-    GESICHERT WIRD:
-    - DNS Settings (pro Adapter)
-    - Hosts-Datei
-    - Installierte Apps (Liste)
-    - Firewall Custom-Regeln (die wir erstellen)
-    - Service Start-Types (ALLE Services)
-    - Scheduled Tasks (State aller Tasks)
-    - Registry-Keys HKLM (alle geaenderten System-Settings)
-    - Registry-Keys HKCU (alle geaenderten User-Settings)
-    - User Accounts (Names)
+    WHAT IS BACKED UP:
+    - DNS Settings (per adapter)
+    - Hosts file
+    - Installed Apps (list)
+    - Firewall Custom Rules (those we create)
+    - Service Start-Types (ALL services)
+    - Scheduled Tasks (state of all tasks)
+    - Registry Keys HKLM (all changed system settings)
+    - Registry Keys HKCU (all changed user settings)
+    - User Accounts (names)
     - ASR Rules (Attack Surface Reduction - 16 Rules)
     - Exploit Protection (System-wide Mitigations)
     - DoH Configuration (DNS over HTTPS Server)
     - Firewall Profile Settings (Domain/Private/Public)
-    - Device-Level App Permissions (20-50 SubKeys) - NEU v1.4.0!
+    - Device-Level App Permissions (20-50 SubKeys) - NEW v1.4.0!
     
-    NEU IN VERSION 1.4.0:
-    - Device-Level App Permission SubKeys werden jetzt gebackuped!
-    - ~20-50 dynamische SubKeys pro Permission (webcam/microphone/location)
-    - PERFEKTE 100% Coverage - KEINE Luecken mehr!
+    NEW IN VERSION 1.4.0:
+    - Device-Level App Permission SubKeys are now backed up!
+    - ~20-50 dynamic SubKeys per permission (webcam/microphone/location)
+    - PERFECT 100% Coverage - NO gaps anymore!
     
     VERSION 1.3.0:
-    - Firewall Profile Settings (Get-NetFirewallProfile) werden jetzt gebackuped!
-    - 3 Profile (Domain/Private/Public) mit allen Einstellungen
-    - Kritische Luecke geschlossen!
+    - Firewall Profile Settings (Get-NetFirewallProfile) are now backed up!
+    - 3 Profiles (Domain/Private/Public) with all settings
+    - Critical gap closed!
     
     VERSION 1.2.0:
-    - ASR Rules (Get-MpPreference) werden jetzt gebackuped!
-    - Exploit Protection (Get-ProcessMitigation) wird jetzt gebackuped!
-    - DoH Configuration (Get-DnsClientDohServerAddress) wird jetzt gebackuped!
+    - ASR Rules (Get-MpPreference) are now backed up!
+    - Exploit Protection (Get-ProcessMitigation) is now backed up!
+    - DoH Configuration (Get-DnsClientDohServerAddress) is now backed up!
     
     VERSION 1.1.0:
-    - HKCU (User-specific) Registry-Keys werden jetzt auch gebackuped!
-    - 36 App Permissions (36 Keys: nur Value - UPDATED v1.7.11)
+    - HKCU (User-specific) Registry-Keys are now also backed up!
+    - 36 App Permissions (36 Keys: only Value - UPDATED v1.7.11)
     - 4 OneDrive Privacy Settings
-    - Vollstaendige Paritaet mit dem Security Baseline Script
+    - Complete parity with the Security Baseline Script
     
     VERSION 1.7.11 UPDATE:
-    - App Permissions: NUR "Value" wird gesichert (KEINE LastUsedTime* mehr!)
-    - LastUsedTime* sind Forensic-Tracking (von Windows verwaltet)
-    - Konsistent mit Apply-Script v1.7.11 (setzt auch nur Value)
-    - Registry Keys: 479 -> 405 Keys (-74 LastUsedTime* entfernt)
+    - App Permissions: ONLY "Value" is saved (NO LastUsedTime* anymore!)
+    - LastUsedTime* are Forensic-Tracking (managed by Windows)
+    - Consistent with Apply-Script v1.7.11 (also sets only Value)
+    - Registry Keys: 479 -> 405 Keys (-74 LastUsedTime* removed)
     
 .NOTES
     Version:        1.4.0
@@ -55,7 +55,7 @@
     Author:         NoID Privacy Team
     
 .PARAMETER BackupPath
-    Pfad wo Backup gespeichert wird (Standard: C:\ProgramData\SecurityBaseline\Backups)
+    Path where backup is saved (Default: C:\ProgramData\SecurityBaseline\Backups)
     
 .EXAMPLE
     .\Backup-SecurityBaseline.ps1
@@ -73,20 +73,20 @@ param(
 #Requires -Version 5.1
 #Requires -RunAsAdministrator
 
-# Best Practice 25H2: Strict Mode aktivieren (fängt undefined variables, non-existent properties)
+# Best Practice 25H2: Enable Strict Mode (catches undefined variables, non-existent properties)
 Set-StrictMode -Version Latest
 
 $ErrorActionPreference = 'Continue'
 $timestamp = Get-Date -Format 'yyyyMMdd-HHmmss'
 
-# ===== CONSOLE ENCODING FUER UMLAUTE (Best Practice 25H2) =====
+# ===== CONSOLE ENCODING FOR UMLAUTS (Best Practice 25H2) =====
 try {
     [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
     $OutputEncoding = [System.Text.Encoding]::UTF8
     chcp 65001 | Out-Null
 }
 catch {
-    Write-Verbose "Console-Encoding konnte nicht gesetzt werden: $_"
+    Write-Verbose "Console encoding could not be set: $_"
 }
 
 # ===== CONSOLE WINDOW SIZE (Best Practice 25H2) =====
@@ -124,8 +124,8 @@ catch {
 }
 
 # Ensure language is set (use from interactive session, environment variable, or default to English)
-# WICHTIG: Beim Dot-Sourcing ist $Global:CurrentLanguage bereits gesetzt - nicht überschreiben!
-# WICHTIG: Test-Path verwenden wegen Strict Mode!
+# IMPORTANT: When dot-sourcing, $Global:CurrentLanguage is already set - do not overwrite!
+# IMPORTANT: Use Test-Path because of Strict Mode!
 if (-not (Test-Path Variable:\Global:CurrentLanguage)) {
     # Check if language was passed via environment variable (from parent script)
     if ($env:NOID_LANGUAGE) {
@@ -147,7 +147,7 @@ Write-Host "`n==================================================================
 Write-Host "           $(Get-LocalizedString 'BackupBanner')" -ForegroundColor Cyan
 Write-Host "============================================================================`n" -ForegroundColor Cyan
 
-# Backup-Verzeichnis erstellen
+# Create backup directory
 if (-not (Test-Path $BackupPath)) {
     $null = New-Item -Path $BackupPath -ItemType Directory -Force
     Write-Host "[OK] $(Get-LocalizedString 'BackupDirCreated') $BackupPath" -ForegroundColor Green
@@ -155,7 +155,7 @@ if (-not (Test-Path $BackupPath)) {
 
 $backupFile = Join-Path $BackupPath "SecurityBaseline-Backup-$timestamp.json"
 
-# WICHTIG: Backup-Pfad SOFORT anzeigen (Best Practice 25H2)
+# IMPORTANT: Show backup path IMMEDIATELY (Best Practice 25H2)
 Write-Host ""
 Write-Host "============================================================================" -ForegroundColor Green
 Write-Host "  BACKUP-ZIEL" -ForegroundColor Green
@@ -165,21 +165,21 @@ Write-Host "  Verzeichnis: $BackupPath" -ForegroundColor Gray
 Write-Host "============================================================================" -ForegroundColor Green
 Write-Host ""
 
-# Best Practice 25H2: User ueber erwartete Dauer informieren
-Write-Host "[i] Erwartete Dauer:" -ForegroundColor Cyan
-Write-Host "    Normal: 2-3 Minuten" -ForegroundColor Gray
-Write-Host "    Maximal: 6 Minuten (bei langsamen Systemen)" -ForegroundColor Gray
+# Best Practice 25H2: Inform user about expected duration
+Write-Host "[i] Expected duration:" -ForegroundColor Cyan
+Write-Host "    Normal: 2-3 minutes" -ForegroundColor Gray
+Write-Host "    Maximum: 6 minutes (on slow systems)" -ForegroundColor Gray
 Write-Host ""
 
 # Best Practice 25H2: Disk Space Check BEFORE Backup starts!
 Write-Host "[i] Checking available disk space..." -ForegroundColor Cyan
 try {
-    # Extrahiere Laufwerksbuchstaben vom Backup-Pfad
+    # Extract drive letter from backup path
     $driveLetter = (Get-Item $BackupPath -ErrorAction Stop).PSDrive.Name
     $drive = Get-PSDrive -Name $driveLetter -ErrorAction Stop
     
     $freeSpaceGB = [Math]::Round($drive.Free / 1GB, 2)
-    $requiredSpaceGB = 0.1  # 100 MB Minimum für Backup
+    $requiredSpaceGB = 0.1  # 100 MB minimum for backup
     
     Write-Host "  Drive: $($driveLetter):" -ForegroundColor Gray
     Write-Host "  Free: $freeSpaceGB GB" -ForegroundColor Gray
@@ -196,27 +196,27 @@ try {
     Write-Host "  [OK] Sufficient disk space available" -ForegroundColor Green
 }
 catch {
-    Write-Warning "Disk Space Check fehlgeschlagen: $_"
-    Write-Warning "Backup wird trotzdem versucht (at your own risk)..."
+    Write-Warning "Disk Space Check failed: $_"
+    Write-Warning "Backup will still be attempted (at your own risk)..."
 }
 Write-Host ""
 
-# Automatische Bereinigung alter Backups
-# WICHTIG: ERSTES Backup (Original-Zustand) IMMER behalten!
-# Strategie: 1 Original + neueste 9 = 10 Total
+# Automatic cleanup of old backups
+# IMPORTANT: ALWAYS keep FIRST backup (original state)!
+# Strategy: 1 original + newest 9 = 10 total
 Write-Host "[i] $(Get-LocalizedString 'BackupCheckOld')" -ForegroundColor Cyan
 $existingBackups = @(Get-ChildItem -Path $BackupPath -Filter "SecurityBaseline-Backup-*.json" -ErrorAction SilentlyContinue |
-                   Sort-Object LastWriteTime)  # ASCENDING = Älteste zuerst!
+                   Sort-Object LastWriteTime)  # ASCENDING = oldest first!
 
-# @() wrapper verhindert Count-Fehler bei null/single item
+# @() wrapper prevents Count error with null/single item
 $backupCount = $existingBackups.Count
 
 if ($backupCount -gt 10) {
-    # STRATEGIE: Behalte erstes (Original) + neueste 9
-    $firstBackup = $existingBackups[0]  # ÄLTESTES = ORIGINAL-ZUSTAND
-    $recentBackups = @($existingBackups | Select-Object -Last 9)  # Neueste 9
+    # STRATEGY: Keep first (original) + newest 9
+    $firstBackup = $existingBackups[0]  # OLDEST = ORIGINAL STATE
+    $recentBackups = @($existingBackups | Select-Object -Last 9)  # Newest 9
     
-    # Zu löschende = ALLES außer erstem und neuesten 9
+    # To delete = EVERYTHING except first and newest 9
     $toKeep = @($firstBackup) + $recentBackups
     $toDelete = @($existingBackups | Where-Object { $_.FullName -notin $toKeep.FullName })
     
@@ -292,7 +292,7 @@ Write-Host "[2/14] $(Get-LocalizedString 'BackupHosts')" -ForegroundColor Yellow
 
 $hostsPath = "$env:SystemRoot\System32\drivers\etc\hosts"
 if (Test-Path $hostsPath) {
-    # WICHTIG: ToString() um wirklich nur String zu bekommen (nicht FileInfo-Objekt)
+    # IMPORTANT: ToString() to really get only string (not FileInfo object)
     $hostsContent = [string](Get-Content $hostsPath -Raw -ErrorAction SilentlyContinue)
     $backup.Settings.HostsFile = $hostsContent
     $lineCount = ($hostsContent -split "`n").Count
@@ -305,15 +305,15 @@ else {
 }
 #endregion
 
-#region Installed Apps Backup (MIT PROVISIONED PACKAGES!)
+#region Installed Apps Backup (WITH PROVISIONED PACKAGES!)
 Write-Host "[3/14] $(Get-LocalizedString 'BackupApps')" -ForegroundColor Yellow
 
-# User Apps (mit Timeout-Protection)
+# User Apps (with timeout protection)
 $installedApps = @()
 try {
     Write-Host "  [i] Reading installed apps (max 60s)..." -ForegroundColor Gray
     
-    # TIMEOUT: 60 Sekunden max für AppX-Enumeration
+    # TIMEOUT: 60 seconds max for AppX enumeration
     $job = Start-Job -ScriptBlock { Get-AppxPackage -ErrorAction SilentlyContinue }
     $completed = Wait-Job $job -Timeout 60
     
@@ -321,7 +321,7 @@ try {
         $appxPackages = Receive-Job $job -ErrorAction SilentlyContinue
         Remove-Job $job -Force
         
-        # [OK] BEST PRACTICE: Capture foreach output directly (O(n) statt O(n2))
+        # [OK] BEST PRACTICE: Capture foreach output directly (O(n) instead of O(n2))
         $installedApps = foreach ($app in $appxPackages) {
             # Output to pipeline (captured by $installedApps)
             @{
@@ -347,14 +347,14 @@ catch {
     $backup.Settings.InstalledApps = @()
 }
 
-# Provisioned Packages (mit Timeout-Protection)
+# Provisioned Packages (with timeout protection)
 Write-Host "  [i] $(Get-LocalizedString 'BackupAppsProvisioned')" -ForegroundColor Cyan
 
 $provisionedPackages = @()
 try {
     Write-Host "  [i] Lese Provisioned Packages (max 90s)..." -ForegroundColor Gray
     
-    # TIMEOUT: 90 Sekunden max (Get-AppxProvisionedPackage -Online ist LANGSAM!)
+    # TIMEOUT: 90 seconds max (Get-AppxProvisionedPackage -Online is SLOW!)
     $job = Start-Job -ScriptBlock { Get-AppxProvisionedPackage -Online -ErrorAction SilentlyContinue }
     $completed = Wait-Job $job -Timeout 90
     
@@ -362,7 +362,7 @@ try {
         $packages = Receive-Job $job -ErrorAction SilentlyContinue
         Remove-Job $job -Force
         
-        # [OK] BEST PRACTICE: Capture foreach output directly (O(n) statt O(n2))
+        # [OK] BEST PRACTICE: Capture foreach output directly (O(n) instead of O(n2))
         $provisionedPackages = foreach ($pkg in $packages) {
             # Output to pipeline (captured by $provisionedPackages)
             @{
@@ -390,10 +390,10 @@ catch {
 Write-Host ""
 #endregion
 
-#region Services Backup (ALLE SERVICES!)
+#region Services Backup (ALL SERVICES!)
 Write-Host "[4/14] $(Get-LocalizedString 'BackupServices')" -ForegroundColor Yellow
 
-# BACKUP ALLER SERVICES (nicht nur die wir aendern!)
+# BACKUP ALL SERVICES (not just the ones we change!)
 $allServices = Get-Service -ErrorAction SilentlyContinue
 
 # [OK] BEST PRACTICE: Capture foreach output directly (O(n) statt O(n2))
@@ -418,10 +418,10 @@ Write-Host "    $(Get-LocalizedString 'BackupServicesNote')" -ForegroundColor Gr
 Write-Host ""
 #endregion
 
-#region Scheduled Tasks Backup (ALLE TASKS!)
+#region Scheduled Tasks Backup (ALL TASKS!)
 Write-Host "[5/14] Backup Scheduled Tasks..." -ForegroundColor Yellow
 
-# BACKUP ALLER SCHEDULED TASKS (nicht nur die wir aendern!)
+# BACKUP ALL SCHEDULED TASKS (not just the ones we change!)
 $allTasks = Get-ScheduledTask -ErrorAction SilentlyContinue
 
 # [OK] BEST PRACTICE: Capture foreach output directly (O(n) statt O(n2))
@@ -432,7 +432,7 @@ $tasksBackup = foreach ($task in $allTasks) {
             TaskPath = $task.TaskPath
             TaskName = $task.TaskName
             State = $task.State.ToString()  # Enum zu String
-            # WICHTIG: Nur State backup (nicht Actions/Triggers - zu komplex!)
+            # IMPORTANT: Only backup State (not Actions/Triggers - too complex!)
         }
     }
     catch {
@@ -446,10 +446,10 @@ Write-Host "    HINWEIS: Nur State (Enabled/Disabled/Ready) wird gebackupt" -For
 Write-Host ""
 #endregion
 
-#region Firewall Rules Backup (ALLE REGELN!)
+#region Firewall Rules Backup (ALL RULES!)
 Write-Host "[6/14] $(Get-LocalizedString 'BackupFirewall')" -ForegroundColor Yellow
 
-# BACKUP ALLER FIREWALL-REGELN (nicht nur Custom!)
+# BACKUP ALL FIREWALL RULES (not just custom!)
 $allFirewallRules = Get-NetFirewallRule -ErrorAction SilentlyContinue
 
 # [OK] BEST PRACTICE: Capture foreach output directly (O(n) statt O(n2))
@@ -504,7 +504,7 @@ Write-Host ""
 #region Registry Keys Backup
 Write-Host "[8/14] $(Get-LocalizedString 'BackupRegistry')" -ForegroundColor Yellow
 
-# Funktion zum Sichern von Registry-Werten
+# Function to backup registry values
 function Backup-RegistryValue {
     param(
         [string]$Path,
@@ -522,7 +522,7 @@ function Backup-RegistryValue {
                 $rawValue = $null
             }
             
-            # Konvertiere zu primitive Typen (String, Int, Bool, null)
+            # Convert to primitive types (String, Int, Bool, null)
             if ($null -eq $rawValue) {
                 $convertedValue = $null
             }
@@ -536,16 +536,16 @@ function Backup-RegistryValue {
                 $convertedValue = $rawValue
             }
             elseif ($rawValue -is [array]) {
-                # Arrays von primitiven Typen
+                # Arrays of primitive types
                 $convertedValue = @($rawValue | ForEach-Object { $_.ToString() })
             }
             else {
-                # Fallback: Zu String konvertieren
+                # Fallback: Convert to string
                 $convertedValue = $rawValue.ToString()
             }
             
-            # CRITICAL FIX: Verwende eindeutige Property-Namen um JSON-Serialisierungs-Probleme zu vermeiden
-            # "Value" als Property-Name kann mit Registry-Value-Name "Value" kollidieren!
+            # CRITICAL FIX: Use unique property names to avoid JSON serialization issues
+            # "Value" as property name can collide with registry value name "Value"!
             return @{
                 RegPath = $Path
                 RegName = $Name
@@ -571,7 +571,7 @@ function Backup-RegistryValue {
     }
 }
 
-# ERWEITERTE REGISTRY-KEYS (ALLE die das Script aendert!)
+# EXTENDED REGISTRY KEYS (ALL that the script changes!)
 $registryKeys = @(
     # DNS/Network
     @{Path="HKLM:\SYSTEM\CurrentControlSet\Services\Dnscache\Parameters"; Name="EnableAutoDoh"},
@@ -724,7 +724,7 @@ $registryKeys = @(
     @{Path="HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity"; Name="Enabled"},
     @{Path="HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity"; Name="WasEnabledBy"},
     
-    # BitLocker (CRITICAL FIX v1.7.6: Neue Policy-Namen mit XTS suffix!)
+    # BitLocker (CRITICAL FIX v1.7.6: New policy names with XTS suffix!)
     @{Path="HKLM:\SOFTWARE\Policies\Microsoft\FVE"; Name="EncryptionMethodWithXtsOs"},
     @{Path="HKLM:\SOFTWARE\Policies\Microsoft\FVE"; Name="EncryptionMethodWithXtsFdv"},
     @{Path="HKLM:\SOFTWARE\Policies\Microsoft\FVE"; Name="EncryptionMethodWithXtsRdv"},
@@ -874,7 +874,7 @@ $registryKeys = @(
     # REMOVED DUPLICATE: DisableRealtimeMonitoring (siehe oben)
     @{Path="HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Scan"; Name="CheckExclusions"},
     @{Path="HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\MpEngine"; Name="MpCloudBlockLevel"},
-    # PUAProtection wird jetzt via Set-MpPreference gesetzt (nicht Registry Policy!)
+    # PUAProtection is now set via Set-MpPreference (not registry policy!)
     @{Path="HKLM:\SOFTWARE\Microsoft\Windows Defender\Windows Defender Exploit Guard\Controlled Folder Access"; Name="EnableControlledFolderAccess"}
     
     # REMOVED DUPLICATE: Edge SmartScreenPuaEnabled (siehe oben)
@@ -948,16 +948,16 @@ $registryKeys = @(
     # =====================================================================================
     # ===== HKCU (USER-SPECIFIC) REGISTRY-KEYS =====
     # =====================================================================================
-    # CRITICAL: Diese Keys werden vom Script fuer den AKTUELLEN User gesetzt!
-    # WICHTIG: HKCU muss gebackuped werden damit Restore funktioniert!
-    # Neu in Version 1.7.11: HKCU Backup Support
-    # CRITICAL FIX v1.7.11: NUR "Value" sichern (KEINE LastUsedTime*!)
-    # LastUsedTime* sind FORENSIC-TRACKING (von Windows verwaltet)
+    # CRITICAL: These keys are set by the script for the CURRENT user!
+    # IMPORTANT: HKCU must be backed up for Restore to work!
+    # New in version 1.7.11: HKCU Backup Support
+    # CRITICAL FIX v1.7.11: ONLY backup "Value" (NO LastUsedTime*!)
+    # LastUsedTime* are FORENSIC-TRACKING (managed by Windows)
     
     # ===== TELEMETRY MODULE - APP PERMISSIONS (36 PERMISSIONS × 1 VALUE = 36 KEYS) =====
     # ConsentStore Base: HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore
     
-    # Original 15 Permissions (nur Value!)
+    # Original 15 Permissions (only Value!)
     @{Path="HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\userNotificationListener"; Name="Value"},
     @{Path="HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\userAccountInformation"; Name="Value"},
     @{Path="HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\contacts"; Name="Value"},
@@ -974,12 +974,12 @@ $registryKeys = @(
     @{Path="HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\videosLibrary"; Name="Value"},
     @{Path="HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\broadFileSystemAccess"; Name="Value"},
     
-    # 3 Additional Permissions (25H2 - nur Value!)
+    # 3 Additional Permissions (25H2 - only Value!)
     @{Path="HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\musicLibrary"; Name="Value"},
     @{Path="HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\downloadsFolder"; Name="Value"},
     @{Path="HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\automaticFileDownloads"; Name="Value"},
     
-    # 15 Advanced Permissions (Windows 11 25H2 Complete - nur Value!)
+    # 15 Advanced Permissions (Windows 11 25H2 Complete - only Value!)
     @{Path="HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\activity"; Name="Value"},
     @{Path="HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\bluetooth"; Name="Value"},
     @{Path="HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\cellularData"; Name="Value"},
@@ -996,7 +996,7 @@ $registryKeys = @(
     @{Path="HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\wifiData"; Name="Value"},
     @{Path="HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\wiFiDirect"; Name="Value"},
     
-    # 3 Special Permissions (Camera, Microphone, Location - nur Value!)
+    # 3 Special Permissions (Camera, Microphone, Location - only Value!)
     @{Path="HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\webcam"; Name="Value"},
     @{Path="HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\microphone"; Name="Value"},
     @{Path="HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location"; Name="Value"},
@@ -1008,7 +1008,7 @@ $registryKeys = @(
     @{Path="HKCU:\SOFTWARE\Policies\Microsoft\OneDrive"; Name="KFMBlockOptIn"},
     
     # ===== ONEDRIVE MODULE - PRIVACY SETTINGS (HKLM: 4 KEYS) =====
-    # CRITICAL FIX v1.7.6: OneDrive setzt jetzt auch HKLM fuer neue User!
+    # CRITICAL FIX v1.7.6: OneDrive now also sets HKLM for new users!
     @{Path="HKLM:\SOFTWARE\Policies\Microsoft\OneDrive"; Name="DisableTutorial"},
     @{Path="HKLM:\SOFTWARE\Policies\Microsoft\OneDrive"; Name="DisableFeedback"},
     @{Path="HKLM:\SOFTWARE\Policies\Microsoft\OneDrive"; Name="PreventNetworkTrafficPreUserSignIn"},
@@ -1025,7 +1025,7 @@ $registryKeys = @(
     # - 15 Advanced 25H2 (Activity, Bluetooth, Gaze, Graphics, etc.)
     # - 3 Special (Camera, Microphone, Location)
     # 
-    # ÄNDERUNG v1.7.11: LastUsedTime* werden NICHT mehr gesichert (Forensic-Tracking!)
+    # CHANGE v1.7.11: LastUsedTime* are NO LONGER backed up (Forensic tracking!)
     # =====================================================================================
 )
 
@@ -1283,7 +1283,7 @@ try {
                 DefaultOutboundAction = $fwProfile.DefaultOutboundAction.ToString()
                 # CRITICAL FIX v1.7.6: Convert enum properties to strings to avoid JSON duplicate key error
                 # These properties are enums with .value (lowercase) and .Value (uppercase) which causes
-                # "doppelte Schlüssel 'value' und 'Value'" error during JSON serialization
+                # "duplicate keys 'value' and 'Value'" error during JSON serialization
                 AllowInboundRules = $fwProfile.AllowInboundRules.ToString()
                 AllowLocalFirewallRules = $fwProfile.AllowLocalFirewallRules.ToString()
                 AllowLocalIPsecRules = $fwProfile.AllowLocalIPsecRules.ToString()
@@ -1324,7 +1324,7 @@ $deviceLevelBackup = @{
 }
 
 try {
-    # Backup für Kamera, Mikrofon, Location (Device-Level SubKeys)
+    # Backup for Camera, Microphone, Location (Device-Level SubKeys)
     $permissions = @('webcam', 'microphone', 'location')
     
     foreach ($permission in $permissions) {
@@ -1350,7 +1350,7 @@ try {
                         }
                     }
                     else {
-                        # Key existiert aber EnabledByUser nicht
+                        # Key exists but EnabledByUser doesn't
                         $deviceLevelBackup.Apps += @{
                             Permission = $permission
                             AppName = $appName
@@ -1399,12 +1399,12 @@ $backup.Settings.SystemInfo = $systemInfo
 Write-Host "[OK] $(Get-LocalizedString 'BackupSystemSaved')`n" -ForegroundColor Green
 #endregion
 
-# Backup als JSON speichern
+# Save backup as JSON
 Write-Host ""
 Write-Host "[SAVE] $(Get-LocalizedString 'BackupSaving')" -ForegroundColor Cyan
 
 try {
-    # STRATEGIE: Versuche mit allen Daten, bei Timeout reduziere Daten
+    # STRATEGY: Try with all data, reduce data on timeout
     Write-Host "  [i] Konvertiere zu JSON (max 120s)..." -ForegroundColor Gray
     
     $jsonJob = Start-Job -ScriptBlock {
@@ -1452,9 +1452,9 @@ try {
     
     Write-Host "  [i] Speichere Datei..." -ForegroundColor Gray
     $tempBackupFile = "$backupFile.tmp"
-    # [OK] BEST PRACTICE: UTF-8 ohne BOM (PowerShell 5.1 compatible)
-    # Out-File -Encoding utf8 in PS 5.1 erstellt Datei MIT BOM!
-    # Verwende .NET API für UTF-8 ohne BOM
+    # [OK] BEST PRACTICE: UTF-8 without BOM (PowerShell 5.1 compatible)
+    # Out-File -Encoding utf8 in PS 5.1 creates file WITH BOM!
+    # Use .NET API for UTF-8 without BOM
     $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
     [System.IO.File]::WriteAllText($tempBackupFile, $json, $utf8NoBom)
     
@@ -1494,7 +1494,7 @@ try {
     Write-Host "$(Get-LocalizedString 'BackupNote')" -ForegroundColor Yellow
     Write-Host ""
     
-    # Automatische Validierung (verhindert korrupte Backups)
+    # Automatic validation (prevents corrupt backups)
     Write-Host ""
     Write-Host "============================================================================" -ForegroundColor Cyan
     Write-Host "  BACKUP-VALIDIERUNG" -ForegroundColor Cyan
@@ -1502,7 +1502,7 @@ try {
     Write-Host ""
     Write-Host "[i] Validiere Backup-Datei..." -ForegroundColor Gray
     
-    # Validierung 1: Datei existiert und Groesse OK
+    # Validation 1: File exists and size OK
     $fileInfo = Get-Item $backupFile -ErrorAction Stop
     $fileSizeKB = [Math]::Round($fileInfo.Length / 1KB, 2)
     
@@ -1511,15 +1511,15 @@ try {
     }
     Write-Host "  [OK] Dateigroesse: $fileSizeKB KB" -ForegroundColor Green
     
-    # Validierung 2: JSON ist parsbar
+    # Validation 2: JSON is parsable
     $testParse = $null  # Initialisiere Variable VORHER!
     try {
-        # WICHTIG: Verwende UTF8 ohne BOM beim Einlesen (verhindert Encoding-Probleme)
+        # IMPORTANT: Use UTF8 without BOM when reading (prevents encoding issues)
         $jsonContent = [System.IO.File]::ReadAllText($backupFile, [System.Text.Encoding]::UTF8)
         $testParse = $jsonContent | ConvertFrom-Json -ErrorAction Stop
         Write-Host "  [OK] JSON-Format korrekt" -ForegroundColor Green
         
-        # Validiere dass essenzielle Keys vorhanden sind
+        # Validate that essential keys are present
         if (-not $testParse.Settings) {
             throw "Backup-Validierung fehlgeschlagen: Settings-Objekt fehlt"
         }
@@ -1536,11 +1536,11 @@ try {
         Write-Host "           Dies passiert manchmal bei PowerShell-JSON-Serialisierung." -ForegroundColor Gray
         Write-Host "           Das Backup sollte trotzdem verwendbar sein!" -ForegroundColor Gray
         Write-Host ""
-        # NICHT werfen - Backup ist wahrscheinlich OK!
-        # throw "Backup-Validierung fehlgeschlagen: JSON nicht parsbar - $($_.Exception.Message)"
+        # DON'T throw - Backup is probably OK!
+        # throw "Backup validation failed: JSON not parsable - $($_.Exception.Message)"
     }
     
-    # Validierung 3: Mindestens ein paar wichtige Eintraege (nur wenn testParse existiert)
+    # Validation 3: At least a few important entries (only if testParse exists)
     if ($testParse) {
         $hasData = $false
         if ($testParse.Settings.DNS -or $testParse.Settings.Services -or $testParse.Settings.RegistryKeys) {
@@ -1586,14 +1586,14 @@ try {
     Write-Host "  Druecken Sie ENTER um jetzt zu starten..." -ForegroundColor White
     Write-Host ""
     
-    # Best Practice: Letzte Pause vor dem großen Start
+    # Best Practice: Final pause before the big start
     $null = Read-Host
     
     Write-Host ""
     Write-Host "[OK] Backup bestaetigt - Hauptskript startet JETZT!" -ForegroundColor Green
     Write-Host ""
     
-    # Set exit code and return (für Dot-Sourcing)
+    # Set exit code and return (for dot-sourcing)
     $Global:LASTEXITCODE = 0
     return
 }
@@ -1612,7 +1612,7 @@ catch {
         Write-Verbose "Temp-Backup-Datei bereinigt: $tempBackupFile"
     }
     
-    # ===== USER-ENTSCHEIDUNG BEI FEHLER =====
+    # ===== USER DECISION ON ERROR =====
     Write-Host "============================================================================" -ForegroundColor Yellow
     Write-Host "  WARNUNG: Backup konnte nicht erstellt werden!" -ForegroundColor Yellow
     Write-Host "============================================================================" -ForegroundColor Yellow
@@ -1636,7 +1636,7 @@ catch {
         Write-Host "  [WARNUNG] User faehrt OHNE Backup fort!" -ForegroundColor Yellow
         Write-Host "  Hauptskript wird fortfahren - KEIN Safety Net!" -ForegroundColor Yellow
         Write-Host ""
-        # Set exit code and return (für Dot-Sourcing)
+        # Set exit code and return (for dot-sourcing)
         $Global:LASTEXITCODE = 0
         return
     }
@@ -1644,7 +1644,7 @@ catch {
         Write-Host "  [ABBRUCH] User hat abgebrochen - RICHTIGE Entscheidung!" -ForegroundColor Green
         Write-Host "  Hauptskript wird NICHT fortfahren!" -ForegroundColor Green
         Write-Host ""
-        # Set exit code and return (für Dot-Sourcing)
+        # Set exit code and return (for dot-sourcing)
         $Global:LASTEXITCODE = 1
         return
     }

@@ -32,7 +32,7 @@ function Set-AttackSurfaceReductionRules {
     
     Write-Section "Attack Surface Reduction (ASR) Rules"
     
-    # Konvertiere Mode zu ASR Action Code
+    # Convert Mode to ASR Action Code
     # 0 = Disabled, 1 = Block, 2 = Audit, 6 = Warn
     # Best Practice 25H2: Enforce = Block Mode
     $asrMode = if ($Mode -eq 'Enforce') { 1 } else { 2 }

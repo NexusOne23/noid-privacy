@@ -1,25 +1,25 @@
 <#
 .SYNOPSIS
-    Vollstaendiges Restore aller System-Settings aus Backup
+    Complete restore of all system settings from backup
 
 .DESCRIPTION
-    Stellt alle Settings aus einem Backup wieder her, das mit Backup-SecurityBaseline.ps1 erstellt wurde.
+    Restores all settings from a backup created with Backup-SecurityBaseline.ps1.
     
-    WIEDERHERGESTELLT WIRD:
-    - DNS Settings (pro Adapter)
-    - Hosts-Datei
-    - Service Start-Types (ALLE Services)
-    - Scheduled Tasks (State wird wiederhergestellt)
-    - Firewall Custom-Regeln (werden geloescht)
-    - Registry-Keys
+    WHAT IS RESTORED:
+    - DNS Settings (per adapter)
+    - Hosts file
+    - Service Start-Types (ALL services)
+    - Scheduled Tasks (state is restored)
+    - Firewall Custom Rules (are deleted)
+    - Registry Keys
     - User Account Names (Administrator)
     
-    NICHT WIEDERHERGESTELLT:
-    - Apps (muessen manuell neu installiert werden)
+    NOT RESTORED:
+    - Apps (must be manually reinstalled)
     
-    NEU IN VERSION 1.4.0:
+    NEW IN VERSION 1.4.0:
     - Device-Level App Permission SubKeys Restore
-    - PERFEKTE 100% Coverage mit Backup erreicht!
+    - PERFECT 100% Coverage with Backup achieved!
     
     VERSION 1.3.0:
     - Firewall Profile Settings Restore (Domain/Private/Public)
@@ -34,10 +34,10 @@
     Author:         NoID Privacy Team
     
 .PARAMETER BackupFile
-    Pfad zur Backup-JSON-Datei
+    Path to the backup JSON file
     
 .PARAMETER WhatIf
-    Zeigt nur was gemacht wuerde, ohne tatsaechliche Aenderungen
+    Shows only what would be done, without actual changes
     
 .EXAMPLE
     .\Restore-SecurityBaseline.ps1 -BackupFile "C:\ProgramData\SecurityBaseline\Backups\SecurityBaseline-Backup-20251022-052334.json"
@@ -58,13 +58,13 @@ param(
 #Requires -Version 5.1
 #Requires -RunAsAdministrator
 
-# Best Practice 25H2: Strict Mode aktivieren
+# Best Practice 25H2: Enable Strict Mode
 Set-StrictMode -Version Latest
 
 $ErrorActionPreference = 'Continue'
 $timestamp = Get-Date -Format 'yyyyMMdd-HHmmss'
 
-# ===== CONSOLE ENCODING FUER UMLAUTE (Best Practice 25H2) =======
+# ===== CONSOLE ENCODING FOR UMLAUTS (Best Practice 25H2) =======
 try {
     [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
     $OutputEncoding = [System.Text.Encoding]::UTF8
@@ -109,7 +109,7 @@ catch {
 }
 
 # Ensure language is set (use from interactive session, environment variable, or default to English)
-# WICHTIG: Test-Path verwenden wegen Strict Mode!
+# IMPORTANT: Use Test-Path because of Strict Mode!
 if (-not (Test-Path Variable:\Global:CurrentLanguage)) {
     # Check if language was passed via environment variable (from parent script)
     if ($env:NOID_LANGUAGE) {
@@ -125,12 +125,12 @@ Write-Host "`n==================================================================
 Write-Host "           $(Get-LocalizedString 'RestoreBanner')" -ForegroundColor Yellow
 Write-Host "============================================================================`n" -ForegroundColor Yellow
 
-# Log-Verzeichnis erstellen
+# Create log directory
 if (-not (Test-Path $LogPath)) {
     $null = New-Item -Path $LogPath -ItemType Directory -Force
 }
 
-# Transcript starten
+# Start transcript
 $transcriptPath = Join-Path $LogPath "Restore-$timestamp.log"
 try {
     Start-Transcript -Path $transcriptPath -Append -ErrorAction Stop
@@ -161,7 +161,7 @@ if (-not $BackupFile) {
         Write-Host "$availMsg" -ForegroundColor White
         Write-Host ""
         
-        # Zeige nur die letzten 10 Backups (neueste zuerst) - bessere UX!
+        # Show only last 10 backups (newest first) - better UX!
         $maxDisplay = 10
         $displayBackups = if ($backups.Count -le $maxDisplay) { $backups } else { $backups | Select-Object -First $maxDisplay }
         
@@ -188,7 +188,7 @@ if (-not $BackupFile) {
         Write-Host " $(Get-LocalizedString 'RestoreOrCancel') " -NoNewline
         $selection = Read-Host
         
-        # Handle "Alle anzeigen"
+        # Handle "Show all"
         if ($selection.ToUpper() -eq 'A' -and $backups.Count -gt $maxDisplay) {
             Write-Host ""
             $allMsg = (Get-LocalizedString 'RestoreShowingAll') -f $backups.Count
@@ -244,7 +244,7 @@ Write-Host "  $(Get-LocalizedString 'BackupFile') $BackupFile" -ForegroundColor 
 Write-Host "============================================================================" -ForegroundColor White
 Write-Host ""
 
-# Backup laden
+# Load backup
 Write-Host "[i] $(Get-LocalizedString 'RestoreLoading')" -ForegroundColor Cyan
 try {
     $backup = Get-Content -Path $BackupFile -Raw -ErrorAction Stop | ConvertFrom-Json
@@ -560,11 +560,11 @@ Write-Host ""
 #region Restore User Accounts
 Write-Host "[7/14] $(Get-LocalizedString 'RestoreUsers')" -ForegroundColor Yellow
 
-# Finde den umbenannten Administrator Account (mit SID *-500)
+# Find the renamed Administrator account (with SID *-500)
 $currentAdminAccount = Get-LocalUser -ErrorAction SilentlyContinue | Where-Object { $_.SID -like "*-500" }
 
 if ($currentAdminAccount) {
-    # Finde Original-Admin-Namen aus Backup
+    # Find original admin name from backup
     $originalAdmin = $backup.Settings.UserAccounts | Where-Object { $_.SID -like "*-500" }
     
     if ($originalAdmin -and $originalAdmin.Name -ne $currentAdminAccount.Name) {
@@ -604,13 +604,13 @@ if ($currentAdminAccount) {
                     $pwChoice = Read-Host
                     
                     if ($pwChoice -eq '1') {
-                        # Verwende RNGCryptoServiceProvider statt Get-Random (Best Practice 25H2)
+                        # Use RNGCryptoServiceProvider instead of Get-Random (Best Practice 25H2)
                         $rng = [System.Security.Cryptography.RandomNumberGenerator]::Create()
                         try {
                             $bytes = New-Object byte[] 32
                             $rng.GetBytes($bytes)
                             
-                            # Konvertiere zu Base64 und nehme erste 24 Zeichen (stark genug)
+                            # Convert to Base64 and take first 24 characters (strong enough)
                             $newPassword = [System.Convert]::ToBase64String($bytes).Substring(0,24)
                             
                             $securePassword = ConvertTo-SecureString $newPassword -AsPlainText -Force
@@ -622,8 +622,8 @@ if ($currentAdminAccount) {
                             Write-Host "    $pwNewMsg" -ForegroundColor Green
                             Write-Host "" 
                             
-                            # SICHERHEIT: Passwort NICHT auf Console ausgeben (erscheint in Transcript-Log!)
-                            # Stattdessen: Clipboard verwenden
+                            # SECURITY: Do NOT output password to console (appears in transcript log!)
+                            # Instead: Use clipboard
                             try {
                                 Set-Clipboard -Value $newPassword -ErrorAction Stop
                                 Write-Host "    [OK] Passwort wurde in Zwischenablage kopiert!" -ForegroundColor Green
@@ -631,7 +631,7 @@ if ($currentAdminAccount) {
                                 Write-Host "    [!] Zwischenablage wird in 30 Sekunden geloescht!" -ForegroundColor Yellow
                             }
                             catch {
-                                # Fallback wenn Clipboard nicht funktioniert (z.B. SSH-Session)
+                                # Fallback if Clipboard doesn't work (e.g. SSH session)
                                 Write-Host "    [!] Zwischenablage nicht verfuegbar - Passwort wird angezeigt:" -ForegroundColor Yellow
                                 Write-Host "    $newPassword" -ForegroundColor Yellow
                             }
@@ -641,7 +641,7 @@ if ($currentAdminAccount) {
                             Write-Host "  ============================================================" -ForegroundColor Green
                             Write-Host ""
                             
-                            # Warte 30 Sekunden mit Countdown
+                            # Wait 30 seconds with countdown
                             if ((Get-Clipboard -ErrorAction SilentlyContinue) -eq $newPassword) {
                                 Write-Host "  [i] Warte 30 Sekunden bevor Zwischenablage geleert wird..." -ForegroundColor Gray
                                 for ($i = 30; $i -gt 0; $i -= 5) {
@@ -837,8 +837,8 @@ Write-Host "[11/14] Restore DoH Configuration..." -ForegroundColor Yellow
 
 if ($backup.Settings.DoH -and $backup.Settings.DoH.Enabled) {
     try {
-        # CRITICAL UPDATE v1.7.11: Nutze netsh (konsistent mit Enable-CloudflareDNSoverHTTPS!)
-        # MS-dokumentierte Methode (nicht Add-DnsClientDohServerAddress)
+        # CRITICAL UPDATE v1.7.11: Use netsh (consistent with Enable-CloudflareDNSoverHTTPS!)
+        # MS-documented method (not Add-DnsClientDohServerAddress)
         
         # Remove all existing DoH configurations first (idempotent)
         Write-Verbose "Entferne existierende DoH-Konfigurationen..."
@@ -1066,9 +1066,9 @@ if ($backup.Settings.DeviceLevelApps -and $backup.Settings.DeviceLevelApps.Enabl
                         }
                     }
                     else {
-                        # Fallback ohne Ownership-Management
+                        # Fallback without ownership management
                         if (Test-Path $appPath) {
-                            # Prüfe ob Wert existiert
+                            # Check if value exists
                             $valueExists = Get-ItemProperty -Path $appPath -Name "EnabledByUser" -ErrorAction SilentlyContinue
                             if ($valueExists) {
                                 Set-ItemProperty -Path $appPath -Name "EnabledByUser" -Value $appConfig.EnabledByUser -Force -ErrorAction Stop
@@ -1082,11 +1082,11 @@ if ($backup.Settings.DeviceLevelApps -and $backup.Settings.DeviceLevelApps.Enabl
                     }
                 }
                 else {
-                    # Key existierte NICHT vorher - sollte gelöscht werden
+                    # Key did NOT exist before - should be deleted
                     if (Test-Path $appPath) {
                         $currentValue = Get-ItemProperty -Path $appPath -Name "EnabledByUser" -ErrorAction SilentlyContinue
                         if ($null -ne $currentValue) {
-                            # Script hat den Key erstellt - löschen!
+                            # Script created the key - delete it!
                             Remove-ItemProperty -Path $appPath -Name "EnabledByUser" -ErrorAction SilentlyContinue
                             Write-Verbose "  [OK] Deleted: $($appConfig.Permission)/$($appConfig.AppName)"
                             $deletedApps++
@@ -1188,12 +1188,12 @@ do {
     Write-Host "[J/S]: " -NoNewline -ForegroundColor Gray
     $reboot = Read-Host
     
-    # Input-Validierung: Trim und ToUpper mit Null-Check
+    # Input validation: Trim and ToUpper with null check
     if ($reboot) {
         $reboot = $reboot.Trim().ToUpper()
     }
     
-    # Support fuer Y/N (English)
+    # Support for Y/N (English)
     if ($reboot -eq 'Y') { $reboot = 'J' }
     if ($reboot -eq 'N') { $reboot = 'S' }
     

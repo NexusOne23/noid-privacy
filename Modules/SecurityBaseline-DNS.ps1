@@ -166,8 +166,8 @@ function Install-DNSBlocklist {
         }
         
         # Count blocked domains
-        # CRITICAL FIX v1.7.11: hosts-Datei ist optimiert (9 Domains pro Zeile)
-        # Wir zählen Zeilen und multiplizieren mit 9 für echte Domain-Anzahl
+        # CRITICAL FIX v1.7.11: hosts file is optimized (9 domains per line)
+        # We count lines and multiply by 9 for actual domain count
         $allContent = Get-Content $localHostsFile -ErrorAction Stop
         $blockedDomains = ($allContent | Where-Object { $_ -match '^0\.0\.0\.0\s+' }).Count * 9
         

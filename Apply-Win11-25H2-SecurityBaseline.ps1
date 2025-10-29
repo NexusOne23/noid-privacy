@@ -31,57 +31,57 @@
     Requires:       Windows 11 25H2/24H2/23H2, PowerShell 5.1+, Admin Rights
     
     Changelog 1.7.9 (26. Oktober 2025):
-    - CRITICAL FIX: App Permissions Toggles funktionieren jetzt WIRKLICH!
-    - ROOT CAUSE: Windows GUI zeigt PER-APP Toggles, nicht Master-Toggle!
-    - FIX: Alle 37 Permissions setzen jetzt ALLE existierenden App Sub-Keys auf Deny
+    - CRITICAL FIX: App Permissions Toggles now work REALLY!
+    - ROOT CAUSE: Windows GUI shows PER-APP Toggles, not Master-Toggle!
+    - FIX: All 37 Permissions now set ALL existing App Sub-Keys to Deny
     - BETROFFENE FUNKTIONEN: Disable-AllAppPermissionsDefaults (33), Camera (1), Microphone (1), Location (1)
-    - TEST: Settings | Privacy zeigt jetzt ALLE Toggles auf AUS (nach Settings-Neustart)
+    - TEST: Settings | Privacy now shows ALL Toggles OFF (after Settings restart)
     
     Changelog 1.7.8 (26. Oktober 2025):
-    - CRITICAL FIX: Set-ItemProperty verwendet jetzt -PropertyType statt -Type (PowerShell Standard!)
-    - CRITICAL FIX: HTML Report Count Error gefixed (Measure-Object statt .Count in PS 5.1)
-    - CRITICAL FIX: Kamera/Mikrofon Device-Level Toggles funktionieren jetzt!
-    - FIX: DoH und hosts file Checks verwenden Measure-Object (robust bei null)
+    - CRITICAL FIX: Set-ItemProperty now uses -PropertyType instead of -Type (PowerShell Standard!)
+    - CRITICAL FIX: HTML Report Count Error fixed (Measure-Object instead of .Count in PS 5.1)
+    - CRITICAL FIX: Camera/Microphone Device-Level Toggles now work!
+    - FIX: DoH and hosts file Checks use Measure-Object (robust with null)
     
     Changelog 1.7.7 (26. Oktober 2025):
-    - NEW: HTML Report KOMPLETT! 63 Checks in 13 Kategorien (vorher 47 in 10)
+    - NEW: HTML Report COMPLETE! 63 Checks in 13 Categories (previously 47 in 10)
     - NEW: Windows Update & Patching Kategorie (5 Checks)
     - NEW: DNS Security Kategorie (4 Checks - DoH, DNSSEC, Blocklist)
     - NEW: Microsoft Edge Security Kategorie (4 Checks)
     - IMPROVEMENT: ASR Kategorie erweitert (3 -> 7 Checks: ASR Rules Detail, DEP, SEHOP, SAC, Network Protection)
-    - IMPROVEMENT: Defender Kategorie optimiert (7 -> 6 Checks, Network Protection nach ASR verschoben)
-    - IMPROVEMENT: Komplette Abdeckung aller konfigurierten Features
+    - IMPROVEMENT: Defender category optimized (7 -> 6 Checks, Network Protection moved to ASR)
+    - IMPROVEMENT: Complete coverage of all configured features
     
     Changelog 1.7.6 (26. Oktober 2025):
-    - CRITICAL FIX: UAC und WindowsUpdate Module fehlten im Interactive Menu!
+    - CRITICAL FIX: UAC and WindowsUpdate modules missing in Interactive Menu!
     - CRITICAL FIX: -Type Parameter korrigiert zu -ValueType (Set-RegistryValueSmart)
     - CRITICAL FIX: HTML Report Crash gefixed (Action Property Check)
-    - CRITICAL FIX: Windows Update über getaktete Verbindungen jetzt EIN (Security First!)
-    - FIX: Alle 5 Windows Update Toggles jetzt auf EIN (Maximum Security Updates)
+    - CRITICAL FIX: Windows Update over metered connections now ON (Security First!)
+    - FIX: All 5 Windows Update toggles now ON (Maximum Security Updates)
     
     Changelog 1.7.5 (26. Oktober 2025):
-    - NEW: HTML Report zeigt HANDLUNGSANWEISUNGEN fuer jeden fehlgeschlagenen Check!
-    - NEW: Automatische Empfehlungen (Script erneut ausfuehren, Neustart, BitLocker aktivieren)
-    - NEW: Footer mit Idempotenz-Hinweis (Script kann beliebig oft ausgefuehrt werden)
-    - FIX: Dateiname gekuerzt (NoID-SecurityReport statt SecurityBaseline-ComplianceReport)
+    - NEW: HTML Report shows ACTION INSTRUCTIONS for every failed check!
+    - NEW: Automatic recommendations (re-run script, reboot, enable BitLocker)
+    - NEW: Footer with idempotency hint (script can be executed multiple times)
+    - FIX: Filename shortened (NoID-SecurityReport instead of SecurityBaseline-ComplianceReport)
     
     Changelog 1.7.4 (26. Oktober 2025):
-    - CRITICAL FIX: Device-Level Toggle nutzt RegistryOwnership (TrustedInstaller-Protected!)
-    - FIX: HTML Report wird in LOG-Ordner gespeichert (nicht Desktop!)
-    - FIX: HTML Report Checks nutzen SilentlyContinue (keine TerminatingErrors mehr!)
-    - FIX: Guest Account Check robust (keine Errors wenn Account fehlt)
+    - CRITICAL FIX: Device-Level Toggle uses RegistryOwnership (TrustedInstaller-Protected!)
+    - FIX: HTML Report saved in LOG folder (not Desktop!)
+    - FIX: HTML Report Checks use SilentlyContinue (no more TerminatingErrors!)
+    - FIX: Guest Account Check robust (no errors if account missing)
     
     Changelog 1.7.3 (26. Oktober 2025):
-    - CRITICAL FIX: Device-Level Toggle für Kamera/Mikrofon (EnabledByUser=0)
-    - FIX: Windows 11 25H2 hat ZWEI Toggles pro Permission (Device + App Level)
-    - FIX: "Zugriff auf Kamera/Mikrofon" Toggle wird jetzt korrekt deaktiviert
-    - INFO: Settings App muss neu gestartet werden um Änderungen zu sehen
+    - CRITICAL FIX: Device-Level Toggle for Camera/Microphone (EnabledByUser=0)
+    - FIX: Windows 11 25H2 has TWO toggles per permission (Device + App Level)
+    - FIX: "Camera/Microphone Access" toggle is now correctly disabled
+    - INFO: Settings App must be restarted to see changes
     
     Changelog 1.7.2 (26. Oktober 2025):
-    - FIX: AppxProvisionedPackage transcript errors komplett unterdrückt
-    - NEW: HTML Compliance Report massiv erweitert (100+ Checks, 10 Kategorien)
-    - NEW: Dashboard mit Statistiken, moderne UI, responsive Design
-    - NEW: Automatische Report-Generierung nach erfolgreicher Ausführung
+    - FIX: AppxProvisionedPackage transcript errors completely suppressed
+    - NEW: HTML Compliance Report massively extended (100+ Checks, 10 Categories)
+    - NEW: Dashboard with statistics, modern UI, responsive design
+    - NEW: Automatic report generation after successful execution
     
     Changelog 1.7.1:
     - CRITICAL FIX: App Permissions now set in HKCU (current user) + HKLM (defaults)
@@ -96,7 +96,7 @@
     - ASCII-only comments for maximum compatibility
     
     Previous Versions:
-    - 1.6.2: WTDS Registry-Keys mit Ownership-Management (TrustedInstaller fix)
+    - 1.6.2: WTDS Registry-Keys with Ownership-Management (TrustedInstaller fix)
     - 1.6.1: StrictCFG Parameter fix + leere Write-Info Strings removed
     - 1.6.0: Print Spooler User Right + AutoPlay/AutoRun + SmartScreen Extended
     - 1.5.1: Variable initialization race condition + Localization loading fix
@@ -155,8 +155,8 @@ param(
     [string]$LogPath = "$env:ProgramData\SecurityBaseline\Logs"
 )
 
-# Strict Mode aktivieren (CRITICAL!)
-# Fängt undefinierte Variablen, nicht-existente Properties, etc. ab
+# Enable Strict Mode (CRITICAL!)
+# Catches undefined variables, non-existent properties, etc.
 # Siehe: https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/set-strictmode
 Set-StrictMode -Version Latest
 
@@ -176,52 +176,52 @@ $script:transcriptPath = ""
 $Error.Clear()
 Write-Verbose "Script variables initialized and error collection cleared"
 
-# ===== CONSOLE ENCODING FUER UMLAUTE =====
-# CRITICAL: UTF-8 Codepage 65001 fuer korrekte Umlaut-Anzeige in CMD
+# ===== CONSOLE ENCODING FOR UMLAUTS =====
+# CRITICAL: UTF-8 Codepage 65001 for correct umlaut display in CMD
 try {
     [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
     $OutputEncoding = [System.Text.Encoding]::UTF8
     chcp 65001 | Out-Null
 }
 catch {
-    Write-Verbose "Console-Encoding konnte nicht gesetzt werden: $_"
+    Write-Verbose "Console encoding could not be set: $_"
 }
 
 # ===== CONSOLE WINDOW SIZE =====
-# BEST PRACTICE: Optimale Fenstergroesse fuer beste Lesbarkeit
-# Width: 120 Zeichen (Standard-kompatibel, gut lesbar)
-# Height: 60 Zeilen (genug fuer Module-Liste + Banner + Logs)
+# BEST PRACTICE: Optimal window size for best readability
+# Width: 120 characters (standard-compatible, easy to read)
+# Height: 60 lines (enough for module list + banner + logs)
 try {
     if ($Host.UI.RawUI) {
         $hostUI = $Host.UI.RawUI
         
-        # Maximale Groesse des Bildschirms abfragen (vermeidet Fehler)
+        # Query maximum screen size (avoids errors)
         $maxSize = $hostUI.MaxPhysicalWindowSize
         
-        # Buffer muss MINDESTENS so gross sein wie Window!
+        # Buffer must be AT LEAST as large as window!
         $bufferSize = $hostUI.BufferSize
         $bufferSize.Width = [Math]::Min(120, $maxSize.Width)
-        $bufferSize.Height = 3000  # Grosser Buffer fuer Scroll-Historie
+        $bufferSize.Height = 3000  # Large buffer for scroll history
         $hostUI.BufferSize = $bufferSize
         
-        # Window Size setzen (darf nicht groesser als Buffer sein!)
+        # Set window size (must not be larger than buffer!)
         $windowSize = $hostUI.WindowSize
         $windowSize.Width = [Math]::Min(120, $maxSize.Width)
-        $windowSize.Height = [Math]::Min(60, $maxSize.Height)  # 60 Zeilen fuer Custom Mode!
+        $windowSize.Height = [Math]::Min(60, $maxSize.Height)  # 60 lines for Custom Mode!
         $hostUI.WindowSize = $windowSize
         
-        Write-Verbose "Console Window Size gesetzt: $($windowSize.Width)x$($windowSize.Height)"
+        Write-Verbose "Console Window Size set: $($windowSize.Width)x$($windowSize.Height)"
     }
 }
 catch {
     Write-Verbose "Console Window Size konnte nicht gesetzt werden: $_"
 }
 
-# Disable Quick Edit Mode (verhindert Freeze bei versehentlichem Klick in Console)
-# Problem: Windows Console pausiert Output bei Maus-Selection -> Script wirkt eingefroren
-# Quick Edit Mode = Console pausiert bei Klick/Selection - sehr nervig in langen Skripten!
+# Disable Quick Edit Mode (prevents freeze on accidental console click)
+# Problem: Windows Console pauses output on mouse selection -> script appears frozen
+# Quick Edit Mode = Console pauses on click/selection - very annoying in long scripts!
 try {
-    # Windows Console API aufrufen um Quick Edit Mode zu deaktivieren
+    # Call Windows Console API to disable Quick Edit Mode
     $signature = @"
 [DllImport("kernel32.dll", SetLastError = true)]
 public static extern IntPtr GetStdHandle(int nStdHandle);
@@ -259,8 +259,8 @@ catch {
     }
 }
 
-# ErrorActionPreference: Continue (nicht alle Fehler sind fatal!)
-# Einzelne Cmdlets verwenden -ErrorAction Stop wo noetig
+# ErrorActionPreference: Continue (not all errors are fatal!)
+# Individual cmdlets use -ErrorAction Stop where needed
 $ErrorActionPreference = 'Continue'
 $timestamp = Get-Date -Format 'yyyyMMdd-HHmmss'
 
@@ -304,19 +304,19 @@ catch {
 # NOW we can safely use Get-LocalizedString in handlers below
 
 # ===== CONCURRENT EXECUTION LOCK =====
-# Verhindert dass Script 2x parallel laeuft (fuehrt zu Chaos!)
+# Prevents script from running 2x in parallel (leads to chaos!)
 # NOTE: $script:mutex and $script:mutexAcquired already initialized (see CRITICAL FIX #1)
 $mutexName = "Global\SecurityBaseline-NoID-Privacy"
 
 # ===== CTRL+C HANDLER (Best Practice 25H2) =====
-# Sauberer Cleanup bei User-Abbruch (CTRL+C)
+# Clean cleanup on user abort (CTRL+C)
 $cleanupScriptBlock = {
     Write-Host ""
     Write-Host ""
     Write-Host "$(Get-LocalizedString 'AbortUserCancelled')" -ForegroundColor Red
     Write-Host "$(Get-LocalizedString 'AbortCleanup')" -ForegroundColor Yellow
     
-    # Transcript stoppen
+    # Stop transcript
     if ($script:transcriptStarted) {
         try {
             Stop-Transcript -ErrorAction SilentlyContinue
@@ -354,7 +354,7 @@ catch {
 
 try {
     $script:mutex = New-Object System.Threading.Mutex($false, $mutexName)
-    $script:mutexAcquired = $script:mutex.WaitOne(0)  # 0 = kein Warten, sofort prüfen
+    $script:mutexAcquired = $script:mutex.WaitOne(0)  # 0 = no waiting, check immediately
     
     if (-not $script:mutexAcquired) {
         Write-Host ""
@@ -368,7 +368,7 @@ try {
         Write-Host "  $(Get-LocalizedString 'ErrorInstanceWait')" -ForegroundColor White
         Write-Host ""
         
-        # Cleanup vor Exit
+        # Cleanup before exit
         if ($script:mutex) {
             $script:mutex.Dispose()
         }
@@ -376,11 +376,11 @@ try {
         exit 1
     }
     
-    Write-Verbose "Concurrent Execution Lock acquired - Script kann starten"
+    Write-Verbose "Concurrent Execution Lock acquired - script can start"
 }
 catch {
-    Write-Warning "Mutex-Erstellung fehlgeschlagen: $_"
-    Write-Warning "Concurrent Execution Check wird uebersprungen (at your own risk)"
+    Write-Warning "Mutex creation failed: $_"
+    Write-Warning "Concurrent Execution Check will be skipped (at your own risk)"
 }
 
 # ===== CRITICAL FIX #3: Removed Console Encoding DUPLICATE =====
@@ -400,10 +400,10 @@ if (-not (Test-Path $LogPath)) {
 
 #region MODULE DEPENDENCY SYSTEM (Best Practice 25H2)
 
-# Module Dependencies Graph - Definiert welches Modul welche anderen braucht
+# Module Dependencies Graph - Defines which module needs which others
 $moduleDependencies = @{
-    'Common' = @()                                    # Basis - keine Dependencies
-    'Localization' = @()                             # Basis - keine Dependencies
+    'Common' = @()                                    # Base - no dependencies
+    'Localization' = @()                             # Base - no dependencies
     'RegistryOwnership' = @('Common', 'Localization') # NEW: TrustedInstaller Registry Management
     'WindowsUpdate' = @('Common', 'Localization')    # Windows Update Defaults (keine Policies!)
     'Core' = @('Common', 'Localization', 'RegistryOwnership', 'WindowsUpdate')  # Braucht Ownership fuer Defender-Keys
@@ -421,10 +421,10 @@ $moduleDependencies = @{
     'OneDrive' = @('Common', 'Localization')         # NEW: OneDrive Privacy Hardening (Telemetry + KFM)
 }
 
-# Module Priority - Definiert die Lade-Reihenfolge bei gleichen Dependencies
-# Niedrigere Nummer = hoehere Prioritaet (frueher laden)
+# Module Priority - Defines load order for same dependencies
+# Lower number = higher priority (load earlier)
 $modulePriority = @{
-    'Common' = 1            # IMMER zuerst
+    'Common' = 1            # ALWAYS first
     'Localization' = 2      # Direkt nach Common
     'RegistryOwnership' = 3 # NEW: Registry Ownership Management (vor Core!)
     'WindowsUpdate' = 4     # Windows Update Defaults (vor Core, da Core es braucht)
@@ -494,8 +494,8 @@ function Get-ModuleLoadOrder {
         }
     }
     
-    # Priority Queue: ArrayList sortiert nach Prioritaet
-    # Module mit gleicher in-degree werden nach Prioritaet sortiert
+    # Priority Queue: ArrayList sorted by priority
+    # Modules with same in-degree are sorted by priority
     $availableModules = [System.Collections.ArrayList]::new()
     
     foreach ($module in $inDegree.Keys) {
@@ -504,12 +504,12 @@ function Get-ModuleLoadOrder {
         }
     }
     
-    # Sortiere nach Prioritaet (niedrigere Zahl zuerst)
+    # Sort by priority (lower number first)
     if ($Priority.Count -gt 0) {
         $sorted = $availableModules | Sort-Object { 
             if ($Priority.ContainsKey($_)) { $Priority[$_] } else { 999 }
         }
-        # Sort-Object gibt Array zurueck - konvertiere zu ArrayList
+        # Sort-Object returns array - convert to ArrayList
         $availableModules.Clear()
         foreach ($item in $sorted) {
             $null = $availableModules.Add($item)
@@ -518,7 +518,7 @@ function Get-ModuleLoadOrder {
     
     # Process modules in priority order
     while ($availableModules.Count -gt 0) {
-        # Nimm das Modul mit hoechster Prioritaet (niedrigste Nummer)
+        # Take module with highest priority (lowest number)
         $current = $availableModules[0]
         $availableModules.RemoveAt(0)
         $result += $current
@@ -532,13 +532,13 @@ function Get-ModuleLoadOrder {
             }
         }
         
-        # Sortiere neue Module nach Prioritaet und fuege sie hinzu
+        # Sort new modules by priority and add them
         if ($newlyAvailable.Count -gt 0) {
             if ($Priority.Count -gt 0) {
                 $sortedNew = $newlyAvailable | Sort-Object { 
                     if ($Priority.ContainsKey($_)) { $Priority[$_] } else { 999 }
                 }
-                # Sort-Object gibt Array zurueck - iterate ueber sortierte Items
+                # Sort-Object returns array - iterate over sorted items
                 foreach ($module in $sortedNew) {
                     $null = $availableModules.Add($module)
                 }
@@ -610,26 +610,26 @@ function Test-ModuleDependencies {
 # Default language was already set early (see CRITICAL FIX #2)
 # Duplicate removed to avoid redundancy
 
-# Berechne korrekte Load-Reihenfolge mit Prioritaeten
+# Calculate correct load order with priorities
 Write-Host "Calculating module load order..." -ForegroundColor Cyan
 try {
-    # WICHTIG: Filtere Module basierend auf $SelectedModules (Custom Mode!)
-    # Check ob Variable existiert UND gesetzt ist (nicht nur -and, sondern Test-Path!)
+    # IMPORTANT: Filter modules based on $SelectedModules (Custom Mode!)
+    # Check if variable exists AND is set (not just -and, but Test-Path!)
     if ((Test-Path Variable:\SelectedModules) -and $SelectedModules -and $SelectedModules.Count -gt 0) {
-        # Custom Mode: Nur ausgewählte Module + ihre Dependencies
+        # Custom Mode: Only selected modules + their dependencies
         Write-Verbose "Custom Mode: Filtering modules to: $($SelectedModules -join ', ')"
         
-        # Füge immer Core hinzu (Pflicht-Modul!)
+        # Always add Core (mandatory module!)
         if ($SelectedModules -notcontains 'Core') {
             $SelectedModules += 'Core'
             Write-Verbose "Added Core module (mandatory)"
         }
         
-        # Berechne Dependencies für ausgewählte Module
+        # Calculate dependencies for selected modules
         $modulesToLoad = @()
         foreach ($module in $SelectedModules) {
             $modulesToLoad += $module
-            # Füge auch die Dependencies hinzu
+            # Also add the dependencies
             if ($moduleDependencies.ContainsKey($module)) {
                 foreach ($dep in $moduleDependencies[$module]) {
                     if ($modulesToLoad -notcontains $dep) {
@@ -640,12 +640,12 @@ try {
             }
         }
         
-        # Jetzt sortiere nach Priorität
+        # Now sort by priority
         $requiredModules = Get-ModuleLoadOrder -Dependencies $moduleDependencies -Priority $modulePriority | 
                            Where-Object { $modulesToLoad -contains $_ }
     }
     else {
-        # Audit/Enforce Mode: Alle Module
+        # Audit/Enforce Mode: All modules
         $requiredModules = Get-ModuleLoadOrder -Dependencies $moduleDependencies -Priority $modulePriority
     }
     
@@ -653,11 +653,11 @@ try {
     Write-Host "[i] Loading $($requiredModules.Count) modules..." -ForegroundColor Cyan
 }
 catch {
-    Write-Error "FATAL: Fehler bei Dependency-Resolution: $_"
+    Write-Error "FATAL: Error in dependency resolution: $_"
     exit 1
 }
 
-# Module laden mit Validierung (Best Practice 25H2)
+# Load modules with validation (Best Practice 25H2)
 $loadedModules = @{}
 
 Write-Host "Loading modules..." -ForegroundColor Cyan
@@ -676,7 +676,7 @@ foreach ($moduleName in $requiredModules) {
     
     if (Test-Path $modulePath) {
         try {
-            # DEPENDENCY CHECK: Validiere dass alle Dependencies bereits geladen sind
+            # DEPENDENCY CHECK: Validate that all dependencies are already loaded
             try {
                 Test-ModuleDependencies -ModuleName $moduleName `
                                         -Dependencies $moduleDependencies `
@@ -687,14 +687,14 @@ foreach ($moduleName in $requiredModules) {
                 throw "Dependency-Check fehlgeschlagen: $_"
             }
             
-            # Dot-Source das Modul
+            # Dot-Source the module
             . $modulePath
             
-            # Validiere dass Modul erfolgreich geladen wurde
-            # Check ob mindestens eine typische Funktion aus dem Modul verfuegbar ist
+            # Validate that module loaded successfully
+            # Check if at least one typical function from module is available
             $moduleLoaded = $false
             
-            # Modul-spezifische Validierung
+            # Module-specific validation
             switch ($moduleName) {
                 'Common' { $moduleLoaded = $null -ne (Get-Command 'Write-Section' -ErrorAction SilentlyContinue) }
                 'RegistryOwnership' { $moduleLoaded = $null -ne (Get-Command 'Set-RegistryValueSmart' -ErrorAction SilentlyContinue) }
@@ -730,27 +730,27 @@ foreach ($moduleName in $requiredModules) {
         }
     }
     else {
-        Write-Warning "Modul nicht gefunden: $modulePath"
+        Write-Warning "Module not found: $modulePath"
         $loadedModules[$moduleName] = $false
     }
 }
 
 #endregion MODULE DEPENDENCY SYSTEM
 
-# Pruefe ob kritische Module geladen wurden
+# Check if critical modules were loaded
 $criticalModules = @('Common', 'Core', 'Localization')
 foreach ($critical in $criticalModules) {
     if (-not $loadedModules[$critical]) {
-        Write-Error "FATAL: Kritisches Modul '$critical' konnte nicht geladen werden!"
+        Write-Error "FATAL: Critical module '$critical' could not be loaded!"
         
-        # Mutex freigeben vor Exit
+        # Release Mutex before exit
         if ($mutexAcquired -and $mutex) {
             try { 
                 $mutex.ReleaseMutex()
                 $mutex.Dispose()
-                Write-Verbose "Mutex freigegeben (Mutex-Wait-Timeout)"
+                Write-Verbose "Mutex released (Mutex-Wait-Timeout)"
             } catch { 
-                Write-Verbose "Mutex-Freigabe fehlgeschlagen: $_"
+                Write-Verbose "Mutex release failed: $_"
             }
         }
         
@@ -758,8 +758,8 @@ foreach ($critical in $criticalModules) {
     }
 }
 
-# $Global:CurrentLanguage wurde bereits VOR Modul-Laden gesetzt (siehe Zeile 411-416)
-# Hier nur noch Final-Check falls es ueberschrieben wurde
+# $Global:CurrentLanguage was already set BEFORE module loading (see line 411-416)
+# Here only final check in case it was overwritten
 if (-not (Test-Path Variable:\Global:CurrentLanguage) -or [string]::IsNullOrEmpty($Global:CurrentLanguage)) {
     $Global:CurrentLanguage = 'en'
     Write-Verbose "Default language restored to: English (fallback)"
@@ -770,24 +770,24 @@ if ($Interactive) {
     $config = Start-InteractiveMode -LogPath $LogPath
     
     if ($null -eq $config) {
-        # User hat abgebrochen
+        # User cancelled
         
-        # Mutex freigeben vor Exit
+        # Release Mutex before exit
         if ($mutexAcquired -and $mutex) {
             try { 
                 $mutex.ReleaseMutex()
                 $mutex.Dispose()
-                Write-Verbose "Mutex freigegeben (User cancelled)"
+                Write-Verbose "Mutex released (User cancelled)"
             } catch { 
-                Write-Verbose "Mutex-Freigabe fehlgeschlagen: $_"
+                Write-Verbose "Mutex release failed: $_"
             }
         }
         
         exit 0
     }
     
-    # SPECIAL: User hat Restore gewaehlt (Parameter ODER Backup-Prompt)
-    # WICHTIG: Hashtable verwendet ContainsKey() nicht PSObject.Properties!
+    # SPECIAL: User chose Restore (parameter OR backup prompt)
+    # IMPORTANT: Hashtable uses ContainsKey() not PSObject.Properties!
     $actionValue = if ($config.ContainsKey('Action')) { $config.Action } else { 'None' }
     Write-Verbose "Pruefe Restore-Action: RestoreMode = $RestoreMode, Config.Action = $actionValue, Config.Mode = $($config.Mode)"
     if ($RestoreMode -or ($config.ContainsKey('Action') -and $config.Action -eq 'Restore') -or ($config.Mode -eq 'Restore')) {
@@ -805,43 +805,43 @@ if ($Interactive) {
         
         if (Test-Path $restoreScript) {
             Write-Verbose "Restore-Script gefunden - starte Prozess"
-            # WICHTIG: Transcript BEENDEN bevor wir Restore starten!
+            # IMPORTANT: END transcript before we start Restore!
             if ($script:transcriptStarted) {
                 try {
                     Stop-Transcript -ErrorAction SilentlyContinue
                     $script:transcriptStarted = $false
-                    Write-Verbose "Transcript gestoppt vor Restore"
+                    Write-Verbose "Transcript stopped before restore"
                 } catch {
-                    Write-Verbose "Transcript-Stop vor Restore fehlgeschlagen: $_"
+                    Write-Verbose "Transcript stop before restore failed: $_"
                 }
             }
             
-            # Mutex freigeben VOR Restore
+            # Release Mutex BEFORE Restore
             if ($mutex) {
                 try { 
                     $mutex.ReleaseMutex()
                     $mutex.Dispose()
-                    Write-Verbose "Mutex freigegeben vor Restore"
+                    Write-Verbose "Mutex released before restore"
                 } catch {
-                    Write-Verbose "Mutex-Freigabe vor Restore fehlgeschlagen: $_"
+                    Write-Verbose "Mutex release before restore failed: $_"
                 }
             }
             
             # Uebergebe aktuelle Sprache via Environment Variable
             $env:NOID_LANGUAGE = $Global:CurrentLanguage
             
-            # WICHTIG: Mit -NoNewWindow starten damit es im gleichen Fenster bleibt
-            # Aber: powershell.exe statt &, damit es im eigenen Prozess läuft und wir KOMPLETT beenden können
+            # IMPORTANT: Start with -NoNewWindow to keep it in the same window
+            # But: powershell.exe instead of &, so it runs in its own process and we can exit COMPLETELY
             $restoreArgs = "-ExecutionPolicy Bypass -NoProfile -File `"$restoreScript`""
             Write-Verbose "Starte Restore als separaten Prozess: powershell.exe $restoreArgs"
             
-            # Starte Restore und warte bis es fertig ist
+            # Start Restore and wait until it's finished
             Write-Host "$(Get-LocalizedString 'RestoreModeProcessStart')" -ForegroundColor Cyan
             $restoreProcess = Start-Process -FilePath "powershell.exe" -ArgumentList $restoreArgs -NoNewWindow -Wait -PassThru
             
             Remove-Item Env:\NOID_LANGUAGE -ErrorAction SilentlyContinue
             
-            # Exit-Code vom Restore-Script
+            # Exit code from Restore script
             $restoreExitCode = $restoreProcess.ExitCode
             Write-Host ""
             Write-Host "$(Get-LocalizedString 'RestoreModeScriptComplete' -f $restoreExitCode)" -ForegroundColor Cyan
@@ -850,24 +850,24 @@ if ($Interactive) {
             Write-Verbose "Restore-Script beendet mit Exit-Code: $restoreExitCode"
             Write-Verbose "Rufe [Environment]::Exit($restoreExitCode) auf..."
             
-            # SOFORT beenden - keine weitere Verarbeitung!
-            # KRITISCH: Dies beendet den GESAMTEN PowerShell-Prozess sofort!
+            # Exit IMMEDIATELY - no further processing!
+            # CRITICAL: This terminates the ENTIRE PowerShell process immediately!
             [Environment]::Exit($restoreExitCode)
             
-            # Diese Zeile sollte NIEMALS erreicht werden!
+            # This line should NEVER be reached!
             Write-Host "$(Get-LocalizedString 'CriticalNeverReached')" -ForegroundColor Red
         }
         else {
             Write-Host "$(Get-LocalizedString 'RestoreModeNotFound' -f $restoreScript)" -ForegroundColor Red
             
-            # Mutex freigeben vor Exit
+            # Release Mutex before exit
             if ($mutex) {
                 try { 
                     $mutex.ReleaseMutex()
                     $mutex.Dispose()
-                    Write-Verbose "Mutex freigegeben (Restore-Script beendet)"
+                    Write-Verbose "Mutex released (Restore script finished)"
                 } catch { 
-                    Write-Verbose "Mutex-Freigabe nach Restore fehlgeschlagen: $_"
+                    Write-Verbose "Mutex release after restore failed: $_"
                 }
             }
             
@@ -875,13 +875,13 @@ if ($Interactive) {
             [Environment]::Exit(1)
         }
         
-        # SAFEGUARD: Falls wir hier ankommen (sollte NIEMALS passieren!), beende sofort!
+        # SAFEGUARD: If we reach here (should NEVER happen!), exit immediately!
         Write-Host "$(Get-LocalizedString 'CriticalCodeAfterRestore')" -ForegroundColor Red
         Write-Host "$(Get-LocalizedString 'CriticalForcingExit')" -ForegroundColor Red
         [Environment]::Exit(99)
     }
     
-    # SICHERHEITS-CHECK: Wenn Mode='Restore', dann ist etwas schief gelaufen!
+    # SAFETY CHECK: If Mode='Restore', then something went wrong!
     if ($config.Mode -eq 'Restore') {
         Write-Host "$(Get-LocalizedString 'CriticalRestoreNotCaught')" -ForegroundColor Red
         Write-Host "$(Get-LocalizedString 'CriticalCodeAfterRestore')" -ForegroundColor Red
@@ -889,9 +889,9 @@ if ($Interactive) {
         [Environment]::Exit(98)
     }
     
-    # Konfiguration aus interaktivem Menue uebernehmen mit Validierung
-    # WICHTIG: $config ist eine Hashtable, NICHT ein PSCustomObject!
-    # Daher: ContainsKey() verwenden, NICHT PSObject.Properties!
+    # Adopt configuration from interactive menu with validation
+    # IMPORTANT: $config is a Hashtable, NOT a PSCustomObject!
+    # Therefore: Use ContainsKey(), NOT PSObject.Properties!
     if ($config.ContainsKey('Mode') -and $config.Mode) {
         $Mode = $config.Mode
         Write-Verbose "Mode from interactive config: $Mode"
@@ -908,8 +908,8 @@ if ($Interactive) {
         $SelectedModules = @('Core', 'ASR', 'Advanced', 'DNS', 'Bloatware', 'Telemetry', 'Performance', 'AI', 'WirelessDisplay', 'OneDrive', 'UAC', 'WindowsUpdate', 'Edge')
     }
     
-    # === BACKUP-LOGIK (aus Start-InteractiveMode) ===
-    # Check ob Backup erstellt werden soll
+    # === BACKUP LOGIC (from Start-InteractiveMode) ===
+    # Check if backup should be created
     if ($config.ContainsKey('CreateBackup') -and $config.CreateBackup -eq $true) {
         Write-Host ""
         Write-Host "============================================================================" -ForegroundColor Cyan
@@ -936,12 +936,12 @@ if ($Interactive) {
             $env:NOID_LANGUAGE = $Global:CurrentLanguage
             
             # Best Practice 25H2: Dot-Source im SELBEN Fenster!
-            # KEIN neues PowerShell-Fenster, alles bleibt im gleichen Terminal
+            # NO new PowerShell window, everything stays in same terminal
             try {
-                # Dot-Source das Backup-Script (läuft im selben Prozess)
+                # Dot-source the backup script (runs in same process)
                 . $backupScript
                 
-                # Backup-Script setzt $LASTEXITCODE bei Erfolg/Fehler
+                # Backup script sets $LASTEXITCODE on success/failure
                 if ($LASTEXITCODE -eq 0) {
                     $backupSuccess = $true
                 }
@@ -952,7 +952,7 @@ if ($Interactive) {
                     $backupSuccess = $false
                 }
                 else {
-                    # Kein Exit-Code = Erfolg (bei Dot-Source normal)
+                    # No exit code = success (normal with dot-source)
                     $backupSuccess = $true
                 }
             }
@@ -975,12 +975,12 @@ if ($Interactive) {
                 Write-Host "$(Get-LocalizedString 'BackupCanRestore')" -ForegroundColor Green
                 Write-Host "$(Get-LocalizedString 'BackupRunRestore')" -ForegroundColor Cyan
                 Write-Host ""
-                # KEIN zweites Read-Host hier - Backup-Skript hat bereits gefragt!
+                # NO second Read-Host here - Backup script already asked!
             }
             else {
-                # Best Practice 25H2: User-Entscheidung respektieren!
-                # $LASTEXITCODE = 1 bedeutet: User hat im Backup-Script [N] gewählt
-                # und will NICHT fortfahren!
+                # Best Practice 25H2: Respect user decision!
+                # $LASTEXITCODE = 1 means: User chose [N] in backup script
+                # and does NOT want to continue!
                 
                 Write-Host ""
                 Write-Host "============================================================================" -ForegroundColor Red
@@ -996,24 +996,24 @@ if ($Interactive) {
                 Write-Host "  $(Get-LocalizedString 'BackupAbortStep3')" -ForegroundColor White
                 Write-Host ""
                 
-                # Transcript stoppen bevor exit
+                # Stop transcript before exit
                 if ($script:transcriptStarted) {
                     try {
                         Stop-Transcript -ErrorAction SilentlyContinue
                     }
                     catch {
-                        Write-Verbose "Transcript-Stop vor Backup-Abort fehlgeschlagen (nicht kritisch): $_"
+                        Write-Verbose "Transcript stop before backup abort failed (not critical): $_"
                     }
                 }
                 
-                # Mutex freigeben vor Exit
+                # Release Mutex before exit
                 if ($mutexAcquired -and $mutex) {
                     try {
                         $mutex.ReleaseMutex()
                         $mutex.Dispose()
                     }
                     catch {
-                        Write-Verbose "Mutex-Freigabe vor Backup-Abort fehlgeschlagen (nicht kritisch): $_"
+                        Write-Verbose "Mutex release before backup abort failed (not critical): $_"
                     }
                 }
                 
@@ -1033,20 +1033,20 @@ if ($Interactive) {
         $script:createRestorePoint = $config.CreateRestorePoint
         Write-Verbose "Restore Point setting from config: $script:createRestorePoint"
     } else {
-        $script:createRestorePoint = $false  # Default bei Backup
+        $script:createRestorePoint = $false  # Default with backup
         Write-Verbose "Restore Point setting not found - using default: false"
     }
 } else {
-    # Non-Interactive Mode (CLI): Kein Backup-Prompt!
-    # Best Practice 25H2: Auch CLI-Modus braucht Config-Objekt!
+    # Non-Interactive Mode (CLI): No backup prompt!
+    # Best Practice 25H2: CLI mode also needs config object!
     
-    # Standard: Alle Module (oder aus -SelectedModules Parameter)
+    # Default: All modules (or from -SelectedModules parameter)
     if (-not $SelectedModules) {
         $SelectedModules = @('Core', 'ASR', 'Advanced', 'DNS', 'Bloatware', 'Telemetry', 'Performance', 'AI', 'WirelessDisplay', 'OneDrive', 'UAC', 'WindowsUpdate', 'Edge')
         Write-Verbose "Non-interactive mode - using all modules"
     }
     
-    # Config-Objekt für CLI-Modus erstellen
+    # Create config object for CLI mode
     $config = @{
         Mode = if ($Mode) { $Mode } else { 'Audit' }
         Modules = $SelectedModules
@@ -1055,16 +1055,16 @@ if ($Interactive) {
     }
     Write-Verbose "CLI Mode Config: Mode=$($config.Mode), Modules=$($config.Modules.Count)"
     
-    # Mode und Modules aus Config übernehmen (für Konsistenz)
+    # Adopt mode and modules from config (for consistency)
     $Mode = $config.Mode
     $SelectedModules = $config.Modules
     
-    # Script-scope Variable setzen
+    # Set script-scope variable
     $script:createRestorePoint = $config.CreateRestorePoint
     Write-Verbose "Non-interactive mode - restore point enabled: $script:createRestorePoint"
 }
 
-# Best Practice 25H2: Config-Validierung fuer ALLE Modi (Interactive + CLI)
+# Best Practice 25H2: Config validation for ALL modes (Interactive + CLI)
 Write-Verbose "=== Final Config ==="
 Write-Verbose "Mode: $Mode"
 Write-Verbose "Modules: $($SelectedModules -join ', ')"
@@ -1073,7 +1073,7 @@ Write-Verbose "===================="
 
 $script:transcriptStarted = $false
 $script:criticalError = $false  # Track if critical error occurred in catch block
-# Transcript-Log Rotation (Best Practice 25H2 - verhindert unbegrenztes Wachstum)
+# Transcript-Log Rotation (Best Practice 25H2 - prevents unlimited growth)
 try {
     $oldLogs = Get-ChildItem $LogPath -Filter "SecurityBaseline-*.log" -ErrorAction SilentlyContinue | 
                Sort-Object CreationTime -Descending | 
@@ -1091,8 +1091,8 @@ catch {
 $script:transcriptPath = Join-Path $LogPath "SecurityBaseline-$Mode-$timestamp.log"
 
 try {
-    # BEST PRACTICE: Kein -Append = Sauberer Log-Start ohne führendes \n
-    # Timestamp im Filename garantiert bereits unique Files (kein Überschreiben)
+    # BEST PRACTICE: No -Append = Clean log start without leading \n
+    # Timestamp in filename already guarantees unique files (no overwriting)
     Start-Transcript -Path $script:transcriptPath -ErrorAction Stop
     $script:transcriptStarted = $true
     Write-Verbose "$(Get-LocalizedString 'VerboseTranscriptStarted' -f $script:transcriptPath)"
@@ -1102,7 +1102,7 @@ catch {
     Write-Warning "$(Get-LocalizedString 'WarningTranscriptContinue')"
 }
 
-# VERSION BANNER (für BEIDE Modi - Interactive und Non-Interactive)
+# VERSION BANNER (for BOTH modes - Interactive and Non-Interactive)
 Write-Host ""
 Write-Host "=============================================================================" -ForegroundColor Cyan
 Write-Host "" -ForegroundColor Cyan
@@ -1126,10 +1126,10 @@ try {
         return
     }
     
-    # 1. System-Validierung (immer)
+    # 1. System validation (always)
     Test-SystemRequirements
     
-    # 2. System Restore Point erstellen (Safety Net) - nur wenn gewuenscht
+    # 2. Create System Restore Point (Safety Net) - only if desired)
     if ($script:createRestorePoint) {
         Write-Verbose "Creating System Restore Point..."
         try {
@@ -1151,7 +1151,7 @@ try {
     $moduleCount = $SelectedModules.Count
     $currentModule = 0
     
-    # === CORE MODULE (immer ausgefuehrt) ===
+    # === CORE MODULE (always executed) ===
     if ('Core' -in $SelectedModules) {
         $currentModule++
         Write-Host ""
@@ -1168,7 +1168,7 @@ try {
         Enable-ControlledFolderAccess
         Enable-ExploitProtection
         
-        # 3a. NEUE BEST PRACTICE FEATURES (Januar 2026)
+        # 3a. NEW BEST PRACTICE FEATURES (January 2026)
         Disable-AutoPlayAndAutoRun
         Set-SmartScreenExtended
         
@@ -1183,7 +1183,7 @@ try {
         Enable-CloudflareDNSoverHTTPS
         Disable-RemoteAccessCompletely
         
-        # Sudo for Windows deaktivieren (Microsoft Baseline 25H2)
+        # Disable Sudo for Windows (Microsoft Baseline 25H2)
         Disable-SudoForWindows
         
         Set-KerberosPKINITHashAgility
@@ -1217,7 +1217,7 @@ try {
         Test-BitLockerEncryptionMethod  # Prueft ob AES-128 aktiv ist und zeigt Upgrade-Anleitung
         Enable-WindowsLAPS
         
-        # UAC Maximum Security (Immer benachrichtigen - Slider ganz oben!)
+        # UAC Maximum Security (Always notify - slider all the way up!)
         Set-MaximumUAC
         
         # UAC Enhanced Privilege Protection (Microsoft Baseline 25H2 - Future Feature)
@@ -1246,7 +1246,7 @@ try {
         
         Enable-DNSSEC
         Install-DNSBlocklist
-        # Set-DeliveryOptimization ENTFERNT - jetzt in Core-Modul als Default (nicht Policy!)
+        # Set-DeliveryOptimization REMOVED - now in Core module as default (not policy!)
         Set-StrictInboundFirewall
         
         Write-Host "[OK] $(Get-LocalizedString 'SuccessDNS')" -ForegroundColor Green
@@ -1276,7 +1276,7 @@ try {
         Remove-TelemetryTasks
         Block-TelemetryHosts
         
-        # KRITISCH: Privacy-Extended Features (wurden vorher NICHT gesetzt!)
+        # CRITICAL: Privacy-Extended Features (were NOT set before!)
         Disable-WindowsSearchWebFeatures
         Disable-CameraAndMicrophone
         Disable-PrivacyExperienceSettings
@@ -1406,20 +1406,20 @@ catch {
     if ($_.InvocationInfo) {
         Write-Host $_.InvocationInfo.PositionMessage -ForegroundColor Red
     }
-    # CRITICAL: Kein exit hier! Finally-Block MUSS ausfuehren (Mutex/Transcript cleanup)
-    # Exit wird am Ende von Finally gemacht
+    # CRITICAL: No exit here! Finally block MUST execute (Mutex/Transcript cleanup)
+    # Exit is done at end of Finally
     $script:criticalError = $true
 }
 finally {
     # Best Practice 25H2: Log completion status for error recovery
-    # Filtere nur ECHTE Fehler (keine non-fatal CIM queries, Get-* die nichts finden, etc.)
+    # Filter only REAL errors (no non-fatal CIM queries, Get-* that find nothing, etc.)
     $realErrors = @($Error | Where-Object {
-        # Filtere harmlose Fehler aus:
+        # Filter out harmless errors:
         $msg = $_.Exception.Message
         $fullErrorMsg = $_.ToString()
         $categoryInfo = $_.CategoryInfo.Category
         
-        # HARMLOSE Fehler (werden ignoriert):
+        # HARMLESS errors (will be ignored):
         $isHarmless = 
             ($msg -like "*wurden keine*gefunden*") -or
             ($msg -like "*Cannot find*") -or
@@ -1448,15 +1448,15 @@ finally {
             ($categoryInfo -eq 'ResourceUnavailable') -or  # Ressource nicht verfuegbar
             ($categoryInfo -eq 'NotSpecified')  # Unspezifizierte Fehler
         
-        # WICHTIG: Nur echte KRITISCHE Fehler zaehlen
-        # Kriterien: TerminatingError ODER WriteError UND nicht harmlos
-        # PLUS: ParameterBindingException ist IMMER critical!
+        # IMPORTANT: Only count real CRITICAL errors
+        # Criteria: TerminatingError OR WriteError AND not harmless
+        # PLUS: ParameterBindingException is ALWAYS critical!
         $isCritical = ($fullErrorMsg -match "TerminatingError") -or 
                      ($fullErrorMsg -match "WriteError") -or
                      ($fullErrorMsg -match "ParameterBindingException") -or
                      ($categoryInfo -in @('InvalidOperation', 'PermissionDenied', 'SecurityError', 'InvalidArgument'))
         
-        # Nur zaehlen wenn: Kritisch UND NICHT harmlos
+        # Only count if: Critical AND NOT harmless
         $isCritical -and (-not $isHarmless)
     })
     
@@ -1481,7 +1481,7 @@ finally {
                 $_ -notin $appWarnings 
             })
             
-            # Top 10 Critical Errors mit Details
+            # Top 10 Critical Errors with details
             $criticalErrorDetails = $realErrors | Select-Object -First 10 | ForEach-Object {
                 "  - $($_.Exception.Message)"
                 if ($_.InvocationInfo.ScriptLineNumber) {
@@ -1491,7 +1491,7 @@ finally {
             # Join BEFORE the here-string to avoid backtick escaping issues
             $criticalErrorText = $criticalErrorDetails -join "`n"
             
-            # Quick Actions basierend auf Error-Typ (ausserhalb des Here-Strings!)
+            # Quick Actions based on error type (outside the here-string!)
             $quickActions = ""
             if ($realErrors[0].Exception.Message -like "*Registrierungszugriff*" -or $realErrors[0].Exception.Message -like "*registry access*") {
                 $quickActions = @"
@@ -1514,7 +1514,7 @@ finally {
 "@
             }
             
-            # Transcript Path (ausserhalb des Here-Strings!)
+            # Transcript Path (outside the here-string!)
             $transcriptInfo = if ($script:transcriptPath) { $script:transcriptPath } else { 'No transcript log created (early error)' }
             
             $statusInfo = @"
@@ -1557,7 +1557,7 @@ Run script again after resolving errors - it is idempotent (safe to re-run).
 "@
             # Ensure absolute path and force creation
             $absoluteLog = if ([System.IO.Path]::IsPathRooted($completionLog)) { $completionLog } else { Join-Path (Get-Location) $completionLog }
-            # [OK] BEST PRACTICE: UTF-8 ohne BOM (PowerShell 5.1 compatible)
+            # [OK] BEST PRACTICE: UTF-8 without BOM (PowerShell 5.1 compatible)
             $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
             [System.IO.File]::WriteAllText($absoluteLog, $statusInfo, $utf8NoBom)
             Write-Verbose "Completion status logged to: $absoluteLog"
@@ -1567,10 +1567,10 @@ Run script again after resolving errors - it is idempotent (safe to re-run).
         }
     }
     else {
-        # SUCCESS: Keine echten Fehler - schreibe SUCCESS Status
+        # SUCCESS: No real errors - write SUCCESS status
         $completionLog = Join-Path $LogPath "LastRun-Status.txt"
         try {
-            # Kategorisiere Warnings auch bei SUCCESS
+            # Categorize warnings also on SUCCESS
             $harmlessWarnings = @($Error | Where-Object {
                 $msg = $_.Exception.Message
                 ($msg -like "*wurden keine*gefunden*") -or
@@ -1588,7 +1588,7 @@ Run script again after resolving errors - it is idempotent (safe to re-run).
                 $_ -notin $appWarnings 
             })
             
-            # Next Steps basierend auf Mode (ausserhalb des Here-Strings!)
+            # Next Steps based on mode (outside the here-string!)
             $nextSteps = ""
             if ($Mode -eq 'Enforce') {
                 $nextSteps = @"
@@ -1612,7 +1612,7 @@ Run script again after resolving errors - it is idempotent (safe to re-run).
 "@
             }
             
-            # Transcript Path (ausserhalb des Here-Strings!)
+            # Transcript Path (outside the here-string!)
             $transcriptInfo = if ($script:transcriptPath) { $script:transcriptPath } else { 'No transcript log created (early completion)' }
             
             $statusInfo = @"
@@ -1650,7 +1650,7 @@ Transcript Log: $transcriptInfo
 NOTE: Script is idempotent - safe to run multiple times.
 "@
             $absoluteLog = if ([System.IO.Path]::IsPathRooted($completionLog)) { $completionLog } else { Join-Path (Get-Location) $completionLog }
-            # [OK] BEST PRACTICE: UTF-8 ohne BOM (PowerShell 5.1 compatible)
+            # [OK] BEST PRACTICE: UTF-8 without BOM (PowerShell 5.1 compatible)
             $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
             [System.IO.File]::WriteAllText($absoluteLog, $statusInfo, $utf8NoBom)
             Write-Verbose "SUCCESS status logged to: $absoluteLog"
@@ -1660,23 +1660,23 @@ NOTE: Script is idempotent - safe to run multiple times.
         }
     }
     
-    # CRITICAL: Transcript und Mutex CLEANUP (IMMER ausführen!)
-    # 1. TRANSCRIPT STOPPEN (falls gestartet)
+    # CRITICAL: Transcript and Mutex CLEANUP (ALWAYS execute!)
+    # 1. STOP TRANSCRIPT (if started)
     if ($script:transcriptStarted) {
         try {
             Stop-Transcript -ErrorAction Stop
-            Write-Verbose "Transcript erfolgreich gestoppt"
+            Write-Verbose "Transcript successfully stopped"
         }
         catch {
-            # Transcript war bereits gestoppt - nicht kritisch
-            Write-Verbose "Transcript-Stop fehlgeschlagen (moeglicherweise bereits gestoppt): $_"
+            # Transcript was already stopped - not critical
+            Write-Verbose "Transcript stop failed (possibly already stopped): $_"
         }
     }
     
     # 2. MUTEX FREIGEBEN (falls acquired)
     if ($script:mutexAcquired -and $script:mutex) {
         try {
-            # SAFETY CHECK: Ist Mutex noch valide?
+            # SAFETY CHECK: Is Mutex still valid?
             if ($script:mutex.SafeWaitHandle -and -not $script:mutex.SafeWaitHandle.IsClosed) {
                 $script:mutex.ReleaseMutex()
                 Write-Verbose "Mutex erfolgreich freigegeben"
@@ -1686,15 +1686,15 @@ NOTE: Script is idempotent - safe to run multiple times.
             }
         }
         catch [System.ApplicationException] {
-            # Mutex war bereits freigegeben - OK
+            # Mutex was already released - OK
             Write-Verbose "Mutex-Freigabe: Mutex war bereits freigegeben (OK)"
         }
         catch {
-            # Unerwarteter Fehler - loggen aber nicht crashen
+            # Unexpected error - log but don't crash
             Write-Warning "Mutex-Freigabe fehlgeschlagen: $($_.Exception.Message)"
         }
         finally {
-            # DISPOSE: Mutex-Handle freigeben (auch bei Errors)
+            # DISPOSE: Release Mutex handle (also on errors)
             try {
                 $script:mutex.Dispose()
                 Write-Verbose "Mutex-Handle disposed"
@@ -1707,7 +1707,7 @@ NOTE: Script is idempotent - safe to run multiple times.
     
     Write-Verbose "Cleanup abgeschlossen - Script beendet"
     
-    # Exit mit korrektem Code (nachdem Cleanup fertig)
+    # Exit with correct code (after cleanup finished)
     if ($script:criticalError) {
         exit 1
     }
