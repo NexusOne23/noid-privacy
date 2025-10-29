@@ -1164,8 +1164,98 @@ $backup.Settings.DoH = $dohBackup
 Write-Host ""
 #endregion
 
+#region DoH Encryption Preferences Backup (Adapter-specific DohFlags)
+Write-Host "[12/14] Backup DoH Encryption Preferences (Adapter-specific)..." -ForegroundColor Yellow
+
+$dohEncryptionBackup = @{
+    Adapters = @()
+    Enabled = $false
+}
+
+try {
+    # Get all network adapters
+    $adapters = Get-NetAdapter -ErrorAction SilentlyContinue | Where-Object { $_.Status -eq "Up" }
+    
+    if ($adapters) {
+        foreach ($adapter in $adapters) {
+            $adapterGuid = $adapter.InterfaceGuid
+            $adapterBackup = @{
+                Name = $adapter.Name
+                Guid = $adapterGuid
+                IPv4Servers = @()
+                IPv6Servers = @()
+            }
+            
+            # Backup IPv4 DoH encryption (Doh branch)
+            $ipv4Servers = @('1.1.1.1', '1.0.0.1')
+            foreach ($ip in $ipv4Servers) {
+                $regPath = "HKLM:\System\CurrentControlSet\Services\Dnscache\InterfaceSpecificParameters\$adapterGuid\DohInterfaceSettings\Doh\$ip"
+                if (Test-Path $regPath) {
+                    try {
+                        $dohFlags = Get-ItemProperty -Path $regPath -Name 'DohFlags' -ErrorAction SilentlyContinue
+                        if ($dohFlags) {
+                            $adapterBackup.IPv4Servers += @{
+                                IP = $ip
+                                DohFlags = $dohFlags.DohFlags
+                            }
+                        }
+                    }
+                    catch {
+                        Write-Verbose "Could not read DohFlags for IPv4 $ip on adapter $($adapter.Name): $_"
+                    }
+                }
+            }
+            
+            # Backup IPv6 DoH encryption (Doh6 branch)
+            $ipv6Servers = @('2606:4700:4700::1111', '2606:4700:4700::1001')
+            foreach ($ip in $ipv6Servers) {
+                $regPath = "HKLM:\System\CurrentControlSet\Services\Dnscache\InterfaceSpecificParameters\$adapterGuid\DohInterfaceSettings\Doh6\$ip"
+                if (Test-Path $regPath) {
+                    try {
+                        $dohFlags = Get-ItemProperty -Path $regPath -Name 'DohFlags' -ErrorAction SilentlyContinue
+                        if ($dohFlags) {
+                            $adapterBackup.IPv6Servers += @{
+                                IP = $ip
+                                DohFlags = $dohFlags.DohFlags
+                            }
+                        }
+                    }
+                    catch {
+                        Write-Verbose "Could not read DohFlags for IPv6 $ip on adapter $($adapter.Name): $_"
+                    }
+                }
+            }
+            
+            # Only add adapter if it has DoH encryption configured
+            if ($adapterBackup.IPv4Servers.Count -gt 0 -or $adapterBackup.IPv6Servers.Count -gt 0) {
+                $dohEncryptionBackup.Adapters += $adapterBackup
+            }
+        }
+        
+        if ($dohEncryptionBackup.Adapters.Count -gt 0) {
+            $dohEncryptionBackup.Enabled = $true
+            $totalServers = ($dohEncryptionBackup.Adapters | ForEach-Object { $_.IPv4Servers.Count + $_.IPv6Servers.Count } | Measure-Object -Sum).Sum
+            Write-Host "[OK] DoH Encryption Preferences: $($dohEncryptionBackup.Adapters.Count) Adapter, $totalServers DNS-Server" -ForegroundColor Green
+        }
+        else {
+            Write-Host "[INFO] Keine DoH Encryption Preferences gefunden" -ForegroundColor Gray
+        }
+    }
+    else {
+        Write-Host "[INFO] Keine aktiven Netzwerkadapter gefunden" -ForegroundColor Gray
+    }
+}
+catch {
+    Write-Warning "DoH Encryption Preferences Backup fehlgeschlagen: $_"
+    $dohEncryptionBackup.Enabled = $false
+}
+
+$backup.Settings.DohEncryption = $dohEncryptionBackup
+Write-Host ""
+#endregion
+
 #region Firewall Profile Settings Backup
-Write-Host "[12/14] Backup Firewall Profile Settings..." -ForegroundColor Yellow
+Write-Host "[13/14] Backup Firewall Profile Settings..." -ForegroundColor Yellow
 
 $firewallProfileBackup = @{
     Profiles = @()
@@ -1219,7 +1309,7 @@ Write-Host ""
 #endregion
 
 #region Device-Level App Permission SubKeys Backup
-Write-Host "[13/14] Backup Device-Level App Permissions..." -ForegroundColor Yellow
+Write-Host "[14/14] Backup Device-Level App Permissions..." -ForegroundColor Yellow
 
 $deviceLevelBackup = @{
     Apps = @()
@@ -1390,6 +1480,7 @@ try {
     Write-Host "  - ASR Rules: $($backup.Settings.ASRRules.Rules.Count)" -ForegroundColor Gray
     Write-Host "  - Exploit Protection: $($backup.Settings.ExploitProtection.Enabled)" -ForegroundColor Gray
     Write-Host "  - DoH Servers: $($backup.Settings.DoH.Servers.Count)" -ForegroundColor Gray
+    Write-Host "  - DoH Encryption: $($backup.Settings.DohEncryption.Adapters.Count) Adapter" -ForegroundColor Gray
     Write-Host "  - Firewall Profiles: $($backup.Settings.FirewallProfiles.Profiles.Count)" -ForegroundColor Gray
     Write-Host "  - Device-Level Apps: $($backup.Settings.DeviceLevelApps.Apps.Count)" -ForegroundColor Gray
     Write-Host ""

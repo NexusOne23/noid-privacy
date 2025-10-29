@@ -1394,8 +1394,9 @@ try {
     # HTML Compliance Report REMOVED - unreliable checks caused false positives
     # Use Verify-SecurityBaseline.ps1 for manual verification instead
     
-    # === REBOOT PROMPT (Interactive Module Function) ===
-    Invoke-RebootPrompt -SkipReboot:$SkipReboot
+    # CRITICAL FIX v1.7.11: Reboot prompt MOVED to after finally-block!
+    # Reason: Restart-Computer causes immediate reboot, preventing finally-block execution
+    # This means lastrun.txt was NEVER written! Now it's written first, then reboot.
 }
 catch {
     Write-Host ""
@@ -1709,4 +1710,11 @@ NOTE: Script is idempotent - safe to run multiple times.
     if ($script:criticalError) {
         exit 1
     }
+}
+
+# CRITICAL FIX v1.7.11: Reboot prompt AFTER finally-block!
+# This ensures lastrun.txt is written before reboot happens
+# (Restart-Computer inside try-block prevented finally-block execution)
+if (-not $script:criticalError) {
+    Invoke-RebootPrompt -SkipReboot:$SkipReboot
 }

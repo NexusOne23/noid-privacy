@@ -879,8 +879,8 @@ if ($backup.Settings.DoH -and $backup.Settings.DoH.Enabled) {
         }
         
         if ($restoredCount -gt 0) {
-            # Aktiviere DoH global
-            $null = netsh dnsclient set global doh=yes 2>&1
+            # Aktiviere DoH global (auto = strenger als yes)
+            $null = netsh dnsclient set global doh=auto 2>&1
             Write-Host "  [OK] $restoredCount DoH Server wiederhergestellt (netsh)" -ForegroundColor Green
             $restoreStats.Success++
         }
@@ -898,9 +898,99 @@ else {
 }
 #endregion
 
+#region Restore DoH Encryption Preferences (Adapter-specific DohFlags)
+Write-Host ""
+Write-Host "[12/14] Restore DoH Encryption Preferences (Adapter-specific)..." -ForegroundColor Yellow
+
+if ($backup.Settings.DohEncryption -and $backup.Settings.DohEncryption.Enabled) {
+    try {
+        $restoredAdapters = 0
+        $restoredServers = 0
+        
+        foreach ($adapterBackup in $backup.Settings.DohEncryption.Adapters) {
+            $adapterGuid = $adapterBackup.Guid
+            $adapterName = $adapterBackup.Name
+            
+            Write-Verbose "Restoring DoH encryption for adapter: $adapterName (GUID: $adapterGuid)"
+            
+            # Restore IPv4 DoH encryption (Doh branch)
+            foreach ($serverBackup in $adapterBackup.IPv4Servers) {
+                try {
+                    $ip = $serverBackup.IP
+                    $dohFlags = $serverBackup.DohFlags
+                    $regPath = "HKLM:\System\CurrentControlSet\Services\Dnscache\InterfaceSpecificParameters\$adapterGuid\DohInterfaceSettings\Doh\$ip"
+                    
+                    # Create path if not exists
+                    if (-not (Test-Path $regPath)) {
+                        New-Item -Path $regPath -Force -ErrorAction Stop | Out-Null
+                    }
+                    
+                    # Restore DohFlags value
+                    Set-ItemProperty -Path $regPath -Name 'DohFlags' -Value $dohFlags -Type QWord -Force -ErrorAction Stop
+                    Write-Verbose "  Restored IPv4 DoH encryption: $ip = $dohFlags"
+                    $restoredServers++
+                }
+                catch {
+                    Write-Verbose "  Failed to restore IPv4 DoH encryption for $ip : $_"
+                }
+            }
+            
+            # Restore IPv6 DoH encryption (Doh6 branch)
+            foreach ($serverBackup in $adapterBackup.IPv6Servers) {
+                try {
+                    $ip = $serverBackup.IP
+                    $dohFlags = $serverBackup.DohFlags
+                    
+                    # PowerShell 5.1 workaround: Create path step-by-step
+                    $basePath = "HKLM:\System\CurrentControlSet\Services\Dnscache\InterfaceSpecificParameters\$adapterGuid\DohInterfaceSettings\Doh6"
+                    $regPath = $basePath + "\$ip"
+                    
+                    # Create Doh6 parent first (if not exists)
+                    if (-not (Test-Path $basePath)) {
+                        New-Item -Path $basePath -Force -ErrorAction Stop | Out-Null
+                    }
+                    
+                    # Create IP subkey
+                    if (-not (Test-Path $regPath)) {
+                        New-Item -Path $regPath -Force -ErrorAction Stop | Out-Null
+                    }
+                    
+                    # Restore DohFlags value
+                    Set-ItemProperty -Path $regPath -Name 'DohFlags' -Value $dohFlags -Type QWord -Force -ErrorAction Stop
+                    Write-Verbose "  Restored IPv6 DoH encryption: $ip = $dohFlags"
+                    $restoredServers++
+                }
+                catch {
+                    Write-Verbose "  Failed to restore IPv6 DoH encryption for $ip : $_"
+                }
+            }
+            
+            if ($adapterBackup.IPv4Servers.Count -gt 0 -or $adapterBackup.IPv6Servers.Count -gt 0) {
+                $restoredAdapters++
+            }
+        }
+        
+        if ($restoredServers -gt 0) {
+            Write-Host "  [OK] DoH Encryption: $restoredAdapters Adapter, $restoredServers DNS-Server wiederhergestellt" -ForegroundColor Green
+            $restoreStats.Success++
+        }
+        else {
+            Write-Host "  [WARN] Keine DoH Encryption Preferences wiederhergestellt" -ForegroundColor Yellow
+        }
+    }
+    catch {
+        Write-Warning "DoH Encryption Preferences Restore fehlgeschlagen: $_"
+        $restoreStats.Errors++
+    }
+}
+else {
+    Write-Host "  [SKIP] Keine DoH Encryption Preferences im Backup" -ForegroundColor Gray
+}
+#endregion
+
 #region Restore Firewall Profile Settings
 Write-Host ""
-Write-Host "[12/14] Restore Firewall Profile Settings..." -ForegroundColor Yellow
+Write-Host "[13/14] Restore Firewall Profile Settings..." -ForegroundColor Yellow
 
 if ($backup.Settings.FirewallProfiles -and $backup.Settings.FirewallProfiles.Enabled) {
     try {
@@ -949,7 +1039,7 @@ else {
 
 #region Restore Device-Level App Permissions
 Write-Host ""
-Write-Host "[13/14] Restore Device-Level App Permissions..." -ForegroundColor Yellow
+Write-Host "[14/14] Restore Device-Level App Permissions..." -ForegroundColor Yellow
 
 if ($backup.Settings.DeviceLevelApps -and $backup.Settings.DeviceLevelApps.Enabled) {
     try {

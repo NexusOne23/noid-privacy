@@ -1681,8 +1681,11 @@ function Enable-CloudflareDNSoverHTTPS {
     Write-Success (Get-LocalizedString 'CoreDNSRegistered')
     
     # B. Global DoH aktivieren
+    # CRITICAL FIX v1.7.11: doh=auto statt doh=yes für strengere Durchsetzung
+    # auto = nur DoH für bekannte/registrierte Server (kein Fallback!)
+    # yes = DoH wo möglich, aber Fallback erlaubt
     Write-Info (Get-LocalizedString 'CoreDNSStep2')
-    $result = netsh dnsclient set global doh=yes 2>&1
+    $result = netsh dnsclient set global doh=auto 2>&1
     if ($LASTEXITCODE -eq 0) {
         Write-Success (Get-LocalizedString 'CoreDNSGlobalActivated')
     } else {
@@ -1854,6 +1857,64 @@ function Enable-CloudflareDNSoverHTTPS {
                     Write-Success (Get-LocalizedString 'CoreDNSAdapterIPv6' -FormatArgs $adapter.Name)
                 } else {
                     Write-Success (Get-LocalizedString 'CoreDNSAdapterIPv4' -FormatArgs $adapter.Name)
+                }
+                
+                # CRITICAL FIX v1.7.11: Set DoH Encryption Preference (GUI Toggle)
+                # Without this, Windows GUI shows "Unencrypted" even though DoH works
+                # IMPORTANT: IPv4 uses "Doh" branch, IPv6 uses "Doh6" branch!
+                # Source: https://cleanbrowsing.org/help/docs/configure-encrypted-dns-on-windows-11-with-powershell-doh/
+                try {
+                    $adapterGuid = $adapter.InterfaceGuid
+                    Write-Verbose "Setting DoH encryption preference for adapter GUID: $adapterGuid"
+                    
+                    # IPv4 Servers → Doh branch
+                    $ipv4Servers = @('1.1.1.1', '1.0.0.1')
+                    foreach ($ip in $ipv4Servers) {
+                        try {
+                            $regPath = 'HKLM:\System\CurrentControlSet\Services\Dnscache\InterfaceSpecificParameters\' + $adapterGuid + '\DohInterfaceSettings\Doh\' + $ip
+                            if (-not (Test-Path $regPath)) {
+                                New-Item -Path $regPath -Force -ErrorAction Stop | Out-Null
+                            }
+                            New-ItemProperty -Path $regPath -Name 'DohFlags' -Value 1 -PropertyType QWord -Force -ErrorAction Stop | Out-Null
+                            Write-Verbose "  DoH encryption set: $ip (Encrypted Only)"
+                        }
+                        catch {
+                            Write-Verbose "  Failed to set DoH for $ip : $_"
+                        }
+                    }
+                    
+                    # IPv6 Servers → Doh6 branch (CRITICAL - different from IPv4!)
+                    if ($ipv6Enabled) {
+                        $ipv6Servers = @('2606:4700:4700::1111', '2606:4700:4700::1001')
+                        foreach ($ip in $ipv6Servers) {
+                            try {
+                                # CRITICAL: IPv6 uses Doh6 branch (not Doh)!
+                                # PowerShell 5.1 workaround: Create path step-by-step
+                                $basePath = 'HKLM:\System\CurrentControlSet\Services\Dnscache\InterfaceSpecificParameters\' + $adapterGuid + '\DohInterfaceSettings\Doh6'
+                                $ipPath = $basePath + '\' + $ip
+                                
+                                # Create Doh6 parent first (if not exists)
+                                if (-not (Test-Path $basePath)) {
+                                    New-Item -Path $basePath -Force -ErrorAction Stop | Out-Null
+                                }
+                                
+                                # Create IP subkey (PowerShell 5.1 handles colons in -Path parameter)
+                                if (-not (Test-Path $ipPath)) {
+                                    New-Item -Path $ipPath -Force -ErrorAction Stop | Out-Null
+                                }
+                                
+                                # Set DohFlags
+                                New-ItemProperty -Path $ipPath -Name 'DohFlags' -Value 1 -PropertyType QWord -Force -ErrorAction Stop | Out-Null
+                                Write-Verbose "  DoH encryption set: $ip (Encrypted Only, Doh6)"
+                            }
+                            catch {
+                                Write-Verbose "  Failed to set DoH for $ip : $_"
+                            }
+                        }
+                    }
+                }
+                catch {
+                    Write-Verbose "Could not set DoH encryption preference (non-critical): $_"
                 }
                 
                 $adapterCount++
