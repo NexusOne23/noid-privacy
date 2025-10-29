@@ -684,14 +684,16 @@ $registryKeys = @(
     @{Path="HKLM:\SOFTWARE\Policies\Microsoft\Windows\Explorer"; Name="DisableWindowsCopilot"},
     @{Path="HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsCopilot"; Name="DisableCopilotProactive"},
     
-    # Other AI Features
+    # Other AI Features (WindowsAI path)
     @{Path="HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI"; Name="DisableClickToDo"},
-    @{Path="HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI"; Name="DisableCocreator"},
-    @{Path="HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI"; Name="DisableGenerativeFill"},
-    @{Path="HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI"; Name="DisableImageCreator"},
     @{Path="HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI"; Name="DisableSettingsAgent"},
     @{Path="HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI"; Name="SetMaximumStorageSpaceForRecallSnapshots"},
     @{Path="HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI"; Name="SetMaximumStorageDurationForRecallSnapshots"},
+    
+    # Paint AI Features (CORRECT path - not WindowsAI!)
+    @{Path="HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Paint"; Name="DisableCocreator"},
+    @{Path="HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Paint"; Name="DisableGenerativeFill"},
+    @{Path="HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Paint"; Name="DisableImageCreator"},
     
     # Notepad AI Features
     @{Path="HKLM:\SOFTWARE\Policies\WindowsNotepad"; Name="DisableAIFeatures"}

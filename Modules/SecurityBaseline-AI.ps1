@@ -106,24 +106,29 @@ function Disable-PaintAIFeatures {
     .DESCRIPTION
         Microsoft has integrated AI into Paint
         All AI Features will be disabled
+        
+        CRITICAL FIX: Use correct registry path
+        - Paint reads: HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Paint
+        - NOT: HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI (that's for MDM/Intune only!)
     #>
     [CmdletBinding()]
     param()
     
     Write-Section "$(Get-LocalizedString 'AIPaintTitle')"
     
-    $aiPolicyPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI"
+    # CORRECT Path for Paint AI policies
+    $paintPolicyPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Paint"
     
     # Cocreator (AI Image Generation)
-    Set-RegistryValue -Path $aiPolicyPath -Name "DisableCocreator" -Value 1 -Type DWord `
+    Set-RegistryValue -Path $paintPolicyPath -Name "DisableCocreator" -Value 1 -Type DWord `
         -Description "Paint Cocreator deaktivieren (AI Image Gen)"
     
     # Generative Fill (AI Editing)
-    Set-RegistryValue -Path $aiPolicyPath -Name "DisableGenerativeFill" -Value 1 -Type DWord `
+    Set-RegistryValue -Path $paintPolicyPath -Name "DisableGenerativeFill" -Value 1 -Type DWord `
         -Description "Paint Generative Fill deaktivieren (AI Edit)"
     
     # Image Creator (AI Art)
-    Set-RegistryValue -Path $aiPolicyPath -Name "DisableImageCreator" -Value 1 -Type DWord `
+    Set-RegistryValue -Path $paintPolicyPath -Name "DisableImageCreator" -Value 1 -Type DWord `
         -Description "Paint Image Creator deaktivieren (AI Art)"
     
     Write-Success "$(Get-LocalizedString 'AIPaintDisabled')"
