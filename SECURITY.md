@@ -1,5 +1,19 @@
 # Security Policy
 
+## 🚨 Quick Reference
+
+**Found a vulnerability?** Email: [security@noid-privacy.com](mailto:security@noid-privacy.com)  
+**Response Time:** Within 48 hours  
+**Need help?** See [GitHub Issues](https://github.com/NexusOne23/noid-privacy/issues)
+
+**Critical Security Note:** This tool requires Administrator privileges. Always:
+- ✅ Review code before running
+- ✅ Test in VM first
+- ✅ Create system backup
+- ✅ Download from official repository only
+
+---
+
 ## Supported Versions
 
 We actively support the following versions with security updates:
@@ -39,6 +53,37 @@ Instead, please report security issues via:
   - Medium: 30-60 days
   - Low: 60-90 days
 
+### 🎯 Severity Classification
+
+We classify security vulnerabilities using the following criteria:
+
+**Critical Severity** 🔴
+- Remote code execution without authentication
+- Privilege escalation to SYSTEM level
+- Complete system compromise
+- Mass data exfiltration
+- **Examples**: Arbitrary code execution, unrestricted file write with SYSTEM privileges
+
+**High Severity** 🟠
+- Privilege escalation requiring user interaction
+- Local code execution vulnerabilities
+- Authentication bypass
+- Sensitive data disclosure (credentials, personal data)
+- **Examples**: Registry key manipulation allowing persistent backdoor, credential theft from backup files
+
+**Medium Severity** 🟡
+- Denial of service vulnerabilities
+- Information disclosure (non-sensitive)
+- Logic errors affecting security features
+- Path traversal vulnerabilities
+- **Examples**: Script crashes preventing security hardening, exposure of non-sensitive system information
+
+**Low Severity** 🟢
+- Minor information leaks
+- Issues requiring unlikely conditions
+- Cosmetic security issues
+- **Examples**: Verbose error messages, timing attacks on non-critical operations
+
 ### 🏆 Recognition
 
 We appreciate security researchers who follow responsible disclosure:
@@ -63,6 +108,39 @@ We appreciate security researchers who follow responsible disclosure:
 - Issues already documented as known limitations
 - Third-party dependencies (report to upstream)
 
+### ⚡ PowerShell-Specific Security Considerations
+
+As a PowerShell-based tool, we pay special attention to:
+
+**Command Injection Vulnerabilities**
+- All user inputs are validated before use
+- No dynamic script generation from user input
+- Registry paths are sanitized
+- File paths use absolute paths only
+
+**Path Traversal Protection**
+- All file operations use validated absolute paths
+- No user-controlled path components
+- Backup files use fixed directory structure
+
+**Privilege Escalation Prevention**
+- Script requires explicit Administrator elevation
+- No privilege escalation within script execution
+- Mutex prevents concurrent execution
+- No credential storage or handling
+
+**Data Integrity**
+- JSON backups use structured serialization
+- Registry operations validated before write
+- Atomic operations where possible
+- Transaction-like backup before changes
+
+**Known PowerShell Attack Vectors (Mitigated)**
+- ✅ Script injection via parameters: Not accepting user script input
+- ✅ Credential theft: No credential handling in code
+- ✅ Process injection: No inter-process manipulation
+- ✅ Fileless malware: All changes logged and reversible
+
 ### 📋 Security Best Practices
 
 When using NoID Privacy:
@@ -81,12 +159,15 @@ This project implements multiple security layers:
 
 | Feature | Purpose | Status |
 |---------|---------|--------|
-| **Script Signing** | Verify script authenticity | Recommended |
+| **Script Signing** | Verify script authenticity | 🔄 Pending (SignPath application submitted) |
 | **Mutex Lock** | Prevent concurrent execution | ✅ Implemented |
 | **Error Handling** | Safe failure modes | ✅ Implemented |
 | **Backup System** | Rollback capability | ✅ Implemented |
 | **Verbose Logging** | Audit trail | ✅ Implemented |
 | **Privilege Checks** | Admin rights validation | ✅ Implemented |
+| **BitLocker Warning** | Prevent false sense of security | ✅ Implemented (v1.7.13) |
+| **VBS Verification** | Verify Credential Guard activation | ✅ Implemented (v1.7.13) |
+| **Hardware Checks** | TPM/CPU/Virtualization validation | ✅ Implemented |
 
 ### 📖 Security Documentation
 
@@ -109,9 +190,28 @@ We welcome security audits from the community. If you'd like to perform a securi
 **Current Limitations:**
 1. **Standalone Focus**: Not designed for domain environments
 2. **Third-Party AV**: May conflict with some antivirus products
-3. **Hardware Requirements**: Some features require TPM 2.0
-4. **Reversibility**: Some changes (Recall, Copilot) are permanent
+3. **Hardware Requirements**: Some features require TPM 2.0, modern CPU, enabled virtualization
+4. **Reversibility**: Some changes (Recall, Copilot, app removal) are permanent
 5. **Manual Steps**: Certain features require post-script configuration
+
+**Critical Security Considerations (Added v1.7.13):**
+
+6. **BitLocker Not Auto-Enabled**: 
+   - Script configures BitLocker policies but does NOT automatically enable encryption
+   - Users must manually enable BitLocker via Control Panel or PowerShell
+   - **Risk**: False sense of security if user assumes policies = encryption
+   - **Mitigation**: Critical warning displayed when BitLocker inactive
+
+7. **VBS/Credential Guard Silent Failures**:
+   - Features can fail silently if hardware requirements not met
+   - No automatic post-reboot verification
+   - **Risk**: User thinks Credential Guard is running when it's not
+   - **Mitigation**: Post-reboot verification instructions provided
+
+8. **No Automatic Code Signing** (yet):
+   - Scripts are not digitally signed (SignPath application pending)
+   - Users must trust based on GitHub repository verification
+   - **Mitigation**: Download only from official repository, verify commit signatures
 
 **Documented Issues:**
 - See [KNOWN_ISSUES.md](KNOWN_ISSUES.md) for current limitations
@@ -133,16 +233,33 @@ When a security issue is confirmed:
 
 For security concerns:
 - **Email**: [security@noid-privacy.com](mailto:security@noid-privacy.com)
-- **PGP Key**: [Available on request]
+- **PGP Key**: Not yet available (planned for future)
+- **Encrypted Contact**: For highly sensitive reports, request secure channel via initial email
 
 For general issues:
 - **GitHub Issues**: [Report here](https://github.com/NexusOne23/noid-privacy/issues)
 - **General Support**: [support@noid-privacy.com](mailto:support@noid-privacy.com)
 
+### 💰 Bug Bounty Program
+
+We currently do **not** offer a paid bug bounty program. However:
+- We deeply appreciate responsible disclosure
+- Contributors will be publicly credited (with permission)
+- We respond promptly and take all reports seriously
+- Consider this a learning opportunity and community contribution
+
 ---
 
-**Last Updated**: October 27, 2025  
-**Version**: 1.0
+**Last Updated**: October 30, 2025  
+**Version**: 2.0 (Comprehensive Security Policy Update)
+
+**Changelog:**
+- Added comprehensive severity classification system
+- Added PowerShell-specific security considerations
+- Updated security features with v1.7.13 improvements
+- Documented BitLocker and VBS/Credential Guard limitations
+- Clarified PGP key status and bug bounty program
+- Added detailed attack vector mitigations
 
 ---
 
