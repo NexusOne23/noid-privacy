@@ -2442,7 +2442,7 @@ function Enable-CredentialGuard {
     Write-Host '    $vbs.SecurityServicesRunning' -ForegroundColor Gray
     Write-Host ""
     Write-Host "  Expected Output: 1 or 2 (Credential Guard running)" -ForegroundColor Green
-    Write-Host "  If Output is empty or 0: VBS/Credential Guard FAILED to start!" -ForegroundColor Red
+    Write-Host "  If Output is empty or 0: VBS/Credential Guard FAILED to start!" -ForegroundColor Yellow
     Write-Host ""
     Write-Host "  Common Causes of Failure:" -ForegroundColor Yellow
     Write-Host "    - TPM 2.0 not present or not enabled" -ForegroundColor White

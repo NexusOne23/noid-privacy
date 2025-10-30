@@ -1051,7 +1051,8 @@ function Start-InteractiveMode {
     while ($continue) {
         Show-MainMenu
         
-        $choice = Get-UserChoice -Prompt "Ihre Wahl" -ValidChoices @('1', '2', '3', '4', '5')
+        $promptText = Get-LocalizedString 'MainMenuPrompt'
+        $choice = Get-UserChoice -Prompt $promptText -ValidChoices @('1', '2', '3', '4', '5')
         
         $config = $null
         
