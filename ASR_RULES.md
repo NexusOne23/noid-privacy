@@ -6,7 +6,7 @@ This document provides a complete reference for all **Attack Surface Reduction (
 
 ## 📋 Overview
 
-**Total Rules:** 16 (as of Windows 11 25H2)  
+**Total Rules:** 19 (as of Windows 11 25H2)  
 **Default Mode:** Enforce (Block)  
 **Script Module:** `Modules\SecurityBaseline-ASR.ps1`
 
@@ -303,6 +303,78 @@ C:\Windows\System32\wbem\*
 
 ---
 
+### 17. Block Rebooting Machine in Safe Mode (NEW in 2024)
+
+| Property | Value |
+|----------|-------|
+| **GUID** | `33DDEDF1-C6E0-47CB-833E-DE6133960387` |
+| **Category** | Ransomware Protection |
+| **Default Mode** | Block |
+| **Risk** | High - Prevents ransomware from disabling security in Safe Mode |
+| **False Positives** | Very Low - Normal users rarely use bcdedit/bootcfg |
+| **Exclusions** | Rare |
+
+**Description:** Prevents attackers from restarting the machine in Safe Mode where security products are disabled. Blocks commands like `bcdedit` and `bootcfg` that modify boot configuration to force Safe Mode. This is a common ransomware technique to disable antivirus before encryption.
+
+**⚠️ Note:** Manual Safe Mode access via Windows Recovery Environment is still possible - only automated command-line modifications are blocked.
+
+**Blocked Commands:**
+```
+bcdedit /set {default} safeboot minimal
+bootcfg /raw /a /safeboot:minimal /id 1
+```
+
+---
+
+### 18. Block Use of Copied or Impersonated System Tools (NEW in 2024)
+
+| Property | Value |
+|----------|-------|
+| **GUID** | `C0033C00-D16D-4114-A5A0-DC9B3A7D2CEB` |
+| **Category** | Living-off-the-Land Prevention |
+| **Default Mode** | Block |
+| **Risk** | High - Prevents LOLBin (Living-off-the-Land Binaries) abuse |
+| **False Positives** | Low - Legitimate software rarely copies system tools |
+| **Exclusions** | May need for: Some backup tools, forensic tools |
+
+**Description:** Blocks execution of copies or impostors of Windows system tools (e.g., `cmd.exe`, `powershell.exe`, `certutil.exe` copied to non-standard locations). Attackers often copy legitimate system binaries to evade detection or gain privileges.
+
+**Common Attack Technique:** Copying `cmd.exe` to `C:\Temp\notmalware.exe` to bypass application whitelisting.
+
+**Detected Behaviors:**
+- Executable files that are byte-for-byte copies of system tools
+- Files with modified names but identical binary signatures
+- System tool executables in non-Windows directories
+
+---
+
+### 19. Block Webshell Creation for Servers (Server-Specific)
+
+| Property | Value |
+|----------|-------|
+| **GUID** | `A8F5898E-1DC8-49A9-9878-85004B8A61E6` |
+| **Category** | Web Server Protection |
+| **Default Mode** | Block |
+| **Risk** | High - Prevents web server compromise and persistence |
+| **False Positives** | Low on workstations (rule is server-focused) |
+| **Exclusions** | Generally not needed on client machines |
+
+**Description:** Blocks creation of web shell scripts on Microsoft Server and Exchange Server roles. A web shell is a malicious script that allows remote command execution through a web server. This rule is primarily designed for server environments but can be enabled on workstations for defense-in-depth.
+
+**⚠️ Note:** This rule is most relevant for servers running IIS, Exchange, or other web services. On Windows 11 workstations, it provides minimal value unless hosting web services.
+
+**Blocked Activities:**
+- Creation of suspicious scripts in web directories (`.aspx`, `.asp`, `.php`, `.jsp`)
+- Upload of executable code to web-accessible folders
+- Modification of existing web files to add backdoor functionality
+
+**Common False Positives:**
+- Legitimate web application deployments (require exclusions)
+- Automated CMS updates
+- Development/testing environments
+
+---
+
 ## 📊 Deployment Modes
 
 ### Mode Values
@@ -407,24 +479,35 @@ These rules have **low false positive rates** and **high security value**:
 3. **Block Office apps from creating executables** (`3B576869-...`)
 4. **Block persistence through WMI** (`E6DB77E5-...`)
 5. **Block vulnerable signed drivers** (`56A863A9-...`)
+6. **Block Safe Mode rebooting** (`33DDEDF1-...`) - NEW
 
 ### Medium Priority (Test Thoroughly)
 
 These rules are effective but may cause **some false positives**:
 
-6. **Block Office apps from creating child processes** (`D4F940AB-...`)
-7. **Block JavaScript/VBScript launching executables** (`D3E037E1-...`)
-8. **Block obfuscated scripts** (`5BEB7EFE-...`)
-9. **Use advanced ransomware protection** (`C1DB55AB-...`)
+7. **Block Office apps from creating child processes** (`D4F940AB-...`)
+8. **Block JavaScript/VBScript launching executables** (`D3E037E1-...`)
+9. **Block obfuscated scripts** (`5BEB7EFE-...`)
+10. **Use advanced ransomware protection** (`C1DB55AB-...`)
+11. **Block copied/impersonated system tools** (`C0033C00-...`) - NEW
 
 ### Low Priority (Require Extensive Testing)
 
 These rules are **highly aggressive** and require **careful exclusion management**:
 
-10. **Block Win32 API calls from Office macros** (`92E97FA1-...`) - Breaks advanced Excel macros
-11. **Block executables by prevalence/age** (`01443614-...`) - Breaks new/custom software
-12. **Block PSExec and WMI commands** (`D1E49AAC-...`) - Breaks admin workflows
-13. **Block unsigned processes from USB** (`B2B3F03D-...`) - Breaks portable software
+12. **Block Win32 API calls from Office macros** (`92E97FA1-...`) - Breaks advanced Excel macros
+13. **Block executables by prevalence/age** (`01443614-...`) - Breaks new/custom software
+14. **Block PSExec and WMI commands** (`D1E49AAC-...`) - Breaks admin workflows
+15. **Block unsigned processes from USB** (`B2B3F03D-...`) - Breaks portable software
+
+### Optional (Server/Specialized Workloads)
+
+These rules provide value in specific scenarios:
+
+16. **Block Webshell creation** (`A8F5898E-...`) - Primarily for servers running web services
+17. **Block Adobe Reader child processes** (`7674BA52-...`) - If Adobe Reader is used
+18. **Block Office communication child processes** (`26190899-...`) - If Outlook is heavily used
+19. **Block Office code injection** (`75668C1F-...`) - Defense-in-depth for Office security
 
 ---
 
