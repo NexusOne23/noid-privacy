@@ -95,3 +95,6 @@ site/
 LastRun-Status.txt
 CapabilityAccessManager.db
 CapabilityAccessManager.db-*
+
+# Microsoft Baseline Downloads
+Windows 11 v25H2 Security Baseline/

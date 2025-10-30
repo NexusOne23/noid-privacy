@@ -519,6 +519,22 @@ function Set-DefenderBaselineSettings {
     Set-RegistryValue -Path $reportPath -Name "ReportDynamicSignatureDroppedEvent" -Value 1 -Type DWord `
         -Description "Report dynamic signature dropped events"
     
+    # ===========================
+    # ADDITIONAL DEFENDER SETTINGS - LOW PRIORITY (Microsoft Baseline 25H2)
+    # ===========================
+    
+    # Real-time scan direction (0=Both, 1=Incoming, 2=Outgoing)
+    Set-RegistryValue -Path $rtpPath -Name "RealtimeScanDirection" -Value 0 -Type DWord `
+        -Description "Realtime scan: Both incoming and outgoing files"
+    
+    # MpBafs Extended Timeout (seconds for cloud analysis)
+    $mpEnginePath = "$defenderPath\MpEngine"
+    Set-RegistryValue -Path $mpEnginePath -Name "MpBafsExtendedTimeout" -Value 50 -Type DWord `
+        -Description "Extended timeout for cloud analysis (50 seconds)"
+    
+    # Quick Scan: Include Exclusions (already have ScanExcludedFilesInQuickScan above)
+    # This is essentially covered by policy #5 above
+    
     Write-Success (Get-LocalizedString 'CoreDefender6Activated')
     Write-Success (Get-LocalizedString 'CoreDefenderActive')
 }
@@ -1009,6 +1025,27 @@ function Set-SMBHardening {
     Write-Success "SMB Signing und Encryption aktiviert"
     
     # ===========================
+    # SMB GUEST AUTHENTICATION (Microsoft Baseline 25H2)
+    # ===========================
+    Write-Info "Deaktiviere unsichere SMB Guest-Authentifizierung..."
+    
+    # Disable insecure guest logons (Workstation/Client)
+    $smbPolicyPath = "HKLM:\Software\Policies\Microsoft\Windows\LanmanWorkstation"
+    Set-RegistryValue -Path $smbPolicyPath -Name "AllowInsecureGuestAuth" -Value 0 -Type DWord `
+        -Description "Unsichere SMB Guest-Logins deaktivieren"
+    
+    # Microsoft network client: Send unencrypted password to third-party SMB servers (DISABLE!)
+    Set-RegistryValue -Path $smbClientPath -Name "EnablePlainTextPassword" -Value 0 -Type DWord `
+        -Description "Plaintext-Passwoerter an SMB-Server verbieten"
+    
+    # SMB v1 client driver (Disable at driver level - defense in depth)
+    $smb1DriverPath = "HKLM:\SYSTEM\CurrentControlSet\Services\MrxSmb10"
+    Set-RegistryValue -Path $smb1DriverPath -Name "Start" -Value 4 -Type DWord `
+        -Description "SMB1 Client Driver deaktivieren (Disabled = 4)"
+    
+    Write-Success "SMB Guest Auth deaktiviert, SMB1 Driver disabled"
+    
+    # ===========================
     # NTLM SIGNING
     # ===========================
     $ntlmPath = "HKLM:\SYSTEM\CurrentControlSet\Services\Netlogon\Parameters"
@@ -1392,6 +1429,97 @@ function Disable-AdministrativeShares {
     # Network access: Shares that can be accessed anonymously (LEER!)
     [void](Set-RegistryValue -Path $restrictPath -Name "NullSessionShares" -Value ([string[]]@()) -Type MultiString `
         -Description "Keine Shares fuer Anonymous Access")
+    
+    # ===========================
+    # ADDITIONAL SECURITY OPTIONS (Microsoft Baseline 25H2)
+    # ===========================
+    
+    # Accounts: Limit local account use of blank passwords to console logon only
+    [void](Set-RegistryValue -Path $samPath -Name "LimitBlankPasswordUse" -Value 1 -Type DWord `
+        -Description "Blank passwords nur bei Console-Logon (kein Remote)")
+    
+    # Network security: LAN Manager authentication level (NTLMv2 only)
+    [void](Set-RegistryValue -Path $samPath -Name "LmCompatibilityLevel" -Value 5 -Type DWord `
+        -Description "LAN Manager Auth Level: 5 = NTLMv2 only (no LM/NTLM)")
+    
+    # Network security: LDAP client signing requirements
+    $ldapPath = "HKLM:\SYSTEM\CurrentControlSet\Services\LDAP"
+    [void](Set-RegistryValue -Path $ldapPath -Name "LDAPClientIntegrity" -Value 1 -Type DWord `
+        -Description "LDAP Client Signing: Negotiate signing")
+    
+    # Network security: Minimum session security for NTLM SSP (client)
+    $ntlmPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Lsa\MSV1_0"
+    [void](Set-RegistryValue -Path $ntlmPath -Name "NTLMMinClientSec" -Value 537395200 -Type DWord `
+        -Description "NTLM Client: Require NTLMv2 + 128-bit encryption")
+    
+    # Network security: Minimum session security for NTLM SSP (server)
+    [void](Set-RegistryValue -Path $ntlmPath -Name "NTLMMinServerSec" -Value 537395200 -Type DWord `
+        -Description "NTLM Server: Require NTLMv2 + 128-bit encryption")
+    
+    # Interactive logon: Smart card removal behavior (Lock Workstation)
+    $winlogonPath = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon"
+    [void](Set-RegistryValue -Path $winlogonPath -Name "ScRemoveOption" -Value 1 -Type String `
+        -Description "Smart card removal: Lock Workstation (1)")
+    
+    # ===========================
+    # ADDITIONAL SECURITY OPTIONS - LOW PRIORITY (Microsoft Baseline 25H2)
+    # ===========================
+    
+    # Network access: Restrict clients allowed to make remote calls to SAM
+    [void](Set-RegistryValue -Path $samPath -Name "RestrictRemoteSAM" -Value "O:BAG:BAD:(A;;RC;;;BA)" -Type String `
+        -Description "Restrict remote SAM calls to Administrators only (SDDL)")
+    
+    # Network security: Allow LocalSystem NULL session fallback (DISABLE!)
+    [void](Set-RegistryValue -Path $samPath -Name "AllowNullSessionFallback" -Value 0 -Type DWord `
+        -Description "Do NOT allow NULL session fallback for LocalSystem")
+    
+    # System objects: Strengthen default permissions (already set via separate function - ProtectionMode)
+    # This is handled elsewhere in the code
+    
+    # ===========================
+    # CREDENTIAL DELEGATION (Microsoft Baseline 25H2)
+    # ===========================
+    
+    # Encryption Oracle Remediation (Force Updated Clients)
+    $credDelegPath = "HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\CredSSP\\Parameters"
+    [void](Set-RegistryValue -Path $credDelegPath -Name "AllowEncryptionOracle" -Value 0 -Type DWord `
+        -Description "Encryption Oracle: Force Updated Clients (most secure)")
+    
+    # Remote host allows delegation of non-exportable credentials
+    [void](Set-RegistryValue -Path "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\CredentialsDelegation" -Name "AllowDefCredentialsWhenNTLMOnly" -Value 0 -Type DWord `
+        -Description "Do NOT allow delegation of credentials when NTLM only")
+    
+    # ===========================
+    # WINDOWS INSTALLER SECURITY (Microsoft Baseline 25H2)
+    # ===========================
+    
+    # Disable user control over installs (prevent elevation bypass)
+    $installerPath = "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Installer"
+    [void](Set-RegistryValue -Path $installerPath -Name "EnableUserControl" -Value 0 -Type DWord `
+        -Description "User control over installs: DISABLED (security)")
+    
+    # Always install with elevated privileges (DISABLE - security risk!)
+    [void](Set-RegistryValue -Path $installerPath -Name "AlwaysInstallElevated" -Value 0 -Type DWord `
+        -Description "Always install elevated: DISABLED (prevents privilege escalation)")
+    
+    # ===========================
+    # MISC SECURITY SETTINGS (Microsoft Baseline 25H2)
+    # ===========================
+    
+    # RSS Feeds: Prevent downloading of enclosures (attachments)
+    $rssFeedPath = "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Internet Explorer\\Feeds"
+    [void](Set-RegistryValue -Path $rssFeedPath -Name "DisableEnclosureDownload" -Value 1 -Type DWord `
+        -Description "RSS: Prevent automatic enclosure downloads (security)")
+    
+    # Windows Search: Do NOT allow indexing of encrypted files
+    $searchPath = "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Windows Search"
+    [void](Set-RegistryValue -Path $searchPath -Name "AllowIndexingEncryptedStoresOrItems" -Value 0 -Type DWord `
+        -Description "Search: Do NOT index encrypted files (privacy)")
+    
+    # Windows Logon: Do not enumerate local users on domain-joined computers
+    $winlogonSecPath = "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\System"
+    [void](Set-RegistryValue -Path $winlogonSecPath -Name "EnumerateLocalUsers" -Value 0 -Type DWord `
+        -Description "Do NOT enumerate local users on logon screen (privacy)")
     
     Write-Success (Get-LocalizedString 'CoreAdminSharesIPCHardened')
     Write-Info (Get-LocalizedString 'CoreAdminSharesIPCNote')

@@ -290,7 +290,30 @@ function Set-StrictInboundFirewall {
             # Enable firewall
             Set-NetFirewallProfile -Name $firewallProfile -Enabled True -ErrorAction Stop
             
-            Write-Verbose "     ${firewallProfile}: Inbound=BLOCK ALL (incl. allowed apps), Outbound=ALLOW"
+            # ===========================
+            # LOGGING & NOTIFICATION SETTINGS (Microsoft Baseline 25H2)
+            # ===========================
+            
+            # Disable notifications (no popup on block)
+            Set-NetFirewallProfile -Name $firewallProfile -NotifyOnListen False -ErrorAction Stop
+            
+            # Log file size: 16384 KB (16 MB)
+            Set-NetFirewallProfile -Name $firewallProfile -LogMaxSizeKilobytes 16384 -ErrorAction Stop
+            
+            # Log dropped packets (blocked connections)
+            Set-NetFirewallProfile -Name $firewallProfile -LogBlocked True -ErrorAction Stop
+            
+            # Log successful connections (allowed traffic)
+            Set-NetFirewallProfile -Name $firewallProfile -LogAllowed True -ErrorAction Stop
+            
+            # Public Profile: Additional restrictions (no local firewall/IPsec rules)
+            if ($firewallProfile -eq 'Public') {
+                Set-NetFirewallProfile -Name $firewallProfile -AllowLocalFirewallRules False -ErrorAction Stop
+                Set-NetFirewallProfile -Name $firewallProfile -AllowLocalIPsecRules False -ErrorAction Stop
+                Write-Verbose "     ${firewallProfile}: Local FW/IPsec rules BLOCKED"
+            }
+            
+            Write-Verbose "     ${firewallProfile}: Inbound=BLOCK ALL, Outbound=ALLOW, Logging=ENABLED"
         }
         catch {
             Write-Warning (Get-LocalizedString 'FirewallProfileError' -f $firewallProfile, $_)

@@ -1526,6 +1526,36 @@ function Disable-GameBarAndGameMode {
     Write-Info "Game Mode wird NICHT automatisch aktiviert"
 }
 
+function Set-LockScreenSecurity {
+    <#
+    .SYNOPSIS
+        Hardens lock screen security settings (Microsoft Baseline 25H2)
+    .DESCRIPTION
+        Implements lock screen security policies from Microsoft Baseline
+    #>
+    [CmdletBinding()]
+    [OutputType([void])]
+    param()
+    
+    Write-Section "Lock Screen Security Hardening"
+    
+    # User: Turn off toast notifications on the lock screen
+    $pushNotifPath = "HKCU:\SOFTWARE\Policies\Microsoft\Windows\CurrentVersion\PushNotifications"
+    Set-RegistryValue -Path $pushNotifPath -Name "NoToastApplicationNotificationOnLockScreen" -Value 1 -Type DWord `
+        -Description "No toast notifications on lock screen (privacy + security)"
+    
+    # Personalization: Prevent enabling lock screen camera
+    $personalizationPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Personalization"
+    Set-RegistryValue -Path $personalizationPath -Name "NoLockScreenCamera" -Value 1 -Type DWord `
+        -Description "Prevent lock screen camera (privacy)"
+    
+    # Personalization: Prevent enabling lock screen slideshow
+    Set-RegistryValue -Path $personalizationPath -Name "NoLockScreenSlideshow" -Value 1 -Type DWord `
+        -Description "Prevent lock screen slideshow (privacy)"
+    
+    Write-Success "Lock screen hardened: No camera, no slideshow, no toast notifications"
+}
+
 #endregion
 
 # Note: Export-ModuleMember is NOT needed for dot-sourced scripts

@@ -55,6 +55,20 @@ function Set-MaximumUAC {
     Set-RegistryValue -Path $securityPath -Name "EnableSecureUIAPaths" -Value 1 -Type DWord `
         -Description "UAC: Only allow secure UIAccess paths"
     
+    # ===========================
+    # ADDITIONAL SECURITY SETTINGS (Microsoft Baseline 25H2)
+    # ===========================
+    
+    # MS Security Guide: Apply UAC restrictions to local accounts on network logons
+    # Prevents Pass-the-Hash attacks using local accounts
+    Set-RegistryValue -Path $securityPath -Name "LocalAccountTokenFilterPolicy" -Value 0 -Type DWord `
+        -Description "UAC: Prevent remote UAC bypass for local accounts (anti-PtH)"
+    
+    # Interactive logon: Machine inactivity limit (15 minutes = 900 seconds)
+    # Automatically locks screen after inactivity
+    Set-RegistryValue -Path $securityPath -Name "InactivityTimeoutSecs" -Value 900 -Type DWord `
+        -Description "Auto-lock after 15 minutes (900 sec) inactivity"
+    
     Write-Success "$(Get-LocalizedString 'UACMaximumSet')"
     Write-Info "$(Get-LocalizedString 'UACSliderPosition')"
     Write-Info "$(Get-LocalizedString 'UACEveryActionRequires')"

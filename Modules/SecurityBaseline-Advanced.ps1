@@ -92,6 +92,14 @@ function Enable-AdvancedAuditing {
     
     Write-Info "$(Get-LocalizedString 'AdvancedAuditSetting')"
     
+    # ===========================
+    # FORCE ADVANCED AUDIT POLICY (Microsoft Baseline 25H2)
+    # ===========================
+    # Audit: Force audit policy subcategory settings to override legacy audit policy
+    $lsaPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Lsa"
+    Set-RegistryValue -Path $lsaPath -Name "SCENoApplyLegacyAuditPolicy" -Value 1 -Type DWord `
+        -Description "Force advanced audit subcategory settings (override legacy)"
+    
     # Best Practice 25H2: Use GUIDs for subcategories to avoid locale issues
     # Error 0x00000057 = ERROR_INVALID_PARAMETER with wrong names
     $auditCategories = @(
@@ -113,7 +121,15 @@ function Enable-AdvancedAuditing {
         @{ Name = "Directory Service Access"; GUID = "{0CCE923B-69AE-11D9-BED3-505054503030}" },
         @{ Name = "Directory Service Changes"; GUID = "{0CCE923C-69AE-11D9-BED3-505054503030}" },
         @{ Name = "Process Creation"; GUID = "{0CCE922B-69AE-11D9-BED3-505054503030}" },
-        @{ Name = "PNP Activity"; GUID = "{0CCE9248-69AE-11D9-BED3-505054503030}" }
+        @{ Name = "PNP Activity"; GUID = "{0CCE9248-69AE-11D9-BED3-505054503030}" },
+        # ADDITIONAL AUDIT POLICIES (Microsoft Baseline 25H2)
+        @{ Name = "Credential Validation"; GUID = "{0CCE923F-69AE-11D9-BED3-505054503030}" },
+        @{ Name = "Group Membership"; GUID = "{0CCE9249-69AE-11D9-BED3-505054503030}" },
+        @{ Name = "Other Object Access Events"; GUID = "{0CCE9227-69AE-11D9-BED3-505054503030}" },
+        @{ Name = "MPSSVC Rule-Level Policy Change"; GUID = "{0CCE9232-69AE-11D9-BED3-505054503030}" },
+        # LOW PRIORITY AUDIT POLICIES (catch-all categories)
+        @{ Name = "Other Policy Change Events"; GUID = "{0CCE9234-69AE-11D9-BED3-505054503030}" },
+        @{ Name = "Other System Events"; GUID = "{0CCE9214-69AE-11D9-BED3-505054503030}" }
     )
     
     $successCount = 0

@@ -1275,6 +1275,7 @@ try {
         Set-TelemetryRegistry
         Remove-TelemetryTasks
         Block-TelemetryHosts
+        Set-LockScreenSecurity
         
         # CRITICAL: Privacy-Extended Features (were NOT set before!)
         Disable-WindowsSearchWebFeatures
