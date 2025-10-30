@@ -9,12 +9,17 @@
     - Microsoft Defender Antivirus: 17 settings
     - Attack Surface Reduction: 19 rules (individual checks)
     - Exploit Protection: 8 mitigations
-    - System basics, Firewall, UAC, DoH, VBS, BitLocker (existing)
     
-    Total Checks: ~60+ (from ~30)
+    BATCH 2 EXPANSION (Oct 30, 2025):
+    - SMB Server Hardening: 8 settings
+    - SMB Client Hardening: 8 settings
+    - Firewall Complete: 25 policies (3 profiles)
+    - Network Hardening: 3 settings (mDNS, LLMNR, NetBIOS)
+    
+    Total Checks: ~105+ (from ~30)
     
 .NOTES
-    Version:        2.0.0-batch1
+    Version:        2.0.0-batch2
     Last Update:    Oct 30, 2025
     Baseline:       Microsoft Security Baseline 25H2 (Sept 30, 2025)
 #>
@@ -485,20 +490,283 @@ try {
     Write-Host "  [!] Get-ProcessMitigation cmdlet unavailable - basic check only" -ForegroundColor Yellow
 }
 
-# Firewall
-Write-Host "`n=== FIREWALL ===" -ForegroundColor Yellow
+# ===========================
+# SMB SERVER HARDENING (8 SETTINGS)
+# ===========================
 
-Test-BaselineCheck -Category "Firewall" -Name "Private Profile Enabled" -Impact "High" `
+Write-Host "`n=== SMB SERVER HARDENING (8 SETTINGS) ===" -ForegroundColor Yellow
+
+$smbServerPath = "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters"
+
+Test-BaselineCheck -Category "SMB-Server" -Name "Auth Rate Limiter Enabled" -Impact "High" `
+    -Test { 
+        $v = Get-ItemProperty $smbServerPath -Name EnableAuthenticationRateLimiter -ErrorAction SilentlyContinue
+        if ($v) { $v.EnableAuthenticationRateLimiter } else { 0 }
+    } `
+    -Expected 1
+
+Test-BaselineCheck -Category "SMB-Server" -Name "Auth Rate Limiter Delay = 2000ms" -Impact "High" `
+    -Test { 
+        $v = Get-ItemProperty $smbServerPath -Name InvalidAuthenticationDelayTimeInMs -ErrorAction SilentlyContinue
+        if ($v) { $v.InvalidAuthenticationDelayTimeInMs } else { 0 }
+    } `
+    -Expected 2000
+
+Test-BaselineCheck -Category "SMB-Server" -Name "SMB Min Version = 3.0.0 (768)" -Impact "Critical" `
+    -Test { 
+        $v = Get-ItemProperty $smbServerPath -Name SMBServerMinimumProtocol -ErrorAction SilentlyContinue
+        if ($v) { $v.SMBServerMinimumProtocol } else { 0 }
+    } `
+    -Expected 768
+
+Test-BaselineCheck -Category "SMB-Server" -Name "SMB Max Version = 3.1.1 (1025)" -Impact "Medium" `
+    -Test { 
+        $v = Get-ItemProperty $smbServerPath -Name SMBServerMaximumProtocol -ErrorAction SilentlyContinue
+        if ($v) { $v.SMBServerMaximumProtocol } else { 0 }
+    } `
+    -Expected 1025
+
+Test-BaselineCheck -Category "SMB-Server" -Name "Audit Client Without Encryption" -Impact "Medium" `
+    -Test { 
+        $v = Get-ItemProperty $smbServerPath -Name AuditClientDoesNotSupportEncryption -ErrorAction SilentlyContinue
+        if ($v) { $v.AuditClientDoesNotSupportEncryption } else { 0 }
+    } `
+    -Expected 1
+
+Test-BaselineCheck -Category "SMB-Server" -Name "Audit Client Without Signing" -Impact "Medium" `
+    -Test { 
+        $v = Get-ItemProperty $smbServerPath -Name AuditClientDoesNotSupportSigning -ErrorAction SilentlyContinue
+        if ($v) { $v.AuditClientDoesNotSupportSigning } else { 0 }
+    } `
+    -Expected 1
+
+Test-BaselineCheck -Category "SMB-Server" -Name "Audit Insecure Guest Logon" -Impact "High" `
+    -Test { 
+        $v = Get-ItemProperty $smbServerPath -Name AuditInsecureGuestLogon -ErrorAction SilentlyContinue
+        if ($v) { $v.AuditInsecureGuestLogon } else { 0 }
+    } `
+    -Expected 1
+
+Test-BaselineCheck -Category "SMB-Server" -Name "Remote Mailslots Disabled" -Impact "Medium" `
+    -Test { 
+        $v = Get-ItemProperty $smbServerPath -Name EnableRemoteMailslots -ErrorAction SilentlyContinue
+        if ($v) { $v.EnableRemoteMailslots } else { 1 }
+    } `
+    -Expected 0
+
+# ===========================
+# SMB CLIENT HARDENING (8 SETTINGS)
+# ===========================
+
+Write-Host "`n=== SMB CLIENT HARDENING (8 SETTINGS) ===" -ForegroundColor Yellow
+
+$smbClientPath = "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanWorkstation\Parameters"
+
+Test-BaselineCheck -Category "SMB-Client" -Name "SMB Client Min Version = 3.0.0 (768)" -Impact "Critical" `
+    -Test { 
+        $v = Get-ItemProperty $smbClientPath -Name SMBClientMinimumProtocol -ErrorAction SilentlyContinue
+        if ($v) { $v.SMBClientMinimumProtocol } else { 0 }
+    } `
+    -Expected 768
+
+Test-BaselineCheck -Category "SMB-Client" -Name "SMB Client Max Version = 3.1.1 (1025)" -Impact "Medium" `
+    -Test { 
+        $v = Get-ItemProperty $smbClientPath -Name SMBClientMaximumProtocol -ErrorAction SilentlyContinue
+        if ($v) { $v.SMBClientMaximumProtocol } else { 0 }
+    } `
+    -Expected 1025
+
+Test-BaselineCheck -Category "SMB-Client" -Name "Audit Insecure Guest Logon (Client)" -Impact "High" `
+    -Test { 
+        $v = Get-ItemProperty $smbClientPath -Name AuditInsecureGuestLogon -ErrorAction SilentlyContinue
+        if ($v) { $v.AuditInsecureGuestLogon } else { 0 }
+    } `
+    -Expected 1
+
+Test-BaselineCheck -Category "SMB-Client" -Name "Audit Server Without Encryption" -Impact "Medium" `
+    -Test { 
+        $v = Get-ItemProperty $smbClientPath -Name AuditServerDoesNotSupportEncryption -ErrorAction SilentlyContinue
+        if ($v) { $v.AuditServerDoesNotSupportEncryption } else { 0 }
+    } `
+    -Expected 1
+
+Test-BaselineCheck -Category "SMB-Client" -Name "Audit Server Without Signing" -Impact "Medium" `
+    -Test { 
+        $v = Get-ItemProperty $smbClientPath -Name AuditServerDoesNotSupportSigning -ErrorAction SilentlyContinue
+        if ($v) { $v.AuditServerDoesNotSupportSigning } else { 0 }
+    } `
+    -Expected 1
+
+Test-BaselineCheck -Category "SMB-Client" -Name "Remote Mailslots Disabled (Client)" -Impact "Medium" `
+    -Test { 
+        $v = Get-ItemProperty $smbClientPath -Name EnableRemoteMailslots -ErrorAction SilentlyContinue
+        if ($v) { $v.EnableRemoteMailslots } else { 1 }
+    } `
+    -Expected 0
+
+Test-BaselineCheck -Category "SMB-Client" -Name "Insecure Guest Auth Disabled" -Impact "High" `
+    -Test { 
+        $smbPolicyPath = "HKLM:\Software\Policies\Microsoft\Windows\LanmanWorkstation"
+        $v = Get-ItemProperty $smbPolicyPath -Name AllowInsecureGuestAuth -ErrorAction SilentlyContinue
+        if ($v) { $v.AllowInsecureGuestAuth } else { 1 }
+    } `
+    -Expected 0
+
+Test-BaselineCheck -Category "SMB-Client" -Name "Plaintext Passwords to SMB Servers Disabled" -Impact "Critical" `
+    -Test { 
+        $v = Get-ItemProperty $smbClientPath -Name EnablePlainTextPassword -ErrorAction SilentlyContinue
+        if ($v) { $v.EnablePlainTextPassword } else { 1 }
+    } `
+    -Expected 0
+
+# ===========================
+# FIREWALL SETTINGS - COMPLETE VERIFICATION
+# Microsoft Security Baseline 25H2: 25 Policies
+# 3 Profiles (Domain, Private, Public)
+# ===========================
+
+Write-Host "`n=== FIREWALL (25 POLICIES - 3 PROFILES) ===" -ForegroundColor Yellow
+
+# DOMAIN PROFILE (7 Settings)
+Test-BaselineCheck -Category "Firewall" -Name "Domain Profile Enabled" -Impact "Critical" `
+    -Test { (Get-NetFirewallProfile -Name Domain).Enabled } `
+    -Expected 'True'
+
+Test-BaselineCheck -Category "Firewall" -Name "Domain Default Inbound = Block" -Impact "Critical" `
+    -Test { (Get-NetFirewallProfile -Name Domain).DefaultInboundAction } `
+    -Expected 'Block'
+
+Test-BaselineCheck -Category "Firewall" -Name "Domain Default Outbound = Allow" -Impact "Medium" `
+    -Test { (Get-NetFirewallProfile -Name Domain).DefaultOutboundAction } `
+    -Expected 'Allow'
+
+Test-BaselineCheck -Category "Firewall" -Name "Domain Block All Inbound Rules" -Impact "Critical" `
+    -Test { (Get-NetFirewallProfile -Name Domain).AllowInboundRules } `
+    -Expected 'False'
+
+Test-BaselineCheck -Category "Firewall" -Name "Domain Log Blocked Packets" -Impact "Medium" `
+    -Test { (Get-NetFirewallProfile -Name Domain).LogBlocked } `
+    -Expected 'True'
+
+Test-BaselineCheck -Category "Firewall" -Name "Domain Log Allowed Packets" -Impact "Medium" `
+    -Test { (Get-NetFirewallProfile -Name Domain).LogAllowed } `
+    -Expected 'True'
+
+Test-BaselineCheck -Category "Firewall" -Name "Domain Log Max Size = 16384 KB" -Impact "Low" `
+    -Test { (Get-NetFirewallProfile -Name Domain).LogMaxSizeKilobytes } `
+    -Expected 16384
+
+# PRIVATE PROFILE (8 Settings)
+Test-BaselineCheck -Category "Firewall" -Name "Private Profile Enabled" -Impact "Critical" `
     -Test { (Get-NetFirewallProfile -Name Private).Enabled } `
     -Expected 'True'
 
-Test-BaselineCheck -Category "Firewall" -Name "Public Profile Enabled" -Impact "High" `
+Test-BaselineCheck -Category "Firewall" -Name "Private Default Inbound = Block" -Impact "Critical" `
+    -Test { (Get-NetFirewallProfile -Name Private).DefaultInboundAction } `
+    -Expected 'Block'
+
+Test-BaselineCheck -Category "Firewall" -Name "Private Default Outbound = Allow" -Impact "Medium" `
+    -Test { (Get-NetFirewallProfile -Name Private).DefaultOutboundAction } `
+    -Expected 'Allow'
+
+Test-BaselineCheck -Category "Firewall" -Name "Private Block All Inbound Rules" -Impact "Critical" `
+    -Test { (Get-NetFirewallProfile -Name Private).AllowInboundRules } `
+    -Expected 'False'
+
+Test-BaselineCheck -Category "Firewall" -Name "Private Notify On Listen = False" -Impact "Low" `
+    -Test { (Get-NetFirewallProfile -Name Private).NotifyOnListen } `
+    -Expected 'False'
+
+Test-BaselineCheck -Category "Firewall" -Name "Private Log Blocked Packets" -Impact "Medium" `
+    -Test { (Get-NetFirewallProfile -Name Private).LogBlocked } `
+    -Expected 'True'
+
+Test-BaselineCheck -Category "Firewall" -Name "Private Log Allowed Packets" -Impact "Medium" `
+    -Test { (Get-NetFirewallProfile -Name Private).LogAllowed } `
+    -Expected 'True'
+
+Test-BaselineCheck -Category "Firewall" -Name "Private Log Max Size = 16384 KB" -Impact "Low" `
+    -Test { (Get-NetFirewallProfile -Name Private).LogMaxSizeKilobytes } `
+    -Expected 16384
+
+# PUBLIC PROFILE (10 Settings)
+Test-BaselineCheck -Category "Firewall" -Name "Public Profile Enabled" -Impact "Critical" `
     -Test { (Get-NetFirewallProfile -Name Public).Enabled } `
     -Expected 'True'
 
-Test-BaselineCheck -Category "Firewall" -Name "Block All Inbound (Private)" -Impact "Critical" `
-    -Test { (Get-NetFirewallProfile -Name Private).AllowInboundRules } `
+Test-BaselineCheck -Category "Firewall" -Name "Public Default Inbound = Block" -Impact "Critical" `
+    -Test { (Get-NetFirewallProfile -Name Public).DefaultInboundAction } `
+    -Expected 'Block'
+
+Test-BaselineCheck -Category "Firewall" -Name "Public Default Outbound = Allow" -Impact "Medium" `
+    -Test { (Get-NetFirewallProfile -Name Public).DefaultOutboundAction } `
+    -Expected 'Allow'
+
+Test-BaselineCheck -Category "Firewall" -Name "Public Block All Inbound Rules" -Impact "Critical" `
+    -Test { (Get-NetFirewallProfile -Name Public).AllowInboundRules } `
     -Expected 'False'
+
+Test-BaselineCheck -Category "Firewall" -Name "Public Notify On Listen = False" -Impact "Low" `
+    -Test { (Get-NetFirewallProfile -Name Public).NotifyOnListen } `
+    -Expected 'False'
+
+Test-BaselineCheck -Category "Firewall" -Name "Public Log Blocked Packets" -Impact "Medium" `
+    -Test { (Get-NetFirewallProfile -Name Public).LogBlocked } `
+    -Expected 'True'
+
+Test-BaselineCheck -Category "Firewall" -Name "Public Log Allowed Packets" -Impact "Medium" `
+    -Test { (Get-NetFirewallProfile -Name Public).LogAllowed } `
+    -Expected 'True'
+
+Test-BaselineCheck -Category "Firewall" -Name "Public Log Max Size = 16384 KB" -Impact "Low" `
+    -Test { (Get-NetFirewallProfile -Name Public).LogMaxSizeKilobytes } `
+    -Expected 16384
+
+Test-BaselineCheck -Category "Firewall" -Name "Public Block Local Firewall Rules" -Impact "High" `
+    -Test { (Get-NetFirewallProfile -Name Public).AllowLocalFirewallRules } `
+    -Expected 'False'
+
+Test-BaselineCheck -Category "Firewall" -Name "Public Block Local IPsec Rules" -Impact "High" `
+    -Test { (Get-NetFirewallProfile -Name Public).AllowLocalIPsecRules } `
+    -Expected 'False'
+
+# ===========================
+# NETWORK HARDENING (mDNS, LLMNR, NetBIOS)
+# ===========================
+
+Write-Host "`n=== NETWORK HARDENING (3 SETTINGS) ===" -ForegroundColor Yellow
+
+Test-BaselineCheck -Category "Network" -Name "mDNS Disabled" -Impact "High" `
+    -Test { 
+        $v = Get-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Services\WlanSvc\Parameters" -Name DisableMdnsDiscovery -ErrorAction SilentlyContinue
+        if ($v) { $v.DisableMdnsDiscovery } else { 0 }
+    } `
+    -Expected 1
+
+Test-BaselineCheck -Category "Network" -Name "LLMNR Disabled" -Impact "High" `
+    -Test { 
+        $v = Get-ItemProperty "HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\DNSClient" -Name EnableMulticast -ErrorAction SilentlyContinue
+        if ($v) { $v.EnableMulticast } else { 1 }
+    } `
+    -Expected 0
+
+Test-BaselineCheck -Category "Network" -Name "NetBIOS Over TCP/IP Disabled" -Impact "High" `
+    -Test { 
+        try {
+            $adapters = Get-CimInstance -ClassName Win32_NetworkAdapterConfiguration -Filter "IPEnabled = True" -ErrorAction Stop
+            $allDisabled = $true
+            foreach ($adapter in $adapters) {
+                if ($adapter.TcpipNetbiosOptions -ne 2) {
+                    $allDisabled = $false
+                    break
+                }
+            }
+            $allDisabled
+        } catch {
+            $false
+        }
+    } `
+    -Expected $true
 
 # UAC
 Write-Host "`n=== UAC (USER ACCOUNT CONTROL) ===" -ForegroundColor Yellow
