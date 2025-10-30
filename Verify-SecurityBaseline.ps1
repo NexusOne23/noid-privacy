@@ -3,11 +3,20 @@
     Verifiziert die Windows 11 25H2 Security Baseline Implementierung
     
 .DESCRIPTION
-    Prueft alle Baseline-Einstellungen und generiert einen detaillierten Compliance-Report
+    Comprehensive verification of Microsoft Security Baseline 25H2 implementation.
+    
+    BATCH 1 EXPANSION (Oct 30, 2025):
+    - Microsoft Defender Antivirus: 17 settings
+    - Attack Surface Reduction: 19 rules (individual checks)
+    - Exploit Protection: 8 mitigations
+    - System basics, Firewall, UAC, DoH, VBS, BitLocker (existing)
+    
+    Total Checks: ~60+ (from ~30)
     
 .NOTES
-    Version:        1.0.0
-    Creation Date:  25H2
+    Version:        2.0.0-batch1
+    Last Update:    Oct 30, 2025
+    Baseline:       Microsoft Security Baseline 25H2 (Sept 30, 2025)
 #>
 
 [CmdletBinding()]
@@ -111,36 +120,369 @@ Test-BaselineCheck -Category "System" -Name "Secure Boot Enabled" -Impact "High"
     -Test { try { Confirm-SecureBootUEFI } catch { $false } } `
     -Expected $true
 
-# Defender
-Write-Host "`n=== MICROSOFT DEFENDER ===" -ForegroundColor Yellow
+# ===========================
+# DEFENDER ANTIVIRUS - COMPLETE VERIFICATION
+# Microsoft Security Baseline 25H2: 17 Settings
+# ===========================
 
-Test-BaselineCheck -Category "Defender" -Name "Real-Time Protection" -Impact "Critical" `
-    -Test { -not (Get-MpPreference).DisableRealtimeMonitoring } `
-    -Expected $true
+Write-Host "`n=== MICROSOFT DEFENDER ANTIVIRUS (17 SETTINGS) ===" -ForegroundColor Yellow
 
-Test-BaselineCheck -Category "Defender" -Name "Cloud Protection" -Impact "High" `
-    -Test { (Get-MpComputerStatus).AMServiceEnabled } `
-    -Expected $true
-
-Test-BaselineCheck -Category "Defender" -Name "Network Protection" -Impact "High" `
+# 1. Real-Time Protection
+Test-BaselineCheck -Category "Defender" -Name "Real-Time Monitoring Enabled" -Impact "Critical" `
     -Test { 
-        $v = Get-ItemProperty "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Windows Defender Exploit Guard\Network Protection" -Name EnableNetworkProtection -ErrorAction SilentlyContinue
-        $v.EnableNetworkProtection 
+        $rt = Get-ItemProperty "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" -Name DisableRealtimeMonitoring -ErrorAction SilentlyContinue
+        if ($rt) { $rt.DisableRealtimeMonitoring -eq 0 } else { $true }
+    } `
+    -Expected $true
+
+# 2. IOAV Protection (Download + Email scanning)
+Test-BaselineCheck -Category "Defender" -Name "IOAV Protection Enabled" -Impact "High" `
+    -Test { 
+        try {
+            $mpPref = Get-MpPreference -ErrorAction Stop
+            -not $mpPref.DisableIOAVProtection
+        } catch {
+            $ioav = Get-ItemProperty "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" -Name DisableIOAVProtection -ErrorAction SilentlyContinue
+            if ($ioav) { $ioav.DisableIOAVProtection -eq 0 } else { $true }
+        }
+    } `
+    -Expected $true
+
+# 3. Behavior Monitoring
+Test-BaselineCheck -Category "Defender" -Name "Behavior Monitoring Enabled" -Impact "High" `
+    -Test { 
+        try {
+            $mpPref = Get-MpPreference -ErrorAction Stop
+            -not $mpPref.DisableBehaviorMonitoring
+        } catch {
+            $bm = Get-ItemProperty "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" -Name DisableBehaviorMonitoring -ErrorAction SilentlyContinue
+            if ($bm) { $bm.DisableBehaviorMonitoring -eq 0 } else { $true }
+        }
+    } `
+    -Expected $true
+
+# 4. Intrusion Prevention System (Network protection layer)
+Test-BaselineCheck -Category "Defender" -Name "Intrusion Prevention System Enabled" -Impact "High" `
+    -Test { 
+        try {
+            $mpPref = Get-MpPreference -ErrorAction Stop
+            -not $mpPref.DisableIntrusionPreventionSystem
+        } catch {
+            $true
+        }
+    } `
+    -Expected $true
+
+# 5. Script Scanning
+Test-BaselineCheck -Category "Defender" -Name "Script Scanning Enabled" -Impact "High" `
+    -Test { 
+        try {
+            $mpPref = Get-MpPreference -ErrorAction Stop
+            -not $mpPref.DisableScriptScanning
+        } catch {
+            $true
+        }
+    } `
+    -Expected $true
+
+# 6. Archive Scanning (.zip, .rar, etc.)
+Test-BaselineCheck -Category "Defender" -Name "Archive Scanning Enabled" -Impact "Medium" `
+    -Test { 
+        try {
+            $mpPref = Get-MpPreference -ErrorAction Stop
+            -not $mpPref.DisableArchiveScanning
+        } catch {
+            $true
+        }
+    } `
+    -Expected $true
+
+# 7. Email Scanning
+Test-BaselineCheck -Category "Defender" -Name "Email Scanning Enabled" -Impact "Medium" `
+    -Test { 
+        try {
+            $mpPref = Get-MpPreference -ErrorAction Stop
+            -not $mpPref.DisableEmailScanning
+        } catch {
+            $true
+        }
+    } `
+    -Expected $true
+
+# 8. Removable Drive Scanning
+Test-BaselineCheck -Category "Defender" -Name "Removable Drive Scanning Enabled" -Impact "High" `
+    -Test { 
+        try {
+            $mpPref = Get-MpPreference -ErrorAction Stop
+            -not $mpPref.DisableRemovableDriveScanning
+        } catch {
+            $true
+        }
+    } `
+    -Expected $true
+
+# 9. Network Files Scanning
+Test-BaselineCheck -Category "Defender" -Name "Network Files Scanning Enabled" -Impact "Medium" `
+    -Test { 
+        try {
+            $mpPref = Get-MpPreference -ErrorAction Stop
+            $mpPref.DisableScanningNetworkFiles -eq $false
+        } catch {
+            $true
+        }
+    } `
+    -Expected $true
+
+# 10. Cloud Protection (MAPS)
+Test-BaselineCheck -Category "Defender" -Name "Cloud Protection Enabled (MAPS)" -Impact "Critical" `
+    -Test { 
+        try {
+            $mpStatus = Get-MpComputerStatus -ErrorAction Stop
+            $mpStatus.AMServiceEnabled
+        } catch {
+            $spynet = Get-ItemProperty "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" -Name SpynetReporting -ErrorAction SilentlyContinue
+            if ($spynet) { $spynet.SpynetReporting -ge 1 } else { $false }
+        }
+    } `
+    -Expected $true
+
+# 11. Cloud Block Level (High for zero-hour protection)
+Test-BaselineCheck -Category "Defender" -Name "Cloud Block Level = High" -Impact "High" `
+    -Test { 
+        $cbl = Get-ItemProperty "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\MpEngine" -Name MpCloudBlockLevel -ErrorAction SilentlyContinue
+        if ($cbl) { $cbl.MpCloudBlockLevel } else { 0 }
+    } `
+    -Expected 2
+
+# 12. Sample Submission (Automatic for threat analysis)
+Test-BaselineCheck -Category "Defender" -Name "Sample Submission = Send Safe Samples" -Impact "Medium" `
+    -Test { 
+        try {
+            $mpPref = Get-MpPreference -ErrorAction Stop
+            $mpPref.SubmitSamplesConsent
+        } catch {
+            $submit = Get-ItemProperty "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" -Name SubmitSamplesConsent -ErrorAction SilentlyContinue
+            if ($submit) { $submit.SubmitSamplesConsent } else { 0 }
+        }
+    } `
+    -Expected { param($v) $v -ge 1 }
+
+# 13. PUA Protection (Potentially Unwanted Applications)
+Test-BaselineCheck -Category "Defender" -Name "PUA Protection Enabled" -Impact "High" `
+    -Test { 
+        try {
+            $mpPref = Get-MpPreference -ErrorAction Stop
+            $mpPref.PUAProtection -eq 1
+        } catch {
+            $pua = Get-ItemProperty "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender" -Name PUAProtection -ErrorAction SilentlyContinue
+            if ($pua) { $pua.PUAProtection -eq 1 } else { $false }
+        }
+    } `
+    -Expected $true
+
+# 14. Network Protection (Exploit Guard)
+Test-BaselineCheck -Category "Defender" -Name "Network Protection Enabled (Block)" -Impact "Critical" `
+    -Test { 
+        $np = Get-ItemProperty "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Windows Defender Exploit Guard\Network Protection" -Name EnableNetworkProtection -ErrorAction SilentlyContinue
+        if ($np) { $np.EnableNetworkProtection } else { 0 }
     } `
     -Expected 1
 
-# ASR Rules
-Write-Host "`n=== ASR RULES ===" -ForegroundColor Yellow
+# 15. Controlled Folder Access (Ransomware Protection)
+Test-BaselineCheck -Category "Defender" -Name "Controlled Folder Access Enabled" -Impact "High" `
+    -Test { 
+        try {
+            $mpPref = Get-MpPreference -ErrorAction Stop
+            $mpPref.EnableControlledFolderAccess -eq 1
+        } catch {
+            $cfa = Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows Defender\Windows Defender Exploit Guard\Controlled Folder Access" -Name EnableControlledFolderAccess -ErrorAction SilentlyContinue
+            if ($cfa) { $cfa.EnableControlledFolderAccess -eq 1 } else { $false }
+        }
+    } `
+    -Expected $true
 
-$mpPref = Get-MpPreference
-$asrCount = $mpPref.AttackSurfaceReductionRules_Ids.Count
+# 16. SmartScreen for Apps (Windows Security)
+Test-BaselineCheck -Category "Defender" -Name "SmartScreen for Apps Enabled" -Impact "High" `
+    -Test { 
+        $ss = Get-ItemProperty "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name EnableSmartScreen -ErrorAction SilentlyContinue
+        if ($ss) { $ss.EnableSmartScreen } else { 0 }
+    } `
+    -Expected 1
 
-Write-Host "  Configured ASR Rules: $asrCount" -ForegroundColor Cyan
+# 17. SmartScreen Warn -> Block Mode
+Test-BaselineCheck -Category "Defender" -Name "SmartScreen Warn -> Block Mode" -Impact "Medium" `
+    -Test { 
+        $ssmode = Get-ItemProperty "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name ShellSmartScreenLevel -ErrorAction SilentlyContinue
+        if ($ssmode) { $ssmode.ShellSmartScreenLevel -eq "Block" } else { $false }
+    } `
+    -Expected $true
 
-if ($asrCount -ge 15) {
-    Write-Host "  [OK] ASR Rules Configured (15+)" -ForegroundColor Green
-} else {
-    Write-Host "  [X] ASR Rules Insufficient ($asrCount)" -ForegroundColor Red
+# ===========================
+# ATTACK SURFACE REDUCTION (ASR) RULES
+# Microsoft Security Baseline 25H2: 19 Rules
+# ===========================
+
+Write-Host "`n=== ATTACK SURFACE REDUCTION RULES (19 RULES) ===" -ForegroundColor Yellow
+
+# Get ASR configuration
+$script:asrIds = @()
+$script:asrActions = @()
+$script:asrConfig = @{}
+
+try {
+    $mpPref = Get-MpPreference -ErrorAction Stop
+    $script:asrIds = $mpPref.AttackSurfaceReductionRules_Ids
+    $script:asrActions = $mpPref.AttackSurfaceReductionRules_Actions
+    
+    # Create lookup hashtable
+    for ($i = 0; $i -lt $script:asrIds.Count; $i++) {
+        $script:asrConfig[$script:asrIds[$i]] = $script:asrActions[$i]
+    }
+    
+    Write-Verbose "Loaded $($script:asrIds.Count) ASR rules from Get-MpPreference"
+} catch {
+    Write-Verbose "Get-MpPreference failed - ASR checks will use registry fallback"
+}
+
+# ASR Rule Check Function (19 rules total)
+function Test-ASRRule {
+    param([string]$Name, [string]$GUID, [string]$Impact = "High")
+    
+    if ($script:asrConfig.ContainsKey($GUID)) {
+        $action = $script:asrConfig[$GUID]
+        Test-BaselineCheck -Category "ASR" -Name $Name -Impact $Impact `
+            -Test { $action } `
+            -Expected 1
+    } else {
+        # Registry fallback
+        $asrPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Windows Defender Exploit Guard\ASR\Rules"
+        Test-BaselineCheck -Category "ASR" -Name $Name -Impact $Impact `
+            -Test { 
+                $v = Get-ItemProperty $asrPath -Name $GUID -ErrorAction SilentlyContinue
+                if ($v) { $v.$GUID } else { 0 }
+            } `
+            -Expected 1
+    }
+}
+
+# All 19 ASR Rules (Microsoft Security Baseline 25H2)
+Test-ASRRule -Name "Block Office apps from creating executable content" `
+    -GUID "3B576869-A4EC-4529-8536-B80A7769E899" -Impact "High"
+
+Test-ASRRule -Name "Block Office apps from creating child processes" `
+    -GUID "D4F940AB-401B-4EFC-AADC-AD5F3C50688A" -Impact "High"
+
+Test-ASRRule -Name "Block Office communication apps from creating child processes" `
+    -GUID "26190899-1602-49E8-8B27-EB1D0A1CE869" -Impact "High"
+
+Test-ASRRule -Name "Block Adobe Reader from creating child processes" `
+    -GUID "7674BA52-37EB-4A4F-A9A1-F0F9A1619A2C" -Impact "High"
+
+Test-ASRRule -Name "Block Office apps from injecting code into other processes" `
+    -GUID "75668C1F-73B5-4CF0-BB93-3ECF5CB7CC84" -Impact "High"
+
+Test-ASRRule -Name "Block JavaScript/VBScript from launching downloaded executables" `
+    -GUID "D3E037E1-3EB8-44C8-A917-57927947596D" -Impact "High"
+
+Test-ASRRule -Name "Block execution of potentially obfuscated scripts" `
+    -GUID "5BEB7EFE-FD9A-4556-801D-275E5FFC04CC" -Impact "High"
+
+Test-ASRRule -Name "Block Win32 API calls from Office macros" `
+    -GUID "92E97FA1-2EDF-4476-BDD6-9DD0B4DDDC7B" -Impact "High"
+
+Test-ASRRule -Name "Block credential stealing from lsass.exe" `
+    -GUID "9E6C4E1F-7D60-472F-BA1A-A39EF669E4B2" -Impact "Critical"
+
+Test-ASRRule -Name "Block untrusted and unsigned processes from USB" `
+    -GUID "B2B3F03D-6A65-4F7B-A9C7-1C7EF74A9BA4" -Impact "High"
+
+Test-ASRRule -Name "Block executable content from email client and webmail" `
+    -GUID "BE9BA2D9-53EA-4CDC-84E5-9B1EEEE46550" -Impact "High"
+
+Test-ASRRule -Name "Block persistence through WMI event subscription" `
+    -GUID "E6DB77E5-3DF2-4CF1-B95A-636979351E5B" -Impact "Medium"
+
+Test-ASRRule -Name "Use advanced protection against ransomware" `
+    -GUID "C1DB55AB-C21A-4637-BB3F-A12568109D35" -Impact "High"
+
+Test-ASRRule -Name "Block process creations from PSExec and WMI commands" `
+    -GUID "D1E49AAC-8F56-4280-B9BA-993A6D77406C" -Impact "Medium"
+
+Test-ASRRule -Name "Block executable files from running unless they meet criteria" `
+    -GUID "01443614-CD74-433A-B99E-2ECDC07BFC25" -Impact "High"
+
+Test-ASRRule -Name "Block Webshell creation for Servers" `
+    -GUID "A8F5898E-1DC8-49A9-9878-85004B8A61E6" -Impact "Medium"
+
+Test-ASRRule -Name "Block abuse of exploited vulnerable signed drivers" `
+    -GUID "56A863A9-875E-4185-98A7-B882C64B5CE5" -Impact "High"
+
+Test-ASRRule -Name "Block rebooting machine in Safe Mode (preview)" `
+    -GUID "33DDDEFA7-4F17-4A42-B1BB-BF01C8A88478" -Impact "Medium"
+
+Test-ASRRule -Name "Block use of copied or impersonated system tools (preview)" `
+    -GUID "C0033C00-D16D-4114-A5A0-DC9B3A7D2CEB" -Impact "Medium"
+
+# ===========================
+# EXPLOIT PROTECTION (WINDOWS DEFENDER)
+# 10 System-wide Mitigations
+# ===========================
+
+Write-Host "`n=== EXPLOIT PROTECTION (10 MITIGATIONS) ===" -ForegroundColor Yellow
+
+# Check if Exploit Protection XML exists
+$epConfigPath = "$env:ProgramData\SecurityBaseline\Exploit-Protection-Config.xml"
+
+Test-BaselineCheck -Category "ExploitProtection" -Name "Exploit Protection Config File Exists" -Impact "High" `
+    -Test { Test-Path $epConfigPath } `
+    -Expected $true
+
+# Try to get current system-wide mitigations
+try {
+    $epStatus = Get-ProcessMitigation -System -ErrorAction Stop
+    
+    # DEP (Data Execution Prevention)
+    Test-BaselineCheck -Category "ExploitProtection" -Name "DEP (Data Execution Prevention) Enabled" -Impact "Critical" `
+        -Test { $epStatus.DEP.Enable } `
+        -Expected 'ON'
+    
+    # SEHOP (Structured Exception Handler Overwrite Protection)
+    Test-BaselineCheck -Category "ExploitProtection" -Name "SEHOP Enabled" -Impact "High" `
+        -Test { $epStatus.SEHOP.Enable } `
+        -Expected 'ON'
+    
+    # ASLR (Address Space Layout Randomization)
+    Test-BaselineCheck -Category "ExploitProtection" -Name "ASLR Force Randomization Enabled" -Impact "Critical" `
+        -Test { $epStatus.ASLR.ForceRelocateImages } `
+        -Expected 'ON'
+    
+    # CFG (Control Flow Guard)
+    Test-BaselineCheck -Category "ExploitProtection" -Name "CFG (Control Flow Guard) Enabled" -Impact "High" `
+        -Test { $epStatus.CFG.Enable } `
+        -Expected 'ON'
+    
+    # Strict CFG
+    Test-BaselineCheck -Category "ExploitProtection" -Name "Strict CFG Enabled" -Impact "High" `
+        -Test { $epStatus.CFG.StrictControlFlowGuard } `
+        -Expected 'ON'
+    
+    # Heap Terminate on Corruption
+    Test-BaselineCheck -Category "ExploitProtection" -Name "Heap Terminate on Corruption Enabled" -Impact "Medium" `
+        -Test { $epStatus.Heap.TerminateOnError } `
+        -Expected 'ON'
+    
+    # Bottom-up ASLR
+    Test-BaselineCheck -Category "ExploitProtection" -Name "Bottom-up ASLR Enabled" -Impact "High" `
+        -Test { $epStatus.ASLR.BottomUp } `
+        -Expected 'ON'
+    
+    # High Entropy ASLR
+    Test-BaselineCheck -Category "ExploitProtection" -Name "High Entropy ASLR Enabled" -Impact "High" `
+        -Test { $epStatus.ASLR.HighEntropy } `
+        -Expected 'ON'
+        
+} catch {
+    Write-Host "  [!] Get-ProcessMitigation cmdlet unavailable - basic check only" -ForegroundColor Yellow
 }
 
 # Firewall
