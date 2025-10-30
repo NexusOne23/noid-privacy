@@ -148,7 +148,8 @@ if (-not $BackupFile) {
         $backups = Get-ChildItem -Path $backupPath -Filter "SecurityBaseline-Backup-*.json" -ErrorAction SilentlyContinue | 
             Sort-Object LastWriteTime -Descending
         
-        if ($backups.Count -eq 0) {
+        $backupsCount = if ($backups) { @($backups).Count } else { 0 }
+        if ($backupsCount -eq 0) {
             Write-Host "[ERROR] $(Get-LocalizedString 'RestoreNoneFound') $backupPath" -ForegroundColor Red
             Write-Host ""
             Write-Host "$(Get-LocalizedString 'RestoreCreateFirst')" -ForegroundColor Yellow
@@ -157,22 +158,23 @@ if (-not $BackupFile) {
         }
         
         Write-Host ""
-        $availMsg = Get-LocalizedString 'RestoreAvailable' $backups.Count
+        $availMsg = Get-LocalizedString 'RestoreAvailable' $backupsCount
         Write-Host "$availMsg" -ForegroundColor White
         Write-Host ""
         
         # Show only last 10 backups (newest first) - better UX!
         $maxDisplay = 10
-        $displayBackups = if ($backups.Count -le $maxDisplay) { $backups } else { $backups | Select-Object -First $maxDisplay }
+        $displayBackups = if ($backupsCount -le $maxDisplay) { $backups } else { $backups | Select-Object -First $maxDisplay }
         
-        if ($backups.Count -gt $maxDisplay) {
+        if ($backupsCount -gt $maxDisplay) {
             $showingMsg = Get-LocalizedString 'RestoreShowingLatest' $maxDisplay
             Write-Host "  [i] $showingMsg" -ForegroundColor Yellow
             Write-Host "      $(Get-LocalizedString 'RestoreShowAll')" -ForegroundColor Gray
             Write-Host ""
         }
         
-        for ($i = 0; $i -lt $displayBackups.Count; $i++) {
+        $displayCount = if ($displayBackups) { @($displayBackups).Count } else { 0 }
+        for ($i = 0; $i -lt $displayCount; $i++) {
             $backup = $displayBackups[$i]
             $size = [Math]::Round($backup.Length / 1KB, 2)
             Write-Host "  [$($i+1)] $($backup.Name)" -ForegroundColor Cyan
@@ -181,21 +183,21 @@ if (-not $BackupFile) {
             Write-Host ""
         }
         
-        Write-Host "$(Get-LocalizedString 'RestoreSelectPrompt') [1-$($displayBackups.Count)]" -NoNewline
-        if ($backups.Count -gt $maxDisplay) {
+        Write-Host "$(Get-LocalizedString 'RestoreSelectPrompt') [1-$displayCount]" -NoNewline
+        if ($backupsCount -gt $maxDisplay) {
             Write-Host ", [A]" -NoNewline
         }
         Write-Host " $(Get-LocalizedString 'RestoreOrCancel') " -NoNewline
         $selection = Read-Host
         
         # Handle "Show all"
-        if ($selection.ToUpper() -eq 'A' -and $backups.Count -gt $maxDisplay) {
+        if ($selection.ToUpper() -eq 'A' -and $backupsCount -gt $maxDisplay) {
             Write-Host ""
-            $allMsg = Get-LocalizedString 'RestoreShowingAll' $backups.Count
+            $allMsg = Get-LocalizedString 'RestoreShowingAll' $backupsCount
             Write-Host "$allMsg" -ForegroundColor Cyan
             Write-Host ""
             
-            for ($i = 0; $i -lt $backups.Count; $i++) {
+            for ($i = 0; $i -lt $backupsCount; $i++) {
                 $backup = $backups[$i]
                 $size = [Math]::Round($backup.Length / 1KB, 2)
                 Write-Host "  [$($i+1)] $($backup.Name)" -ForegroundColor Cyan
@@ -204,7 +206,7 @@ if (-not $BackupFile) {
                 Write-Host ""
             }
             
-            Write-Host "$(Get-LocalizedString 'RestoreSelectPrompt') [1-$($backups.Count)] $(Get-LocalizedString 'RestoreOrCancel') " -NoNewline
+            Write-Host "$(Get-LocalizedString 'RestoreSelectPrompt') [1-$backupsCount] $(Get-LocalizedString 'RestoreOrCancel') " -NoNewline
             $selection = Read-Host
         }
         
@@ -215,7 +217,7 @@ if (-not $BackupFile) {
         }
         
         $selectionNum = [int]$selection - 1
-        if ($selectionNum -ge 0 -and $selectionNum -lt $backups.Count) {
+        if ($selectionNum -ge 0 -and $selectionNum -lt $backupsCount) {
             $BackupFile = $backups[$selectionNum].FullName
         }
         else {
@@ -314,7 +316,8 @@ foreach ($dnsConfig in $backup.Settings.DNS) {
         $dnsServers = $dnsConfig.DNS_IPv4
         
         if ($PSCmdlet.ShouldProcess($adapterName, "Restore DNS: $($dnsServers -join ', ')")) {
-            if ($dnsServers.Count -eq 0 -or $null -eq $dnsServers[0]) {
+            $dnsCount = if ($dnsServers) { @($dnsServers).Count } else { 0 }
+            if ($dnsCount -eq 0 -or $null -eq $dnsServers[0]) {
                 Set-DnsClientServerAddress -InterfaceAlias $adapterName -ResetServerAddresses -ErrorAction Stop
                 $autoMsg = Get-LocalizedString 'RestoreDNSAuto' $adapterName
                 Write-Host "  [OK] $autoMsg" -ForegroundColor Green
@@ -400,7 +403,8 @@ Write-Host ""
 #region Restore Scheduled Tasks
 Write-Host "[4/14] Restore Scheduled Tasks..." -ForegroundColor Yellow
 
-if ($backup.Settings.ScheduledTasks -and $backup.Settings.ScheduledTasks.Count -gt 0) {
+$tasksCount = if ($backup.Settings.ScheduledTasks) { @($backup.Settings.ScheduledTasks).Count } else { 0 }
+if ($tasksCount -gt 0) {
     $restoredTasks = 0
     $changedTasks = 0
     
@@ -465,7 +469,8 @@ if ($customRules) {
 
 Write-Host "  [i] $(Get-LocalizedString 'RestoreFirewallRestoring')" -ForegroundColor Cyan
 
-if ($backup.Settings.FirewallRules -and $backup.Settings.FirewallRules.Count -gt 0) {
+$fwRulesCount = if ($backup.Settings.FirewallRules) { @($backup.Settings.FirewallRules).Count } else { 0 }
+if ($fwRulesCount -gt 0) {
     $restoredRules = 0
     $changedRules = 0
     
@@ -696,12 +701,14 @@ Write-Host "[8/14] $(Get-LocalizedString 'RestoreApps')" -ForegroundColor Yellow
 $currentApps = Get-AppxPackage -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Name
 $missingApps = $backup.Settings.InstalledApps | Where-Object { $currentApps -notcontains $_.Name }
 
-if ($missingApps.Count -gt 0) {
+$missingAppsCount = if ($missingApps) { @($missingApps).Count } else { 0 }
+if ($missingAppsCount -gt 0) {
     $missingMsg = (Get-LocalizedString 'RestoreAppsMissing')
-    Write-Host "  [!] $($missingApps.Count) $missingMsg" -ForegroundColor Yellow
+    Write-Host "  [!] $missingAppsCount $missingMsg" -ForegroundColor Yellow
     Write-Host ""
     
-    if ($backup.Settings.ProvisionedPackages -and $backup.Settings.ProvisionedPackages.Count -gt 0) {
+    $provPkgCount = if ($backup.Settings.ProvisionedPackages) { @($backup.Settings.ProvisionedPackages).Count } else { 0 }
+    if ($provPkgCount -gt 0) {
         Write-Host "  [i] $(Get-LocalizedString 'RestoreAppsPackages')" -ForegroundColor Cyan
         Write-Host "      $(Get-LocalizedString 'RestoreAppsCanRestore')" -ForegroundColor Gray
         Write-Host ""
@@ -749,8 +756,8 @@ if ($missingApps.Count -gt 0) {
     foreach ($app in $missingApps | Select-Object -First 10) {
         Write-Host "      - $($app.Name)" -ForegroundColor Gray
     }
-    if ($missingApps.Count -gt 10) {
-        $moreMsg = Get-LocalizedString 'RestoreAppsMore' ($missingApps.Count - 10)
+    if ($missingAppsCount -gt 10) {
+        $moreMsg = Get-LocalizedString 'RestoreAppsMore' ($missingAppsCount - 10)
         Write-Host "      $moreMsg" -ForegroundColor Gray
     }
     
@@ -779,7 +786,7 @@ $header
 ========================================
 
 $dateLabel $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')
-$totalLabel $($missingApps.Count)
+$totalLabel $missingAppsCount
 
 $intro
 
@@ -841,10 +848,11 @@ if ($backup.Settings.ASRRules -and $backup.Settings.ASRRules.Enabled) {
                 $asrActions += $rule.Action
             }
             
-            if ($asrIds.Count -gt 0) {
+            $asrCount = if ($asrIds) { @($asrIds).Count } else { 0 }
+            if ($asrCount -gt 0) {
                 # Restore ASR Rules
                 $null = Set-MpPreference -AttackSurfaceReductionRules_Ids $asrIds -AttackSurfaceReductionRules_Actions $asrActions -ErrorAction Stop
-                Write-Host "  [OK] $($asrIds.Count) ASR Rules wiederhergestellt" -ForegroundColor Green
+                Write-Host "  [OK] $asrCount ASR Rules wiederhergestellt" -ForegroundColor Green
                 $restoreStats.Success++
             }
         }
@@ -1027,7 +1035,9 @@ if ($backup.Settings.DohEncryption -and $backup.Settings.DohEncryption.Enabled) 
                 }
             }
             
-            if ($adapterBackup.IPv4Servers.Count -gt 0 -or $adapterBackup.IPv6Servers.Count -gt 0) {
+            $ipv4Count = if ($adapterBackup.IPv4Servers) { @($adapterBackup.IPv4Servers).Count } else { 0 }
+            $ipv6Count = if ($adapterBackup.IPv6Servers) { @($adapterBackup.IPv6Servers).Count } else { 0 }
+            if ($ipv4Count -gt 0 -or $ipv6Count -gt 0) {
                 $restoredAdapters++
             }
         }
