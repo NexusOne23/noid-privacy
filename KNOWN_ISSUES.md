@@ -134,12 +134,79 @@ This document tracks known limitations and issues in **NoID Privacy - Windows 11
 - **Workaround**: Re-enable Xbox services manually if needed
 - **Status**: By design - gaming features sacrificed for security
 
-### Miracast / Wireless Display
+### ⚠️ Miracast / Wireless Display (Breaking Feature)
 
-- **Issue**: Casting to Smart TV disabled
-- **Impact**: "Cast" button in Quick Settings remains but doesn't work
-- **Workaround**: Manually remove button (Windows + A → Edit) or re-enable services
-- **Status**: By design - wireless display is security risk
+**ShellHost.exe Stack Buffer Overflow Warning**
+
+**Symptom**:  
+After running Wireless Display module, Windows displays error message:  
+*"Das System hat in dieser Anwendung den Überlauf eines stapelbasierten Puffers ermittelt. Dieser Überlauf könnte einem bösartigen Benutzer ermöglichen, die Steuerung der Anwendung zu übernehmen."*  
+(English: "The system detected a stack-based buffer overflow in this application. This overflow could allow a malicious user to gain control of the application.")
+
+**What Happens:**
+- Windows Shell (ShellHost.exe) attempts to access disabled Miracast services
+- System throws buffer overflow warning as safety mechanism
+- **This is a COSMETIC error message, NOT an actual security vulnerability**
+- The warning appears because Windows expects Miracast services to be available
+
+**Functionality Permanently Lost:**
+- Casting to Smart TV via Miracast
+- Wireless Display projector connections
+- DLNA/PlayTo Receiver
+- Wi-Fi Direct screen mirroring
+- "Cast" button in Quick Settings remains visible but non-functional
+
+**How to AVOID This Issue:**
+
+1. **In Interactive Mode:**
+   - Select "Custom" mode
+   - Deselect "Wireless Display / Miracast" module
+   - Script will skip all Miracast hardening
+
+2. **In Enforce/Audit Mode:**
+   - Not currently configurable (all modules run)
+   - Future versions may add module selection
+
+**How to RESTORE Wireless Display:**
+
+1. **Run Restore Script:**
+   ```powershell
+   .\Restore-SecurityBaseline.ps1
+   ```
+   
+2. **What Gets Restored Automatically:**
+   - ✅ Services (ProjSvc, DevicePickerUserSvc, DevicesFlowUserSvc, DisplayEnhancementService)
+   - ✅ Registry keys (PlayToReceiver, AllowProjectionToPC, WirelessDisplay policies)
+   - ✅ Firewall rules (Wireless Display, Wi-Fi Direct rules re-enabled)
+
+3. **What Requires Manual Reinstallation:**
+   - ⚠️ Removed Apps: `Microsoft.Windows.SecondaryTileExperience`, `PPIProjection`, `Miracast` packages
+   - These must be manually reinstalled from Microsoft Store
+   - Search for "Wireless Display" or "Connect" app in Store
+
+4. **Verification After Restore:**
+   ```powershell
+   # Check services
+   Get-Service ProjSvc, DevicePickerUserSvc
+   
+   # Check registry
+   Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\PlayToReceiver" -Name Enabled
+   
+   # Test casting
+   Windows + K (Open Cast menu)
+   ```
+
+**Why This Module Exists:**
+
+Wireless Display protocols have known security vulnerabilities:
+- Man-in-the-middle attack vectors
+- Unencrypted screen mirroring
+- Network discovery information leakage
+- Potential for unauthorized screen capture
+
+For maximum security (no casting needs), this module disables all wireless display functionality. For users who need casting, skip this module in Custom mode.
+
+**Status:** By design - aggressive hardening with documented side effects
 
 ### Remote Access
 

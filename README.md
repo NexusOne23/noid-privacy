@@ -355,6 +355,27 @@ Edit module files in `/Modules/` to adjust settings:
 2. Ensure 256 GB+ free space
 3. Manual activation: Control Panel → BitLocker
 
+#### ⚠️ ShellHost.exe "Stack Buffer Overflow" Warning
+**Symptom:** After running Wireless Display module, Windows shows:  
+*"Das System hat in dieser Anwendung den Überlauf eines stapelbasierten Puffers ermittelt..."*
+
+**Cause:** Windows Shell attempts to access disabled Miracast services  
+**Impact:** Cosmetic error message only - NOT an actual security vulnerability  
+**Functionality Lost:** Casting to Smart TV, Miracast, Wireless Display completely disabled
+
+**How to Avoid:**
+- In Interactive Mode: Choose "Custom"
+- Deselect "Wireless Display / Miracast" module
+- Script will skip Miracast hardening
+
+**How to Restore:**
+1. Run `.\Restore-SecurityBaseline.ps1` with your backup file
+2. Services and Registry will be restored automatically
+3. ⚠️ Removed apps (SecondaryTileExperience, PPIProjection) must be manually reinstalled from Microsoft Store
+4. Firewall rules will be reactivated automatically
+
+**Note:** See [KNOWN_ISSUES.md](KNOWN_ISSUES.md) for detailed explanation
+
 ### Logs
 All operations are logged to:
 ```

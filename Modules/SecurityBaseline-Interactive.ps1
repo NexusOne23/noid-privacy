@@ -320,7 +320,7 @@ function Show-ModuleSelection {
         @{
             Name = "Wireless Display / Miracast"
             Key = "WirelessDisplay"
-            Description = "Wireless Display komplett deaktiviert: Services, Firewall, Registry, Treiber"
+            Description = "⚠️ BREAKS CASTING + CAUSES ERROR MESSAGE! Disables Miracast/Cast (Services, Firewall, Registry, Apps). Causes ShellHost.exe buffer overflow warning (cosmetic only). Skip if you need casting."
             Enabled = $true
             Mandatory = $false
         },

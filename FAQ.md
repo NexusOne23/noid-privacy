@@ -422,6 +422,54 @@ For domain environments:
 
 ---
 
+## 🐛 Troubleshooting
+
+### Why do I get a "Stack Buffer Overflow" error from ShellHost.exe?
+
+**Full Error Message:**  
+*"Das System hat in dieser Anwendung den Überlauf eines stapelbasierten Puffers ermittelt..."*
+
+**What It Means:**
+- This error appears after running the **Wireless Display / Miracast** module
+- Windows Shell tries to access disabled Miracast services
+- **It's a COSMETIC warning, NOT a real security threat**
+- The system is working as designed - services are intentionally disabled
+
+**Why Does It Happen:**
+The Wireless Display module disables casting functionality on 4 levels:
+1. Services (ProjSvc, DevicePickerUserSvc)
+2. Registry policies (PlayToReceiver, WirelessDisplay)
+3. Firewall rules
+4. App removal (SecondaryTileExperience)
+
+When Windows Shell expects these services but finds them disabled, it throws this warning as a safety mechanism.
+
+**How to Avoid:**
+```
+1. Run script in Interactive Mode
+2. Select "Custom" when prompted
+3. DESELECT "Wireless Display / Miracast" module
+4. Script will skip Miracast hardening
+```
+
+**How to Fix If Already Applied:**
+```powershell
+# Run restore script
+.\Restore-SecurityBaseline.ps1
+
+# Services and Registry will restore automatically
+# Apps need manual reinstall from Microsoft Store
+```
+
+**Impact:**
+- Casting to Smart TV won't work
+- Miracast/Wireless Display disabled
+- "Cast" button in Quick Settings remains but does nothing
+
+**See Also:** [KNOWN_ISSUES.md](KNOWN_ISSUES.md#miracast--wireless-display-breaking-feature) for detailed explanation
+
+---
+
 ## 🔄 Update & Maintenance
 
 ### How do I update to the latest version?
