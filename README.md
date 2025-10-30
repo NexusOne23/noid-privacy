@@ -18,7 +18,7 @@
 - 🔒 **300+ Security Settings** - Enterprise-grade protection at home
 - 🛡️ **180+ Privacy Settings** - Minimizes telemetry to Security-Essential level
 - 🚀 **Modular Architecture** - 13 specialized modules, pick what you need
-- 🔄 **Complete Backup & Restore** - Can undo EVERYTHING
+- 🔄 **Complete Backup & Restore** - Can restore most settings (Services, Registry, Firewall, DNS, Scheduled Tasks)
 - 🌐 **Multi-Language Support** - English/German with real-time switching
 - 📊 **Interactive Menu & CLI** - Easy GUI or automation-ready
 - 📜 **Complete Audit Trails** - 3 logging levels (Transcript, Console, Summary)
@@ -28,7 +28,7 @@
 **Privacy:** Minimizes telemetry to Security-Essential level (Required Diagnostic Data for Windows Update/Defender)  
 **Performance:** Bloatware removal, faster boot, optimized background tasks  
 **Control:** YOU decide what runs, what uploads, what connects  
-**Peace of Mind:** Complete backup = risk-free experimentation
+**Peace of Mind:** Complete backup = low-risk experimentation (most settings reversible)
 
 **👉 [See Complete Feature List](FEATURES.md) - Every single setting explained!**
 
@@ -322,10 +322,13 @@ Edit module files in `/Modules/` to adjust settings:
 ❌ Prevent user from re-enabling features  
 
 ### Reversibility
-- **Backup & Restore:** Full system state backup before applying
-- **No Force Policies:** Most settings can be re-enabled via Settings GUI
+- **What CAN be restored automatically:** Services, Registry (including AI features), Firewall rules, DNS settings, Scheduled Tasks
+- **What requires manual reinstall:** Removed apps (bloatware, Xbox, OneDrive) - must reinstall from Microsoft Store
+- **Backup System:** Full system state backup before applying
+- **No Force Policies:** Most settings can be re-enabled via Settings GUI or restore script
 - **Documented Changes:** All changes logged in transcript files
-- **Exception:** Some Windows components (e.g., Recall, Copilot) are permanently disabled
+
+**Note:** AI features (Recall, Copilot, etc.) are disabled via Registry - fully reversible with restore script.
 
 ---
 
