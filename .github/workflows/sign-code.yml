@@ -1,0 +1,103 @@
+name: Code Signing (SignPath)
+
+# This workflow is prepared for SignPath Foundation code signing
+# Will be activated once SignPath Foundation approves our project
+# Status: PENDING (Application submitted Oct 30, 2025)
+
+on:
+  workflow_dispatch:  # Manual trigger only
+    inputs:
+      version:
+        description: 'Version to sign (e.g., v1.7.12)'
+        required: true
+        type: string
+
+jobs:
+  sign:
+    name: Sign PowerShell Scripts
+    runs-on: windows-latest
+    # Only run if SignPath secrets are configured
+    if: ${{ secrets.SIGNPATH_API_TOKEN != '' }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        ref: ${{ inputs.version }}
+        
+    - name: SignPath Foundation Status
+      run: |
+        Write-Host "================================================" -ForegroundColor Cyan
+        Write-Host "SignPath Foundation Code Signing" -ForegroundColor Cyan
+        Write-Host "================================================" -ForegroundColor Cyan
+        Write-Host ""
+        Write-Host "Status: PENDING APPROVAL" -ForegroundColor Yellow
+        Write-Host "Application Date: October 30, 2025" -ForegroundColor Gray
+        Write-Host "Expected Response: 1-2 weeks" -ForegroundColor Gray
+        Write-Host ""
+        Write-Host "Once approved, this workflow will:" -ForegroundColor White
+        Write-Host "  1. Submit PowerShell scripts to SignPath" -ForegroundColor Gray
+        Write-Host "  2. Wait for signing completion" -ForegroundColor Gray
+        Write-Host "  3. Download signed files" -ForegroundColor Gray
+        Write-Host "  4. Create signed release" -ForegroundColor Gray
+        Write-Host ""
+        Write-Host "Documentation: https://signpath.org/" -ForegroundColor Cyan
+        Write-Host "================================================" -ForegroundColor Cyan
+      shell: pwsh
+      
+    # Placeholder for actual SignPath integration
+    # Will be implemented after approval with:
+    # - SignPath API token (from secrets)
+    # - Organization ID
+    # - Project slug
+    # - Signing policy ID
+    
+    - name: Prepare files for signing
+      if: false  # Disabled until SignPath approved
+      shell: pwsh
+      run: |
+        # Find all PowerShell files to sign
+        $filesToSign = Get-ChildItem -Path . -Include *.ps1,*.psm1,*.psd1 -Recurse | 
+                       Where-Object { $_.FullName -notmatch '\\\.git\\' }
+        
+        Write-Host "Found $($filesToSign.Count) files to sign"
+        $filesToSign | ForEach-Object { Write-Host "  - $($_.Name)" }
+        
+    - name: Submit to SignPath
+      if: false  # Disabled until SignPath approved
+      shell: pwsh
+      run: |
+        # This will be implemented with SignPath SDK once approved
+        # Example workflow:
+        # 1. Create artifact archive
+        # 2. Submit via SignPath API
+        # 3. Wait for signing completion
+        # 4. Download signed artifact
+        # 5. Extract and verify signatures
+        
+        Write-Host "SignPath integration will be activated after approval" -ForegroundColor Yellow
+        
+    - name: Verify Signatures
+      if: false  # Disabled until SignPath approved
+      shell: pwsh
+      run: |
+        # Verify all signatures are valid
+        $files = Get-ChildItem -Path . -Include *.ps1,*.psm1 -Recurse
+        
+        foreach ($file in $files) {
+          $sig = Get-AuthenticodeSignature -FilePath $file.FullName
+          if ($sig.Status -ne 'Valid') {
+            Write-Error "Invalid signature: $($file.Name)"
+            exit 1
+          }
+        }
+        
+        Write-Host "✅ All signatures verified!" -ForegroundColor Green
+        
+    - name: Create Signed Release
+      if: false  # Disabled until SignPath approved
+      shell: pwsh
+      run: |
+        # Create release archive with signed files
+        # Upload to GitHub Releases
+        Write-Host "Signed release will be created here" -ForegroundColor Yellow

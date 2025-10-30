@@ -1,0 +1,113 @@
+name: Create Release
+
+# Trigger on version tags (v1.0.0, v1.7.12, etc.)
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Fetch all history for changelog generation
+        
+    - name: Get version from tag
+      id: get_version
+      run: |
+        VERSION=${GITHUB_REF#refs/tags/v}
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "Version: $VERSION"
+        
+    - name: Generate Changelog
+      id: changelog
+      run: |
+        # Get previous tag
+        PREVIOUS_TAG=$(git describe --abbrev=0 --tags $(git rev-list --tags --skip=1 --max-count=1) 2>/dev/null || echo "")
+        
+        if [ -z "$PREVIOUS_TAG" ]; then
+          echo "No previous tag found, using all commits"
+          COMMITS=$(git log --pretty=format:"- %s (%h)" --no-merges)
+        else
+          echo "Generating changelog from $PREVIOUS_TAG to $GITHUB_REF"
+          COMMITS=$(git log ${PREVIOUS_TAG}..HEAD --pretty=format:"- %s (%h)" --no-merges)
+        fi
+        
+        # Create changelog content
+        cat > CHANGELOG_RELEASE.md << EOF
+        ## What's Changed
+        
+        $COMMITS
+        
+        ## Installation
+        
+        1. Download the release archive
+        2. Extract to \`C:\Tools\noid-privacy\`
+        3. Right-click \`Start-NoID-Privacy.bat\` → Run as Administrator
+        
+        ## Requirements
+        
+        - Windows 11 25H2 (Build 26100+)
+        - Administrator privileges
+        - PowerShell 5.1 or higher
+        
+        ## Documentation
+        
+        - [README](https://github.com/NexusOne23/noid-privacy/blob/main/README.md)
+        - [Installation Guide](https://github.com/NexusOne23/noid-privacy/blob/main/INSTALLATION.md)
+        - [FAQ](https://github.com/NexusOne23/noid-privacy/blob/main/FAQ.md)
+        - [Security Mapping](https://github.com/NexusOne23/noid-privacy/blob/main/SECURITY_MAPPING.md)
+        
+        ## Important Notes
+        
+        - ⚠️ Create system backup before applying
+        - ⚠️ Review changes in Audit mode first
+        - ✅ Full restore capability included
+        - ✅ Backup system state created automatically
+        
+        **Full Changelog**: https://github.com/NexusOne23/noid-privacy/compare/${PREVIOUS_TAG}...${GITHUB_REF#refs/tags/}
+        EOF
+        
+        cat CHANGELOG_RELEASE.md
+        
+    - name: Create Release Archive
+      run: |
+        # Create release directory
+        mkdir -p release/noid-privacy-${{ steps.get_version.outputs.version }}
+        
+        # Copy all files except .git
+        rsync -av --progress . release/noid-privacy-${{ steps.get_version.outputs.version }}/ \
+          --exclude .git \
+          --exclude .github \
+          --exclude release
+        
+        # Create ZIP archive
+        cd release
+        zip -r ../noid-privacy-${{ steps.get_version.outputs.version }}.zip noid-privacy-${{ steps.get_version.outputs.version }}/
+        cd ..
+        
+        # Generate SHA256 checksum
+        sha256sum noid-privacy-${{ steps.get_version.outputs.version }}.zip > noid-privacy-${{ steps.get_version.outputs.version }}.zip.sha256
+        
+        echo "Archive created: noid-privacy-${{ steps.get_version.outputs.version }}.zip"
+        ls -lh noid-privacy-${{ steps.get_version.outputs.version }}.zip*
+        
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        name: NoID Privacy v${{ steps.get_version.outputs.version }}
+        body_path: CHANGELOG_RELEASE.md
+        draft: false
+        prerelease: false
+        files: |
+          noid-privacy-${{ steps.get_version.outputs.version }}.zip
+          noid-privacy-${{ steps.get_version.outputs.version }}.zip.sha256
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

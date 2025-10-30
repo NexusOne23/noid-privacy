@@ -1,0 +1,91 @@
+name: Code Quality
+
+# Run on pull requests and pushes to main branch
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch: # Allow manual triggering
+
+jobs:
+  analyze:
+    name: PowerShell Code Analysis
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Install PSScriptAnalyzer
+      shell: pwsh
+      run: |
+        Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+        Install-Module -Name PSScriptAnalyzer -Force -Scope CurrentUser
+        
+    - name: Run PSScriptAnalyzer
+      shell: pwsh
+      run: |
+        # Find all PowerShell files
+        $files = Get-ChildItem -Path . -Include *.ps1,*.psm1,*.psd1 -Recurse | 
+                 Where-Object { $_.FullName -notmatch '\\\.git\\' }
+        
+        Write-Host "Found $($files.Count) PowerShell files to analyze"
+        
+        # Run analyzer on all files
+        $results = $files | ForEach-Object {
+          Invoke-ScriptAnalyzer -Path $_.FullName -Severity Error,Warning
+        }
+        
+        # Display results
+        if ($results) {
+          Write-Host "`n=== PSScriptAnalyzer Results ===" -ForegroundColor Yellow
+          $results | Format-Table -AutoSize
+          
+          $errors = $results | Where-Object { $_.Severity -eq 'Error' }
+          $warnings = $results | Where-Object { $_.Severity -eq 'Warning' }
+          
+          Write-Host "`nSummary:" -ForegroundColor Cyan
+          Write-Host "  Errors:   $($errors.Count)" -ForegroundColor $(if($errors.Count -gt 0){'Red'}else{'Green'})
+          Write-Host "  Warnings: $($warnings.Count)" -ForegroundColor $(if($warnings.Count -gt 0){'Yellow'}else{'Green'})
+          
+          # Fail if errors found
+          if ($errors.Count -gt 0) {
+            Write-Error "PSScriptAnalyzer found $($errors.Count) error(s). Please fix before merging."
+            exit 1
+          }
+        } else {
+          Write-Host "`n✅ No issues found!" -ForegroundColor Green
+        }
+        
+    - name: Validate PowerShell Syntax
+      shell: pwsh
+      run: |
+        # Find all PowerShell files
+        $files = Get-ChildItem -Path . -Include *.ps1,*.psm1 -Recurse | 
+                 Where-Object { $_.FullName -notmatch '\\\.git\\' }
+        
+        Write-Host "Validating syntax for $($files.Count) files"
+        
+        $errors = @()
+        foreach ($file in $files) {
+          try {
+            $null = [System.Management.Automation.Language.Parser]::ParseFile(
+              $file.FullName, 
+              [ref]$null, 
+              [ref]$null
+            )
+            Write-Host "✓ $($file.Name)" -ForegroundColor Green
+          }
+          catch {
+            Write-Host "✗ $($file.Name): $_" -ForegroundColor Red
+            $errors += $file.FullName
+          }
+        }
+        
+        if ($errors.Count -gt 0) {
+          Write-Error "Syntax validation failed for $($errors.Count) file(s)"
+          exit 1
+        }
+        
+        Write-Host "`n✅ All files have valid PowerShell syntax!" -ForegroundColor Green

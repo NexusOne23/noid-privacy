@@ -389,6 +389,45 @@ C:\ProgramData\SecurityBaseline\Logs\SecurityBaseline-Enforce-YYYYMMDD-HHMMSS.lo
 
 ---
 
+## 🔧 CI/CD & Code Quality
+
+This project uses GitHub Actions for automated quality checks and releases:
+
+### Automated Workflows
+
+**Code Quality** (Runs on every push/PR)
+- PSScriptAnalyzer - PowerShell best practices validation
+- Syntax validation - Ensures all scripts are parseable
+- Error detection - Catches issues before merge
+
+**Release Automation** (Triggers on version tags)
+- Automatic GitHub Release creation
+- Changelog generation from commits
+- Release archive with SHA256 checksums
+- Usage: `git tag v1.7.13 && git push --tags`
+
+**Code Signing** (Prepared for SignPath Foundation)
+- Status: Pending approval (Application submitted Oct 30, 2025)
+- Will sign all PowerShell scripts once approved
+- Free signing service for Open Source projects
+- Expected: 1-2 weeks for response
+
+### Running Checks Locally
+
+```powershell
+# Install PSScriptAnalyzer
+Install-Module -Name PSScriptAnalyzer -Force
+
+# Run analysis on all scripts
+Get-ChildItem -Include *.ps1,*.psm1 -Recurse | Invoke-ScriptAnalyzer
+
+# Validate syntax
+$file = "Apply-Win11-25H2-SecurityBaseline.ps1"
+[System.Management.Automation.Language.Parser]::ParseFile($file, [ref]$null, [ref]$null)
+```
+
+---
+
 ## 🤝 Contributing
 
 Contributions are welcome! Please follow these guidelines:
