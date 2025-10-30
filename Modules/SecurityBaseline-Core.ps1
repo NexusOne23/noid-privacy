@@ -2703,12 +2703,12 @@ function Enable-BitLockerPolicies {
         # CRITICAL WARNING: BitLocker policies are configured but NOT active!
         # This can create false sense of security - user MUST manually enable it
         Write-Host ""
-        Write-Host "  ⚠️⚠️⚠️ CRITICAL: BITLOCKER IS NOT ACTIVE! ⚠️⚠️⚠️" -ForegroundColor Red
+        Write-Host "  !!! CRITICAL: BITLOCKER IS NOT ACTIVE !!!" -ForegroundColor Yellow
         Write-Host ""
         Write-Host "  Policies are configured, but BitLocker is NOT enabled!" -ForegroundColor Yellow
         Write-Host "  Your drive is NOT encrypted - data can be stolen if device is lost!" -ForegroundColor Yellow
         Write-Host ""
-        Write-Host "  YOU MUST MANUALLY ENABLE BITLOCKER:" -ForegroundColor Red
+        Write-Host "  YOU MUST MANUALLY ENABLE BITLOCKER:" -ForegroundColor Yellow
         Write-Host ""
         Write-Host "  Option 1: Control Panel" -ForegroundColor Cyan
         Write-Host "    1. Open Control Panel" -ForegroundColor White
@@ -2719,7 +2719,7 @@ function Enable-BitLockerPolicies {
         Write-Host "  Option 2: PowerShell (requires admin)" -ForegroundColor Cyan
         Write-Host '    Enable-BitLocker -MountPoint "C:" -EncryptionMethod XtsAes256' -ForegroundColor Gray
         Write-Host ""
-        Write-Host "  ⚠️  WITHOUT BITLOCKER ENABLED, YOUR DATA IS NOT ENCRYPTED!" -ForegroundColor Red
+        Write-Host "  !!! WITHOUT BITLOCKER ENABLED, YOUR DATA IS NOT ENCRYPTED !!!" -ForegroundColor Yellow
         Write-Host ""
     }
 }
