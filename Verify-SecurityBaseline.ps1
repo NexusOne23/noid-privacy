@@ -347,11 +347,12 @@ try {
     $script:asrActions = $mpPref.AttackSurfaceReductionRules_Actions
     
     # Create lookup hashtable
-    for ($i = 0; $i -lt $script:asrIds.Count; $i++) {
+    $asrCount = if ($script:asrIds) { @($script:asrIds).Count } else { 0 }
+    for ($i = 0; $i -lt $asrCount; $i++) {
         $script:asrConfig[$script:asrIds[$i]] = $script:asrActions[$i]
     }
     
-    Write-Verbose "Loaded $($script:asrIds.Count) ASR rules from Get-MpPreference"
+    Write-Verbose "Loaded $asrCount ASR rules from Get-MpPreference"
 } catch {
     Write-Verbose "Get-MpPreference failed - ASR checks will use registry fallback"
 }
@@ -972,7 +973,8 @@ Test-BaselineCheck -Category "DoH" -Name "DoH Auto-Enabled (Global)" -Impact "Hi
 
 try {
     $dohServers = Get-DnsClientDohServerAddress -ErrorAction SilentlyContinue
-    $cloudflareCount = ($dohServers | Where-Object { $_.ServerAddress -like "*1.1.1.1*" -or $_.ServerAddress -like "*1.0.0.1*" -or $_.ServerAddress -like "*2606:4700:4700*" }).Count
+    $cloudflareServers = $dohServers | Where-Object { $_.ServerAddress -like "*1.1.1.1*" -or $_.ServerAddress -like "*1.0.0.1*" -or $_.ServerAddress -like "*2606:4700:4700*" }
+    $cloudflareCount = if ($cloudflareServers) { @($cloudflareServers).Count } else { 0 }
     if ($cloudflareCount -ge 2) {
         Write-Host "  [OK] Cloudflare DoH Configured ($cloudflareCount servers)" -ForegroundColor Green
         
@@ -1068,10 +1070,13 @@ if ($bl -and $bl.ProtectionStatus -eq 'On') {
 
 # Summary
 Write-Host "`n================================================================" -ForegroundColor Cyan
-$passed = ($script:results | Where-Object Status -eq "PASS").Count
-$failed = ($script:results | Where-Object Status -eq "FAIL").Count
-$errors = ($script:results | Where-Object Status -eq "ERROR").Count
-$total = $script:results.Count
+$passedResults = $script:results | Where-Object Status -eq "PASS"
+$failedResults = $script:results | Where-Object Status -eq "FAIL"
+$errorResults = $script:results | Where-Object Status -eq "ERROR"
+$passed = if ($passedResults) { @($passedResults).Count } else { 0 }
+$failed = if ($failedResults) { @($failedResults).Count } else { 0 }
+$errors = if ($errorResults) { @($errorResults).Count } else { 0 }
+$total = if ($script:results) { @($script:results).Count } else { 0 }
 
 Write-Host "QUICK CHECK SUMMARY:" -ForegroundColor Cyan
 Write-Host "  PASS:  $passed" -ForegroundColor Green
