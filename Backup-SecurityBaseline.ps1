@@ -294,7 +294,8 @@ $dnsBackup = foreach ($adapter in $adapters) {
 }
 
 $backup.Settings.DNS = $dnsBackup
-$dnsMsg = Get-LocalizedString 'BackupDNSSaved' $dnsBackup.Count
+$dnsCount = if ($dnsBackup) { @($dnsBackup).Count } else { 0 }
+$dnsMsg = Get-LocalizedString 'BackupDNSSaved' $dnsCount
 Write-Host "[OK] $dnsMsg`n" -ForegroundColor Green
 #endregion
 
@@ -344,7 +345,8 @@ try {
         }
         
         $backup.Settings.InstalledApps = $installedApps
-        Write-Host "  [OK] $($installedApps.Count) $(Get-LocalizedString 'BackupAppsUser')" -ForegroundColor Green
+        $appsCount = if ($installedApps) { @($installedApps).Count } else { 0 }
+        Write-Host "  [OK] $appsCount $(Get-LocalizedString 'BackupAppsUser')" -ForegroundColor Green
     }
     else {
         # Timeout erreicht!
@@ -384,7 +386,8 @@ try {
         }
         
         $backup.Settings.ProvisionedPackages = $provisionedPackages
-        Write-Host "  [OK] $($provisionedPackages.Count) $(Get-LocalizedString 'BackupAppsProvisionedSaved')" -ForegroundColor Green
+        $pkgCount = if ($provisionedPackages) { @($provisionedPackages).Count } else { 0 }
+        Write-Host "  [OK] $pkgCount $(Get-LocalizedString 'BackupAppsProvisionedSaved')" -ForegroundColor Green
     }
     else {
         # Timeout erreicht!
@@ -424,7 +427,8 @@ $servicesBackup = foreach ($service in $allServices) {
 }
 
 $backup.Settings.Services = $servicesBackup
-Write-Host "[OK] $($servicesBackup.Count) $(Get-LocalizedString 'BackupServicesSaved')" -ForegroundColor Green
+$servicesCount = if ($servicesBackup) { @($servicesBackup).Count } else { 0 }
+Write-Host "[OK] $servicesCount $(Get-LocalizedString 'BackupServicesSaved')" -ForegroundColor Green
 Write-Host "    $(Get-LocalizedString 'BackupServicesNote')" -ForegroundColor Gray
 Write-Host ""
 #endregion
@@ -452,7 +456,8 @@ $tasksBackup = foreach ($task in $allTasks) {
 }
 
 $backup.Settings.ScheduledTasks = $tasksBackup
-Write-Host "[OK] $(Get-LocalizedString 'BackupScheduledTasksSaved' $tasksBackup.Count)" -ForegroundColor Green
+$tasksCount = if ($tasksBackup) { @($tasksBackup).Count } else { 0 }
+Write-Host "[OK] $(Get-LocalizedString 'BackupScheduledTasksSaved' $tasksCount)" -ForegroundColor Green
 Write-Host "$(Get-LocalizedString 'BackupScheduledTasksNote')" -ForegroundColor Gray
 Write-Host ""
 #endregion
@@ -483,7 +488,8 @@ $firewallBackup = foreach ($rule in $allFirewallRules) {
 }
 
 $backup.Settings.FirewallRules = $firewallBackup
-Write-Host "[OK] $($firewallBackup.Count) $(Get-LocalizedString 'BackupFirewallSaved')" -ForegroundColor Green
+$firewallCount = if ($firewallBackup) { @($firewallBackup).Count } else { 0 }
+Write-Host "[OK] $firewallCount $(Get-LocalizedString 'BackupFirewallSaved')" -ForegroundColor Green
 Write-Host "    $(Get-LocalizedString 'BackupFirewallNote')" -ForegroundColor Gray
 Write-Host ""
 #endregion
@@ -506,7 +512,8 @@ $usersBackup = foreach ($user in $localUsers) {
 }
 
 $backup.Settings.UserAccounts = $usersBackup
-Write-Host "[OK] $($usersBackup.Count) $(Get-LocalizedString 'BackupUsersSaved')" -ForegroundColor Green
+$usersCount = if ($usersBackup) { @($usersBackup).Count } else { 0 }
+Write-Host "[OK] $usersCount $(Get-LocalizedString 'BackupUsersSaved')" -ForegroundColor Green
 Write-Host "[!] $(Get-LocalizedString 'BackupUsersWarning')" -ForegroundColor Yellow
 Write-Host "    $(Get-LocalizedString 'BackupUsersPasswordNote')" -ForegroundColor Yellow
 Write-Host ""
@@ -1251,7 +1258,8 @@ $registryBackup = foreach ($regKey in $registryKeys) {
 }
 
 $backup.Settings.RegistryKeys = $registryBackup
-Write-Host "[OK] $($registryBackup.Count) $(Get-LocalizedString 'BackupRegistrySaved')" -ForegroundColor Green
+$regCount = if ($registryBackup) { @($registryBackup).Count } else { 0 }
+Write-Host "[OK] $regCount $(Get-LocalizedString 'BackupRegistrySaved')" -ForegroundColor Green
 
 # Check for Access Denied keys (should be 0 after removing TrustedInstaller-protected keys)
 $accessDeniedKeys = $registryBackup | Where-Object { 
@@ -1644,19 +1652,30 @@ try {
     Write-Host "$(Get-LocalizedString 'BackupSize') $([Math]::Round((Get-Item $backupFile).Length / 1KB, 2)) KB" -ForegroundColor Gray
     Write-Host ""
     Write-Host "$(Get-LocalizedString 'BackupSavedItems')" -ForegroundColor White
-    Write-Host "  - DNS: $($backup.Settings.DNS.Count)" -ForegroundColor Gray
+    $dnsCountSummary = if ($backup.Settings.DNS) { @($backup.Settings.DNS).Count } else { 0 }
+    $appsCountSummary = if ($backup.Settings.InstalledApps) { @($backup.Settings.InstalledApps).Count } else { 0 }
+    $servicesCountSummary = if ($backup.Settings.Services) { @($backup.Settings.Services).Count } else { 0 }
+    $tasksCountSummary = if ($backup.Settings.ScheduledTasks) { @($backup.Settings.ScheduledTasks).Count } else { 0 }
+    $fwCountSummary = if ($backup.Settings.FirewallRules) { @($backup.Settings.FirewallRules).Count } else { 0 }
+    $usersCountSummary = if ($backup.Settings.UserAccounts) { @($backup.Settings.UserAccounts).Count } else { 0 }
+    $regCountSummary = if ($backup.Settings.RegistryKeys) { @($backup.Settings.RegistryKeys).Count } else { 0 }
+    $asrCountSummary = if ($backup.Settings.ASRRules.Rules) { @($backup.Settings.ASRRules.Rules).Count } else { 0 }
+    Write-Host "  - DNS: $dnsCountSummary" -ForegroundColor Gray
     Write-Host "  - Hosts: $($null -ne $backup.Settings.HostsFile)" -ForegroundColor Gray
-    Write-Host "  - Apps: $($backup.Settings.InstalledApps.Count)" -ForegroundColor Gray
-    Write-Host "  - Services: $($backup.Settings.Services.Count)" -ForegroundColor Gray
-    Write-Host "  - Scheduled Tasks: $($backup.Settings.ScheduledTasks.Count)" -ForegroundColor Gray
-    Write-Host "  - Firewall: $($backup.Settings.FirewallRules.Count)" -ForegroundColor Gray
-    Write-Host "  - Users: $($backup.Settings.UserAccounts.Count)" -ForegroundColor Gray
-    Write-Host "  - Registry: $($backup.Settings.RegistryKeys.Count)" -ForegroundColor Gray
-    Write-Host "  - ASR Rules: $($backup.Settings.ASRRules.Rules.Count)" -ForegroundColor Gray
+    Write-Host "  - Apps: $appsCountSummary" -ForegroundColor Gray
+    Write-Host "  - Services: $servicesCountSummary" -ForegroundColor Gray
+    Write-Host "  - Scheduled Tasks: $tasksCountSummary" -ForegroundColor Gray
+    Write-Host "  - Firewall: $fwCountSummary" -ForegroundColor Gray
+    Write-Host "  - Users: $usersCountSummary" -ForegroundColor Gray
+    Write-Host "  - Registry: $regCountSummary" -ForegroundColor Gray
+    Write-Host "  - ASR Rules: $asrCountSummary" -ForegroundColor Gray
     Write-Host "  - Exploit Protection: $($backup.Settings.ExploitProtection.Enabled)" -ForegroundColor Gray
-    Write-Host "  - DoH Servers: $($backup.Settings.DoH.Servers.Count)" -ForegroundColor Gray
-    Write-Host "  - DoH Encryption: $($backup.Settings.DohEncryption.Adapters.Count) Adapter" -ForegroundColor Gray
-    Write-Host "  - Firewall Profiles: $($backup.Settings.FirewallProfiles.Profiles.Count)" -ForegroundColor Gray
+    $dohServersSummary = if ($backup.Settings.DoH.Servers) { @($backup.Settings.DoH.Servers).Count } else { 0 }
+    $dohAdaptersSummary = if ($backup.Settings.DohEncryption.Adapters) { @($backup.Settings.DohEncryption.Adapters).Count } else { 0 }
+    $fwProfilesSummary = if ($backup.Settings.FirewallProfiles.Profiles) { @($backup.Settings.FirewallProfiles.Profiles).Count } else { 0 }
+    Write-Host "  - DoH Servers: $dohServersSummary" -ForegroundColor Gray
+    Write-Host "  - DoH Encryption: $dohAdaptersSummary Adapter" -ForegroundColor Gray
+    Write-Host "  - Firewall Profiles: $fwProfilesSummary" -ForegroundColor Gray
     Write-Host ""
     Write-Host "$(Get-LocalizedString 'BackupNote')" -ForegroundColor Yellow
     Write-Host ""
