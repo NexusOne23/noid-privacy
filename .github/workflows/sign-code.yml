@@ -17,7 +17,7 @@ jobs:
     name: Sign PowerShell Scripts
     runs-on: windows-latest
     # Only run if SignPath secrets are configured
-    if: ${{ secrets.SIGNPATH_API_TOKEN != '' }}
+    if: secrets.SIGNPATH_API_TOKEN != ''
     
     steps:
     - name: Checkout code

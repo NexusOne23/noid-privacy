@@ -33,11 +33,17 @@ jobs:
         Write-Host "Found $($files.Count) PowerShell files to analyze"
         
         # Run analyzer on all files with custom settings
-        $settingsFile = ".\.pssa-settings.psd1"
-        $results = $files | ForEach-Object {
-          if (Test-Path $settingsFile) {
+        $settingsFile = Join-Path $PWD ".pssa-settings.psd1"
+        
+        if (Test-Path $settingsFile) {
+          Write-Host "✓ Using custom settings: $settingsFile" -ForegroundColor Green
+          $results = $files | ForEach-Object {
             Invoke-ScriptAnalyzer -Path $_.FullName -Settings $settingsFile
-          } else {
+          }
+        } else {
+          Write-Host "✗ Settings file not found: $settingsFile" -ForegroundColor Red
+          Write-Host "  Running with default rules (Error,Warning)" -ForegroundColor Yellow
+          $results = $files | ForEach-Object {
             Invoke-ScriptAnalyzer -Path $_.FullName -Severity Error,Warning
           }
         }
