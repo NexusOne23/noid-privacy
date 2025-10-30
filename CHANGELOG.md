@@ -5,6 +5,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.12] - 2025-10-30
+
+### Added
+- **Registry Parity Check** - Automated comparison of Set-RegistryValue calls vs backup keys
+- **125 Missing Registry Keys** - Added to backup (Batch 1: 68 keys, Batch 2: 57 keys)
+- **App List Localization** - Desktop export now fully localized (DE/EN) with timestamp
+- **UI Restore Capability** - Widgets, Teams Chat, Lock Screen, Copilot can now be restored
+- **11 New Localization Keys** - For app list feature (filename, header, instructions, etc.)
+
+### Fixed
+- **Backup NULL Reference Bug** - GetValueKind crash for protected registry keys (TrustedInstaller)
+- **17 String Formatting Errors** - Fixed incorrect `-f` operator usage in Get-LocalizedString calls
+  - Backup-SecurityBaseline.ps1: 8 fixes
+  - Restore-SecurityBaseline.ps1: 9 fixes
+  - Proper format: `((Get-LocalizedString 'Key') -f $arg)`
+
+### Changed
+- **Backup Key Count** - Now 398 keys (was 275), 2 TrustedInstaller-protected keys excluded
+- **App List Export** - Now saved to Desktop with localized filename and content
+- **Backup Error Handling** - Protected keys tracked with AccessDenied flag instead of crashing
+- **Device-Level Backup Removed** - EnabledByUser keys are TrustedInstaller-protected and always re-applied
+
 ## [1.7.11] - 2025-10-29
 
 ### Added

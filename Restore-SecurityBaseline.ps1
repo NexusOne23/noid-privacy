@@ -157,7 +157,7 @@ if (-not $BackupFile) {
         }
         
         Write-Host ""
-        $availMsg = (Get-LocalizedString 'RestoreAvailable') -f $backups.Count
+        $availMsg = Get-LocalizedString 'RestoreAvailable' $backups.Count
         Write-Host "$availMsg" -ForegroundColor White
         Write-Host ""
         
@@ -166,7 +166,7 @@ if (-not $BackupFile) {
         $displayBackups = if ($backups.Count -le $maxDisplay) { $backups } else { $backups | Select-Object -First $maxDisplay }
         
         if ($backups.Count -gt $maxDisplay) {
-            $showingMsg = (Get-LocalizedString 'RestoreShowingLatest') -f $maxDisplay
+            $showingMsg = Get-LocalizedString 'RestoreShowingLatest' $maxDisplay
             Write-Host "  [i] $showingMsg" -ForegroundColor Yellow
             Write-Host "      $(Get-LocalizedString 'RestoreShowAll')" -ForegroundColor Gray
             Write-Host ""
@@ -191,7 +191,7 @@ if (-not $BackupFile) {
         # Handle "Show all"
         if ($selection.ToUpper() -eq 'A' -and $backups.Count -gt $maxDisplay) {
             Write-Host ""
-            $allMsg = (Get-LocalizedString 'RestoreShowingAll') -f $backups.Count
+            $allMsg = Get-LocalizedString 'RestoreShowingAll' $backups.Count
             Write-Host "$allMsg" -ForegroundColor Cyan
             Write-Host ""
             
@@ -316,12 +316,12 @@ foreach ($dnsConfig in $backup.Settings.DNS) {
         if ($PSCmdlet.ShouldProcess($adapterName, "Restore DNS: $($dnsServers -join ', ')")) {
             if ($dnsServers.Count -eq 0 -or $null -eq $dnsServers[0]) {
                 Set-DnsClientServerAddress -InterfaceAlias $adapterName -ResetServerAddresses -ErrorAction Stop
-                $autoMsg = (Get-LocalizedString 'RestoreDNSAuto') -f $adapterName
+                $autoMsg = Get-LocalizedString 'RestoreDNSAuto' $adapterName
                 Write-Host "  [OK] $autoMsg" -ForegroundColor Green
             }
             else {
                 Set-DnsClientServerAddress -InterfaceAlias $adapterName -ServerAddresses $dnsServers -ErrorAction Stop
-                $dnsOkMsg = (Get-LocalizedString 'RestoreDNSOK') -f $adapterName
+                $dnsOkMsg = Get-LocalizedString 'RestoreDNSOK' $adapterName
                 Write-Host "  [OK] $dnsOkMsg $($dnsServers -join ', ')" -ForegroundColor Green
             }
             $restoreStats.Success++
@@ -349,7 +349,7 @@ if ($backup.Settings.HostsFile) {
             
             $backup.Settings.HostsFile | Out-File -FilePath $hostsPath -Encoding ASCII -Force
             Write-Host "  [OK] $(Get-LocalizedString 'RestoreHostsOK')" -ForegroundColor Green
-            $backupMsg = (Get-LocalizedString 'RestoreHostsBackup') -f $currentHostsBackup
+            $backupMsg = Get-LocalizedString 'RestoreHostsBackup' $currentHostsBackup
             Write-Host "  [i] $backupMsg" -ForegroundColor Gray
             $restoreStats.Success++
         }
@@ -377,13 +377,13 @@ foreach ($svcConfig in $backup.Settings.Services) {
         if ($service) {
             if ($PSCmdlet.ShouldProcess($svcConfig.Name, "Set StartType: $($svcConfig.StartType)")) {
                 Set-Service -Name $svcConfig.Name -StartupType $svcConfig.StartType -ErrorAction Stop
-                $svcMsg = (Get-LocalizedString 'RestoreServicesOK') -f $svcConfig.StartType
+                $svcMsg = Get-LocalizedString 'RestoreServicesOK' $svcConfig.StartType
                 Write-Host "  [OK] $($svcConfig.DisplayName): $svcMsg" -ForegroundColor Green
                 $restoreStats.Success++
             }
         }
         else {
-            $notFoundMsg = (Get-LocalizedString 'RestoreServicesNotFound') -f $svcConfig.Name
+            $notFoundMsg = Get-LocalizedString 'RestoreServicesNotFound' $svcConfig.Name
             Write-Host "  [!] $notFoundMsg" -ForegroundColor Yellow
             $restoreStats.Skipped++
         }
@@ -451,7 +451,7 @@ if ($customRules) {
         if ($PSCmdlet.ShouldProcess($rule.DisplayName, "Delete rule")) {
             try {
                 Remove-NetFirewallRule -DisplayName $rule.DisplayName -ErrorAction Stop
-                $ruleMsg = (Get-LocalizedString 'RestoreFirewallOK') -f $rule.DisplayName
+                $ruleMsg = Get-LocalizedString 'RestoreFirewallOK' $rule.DisplayName
                 Write-Host "    [OK] $ruleMsg" -ForegroundColor Green
                 $restoreStats.Success++
             }
@@ -528,7 +528,7 @@ foreach ($regConfig in $backup.Settings.RegistryKeys) {
                 }
                 
                 Set-ItemProperty -Path $path -Name $name -Value $value -ErrorAction Stop
-                $regMsg = (Get-LocalizedString 'RestoreRegistryOK') -f $value
+                $regMsg = Get-LocalizedString 'RestoreRegistryOK' $value
                 Write-Host "  [OK] $path\$name = $regMsg" -ForegroundColor Green
                 $restoreStats.Success++
             }
@@ -571,7 +571,7 @@ if ($currentAdminAccount) {
         if ($PSCmdlet.ShouldProcess($currentAdminAccount.Name, "Rename to: $($originalAdmin.Name)")) {
             try {
                 Rename-LocalUser -Name $currentAdminAccount.Name -NewName $originalAdmin.Name -ErrorAction Stop
-                $renameMsg = (Get-LocalizedString 'RestoreUsersRenamed') -f $currentAdminAccount.Name, $originalAdmin.Name
+                $renameMsg = Get-LocalizedString 'RestoreUsersRenamed' $currentAdminAccount.Name $originalAdmin.Name
                 Write-Host "  [OK] $renameMsg" -ForegroundColor Green
                 
                 if ($originalAdmin.Enabled) {
@@ -589,7 +589,7 @@ if ($currentAdminAccount) {
                 Write-Host "  [!] $(Get-LocalizedString 'RestoreUsersPasswordTitle')" -ForegroundColor Yellow
                 Write-Host "      $(Get-LocalizedString 'RestoreUsersPasswordWarning')" -ForegroundColor Yellow
                 Write-Host ""
-                $pwPrompt = (Get-LocalizedString 'RestoreUsersPasswordPrompt') -f $originalAdmin.Name
+                $pwPrompt = Get-LocalizedString 'RestoreUsersPasswordPrompt' $originalAdmin.Name
                 Write-Host "  $pwPrompt " -NoNewline -ForegroundColor Cyan
                 $setPassword = Read-Host
                 
@@ -618,7 +618,7 @@ if ($currentAdminAccount) {
                             
                             Write-Host ""
                             Write-Host "  ============================================================" -ForegroundColor Green
-                            $pwNewMsg = (Get-LocalizedString 'RestoreUsersPasswordNew') -f $originalAdmin.Name
+                            $pwNewMsg = Get-LocalizedString 'RestoreUsersPasswordNew' $originalAdmin.Name
                             Write-Host "    $pwNewMsg" -ForegroundColor Green
                             Write-Host "" 
                             
@@ -750,8 +750,70 @@ if ($missingApps.Count -gt 0) {
         Write-Host "      - $($app.Name)" -ForegroundColor Gray
     }
     if ($missingApps.Count -gt 10) {
-        $moreMsg = (Get-LocalizedString 'RestoreAppsMore') -f ($missingApps.Count - 10)
+        $moreMsg = Get-LocalizedString 'RestoreAppsMore' ($missingApps.Count - 10)
         Write-Host "      $moreMsg" -ForegroundColor Gray
+    }
+    
+    # CRITICAL FIX v1.7.12: Write app list to Desktop for user reference
+    # User will need to reboot - list will be available on desktop after restart
+    try {
+        $desktopPath = [Environment]::GetFolderPath("Desktop")
+        $fileName = Get-LocalizedString 'AppListFileName'
+        $appListFile = Join-Path $desktopPath "$fileName-$timestamp.txt"
+        
+        # Build localized app list content
+        $header = Get-LocalizedString 'AppListFileHeader'
+        $dateLabel = Get-LocalizedString 'AppListFileDate'
+        $totalLabel = Get-LocalizedString 'AppListFileTotal'
+        $intro = Get-LocalizedString 'AppListFileIntro'
+        $howToHeader = Get-LocalizedString 'AppListFileHowToHeader'
+        $step1 = Get-LocalizedString 'AppListFileStep1'
+        $step2 = Get-LocalizedString 'AppListFileStep2'
+        $step3 = Get-LocalizedString 'AppListFileStep3'
+        $step4 = Get-LocalizedString 'AppListFileStep4'
+        $note = Get-LocalizedString 'AppListFileNote'
+        
+        $appListContent = @"
+========================================
+$header
+========================================
+
+$dateLabel $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')
+$totalLabel $($missingApps.Count)
+
+$intro
+
+========================================
+
+"@
+        
+        foreach ($app in $missingApps) {
+            $appListContent += "- $($app.Name)`r`n"
+        }
+        
+        $appListContent += @"
+
+========================================
+$howToHeader
+========================================
+
+$step1
+$step2
+$step3
+$step4
+
+$note
+
+========================================
+"@
+        
+        $appListContent | Out-File -FilePath $appListFile -Encoding UTF8 -Force
+        Write-Host ""
+        Write-Host "  [OK] App list saved to desktop: $appListFile" -ForegroundColor Green
+        Write-Host "      $(Get-LocalizedString 'RestoreAppsListSaved')" -ForegroundColor Gray
+    }
+    catch {
+        Write-Warning "Could not save app list to desktop: $_"
     }
     
     $restoreStats.Skipped++

@@ -97,14 +97,14 @@ function Install-DNSBlocklist {
     if (-not (Test-Path $hostsBackup)) {
         try {
             Copy-Item -Path $hostsPath -Destination $hostsBackup -Force
-            Write-Verbose (Get-LocalizedString 'DNSBackupOriginal' -f $hostsBackup)
+            Write-Verbose (Get-LocalizedString 'DNSBackupOriginal' $hostsBackup)
         }
         catch {
-            Write-Warning (Get-LocalizedString 'DNSBackupFailed' -f $_)
+            Write-Warning (Get-LocalizedString 'DNSBackupFailed' $_)
         }
     }
     else {
-        Write-Verbose (Get-LocalizedString 'DNSBackupExists' -f $hostsBackup)
+        Write-Verbose (Get-LocalizedString 'DNSBackupExists' $hostsBackup)
     }
     
     # Best Practice 25H2: Use LOCAL hosts file from project directory!
@@ -149,7 +149,7 @@ function Install-DNSBlocklist {
     # Check if local file exists
     if (-not (Test-Path $localHostsFile)) {
         Write-Error "$(Get-LocalizedString 'DNSCriticalError')"
-        Write-Error (Get-LocalizedString 'DNSExpected' -f $localHostsFile)
+        Write-Error (Get-LocalizedString 'DNSExpected' $localHostsFile)
         Write-Error "$(Get-LocalizedString 'DNSCannotInstall')"
         return
     }
@@ -171,7 +171,7 @@ function Install-DNSBlocklist {
         $allContent = Get-Content $localHostsFile -ErrorAction Stop
         $blockedDomains = ($allContent | Where-Object { $_ -match '^0\.0\.0\.0\s+' }).Count * 9
         
-        Write-Success (Get-LocalizedString 'DNSValidated' -f $blockedDomains)
+        Write-Success (Get-LocalizedString 'DNSValidated' $blockedDomains)
         Write-Verbose "File-Size: $([Math]::Round((Get-Item $localHostsFile).Length / 1MB, 2)) MB"
         
         # Install via ATOMIC REPLACE (Best Practice 25H2)
@@ -185,7 +185,7 @@ function Install-DNSBlocklist {
             # Validate copy
             $newContent = Get-Content $hostsTemp -ErrorAction Stop
             if ($newContent.Count -lt 1000) {
-                throw (Get-LocalizedString 'DNSFileTooSmall' -f $newContent.Count)
+                throw (Get-LocalizedString 'DNSFileTooSmall' $newContent.Count)
             }
             
             # Atomic replace: temp -> final
@@ -197,7 +197,7 @@ function Install-DNSBlocklist {
             if (Test-Path $hostsTemp) {
                 Remove-Item $hostsTemp -Force -ErrorAction SilentlyContinue
             }
-            throw (Get-LocalizedString 'DNSInstallFailed' -f $_)
+            throw (Get-LocalizedString 'DNSInstallFailed' $_)
         }
         
         # Flush DNS cache (with timeout - prevents hang)
@@ -217,7 +217,7 @@ function Install-DNSBlocklist {
             }
         }
         catch {
-            Write-Verbose (Get-LocalizedString 'DNSFlushError' -f $_)
+            Write-Verbose (Get-LocalizedString 'DNSFlushError' $_)
         }
         finally {
             # Guaranteed job cleanup
@@ -227,13 +227,13 @@ function Install-DNSBlocklist {
         }
         
         # SUCCESS!
-        Write-Success (Get-LocalizedString 'DNSBlocklistInstalled' -f $blockedDomains)
+        Write-Success (Get-LocalizedString 'DNSBlocklistInstalled' $blockedDomains)
         Write-Info "$(Get-LocalizedString 'DNSBlockedTypes')"
         Write-Info "$(Get-LocalizedString 'DNSSource')"
         Write-Warning "$(Get-LocalizedString 'DNSLegitimateWarning')"
     }
     catch {
-        Write-Error (Get-LocalizedString 'DNSInstallationFailed' -f $_)
+        Write-Error (Get-LocalizedString 'DNSInstallationFailed' $_)
         Write-Error "$(Get-LocalizedString 'DNSNotInstalled')"
     }
 }
@@ -316,7 +316,7 @@ function Set-StrictInboundFirewall {
             Write-Verbose "     ${firewallProfile}: Inbound=BLOCK ALL, Outbound=ALLOW, Logging=ENABLED"
         }
         catch {
-            Write-Warning (Get-LocalizedString 'FirewallProfileError' -f $firewallProfile, $_)
+            Write-Warning (Get-LocalizedString 'FirewallProfileError' $firewallProfile $_)
         }
     }
     

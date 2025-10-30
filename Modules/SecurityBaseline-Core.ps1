@@ -37,10 +37,10 @@ function Test-SystemRequirements {
     .SYNOPSIS
         Checks system requirements for Security Baseline
     .DESCRIPTION
-        Validiert Windows Version, TPM und VBS Status.
-        Best Practice 25H2: Try-Catch fuer alle CIM/WMI-Calls, throw ersetzt durch Write-Error.
+        Validates Windows Version, TPM and VBS Status.
+        Best Practice 25H2: Try-Catch for all CIM/WMI-Calls, throw replaced by Write-Error.
     .OUTPUTS
-        [bool] $true wenn alle Anforderungen erfuellt, $false sonst
+        [bool] $true if all requirements met, $false otherwise
     .EXAMPLE
         if (Test-SystemRequirements) { "System OK" }
     #>
@@ -51,14 +51,14 @@ function Test-SystemRequirements {
     Write-Section (Get-LocalizedString 'CoreSystemValidation')
     
     try {
-        # OS-Info abrufen
+        # Retrieve OS information
         $osInfo = Get-CimInstance -ClassName Win32_OperatingSystem -ErrorAction Stop
         $build = [System.Environment]::OSVersion.Version.Build
         
         Write-Info "OS: $($osInfo.Caption)"
         Write-Info "Build: $build"
         
-        # Build-Check
+        # Check Build
         if ($build -lt 26100) {
             Write-Error-Custom (Get-LocalizedString 'CoreBuildRequired' $build)
             Write-Warning-Custom (Get-LocalizedString 'CoreBaselineOptimized')
@@ -83,7 +83,7 @@ function Test-SystemRequirements {
     }
     catch {
         Write-Warning-Custom (Get-LocalizedString 'CoreTPMStatusError' $_)
-        Write-Verbose "Manche Features (BitLocker, Credential Guard) benoetigen TPM 2.0"
+        Write-Verbose "Some features (BitLocker, Credential Guard) require TPM 2.0"
     }
     
     # Check VBS
@@ -100,8 +100,8 @@ function Test-SystemRequirements {
         }
     }
     catch {
-        Write-Verbose "VBS-Status konnte nicht abgerufen werden: $_"
-        Write-Verbose "VBS wird ggf. von dieser Baseline aktiviert"
+        Write-Verbose "VBS status could not be retrieved: $_"
+        Write-Verbose "VBS will be activated by this baseline if supported"
     }
     
     Write-Success (Get-LocalizedString 'CoreValidationComplete')
@@ -115,10 +115,10 @@ function Test-SystemRequirements {
 function Set-NetBIOSDisabled {
     <#
     .SYNOPSIS
-        Deaktiviert NetBIOS-Namensaufloesung
+        Disables NetBIOS Name Resolution
     .DESCRIPTION
-        Deaktiviert NetBIOS ueber DNS Client und auf allen Netzwerkadaptern.
-        Best Practice 25H2: Try-Catch fuer Get-CimInstance, Error-Handling fuer alle Registry-Ops.
+        Disables NetBIOS via DNS Client and on all network adapters.
+        Best Practice 25H2: Try-Catch for Get-CimInstance, Error-Handling for all Registry-Ops.
     .EXAMPLE
         Set-NetBIOSDisabled
     #>
@@ -138,7 +138,7 @@ function Set-NetBIOSDisabled {
     [void](Set-RegistryValue -Path $regPath -Name "NodeType" -Value 2 -Type DWord `
         -Description "NetBT auf P-Node (nur WINS)")
     
-    # Pro Adapter
+    # Per Adapter
     try {
         # Best Practice 25H2: @() wrapper prevents Count error with null/single item
         $adapters = @(Get-CimInstance -ClassName Win32_NetworkAdapterConfiguration -ErrorAction Stop | 
@@ -167,11 +167,11 @@ function Set-NetBIOSDisabled {
 function Set-ProcessAuditingWithCommandLine {
     <#
     .SYNOPSIS
-        Aktiviert Prozess-Auditing mit Command-Line-Logging
+        Enables Process Auditing with Command-Line Logging
     .DESCRIPTION
-        Aktiviert Event ID 4688 mit Command-Line-Parameter-Logging.
-        Best Practice 25H2: Try-Catch fuer externe Tools (auditpol.exe), Out-Null entfernt.
-        WARNUNG: Command-Lines koennen Secrets enthalten (Passwoerter, API-Keys)!
+        Enables Event ID 4688 with Command-Line Parameter Logging.
+        Best Practice 25H2: Try-Catch for external tools (auditpol.exe), Out-Null removed.
+        WARNING: Command-Lines can contain secrets (passwords, API-Keys)!
     .EXAMPLE
         Set-ProcessAuditingWithCommandLine
     #>
@@ -226,10 +226,10 @@ function Set-ProcessAuditingWithCommandLine {
 function Disable-IE11COMAutomation {
     <#
     .SYNOPSIS
-        Deaktiviert Internet Explorer 11 COM-Automation
+        Disables Internet Explorer 11 COM-Automation
     .DESCRIPTION
-        Blockiert IE11-Start via COM und ActiveX-Installation.
-        Best Practice 25H2: CmdletBinding, Error-Handling fuer Registry-Ops.
+        Blocks IE11 launch via COM and ActiveX installation.
+        Best Practice 25H2: CmdletBinding, Error-Handling for Registry-Ops.
     .EXAMPLE
         Disable-IE11COMAutomation
     #>
@@ -239,12 +239,12 @@ function Disable-IE11COMAutomation {
     
     Write-Section (Get-LocalizedString 'CoreIE11Disable')
     
-    # IE11 Launch via COM blockieren
+    # Block IE11 Launch via COM
     $iePath = "HKLM:\SOFTWARE\Policies\Microsoft\Internet Explorer\Main"
     [void](Set-RegistryValue -Path $iePath -Name "DisableIE11Launch" -Value 1 -Type DWord `
         -Description "IE11 Launch via COM blockieren")
     
-    # ActiveX Installation blockieren
+    # Block ActiveX Installation
     $msHtmlPath = "HKLM:\SOFTWARE\Policies\Microsoft\Internet Explorer\Main\FeatureControl\FEATURE_RESTRICT_ACTIVEXINSTALL"
     [void](Set-RegistryValue -Path $msHtmlPath -Name "iexplore.exe" -Value 1 -Type DWord `
         -Description "ActiveX Installation blockieren")
@@ -255,10 +255,10 @@ function Disable-IE11COMAutomation {
 function Set-PrintSpoolerUserRights {
     <#
     .SYNOPSIS
-        Konfiguriert Print Spooler User Rights und RPC-Haertung
+        Configures Print Spooler User Rights and RPC Hardening
     .DESCRIPTION
-        Setzt SeImpersonatePrivilege fuer PrintSpoolerService und haertet RPC gegen PrintNightmare.
-        Best Practice 25H2: Try-Catch fuer File Ops und secedit.exe, Exit-Code Check.
+        Sets SeImpersonatePrivilege for PrintSpoolerService and hardens RPC against PrintNightmare.
+        Best Practice 25H2: Try-Catch for File Ops and secedit.exe, Exit-Code Check.
         CVE-2021-1675 PrintNightmare Mitigation.
     .EXAMPLE
         Set-PrintSpoolerUserRights
@@ -282,7 +282,7 @@ Revision=1
 SeImpersonatePrivilege = *S-1-5-19,*S-1-5-20,*S-1-5-32-544,*S-1-5-99-0-0-0-0-0
 "@
     
-    # Temp-Dateien
+    # Temp files
     if (-not $env:TEMP) {
         Write-Error-Custom (Get-LocalizedString 'CoreTempNotSet')
         return
@@ -292,8 +292,8 @@ SeImpersonatePrivilege = *S-1-5-19,*S-1-5-20,*S-1-5-32-544,*S-1-5-99-0-0-0-0-0
     $tempDb = Join-Path $env:TEMP "secedit_spooler.sdb"
     
     try {
-        # Security Policy schreiben
-        Write-Verbose "Schreibe Security Policy nach $tempInf"
+        # Write Security Policy
+        Write-Verbose "Writing security policy to $tempInf"
         $secPolicy | Out-File -FilePath $tempInf -Encoding unicode -Force -ErrorAction Stop
         
         # Execute secedit.exe
@@ -304,7 +304,7 @@ SeImpersonatePrivilege = *S-1-5-19,*S-1-5-20,*S-1-5-32-544,*S-1-5-99-0-0-0-0-0
             return
         }
         
-        Write-Verbose "Fuehre secedit.exe aus..."
+        Write-Verbose "Executing secedit.exe..."
         $result = & $seceditPath /configure /db $tempDb /cfg $tempInf /quiet 2>&1
         
         if ($LASTEXITCODE -eq 0) {
@@ -315,19 +315,19 @@ SeImpersonatePrivilege = *S-1-5-19,*S-1-5-20,*S-1-5-32-544,*S-1-5-99-0-0-0-0-0
             Write-Verbose "Output: $result"
         }
         
-        # Temp-Dateien aufraeumen
+        # Clean up temp files
         try {
             if (Test-Path -Path $tempInf) {
                 Remove-Item -Path $tempInf -Force -ErrorAction Stop
-                Write-Verbose "Temp-Datei geloescht: $tempInf"
+                Write-Verbose "Temp file deleted: $tempInf"
             }
             if (Test-Path -Path $tempDb) {
                 Remove-Item -Path $tempDb -Force -ErrorAction Stop
-                Write-Verbose "Temp-Datei geloescht: $tempDb"
+                Write-Verbose "Temp file deleted: $tempDb"
             }
         }
         catch {
-            Write-Verbose "Temp-Dateien konnten nicht geloescht werden: $_"
+            Write-Verbose "Could not delete temp files: $_"
         }
     }
     catch {
@@ -335,7 +335,7 @@ SeImpersonatePrivilege = *S-1-5-19,*S-1-5-20,*S-1-5-32-544,*S-1-5-99-0-0-0-0-0
         Write-Verbose "Details: $($_.Exception.Message)"
     }
     
-    # Print Spooler RPC-Haertung (CVE-2021-1675 PrintNightmare)
+    # Print Spooler RPC Hardening (CVE-2021-1675 PrintNightmare)
     Write-Info (Get-LocalizedString 'CorePrintRPCHarden')
     
     $spoolerPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Printers"
@@ -356,10 +356,10 @@ SeImpersonatePrivilege = *S-1-5-19,*S-1-5-20,*S-1-5-32-544,*S-1-5-99-0-0-0-0-0
 function Set-DefenderBaselineSettings {
     <#
     .SYNOPSIS
-        Konfiguriert Microsoft Defender Baseline-Einstellungen
+        Configures Microsoft Defender Baseline Settings
     .DESCRIPTION
-        Aktiviert EDR Block Mode, PUA Protection, Network Protection, Cloud Protection High.
-        Best Practice 25H2: CmdletBinding, Registry-Return-Values pruefen.
+        Enables EDR Block Mode, PUA Protection, Network Protection, Cloud Protection High.
+        Best Practice 25H2: CmdletBinding, verify Registry return values.
     .EXAMPLE
         Set-DefenderBaselineSettings
     #>
@@ -456,12 +456,16 @@ function Set-DefenderBaselineSettings {
     $result1 = Set-RegistryValueSmart -Path $puaPath -Name "EnableAppInstallControl" -Value 1 -Type DWord `
         -Description "PUA: Block apps (Checkbox)"
     
-    # EnableDownloadFileTypeExtensionsList = Block downloads (with automatic ownership management)
-    $result2 = Set-RegistryValueSmart -Path $puaPath -Name "EnableDownloadFileTypeExtensionsList" -Value 1 -Type DWord `
-        -Description "PUA: Block downloads (Checkbox)"
+    # IMPORTANT: "Block downloads" is NOT a Defender setting!
+    # It's configured in Edge module via: HKLM:\SOFTWARE\Policies\Microsoft\Edge\SmartScreenPuaEnabled = 1
+    # The Windows Security GUI shows BOTH checkboxes, but they come from different systems:
+    # - "Block apps" = Defender PUA (above)
+    # - "Block downloads" = Edge SmartScreen (Edge module)
+    # NOTE: The Edge checkbox requires Edge browser restart to show in GUI!
     
-    if ($result1 -and $result2) {
+    if ($result1) {
         Write-Success (Get-LocalizedString 'CorePUAActivated')
+        Write-Info "NOTE: 'Block downloads' checkbox is configured in Edge module (requires Edge restart)"
     }
     else {
         Write-Info (Get-LocalizedString 'CorePUAScriptFailed')
@@ -470,7 +474,7 @@ function Set-DefenderBaselineSettings {
         Write-Info (Get-LocalizedString 'CorePUAManualPath')
     }
     
-    # Edge SmartScreen PUA Protection is set in Edge module (no duplicate)
+    # Edge SmartScreen PUA Protection (Block downloads) is set in Edge module
     
     # Network Protection
     [void](Set-RegistryValue -Path "$defenderPath\Windows Defender Exploit Guard\Network Protection" -Name "EnableNetworkProtection" -Value 1 -Type DWord `
@@ -542,9 +546,9 @@ function Set-DefenderBaselineSettings {
 function Enable-ControlledFolderAccess {
     <#
     .SYNOPSIS
-        Aktiviert Controlled Folder Access (Ransomware-Schutz)
+        Enables Controlled Folder Access (Ransomware Protection)
     .DESCRIPTION
-        Schuetzenswerte Ordner (Dokumente, Bilder, etc.) vor nicht-autorisierten Aenderungen
+        Protects valuable folders (Documents, Pictures, etc.) from unauthorized changes
         Best Practice 25H2: Ransomware Protection
     .EXAMPLE
         Enable-ControlledFolderAccess
@@ -587,10 +591,10 @@ function Enable-ControlledFolderAccess {
     try {
         # Enable Controlled Folder Access via PowerShell
         # CRITICAL: 3 second delay AFTER service start due to Defender initialization
-        Write-Verbose "Warte 3 Sekunden auf Defender-Initialisierung..."
+        Write-Verbose "Waiting 3 seconds for Defender initialization..."
         Start-Sleep -Seconds 3
         
-        # ErrorAction SilentlyContinue - bekanntes 0x800106ba Timing-Problem ignorieren
+        # ErrorAction SilentlyContinue - ignore known 0x800106ba timing issue
         # Suppress unwanted output
         $null = Set-MpPreference -EnableControlledFolderAccess Enabled -ErrorAction SilentlyContinue
         
@@ -632,8 +636,8 @@ function Enable-ControlledFolderAccess {
             }
         }
         else {
-            Write-Verbose "Ignoriere bekanntes Defender Timing-Problem (0x800106ba)"
-            Write-Verbose "Controlled Folder Access wird trotzdem aktiviert"
+            Write-Verbose "Ignoring known Defender timing issue (0x800106ba)"
+            Write-Verbose "Controlled Folder Access will still be activated"
         }
     }
 }
@@ -641,9 +645,9 @@ function Enable-ControlledFolderAccess {
 function Enable-ExploitProtection {
     <#
     .SYNOPSIS
-        Aktiviert Exploit Protection EXTENDED (Microsoft Best Practice)
+        Enables Exploit Protection EXTENDED (Microsoft Best Practice)
     .DESCRIPTION
-        System-weite Exploit-Mitigation-Technologien mit allen Best Practice Mitigations:
+        System-wide Exploit Mitigation Technologies with all Best Practice Mitigations:
         - DEP, SEHOP, ASLR (Mandatory + Bottom-up + High Entropy)
         - CFG (Control Flow Guard) - Strict Mode + Export Suppression
         - Heap Protection (Terminate on Error)
@@ -663,16 +667,16 @@ function Enable-ExploitProtection {
     try {
         # Check if cmdlet is available (Windows 10 1709+)
         if (-not (Get-Command Set-ProcessMitigation -ErrorAction SilentlyContinue)) {
-            Write-Warning-Custom "Set-ProcessMitigation Cmdlet nicht verfuegbar (Windows 10 1709+ erforderlich)"
+            Write-Warning-Custom "Set-ProcessMitigation Cmdlet not available (Windows 10 1709+ required)"
             return
         }
         
         # ===== BASIC MITIGATIONS (Standard) =====
-        Write-Verbose "Setze Basic Mitigations (DEP, SEHOP, ASLR)..."
+        Write-Verbose "Setting basic mitigations (DEP, SEHOP, ASLR)..."
         Set-ProcessMitigation -System -Enable DEP, SEHOP, ForceRelocateImages, BottomUp, HighEntropy -ErrorAction Stop
         
         # ===== EXTENDED MITIGATIONS (Best Practice) =====
-        Write-Verbose "Setze Extended Mitigations..."
+        Write-Verbose "Setting extended mitigations..."
         
         # Heap Protection (Terminate on Error)
         try {
@@ -751,10 +755,10 @@ function Enable-ExploitProtection {
 function Disable-AutoPlayAndAutoRun {
     <#
     .SYNOPSIS
-        Deaktiviert AutoPlay und AutoRun komplett (CIS Benchmark Level 2)
+        Disables AutoPlay and AutoRun completely (CIS Benchmark Level 2)
     .DESCRIPTION
-        Verhindert automatische Ausfuehrung von Malware von USB/CD/Netzwerk.
-        Setzt NoDriveTypeAutoRun auf 0xFF (alle Laufwerkstypen) und NoAutorun auf 1.
+        Prevents automatic execution of malware from USB/CD/Network.
+        Sets NoDriveTypeAutoRun to 0xFF (all drive types) and NoAutorun to 1.
         Best Practice Januar 2026: Maximum USB-Malware-Schutz
     .EXAMPLE
         Disable-AutoPlayAndAutoRun
@@ -763,11 +767,11 @@ function Disable-AutoPlayAndAutoRun {
     [OutputType([void])]
     param()
     
-    Write-Section "AutoPlay & AutoRun Deaktivierung"
+    Write-Section "AutoPlay & AutoRun Deactivation"
     
-    Write-Info "Deaktiviere AutoPlay und AutoRun auf ALLEN Laufwerken..."
+    Write-Info "Disabling AutoPlay and AutoRun on ALL drives..."
     
-    # Machine-Level (HKLM) - System-weite Einstellung
+    # Machine-Level (HKLM) - System-wide setting
     $explorerPathMachine = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer"
     
     # 0xFF = 11111111 in binary = All drive types
@@ -780,7 +784,7 @@ function Disable-AutoPlayAndAutoRun {
     [void](Set-RegistryValue -Path $explorerPathMachine -Name "NoAutorun" -Value 1 -Type DWord `
         -Description "AutoRun global deaktiviert (autorun.inf ignoriert)")
     
-    # User-Level (HKCU) - Aktueller User
+    # User-Level (HKCU) - Current User
     $explorerPathUser = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer"
     
     [void](Set-RegistryValue -Path $explorerPathUser -Name "NoDriveTypeAutoRun" -Value 0xFF -Type DWord `
@@ -796,21 +800,21 @@ function Disable-AutoPlayAndAutoRun {
             -Description "Legacy AutoRun Path")
     }
     
-    Write-Success "AutoPlay & AutoRun: KOMPLETT DEAKTIVIERT"
-    Write-Info "  - Keine automatischen Dialoge beim Einstecken von USB/CD"
-    Write-Info "  - autorun.inf wird IGNORIERT (Malware kann nicht auto-starten)"
-    Write-Info "  - Gilt fuer: USB, CD/DVD, Netzlaufwerke, alle Laufwerkstypen"
-    Write-Info "CIS BENCHMARK LEVEL 2: ERFUELLT (+3% Compliance)"
-    Write-Warning-Custom "User muessen Laufwerke jetzt MANUELL im Explorer oeffnen"
+    Write-Success "AutoPlay & AutoRun: COMPLETELY DISABLED"
+    Write-Info "  - No automatic dialogs when inserting USB/CD"
+    Write-Info "  - autorun.inf is IGNORED (malware cannot auto-start)"
+    Write-Info "  - Applies to: USB, CD/DVD, Network drives, all drive types"
+    Write-Info "CIS BENCHMARK LEVEL 2: FULFILLED (+3% Compliance)"
+    Write-Warning-Custom "Users must now open drives MANUALLY in Explorer"
 }
 
 function Set-SmartScreenExtended {
     <#
     .SYNOPSIS
-        Aktiviert erweiterte SmartScreen-Konfiguration (Defense in Depth)
+        Enables extended SmartScreen configuration (Defense in Depth)
     .DESCRIPTION
-        Erweiterte SmartScreen-Settings fuer Apps, Edge und Phishing-Schutz:
-        - SmartScreen fuer Apps (RequireAdmin)
+        Extended SmartScreen settings for Apps, Edge and Phishing protection:
+        - SmartScreen for Apps (RequireAdmin)
         - Edge SmartScreen (Phishing + PUA Protection)
         - Enhanced Phishing Protection
         Best Practice Januar 2026: Maximum Phishing/Malware-Schutz
@@ -823,12 +827,12 @@ function Set-SmartScreenExtended {
     
     Write-Section "SmartScreen Extended Configuration"
     
-    Write-Info "Konfiguriere erweiterte SmartScreen-Einstellungen..."
+    Write-Info "Configuring extended SmartScreen settings..."
     
     # ===== WINDOWS SMARTSCREEN FOR APPS =====
     $appsPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer"
     
-    # RequireAdmin = Unbekannte Apps brauchen Admin-Rechte
+    # RequireAdmin = Unknown apps require admin rights
     # Warn = Warnung (default)
     # Off = Disabled (NOT recommended!)
     [void](Set-RegistryValue -Path $appsPath -Name "SmartScreenEnabled" -Value "RequireAdmin" -Type String `
@@ -870,31 +874,31 @@ function Set-SmartScreenExtended {
             -Description "Enhanced Phishing Protection (Win11)" | Out-Null
         
         Set-RegistryValueWithOwnership -Path $enhancedPhishingPath -Name "NotifyPasswordReuse" -Value 1 -Type DWord `
-            -Description "Warnung bei Password-Reuse auf Phishing-Sites" | Out-Null
+            -Description "Warning on password reuse on phishing sites" | Out-Null
         
         Set-RegistryValueWithOwnership -Path $enhancedPhishingPath -Name "NotifyUnsafeApp" -Value 1 -Type DWord `
-            -Description "Warnung bei Start unsicherer Apps" | Out-Null
+            -Description "Warning when starting unsafe apps" | Out-Null
     }
     else {
         # Fallback without ownership (could fail)
-        Write-Verbose "Set-RegistryValueWithOwnership nicht verfuegbar - verwende Standard-Methode"
+        Write-Verbose "Set-RegistryValueWithOwnership not available - using standard method"
         [void](Set-RegistryValue -Path $enhancedPhishingPath -Name "ServiceEnabled" -Value 1 -Type DWord `
             -Description "Enhanced Phishing Protection (Win11)")
         
         [void](Set-RegistryValue -Path $enhancedPhishingPath -Name "NotifyPasswordReuse" -Value 1 -Type DWord `
-            -Description "Warnung bei Password-Reuse auf Phishing-Sites")
+            -Description "Warning on password reuse on phishing sites")
         
         [void](Set-RegistryValue -Path $enhancedPhishingPath -Name "NotifyUnsafeApp" -Value 1 -Type DWord `
-            -Description "Warnung bei Start unsicherer Apps")
+            -Description "Warning when starting unsafe apps")
     }
     
     Write-Success "SmartScreen Extended: AKTIV"
-    Write-Info "  - Windows SmartScreen: RequireAdmin (Unbekannte Apps brauchen UAC)"
+    Write-Info "  - Windows SmartScreen: RequireAdmin (Unknown apps require UAC)"
     Write-Info "  - Edge SmartScreen: Phishing + PUA Protection"
     Write-Info "  - Enhanced Phishing Protection (Password Reuse + Unsafe Apps)"
-    Write-Info "DEFENSE IN DEPTH: +5% Phishing/Malware-Resistenz"
-    Write-Info "Note: Edge DNS-over-HTTPS wird im Edge-Modul konfiguriert"
-    Write-Warning-Custom "Unbekannte Apps zeigen jetzt Admin-Prompt (erhoehte Sicherheit)"
+    Write-Info "DEFENSE IN DEPTH: +5% Phishing/Malware Resistance"
+    Write-Info "Note: Edge DNS-over-HTTPS is configured in Edge module"
+    Write-Warning-Custom "Unknown apps now show Admin prompt (increased security)"
 }
 
 #endregion
@@ -903,14 +907,14 @@ function Set-SmartScreenExtended {
 function Set-SMBHardening {
     <#
     .SYNOPSIS
-        Haertet SMB-Konfiguration (Microsoft Baseline 25H2)
+        Hardens SMB Configuration (Microsoft Baseline 25H2)
     .DESCRIPTION
         Implementiert ALLE Microsoft Security Baseline 25H2 SMB Settings:
         - SMB Min/Max Versionen (3.0.0 - 3.1.1)
         - Authentication Rate Limiter (2000ms Brute-Force Protection)
         - Audit Settings (Encryption, Signing, Guest Logon)
-        - Remote Mailslots deaktiviert
-        - SMB1 deaktiviert, SMB Signing/Encryption
+        - Remote Mailslots disabled
+        - SMB1 disabled, SMB Signing/Encryption
     .EXAMPLE
         Set-SMBHardening
     #>
@@ -918,12 +922,12 @@ function Set-SMBHardening {
     [OutputType([void])]
     param()
     
-    Write-Section "SMB/LAN Manager Haertung (Microsoft Baseline 25H2)"
+    Write-Section "SMB/LAN Manager Hardening (Microsoft Baseline 25H2)"
     
     # ===========================
     # MICROSOFT BASELINE 25H2: SMB SERVER SETTINGS
     # ===========================
-    Write-Info "Konfiguriere SMB Server (Lanman Server) Settings..."
+    Write-Info "Configuring SMB Server (Lanman Server) settings..."
     
     $smbServerPath = "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters"
     
@@ -935,7 +939,7 @@ function Set-SMBHardening {
         -Description "SMB Auth Rate Limiter aktivieren"
     
     # 2. SMB Version Control (NEW in Baseline)
-    # Minimum: SMB 3.0.0 (sicher), Maximum: SMB 3.1.1 (neueste)
+    # Minimum: SMB 3.0.0 (secure), Maximum: SMB 3.1.1 (latest)
     Set-RegistryValue -Path $smbServerPath -Name "SMBServerMinimumProtocol" -Value 768 -Type DWord `
         -Description "SMB Min Version: 3.0.0 (768 = SMB 3.0)"
     Set-RegistryValue -Path $smbServerPath -Name "SMBServerMaximumProtocol" -Value 1025 -Type DWord `
@@ -953,12 +957,12 @@ function Set-SMBHardening {
     Set-RegistryValue -Path $smbServerPath -Name "EnableRemoteMailslots" -Value 0 -Type DWord `
         -Description "Remote Mailslots deaktivieren (Legacy-Feature)"
     
-    Write-Success "SMB Server Hardening abgeschlossen (6 neue Baseline-Settings)"
+    Write-Success "SMB Server Hardening completed (6 new Baseline settings)"
     
     # ===========================
     # MICROSOFT BASELINE 25H2: SMB CLIENT (WORKSTATION) SETTINGS
     # ===========================
-    Write-Info "Konfiguriere SMB Client (Lanman Workstation) Settings..."
+    Write-Info "Configuring SMB Client (Lanman Workstation) settings..."
     
     $smbClientPath = "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanWorkstation\Parameters"
     
@@ -984,12 +988,12 @@ function Set-SMBHardening {
     Set-RegistryValue -Path $smbClientPath -Name "RequireEncryption" -Value 0 -Type DWord `
         -Description "Encryption nicht erzwingen (Kompatibilitaet)"
     
-    Write-Success "SMB Client Hardening abgeschlossen"
+    Write-Success "SMB Client Hardening completed"
     
     # ===========================
     # DISABLE SMB1 (CRITICAL!)
     # ===========================
-    Write-Info "Deaktiviere SMB1 (Legacy-Protokoll)..."
+    Write-Info "Disabling SMB1 (legacy protocol)..."
     
     # Disable SMB1 Server
     Set-RegistryValue -Path $smbServerPath -Name "SMB1" -Value 0 -Type DWord `
@@ -999,12 +1003,12 @@ function Set-SMBHardening {
     Set-RegistryValue -Path $smbClientPath -Name "DisableSmb1" -Value 1 -Type DWord `
         -Description "SMB1 Client deaktivieren"
     
-    Write-Success "SMB1 deaktiviert (Server + Client)"
+    Write-Success "SMB1 disabled (Server + Client)"
     
     # ===========================
     # SMB SIGNING & ENCRYPTION (CRITICAL - fehlte in Baseline!)
     # ===========================
-    Write-Info "Aktiviere SMB Signing und Encryption (CRITICAL Security)..."
+    Write-Info "Enabling SMB Signing and Encryption (CRITICAL Security)..."
     
     # SMB Signing (Server + Client) - CRITICAL!
     Set-RegistryValue -Path $smbClientPath -Name "EnableSecuritySignature" -Value 1 -Type DWord `
@@ -1022,12 +1026,12 @@ function Set-SMBHardening {
     Set-RegistryValue -Path $smbServerPath -Name "RejectUnencryptedAccess" -Value 1 -Type DWord `
         -Description "Unencrypted Access ablehnen"
     
-    Write-Success "SMB Signing und Encryption aktiviert"
+    Write-Success "SMB Signing and Encryption enabled"
     
     # ===========================
     # SMB GUEST AUTHENTICATION (Microsoft Baseline 25H2)
     # ===========================
-    Write-Info "Deaktiviere unsichere SMB Guest-Authentifizierung..."
+    Write-Info "Disabling insecure SMB Guest authentication..."
     
     # Disable insecure guest logons (Workstation/Client)
     $smbPolicyPath = "HKLM:\Software\Policies\Microsoft\Windows\LanmanWorkstation"
@@ -1043,7 +1047,7 @@ function Set-SMBHardening {
     Set-RegistryValue -Path $smb1DriverPath -Name "Start" -Value 4 -Type DWord `
         -Description "SMB1 Client Driver deaktivieren (Disabled = 4)"
     
-    Write-Success "SMB Guest Auth deaktiviert, SMB1 Driver disabled"
+    Write-Success "SMB Guest Auth disabled, SMB1 Driver disabled"
     
     # ===========================
     # NTLM SIGNING
@@ -1056,17 +1060,17 @@ function Set-SMBHardening {
     $llmnrPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\DNSClient"
     [void](Set-RegistryValue -Path $llmnrPath -Name "EnableMulticast" -Value 0 -Type DWord -Description "LLMNR deaktivieren")
     
-    Write-Success "SMB/NTLM/LLMNR gehaertet"
+    Write-Success "SMB/NTLM/LLMNR hardened"
 }
 
 function Disable-AnonymousSIDEnumeration {
     <#
     .SYNOPSIS
-        Verhindert Anonymous SID Enumeration und deaktiviert LM Hashes
+        Prevents Anonymous SID Enumeration and disables LM Hashes
     .DESCRIPTION
-        DoD STIG CAT II Requirement: Verhindert dass anonyme Benutzer
-        User-Accounts und SIDs enumerieren koennen.
-        Deaktiviert unsichere LM Hashes (DES-basiert, seit 1992 veraltet).
+        DoD STIG CAT II Requirement: Prevents anonymous users from
+        enumerating user accounts and SIDs.
+        Disables insecure LM Hashes (DES-based, deprecated since 1992).
     .EXAMPLE
         Disable-AnonymousSIDEnumeration
     #>
@@ -1074,7 +1078,7 @@ function Disable-AnonymousSIDEnumeration {
     [OutputType([void])]
     param()
     
-    Write-Section "Anonymous SID Enumeration verhindern"
+    Write-Section "Prevent Anonymous SID Enumeration"
     
     $lsaPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Lsa"
     
@@ -1090,18 +1094,18 @@ function Disable-AnonymousSIDEnumeration {
     Set-RegistryValue -Path $lsaPath -Name "NoLMHash" -Value 1 -Type DWord `
         -Description "LM Hashes deaktivieren (veraltet seit 1992)"
     
-    Write-Success "Anonymous SID Enumeration verhindert"
+    Write-Success "Anonymous SID Enumeration prevented"
     Write-Info "EveryoneIncludesAnonymous = 0 (DoD STIG CAT II)"
-    Write-Info "NoLMHash = 1 (LM Hashes deaktiviert)"
+    Write-Info "NoLMHash = 1 (LM Hashes disabled)"
 }
 
 function Disable-NetworkLegacyProtocols {
     <#
     .SYNOPSIS
-        Deaktiviert Legacy-Netzwerkprotokolle (mDNS, WPAD, LLMNR, NetBIOS, SSDP, WSD)
+        Disables Legacy Network Protocols (mDNS, WPAD, LLMNR, NetBIOS, SSDP, WSD)
     .DESCRIPTION
-        Erstellt 13 Firewall-Regeln zum Blockieren von Legacy-Protokollen.
-        Best Practice 25H2: CmdletBinding, Out-Null ersetzt, Error-Handling.
+        Creates 13 Firewall rules to block legacy protocols.
+        Best Practice 25H2: CmdletBinding, Out-Null replaced, Error-Handling.
     .EXAMPLE
         Disable-NetworkLegacyProtocols
     #>
@@ -1109,7 +1113,7 @@ function Disable-NetworkLegacyProtocols {
     [OutputType([void])]
     param()
     
-    Write-Section "Legacy-Netzwerkprotokolle deaktivieren (mDNS/WPAD)"
+    Write-Section "Disable Legacy Network Protocols (mDNS/WPAD)"
     
     # Disable WPAD (Web Proxy Auto-Discovery)
     $wpadPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\Wpad"
@@ -1122,7 +1126,7 @@ function Disable-NetworkLegacyProtocols {
         -Description "WinHTTP WPAD deaktivieren")
     
     # ===== TRIPLE-KILL: Firewall rules for ALL legacy protocols =====
-    Write-Info "Firewall-Regeln werden erstellt (Triple-Kill Mode)..."
+    Write-Info "Creating firewall rules (Triple-Kill Mode)..."
     
     # All rules have unique NoID- prefix for idempotency
     $firewallRules = @(
@@ -1163,20 +1167,20 @@ function Disable-NetworkLegacyProtocols {
                 }
                 
                 [void](New-NetFirewallRule @params -ErrorAction Stop)
-                Write-Verbose "     Firewall-Regel erstellt: $($rule.Name)"
+                Write-Verbose "     Firewall rule created: $($rule.Name)"
                 $createdRules++
             }
             else {
-                Write-Verbose "     Firewall-Regel existiert bereits: $($rule.Name)"
+                Write-Verbose "     Firewall rule already exists: $($rule.Name)"
                 $existingRules++
             }
         }
         catch {
-            Write-Verbose "     Fehler bei Regel $($rule.Name): $_"
+            Write-Verbose "     Error with rule $($rule.Name): $_"
         }
     }
     
-    Write-Success "Triple-Kill Firewall-Regeln: $createdRules neu erstellt, $($firewallRules.Count - $createdRules) bereits vorhanden"
+    Write-Success "Triple-Kill Firewall rules: $createdRules newly created, $($firewallRules.Count - $createdRules) already existing"
     
     # Disable WlanSvc mDNS (Windows 11 specific)
     $wlanPath = "HKLM:\SYSTEM\CurrentControlSet\Services\WlanSvc\Parameters"
@@ -1188,17 +1192,17 @@ function Disable-NetworkLegacyProtocols {
     [void](Set-RegistryValue -Path $llmnrPath -Name "EnableMulticast" -Value 0 -Type DWord `
         -Description "LLMNR deaktivieren (redundant check)")
     
-    Write-Success "Legacy-Netzwerkprotokolle deaktiviert (WPAD/mDNS/LLMNR)"  
+    Write-Success "Legacy network protocols disabled (WPAD/mDNS/LLMNR)"  
 }
 
 function Enable-NetworkStealthMode {
     <#
     .SYNOPSIS
-        Aktiviert Network Stealth Mode
+        Enables Network Stealth Mode
     .DESCRIPTION
-        Deaktiviert Network Discovery, Broadcasting, File Sharing, P2P.
-        Best Practice 25H2: CmdletBinding, Out-Null ersetzt, Error-Handling.
-        ACHTUNG: WLAN bleibt aktiv, aber System ist im Netzwerk unsichtbar!
+        Disables Network Discovery, Broadcasting, File Sharing, P2P.
+        Best Practice 25H2: CmdletBinding, Out-Null replaced, Error-Handling.
+        WARNING: WLAN remains active, but system is invisible in network!
     .EXAMPLE
         Enable-NetworkStealthMode
     #>
@@ -1206,19 +1210,19 @@ function Enable-NetworkStealthMode {
     [OutputType([void])]
     param()
     
-    Write-Section "Network Stealth Mode (unsichtbar im Netzwerk)"
+    Write-Section "Network Stealth Mode (invisible in network)"
     
-    Write-Info "Network Discovery und Broadcasting wird deaktiviert..."
+    Write-Info "Disabling Network Discovery and Broadcasting..."
     
     # Disable Network Discovery completely (Registry)
     $netDiscPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Network\NewNetworkWindowOff"
     if (-not (Test-Path -Path $netDiscPath)) {
         try {
             $null = New-Item -Path $netDiscPath -Force -ErrorAction Stop
-            Write-Verbose "Network Discovery Registry-Key erstellt"
+            Write-Verbose "Network Discovery registry key created"
         }
         catch {
-            Write-Verbose "Fehler beim Erstellen des Network Discovery Keys: $_"
+            Write-Verbose "Error creating Network Discovery key: $_"
         }
     }
     
@@ -1229,16 +1233,16 @@ function Enable-NetworkStealthMode {
     
     # Disable File and Printer Sharing (Firewall rules)
     try {
-        Write-Info "File and Printer Sharing Firewall-Regeln werden deaktiviert..."
+        Write-Info "Disabling File and Printer Sharing firewall rules..."
         
         # SilentlyContinue if rules don't exist (Windows 11 25H2)
         Disable-NetFirewallRule -DisplayGroup "File and Printer Sharing" -ErrorAction SilentlyContinue
         Disable-NetFirewallRule -DisplayGroup "Network Discovery" -ErrorAction SilentlyContinue
         
-        Write-Success "File and Printer Sharing Firewall-Regeln deaktiviert"
+        Write-Success "File and Printer Sharing firewall rules disabled"
     }
     catch {
-        Write-Verbose "Firewall-Regeln Fehler: $_"
+        Write-Verbose "Firewall rules error: $_"
     }
     
     # Network Location Awareness (NLA) - keep core only
@@ -1248,14 +1252,14 @@ function Enable-NetworkStealthMode {
     $homegroupServices = @("HomeGroupListener", "HomeGroupProvider")
     foreach ($hgSvc in $homegroupServices) {
         if (Stop-ServiceSafe -ServiceName $hgSvc) {
-            Write-Verbose "$hgSvc deaktiviert"
+            Write-Verbose "$hgSvc disabled"
         }
         else {
-            Write-Verbose "$hgSvc nicht gefunden (normal in Windows 11 25H2)"
+            Write-Verbose "$hgSvc not found (normal in Windows 11 25H2)"
         }
     }
     
-    # Network List Manager Policies (automatisches Netzwerk-Profil-Switching reduzieren)
+    # Network List Manager Policies (reduce automatic network profile switching)
     $nlmPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Network Connections"
     [void](Set-RegistryValue -Path $nlmPath -Name "NC_AllowNetBridge_NLA" -Value 0 -Type DWord `
         -Description "Network Bridge deaktivieren")
@@ -1278,25 +1282,25 @@ function Enable-NetworkStealthMode {
     [void](Set-RegistryValue -Path $p2pPath -Name "Disabled" -Value 1 -Type DWord `
         -Description "Peer-to-Peer Networking deaktivieren")
     
-    # Verhindere automatische Netzwerk-Authentifizierung
+    # Prevent automatic network authentication
     $autoAuthPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System"
     [void](Set-RegistryValue -Path $autoAuthPath -Name "DisableAutomaticRestartSignOn" -Value 1 -Type DWord `
         -Description "Automatische Netzwerk-Authentifizierung deaktivieren")
     
-    Write-Success "Network Stealth Mode aktiviert (unsichtbar im Netzwerk, WLAN funktioniert)"
-    Write-Info "Broadcasting deaktiviert: mDNS, LLMNR, NetBIOS, SSDP, UPnP, Network Discovery, WSD"
+    Write-Success "Network Stealth Mode enabled (invisible in network, WLAN works)"
+    Write-Info "Broadcasting disabled: mDNS, LLMNR, NetBIOS, SSDP, UPnP, Network Discovery, WSD"
 }
 
 function Disable-UnnecessaryServices {
     <#
     .SYNOPSIS
-        Deaktiviert unnoetige Windows Services
+        Disables unnecessary Windows Services
     .DESCRIPTION
-        Deaktiviert 24 Services gemaess CIS Benchmark Level 1 + Level 2.
-        Best Practice 25H2: CmdletBinding, Try-Catch fuer jeden Service.
+        Disables 24 Services according to CIS Benchmark Level 1 + Level 2.
+        Best Practice 25H2: CmdletBinding, Try-Catch for each service.
         
-        WICHTIG: Smart Card Services (SCardSvr, ScDeviceEnum, SCPolicySvc) 
-        BLEIBEN AKTIV fuer Enterprise-Kompatibilitaet!
+        IMPORTANT: Smart Card Services (SCardSvr, ScDeviceEnum, SCPolicySvc) 
+        REMAIN ACTIVE for Enterprise compatibility!
     .EXAMPLE
         Disable-UnnecessaryServices
     #>
@@ -1323,7 +1327,7 @@ function Disable-UnnecessaryServices {
         @{Name="PNRPAutoReg"; DisplayName="PNRP Machine Name Publication"}
         @{Name="RpcLocator"; DisplayName="Remote Procedure Call (RPC) Locator"}
         @{Name="RemoteAccess"; DisplayName="Routing and Remote Access"}
-        # [OK] Smart Card Services BLEIBEN AKTIV (User-Request)
+        # [OK] Smart Card Services REMAIN ACTIVE (User-Request)
         # @{Name="SCardSvr"; DisplayName="Smart Card"}  # DO NOT DISABLE
         # @{Name="ScDeviceEnum"; DisplayName="Smart Card Device Enumeration"}  # DO NOT DISABLE
         # @{Name="SCPolicySvc"; DisplayName="Smart Card Removal Policy"}  # DO NOT DISABLE
@@ -1369,10 +1373,10 @@ function Disable-UnnecessaryServices {
 function Disable-AdministrativeShares {
     <#
     .SYNOPSIS
-        Deaktiviert Administrative Shares und haertet IPC$
+        Disables Administrative Shares and hardens IPC$
     .DESCRIPTION
-        Deaktiviert C$, ADMIN$, etc. und haertet IPC$ gegen Anonymous Access.
-        Best Practice 25H2: CmdletBinding, Try-Catch fuer Firewall-Ops.
+        Disables C$, ADMIN$, etc. and hardens IPC$ against Anonymous Access.
+        Best Practice 25H2: CmdletBinding, Try-Catch for Firewall-Ops.
     .EXAMPLE
         Disable-AdministrativeShares
     #>
@@ -1528,15 +1532,15 @@ function Disable-AdministrativeShares {
 function Set-SecureAdministratorAccount {
     <#
     .SYNOPSIS
-        Haertet den Built-in Administrator Account
+        Hardens the Built-in Administrator Account
     .DESCRIPTION
-        Benennt den Administrator um, setzt ein kryptographisch sicheres Passwort und deaktiviert ihn.
-        Best Practice 25H2: RandomNumberGenerator API (modern, cross-platform), KEINE Klartext-Passwoerter!
+        Renames the Administrator, sets a cryptographically secure password and disables it.
+        Best Practice 25H2: RandomNumberGenerator API (modern, cross-platform), NO cleartext passwords!
         
-        ! WICHTIG: Das Passwort wird NICHT gespeichert (Security Best Practice)!
-        Verwenden Sie stattdessen LAPS (Local Administrator Password Solution).
+        ! IMPORTANT: The password is NOT saved (Security Best Practice)!
+        Use LAPS (Local Administrator Password Solution) instead.
     .OUTPUTS
-        [bool] $true bei Erfolg, $false bei Fehler
+        [bool] $true on success, $false on error
     .EXAMPLE
         Set-SecureAdministratorAccount
     #>
@@ -1561,7 +1565,7 @@ function Set-SecureAdministratorAccount {
             return $false
         }
         
-        # Neuer Name (kryptographisch sicher randomisiert)
+        # New name (cryptographically secure randomized)
         # Best Practice 25H2: RandomNumberGenerator API (korrekte Verwendung)
         $rng = [System.Security.Cryptography.RandomNumberGenerator]::Create()
         $randomBytes = New-Object byte[] 4
@@ -1619,16 +1623,16 @@ function Set-SecureAdministratorAccount {
             Write-Warning-Custom (Get-LocalizedString 'CoreAdminAccountDisableError' -FormatArgs $_)
         }
         
-        # WICHTIGE HINWEISE
+        # IMPORTANT NOTES
         Write-Warning-Custom (Get-LocalizedString 'CoreAdminAccountWarning1')
         Write-Warning-Custom (Get-LocalizedString 'CoreAdminAccountWarning2')
         Write-Warning-Custom (Get-LocalizedString 'CoreAdminAccountWarning3')
-        Write-Host "" # Best Practice 25H2: Write-Host fuer leere Zeilen, nicht Write-Warning-Custom
+        Write-Host "" # Best Practice 25H2: Write-Host for empty lines, not Write-Warning-Custom
         Write-Info (Get-LocalizedString 'CoreAdminAccountSolutions')
         Write-Info (Get-LocalizedString 'CoreAdminAccountLAPS')
         Write-Info (Get-LocalizedString 'CoreAdminAccountEntra')
         Write-Info (Get-LocalizedString 'CoreAdminAccountJIT')
-        Write-Host "" # Best Practice 25H2: Write-Host fuer leere Zeilen, nicht Write-Warning-Custom
+        Write-Host "" # Best Practice 25H2: Write-Host for empty lines, not Write-Warning-Custom
         Write-Warning-Custom (Get-LocalizedString 'CoreAdminAccountWarning4')
         Write-Warning-Custom (Get-LocalizedString 'CoreAdminAccountWarning5')
         Write-Warning-Custom (Get-LocalizedString 'CoreAdminAccountWarning1')
@@ -1647,7 +1651,7 @@ function Set-SecureAdministratorAccount {
                     Write-Info (Get-LocalizedString 'CoreAdminAccountGuestDisabled')
                 }
                 
-                # Rename (Defense-in-Depth: Name verschleiern)
+                # Rename (Defense-in-Depth: Obfuscate name)
                 $rngGuest = [System.Security.Cryptography.RandomNumberGenerator]::Create()
                 $randomBytesGuest = New-Object byte[] 4
                 $rngGuest.GetBytes($randomBytesGuest)
@@ -1700,10 +1704,10 @@ function Set-SecureAdministratorAccount {
 function Enable-CloudflareDNSoverHTTPS {
     <#
     .SYNOPSIS
-        Konfiguriert Cloudflare DNS over HTTPS (DoH)
+        Configures Cloudflare DNS over HTTPS (DoH)
     .DESCRIPTION
-        Aktiviert Windows 11 native DoH und setzt DNS auf Cloudflare 1.1.1.1.
-        Best Practice 25H2: CmdletBinding, Try-Catch fuer DNS-Ops, Restart-Service Error-Handling.
+        Enables Windows 11 native DoH and sets DNS to Cloudflare 1.1.1.1.
+        Best Practice 25H2: CmdletBinding, Try-Catch for DNS-Ops, Restart-Service Error-Handling.
         
         [!] IMPORTANT - NO DNS FALLBACK FOR SECURITY REASONS!
         
@@ -2076,7 +2080,7 @@ function Enable-CloudflareDNSoverHTTPS {
         }
     }
     catch {
-        Write-Verbose "DNS Cache konnte nicht geleert werden: $_"
+        Write-Verbose "Could not flush DNS cache: $_"
     }
     finally {
         # Garantierter Job-Cleanup
@@ -2089,7 +2093,7 @@ function Enable-CloudflareDNSoverHTTPS {
     # Best Practice 25H2: Service is protected and leads to script hang
     # DoH will automatically activate on next DNS request
     Write-Info (Get-LocalizedString 'CoreDNSActivation')
-    Write-Verbose "DNS Client Service wird NICHT neu gestartet (geschuetzter Service)"
+    Write-Verbose "DNS Client Service will NOT be restarted (protected service)"
     
     # VALIDATION: Check if DoH is really configured
     Write-Host ""
@@ -2106,10 +2110,10 @@ function Enable-CloudflareDNSoverHTTPS {
                     $serverTemplate = $server.DohTemplate
                     Write-Verbose "     ServerAddress: $serverAddr, Template: $serverTemplate"
                     if ($server.AllowFallbackToUdp -eq $false) {
-                        Write-Verbose "     Kein Fallback auf unverschluesselt (Maximum Security!)"
+                        Write-Verbose "     No fallback to unencrypted (Maximum Security!)"
                     }
                     else {
-                        Write-Warning "     Fallback auf unverschluesselt MOEGLICH (nicht ideal!)"
+                        Write-Warning "     Fallback to unencrypted POSSIBLE (not ideal!)"
                     }
                 }
             }
@@ -2126,7 +2130,7 @@ function Enable-CloudflareDNSoverHTTPS {
         }
     }
     catch {
-        Write-Verbose "DoH-Validierung fehlgeschlagen (nicht kritisch): $_"
+        Write-Verbose "DoH validation failed (non-critical): $_"
     }
     
     Write-Host ""
@@ -2145,10 +2149,10 @@ function Enable-CloudflareDNSoverHTTPS {
 function Disable-RemoteAccessCompletely {
     <#
     .SYNOPSIS
-        Deaktiviert ALLE Remote-Zugriffsmethoden komplett
+        Disables ALL Remote Access methods completely
     .DESCRIPTION
-        Deaktiviert RDP, Remote Registry, Remote Assistance, Remote Scheduled Tasks und WinRM.
-        Erstellt zusaetzlich Block-Regeln in der Firewall.
+        Disables RDP, Remote Registry, Remote Assistance, Remote Scheduled Tasks and WinRM.
+        Additionally creates block rules in the Firewall.
         Best Practice 25H2: CmdletBinding.
     .EXAMPLE
         Disable-RemoteAccessCompletely
@@ -2162,7 +2166,7 @@ function Disable-RemoteAccessCompletely {
     # ===== RDP (Remote Desktop) ALWAYS disable (not optional!) =====
     Write-Info (Get-LocalizedString 'CoreRemoteRDPDisabling')
     
-    # Registry: RDP ausschalten
+    # Registry: Turn off RDP
     $rdpPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server"
     Set-RegistryValue -Path $rdpPath -Name "fDenyTSConnections" -Value 1 -Type DWord `
         -Description "RDP-Verbindungen verweigern"
@@ -2187,7 +2191,7 @@ function Disable-RemoteAccessCompletely {
         Write-Warning (Get-LocalizedString 'CoreRemoteRDPFailed')
     }
     
-    # Firewall-Regeln HART blockieren
+    # HARD block Firewall rules
     try {
         # SilentlyContinue if rules don't exist (Windows 11 25H2)
         Disable-NetFirewallRule -DisplayGroup "Remote Desktop" -ErrorAction SilentlyContinue
@@ -2202,9 +2206,9 @@ function Disable-RemoteAccessCompletely {
                                -Action Block `
                                -Profile Any `
                                -Enabled True -ErrorAction Stop
-            Write-Verbose "  -> Explicit Block-Regel fuer RDP Port 3389 erstellt"
+            Write-Verbose "  -> Explicit block rule for RDP port 3389 created"
         } else {
-            Write-Verbose "  -> Block-Regel fuer RDP existiert bereits"
+            Write-Verbose "  -> Block rule for RDP already exists"
         }
         
         Write-Success (Get-LocalizedString 'CoreRemoteRDPFirewall')
@@ -2281,10 +2285,10 @@ function Disable-RemoteAccessCompletely {
 function Disable-SudoForWindows {
     <#
     .SYNOPSIS
-        Deaktiviert Sudo for Windows (Microsoft Baseline 25H2)
+        Disables Sudo for Windows (Microsoft Baseline 25H2)
     .DESCRIPTION
-        Sudo for Windows kann als Privilege Escalation Vector genutzt werden.
-        Microsoft Security Baseline 25H2 empfiehlt: Disabled.
+        Sudo for Windows can be used as Privilege Escalation vector.
+        Microsoft Security Baseline 25H2 recommends: Disabled.
     .EXAMPLE
         Disable-SudoForWindows
     #>
@@ -2306,11 +2310,11 @@ function Disable-SudoForWindows {
 function Set-KerberosPKINITHashAgility {
     <#
     .SYNOPSIS
-        Aktiviert Kerberos PKINIT Hash-Agilitaet (SHA-256/384/512, OHNE SHA-1)
+        Enables Kerberos PKINIT Hash Agility (SHA-256/384/512, WITHOUT SHA-1)
     .DESCRIPTION
-        Konfiguriert Kerberos zur Verwendung von SHA-256/384/512 statt SHA-1.
-        Microsoft Baseline 25H2: SHA-1 NICHT unterstuetzen!
-        Best Practice: Nur SHA-2 Familie (256/384/512).
+        Configures Kerberos to use SHA-256/384/512 instead of SHA-1.
+        Microsoft Baseline 25H2: DO NOT support SHA-1!
+        Best Practice: Only SHA-2 family (256/384/512).
     .EXAMPLE
         Set-KerberosPKINITHashAgility
     #>
@@ -2354,9 +2358,9 @@ function Set-KerberosPKINITHashAgility {
 function Set-MarkOfTheWeb {
     <#
     .SYNOPSIS
-        Aktiviert Mark-of-the-Web (MotW)
+        Enables Mark-of-the-Web (MotW)
     .DESCRIPTION
-        Erzwingt Zone Information und AV-Scan fuer Downloads.
+        Enforces Zone Information and AV-Scan for downloads.
         Best Practice 25H2: CmdletBinding.
     .EXAMPLE
         Set-MarkOfTheWeb
@@ -2385,10 +2389,10 @@ function Set-MarkOfTheWeb {
 function Enable-CredentialGuard {
     <#
     .SYNOPSIS
-        Aktiviert Credential Guard und VBS
+        Enables Credential Guard and VBS
     .DESCRIPTION
-        Aktiviert Virtualization-Based Security, Credential Guard, HVCI und LSA-PPL.
-        Best Practice 25H2: CmdletBinding. Benoetigt Neustart!
+        Enables Virtualization-Based Security, Credential Guard, HVCI and LSA-PPL.
+        Best Practice 25H2: CmdletBinding. Requires reboot!
     .EXAMPLE
         Enable-CredentialGuard
     #>
@@ -2396,7 +2400,7 @@ function Enable-CredentialGuard {
     [OutputType([void])]
     param()
     
-    Write-Section "Credential Guard und VBS"
+    Write-Section "Credential Guard and VBS"
     
     $dgPath = "HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard"
     $lsaPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Lsa"
@@ -2423,8 +2427,8 @@ function Enable-CredentialGuard {
     # LSA Protection
     [void](Set-RegistryValue -Path $lsaPath -Name "RunAsPPL" -Value 1 -Type DWord -Description "LSA als PPL")
     
-    Write-Success "Credential Guard, VBS, HVCI, LSA-PPL konfiguriert"
-    Write-Warning-Custom "Neustart erforderlich!"
+    Write-Success "Credential Guard, VBS, HVCI, LSA-PPL configured"
+    Write-Warning-Custom "Reboot required!"
 }
 
 #endregion
@@ -2434,7 +2438,7 @@ function Enable-CredentialGuard {
 function Enable-BitLockerPolicies {
     <#
     .SYNOPSIS
-        Konfiguriert BitLocker Policies
+        Configures BitLocker Policies
     .DESCRIPTION
         Enables XTS-AES-256 Encryption, TPM 2.0 + PIN Policies.
         IMPORTANT: Checks if BitLocker is already enabled (Windows 11 Auto-Encryption!)
@@ -2502,11 +2506,11 @@ function Enable-BitLockerPolicies {
             $blVolume = Get-BitLockerVolume -MountPoint "C:" -ErrorAction SilentlyContinue
             if ($blVolume -and ($blVolume.EncryptionMethod -eq 'XtsAes256' -or $blVolume.EncryptionMethod -eq 'Aes256')) {
                 $hasAESNI = $true
-                Write-Verbose "AES-256 bereits aktiv - AES-NI wird unterstuetzt"
+                Write-Verbose "AES-256 already active - AES-NI is supported"
             }
         }
         catch {
-            Write-Verbose "BitLocker-Check fehlgeschlagen: $_"
+            Write-Verbose "BitLocker check failed: $_"
         }
         
         # Fallback: Check CPU generation/age based on name
@@ -2526,25 +2530,25 @@ function Enable-BitLockerPolicies {
             if ($cpuName -match "Core 2|Pentium(?! Gold)|Celeron|Atom") {
                 # Intel old CPUs - NO AES-NI
                 Write-Host ""
-                Write-Warning-Custom "CPU OHNE AES-NI SUPPORT ERKANNT: $cpuName"
-                Write-Warning-Custom "AES-256 wird nicht optimal unterstuetzt!"
-                Write-Warning-Custom "AES-256 Policy wird NICHT gesetzt"
+                Write-Warning-Custom "CPU WITHOUT AES-NI SUPPORT DETECTED: $cpuName"
+                Write-Warning-Custom "AES-256 is not optimally supported!"
+                Write-Warning-Custom "AES-256 Policy will NOT be set"
                 Write-Host ""
-                Write-Info "BitLocker bleibt bei AES-128 (optimal fuer diese Hardware)"
-                Write-Info "AES-128 ist sicher und auf dieser CPU schneller"
+                Write-Info "BitLocker remains at AES-128 (optimal for this hardware)"
+                Write-Info "AES-128 is secure and faster on this CPU"
                 Write-Host ""
-                return  # Beende Funktion - KEINE Policy setzen!
+                return  # Exit function - NO Policy set!
             }
             # Intel Server old CPUs - Xeon 5500 and older (before Westmere 2010)
             elseif ($cpuName -match "Xeon.*(5[0-5]\d{2}|3[0-4]\d{2}|7[0-4]\d{2})") {
                 # Xeon 5500 and older - NO AES-NI
                 Write-Host ""
-                Write-Warning-Custom "CPU OHNE AES-NI SUPPORT ERKANNT: $cpuName"
-                Write-Warning-Custom "Alter Intel Xeon (vor Westmere 2010) hat KEIN AES-NI!"
-                Write-Warning-Custom "AES-256 Policy wird NICHT gesetzt"
+                Write-Warning-Custom "CPU WITHOUT AES-NI SUPPORT DETECTED: $cpuName"
+                Write-Warning-Custom "Old Intel Xeon (before Westmere 2010) has NO AES-NI!"
+                Write-Warning-Custom "AES-256 Policy will NOT be set"
                 Write-Host ""
-                Write-Info "BitLocker bleibt bei AES-128 (optimal fuer diese Hardware)"
-                Write-Info "AES-128 ist sicher und auf dieser CPU schneller"
+                Write-Info "BitLocker remains at AES-128 (optimal for this hardware)"
+                Write-Info "AES-128 is secure and faster on this CPU"
                 Write-Host ""
                 return
             }
@@ -2552,12 +2556,12 @@ function Enable-BitLockerPolicies {
             elseif ($cpuName -match "Athlon 64|Athlon FX|Athlon II|Phenom") {
                 # AMD K8/K10 architecture - NO AES-NI
                 Write-Host ""
-                Write-Warning-Custom "CPU OHNE AES-NI SUPPORT ERKANNT: $cpuName"
-                Write-Warning-Custom "AMD K8/K10 Architektur (vor Bulldozer 2011) hat KEIN AES-NI!"
-                Write-Warning-Custom "AES-256 Policy wird NICHT gesetzt"
+                Write-Warning-Custom "CPU WITHOUT AES-NI SUPPORT DETECTED: $cpuName"
+                Write-Warning-Custom "AMD K8/K10 Architecture (before Bulldozer 2011) has NO AES-NI!"
+                Write-Warning-Custom "AES-256 Policy will NOT be set"
                 Write-Host ""
-                Write-Info "BitLocker bleibt bei AES-128 (optimal fuer diese Hardware)"
-                Write-Info "AES-128 ist sicher und auf dieser CPU schneller"
+                Write-Info "BitLocker remains at AES-128 (optimal for this hardware)"
+                Write-Info "AES-128 is secure and faster on this CPU"
                 Write-Host ""
                 return
             }
@@ -2565,12 +2569,12 @@ function Enable-BitLockerPolicies {
             elseif ($cpuName -match "Opteron" -and $cpuName -notmatch "Opteron.*(62|63|64|65|66|67|68|69)\d{2}") {
                 # Opteron before Bulldozer - NO AES-NI (62xx+ have AES-NI)
                 Write-Host ""
-                Write-Warning-Custom "CPU OHNE AES-NI SUPPORT ERKANNT: $cpuName"
-                Write-Warning-Custom "Alter AMD Opteron (vor Bulldozer 2011) hat KEIN AES-NI!"
-                Write-Warning-Custom "AES-256 Policy wird NICHT gesetzt"
+                Write-Warning-Custom "CPU WITHOUT AES-NI SUPPORT DETECTED: $cpuName"
+                Write-Warning-Custom "Old AMD Opteron (before Bulldozer 2011) has NO AES-NI!"
+                Write-Warning-Custom "AES-256 Policy will NOT be set"
                 Write-Host ""
-                Write-Info "BitLocker bleibt bei AES-128 (optimal fuer diese Hardware)"
-                Write-Info "AES-128 ist sicher und auf dieser CPU schneller"
+                Write-Info "BitLocker remains at AES-128 (optimal for this hardware)"
+                Write-Info "AES-128 is secure and faster on this CPU"
                 Write-Host ""
                 return
             }
@@ -2580,11 +2584,11 @@ function Enable-BitLockerPolicies {
                     $cpuName -notmatch "Athlon\s+(Gold|Silver|[0-9]{3,4}[GU])") {
                 # Very old or unknown Athlon - probably no AES-NI
                 Write-Host ""
-                Write-Warning-Custom "CPU OHNE AES-NI SUPPORT ERKANNT: $cpuName"
-                Write-Warning-Custom "Alte AMD Athlon CPU - wahrscheinlich kein AES-NI!"
-                Write-Warning-Custom "AES-256 Policy wird NICHT gesetzt"
+                Write-Warning-Custom "CPU WITHOUT AES-NI SUPPORT DETECTED: $cpuName"
+                Write-Warning-Custom "Old AMD Athlon CPU - probably no AES-NI!"
+                Write-Warning-Custom "AES-256 Policy will NOT be set"
                 Write-Host ""
-                Write-Info "BitLocker bleibt bei AES-128 (optimal fuer diese Hardware)"
+                Write-Info "BitLocker remains at AES-128 (optimal for this hardware)"
                 Write-Host ""
                 return
             }
@@ -2593,27 +2597,27 @@ function Enable-BitLockerPolicies {
             # Pattern: i7-2XXX (4-digit, starts with 2), then no additional digit
             elseif ($cpuName -match "i[357]-2\d{3}(?!\d)") {
                 Write-Host ""
-                Write-Warning-Custom "CPU OHNE AES-NI SUPPORT ERKANNT: $cpuName"
-                Write-Warning-Custom "Intel Core i-Serie Gen 2 (Sandy Bridge 2011) hat KEIN AES-NI!"
-                Write-Warning-Custom "AES-256 Policy wird NICHT gesetzt"
+                Write-Warning-Custom "CPU WITHOUT AES-NI SUPPORT DETECTED: $cpuName"
+                Write-Warning-Custom "Intel Core i-Series Gen 2 (Sandy Bridge 2011) has NO AES-NI!"
+                Write-Warning-Custom "AES-256 Policy will NOT be set"
                 Write-Host ""
-                Write-Info "BitLocker bleibt bei AES-128 (optimal fuer diese Hardware)"
+                Write-Info "BitLocker remains at AES-128 (optimal for this hardware)"
                 Write-Host ""
                 return
             }
             else {
-                # Moderne CPU - wahrscheinlich AES-NI Support
+                # Modern CPU - probably AES-NI support
                 $hasAESNI = $true
-                Write-Verbose "Moderne CPU erkannt - AES-NI wird angenommen: $cpuName"
+                Write-Verbose "Modern CPU detected - AES-NI assumed: $cpuName"
             }
         }
         
-        Write-Info "CPU mit AES-NI Support: $cpuName"
+        Write-Info "CPU with AES-NI support: $cpuName"
     }
     catch {
-        Write-Verbose "AES-NI Check fehlgeschlagen: $_"
-        Write-Warning "AES-NI Check fehlgeschlagen - Policy wird trotzdem gesetzt"
-        $hasAESNI = $true  # Im Zweifelsfall Policy setzen
+        Write-Verbose "AES-NI check failed: $_"
+        Write-Warning "AES-NI Check failed - Policy will still be set"
+        $hasAESNI = $true  # When in doubt, set Policy
     }
     
     # CHECK 2: Is BitLocker already activated? (Windows 11 often activates it automatically!)
@@ -2626,16 +2630,16 @@ function Enable-BitLockerPolicies {
         $bitlockerStatus = $blVolume.ProtectionStatus
         
         if ($bitlockerActive) {
-            Write-Info "BitLocker ist bereits AKTIV (ProtectionStatus: On)"
+            Write-Info "BitLocker is already ACTIVE (ProtectionStatus: On)"
             Write-Info ("Encryption: " + $blVolume.EncryptionPercentage + "% | Method: " + $blVolume.EncryptionMethod)
         }
         else {
-            Write-Info ("BitLocker ist NICHT aktiv (ProtectionStatus: " + $bitlockerStatus + ")")
+            Write-Info ("BitLocker is NOT active (ProtectionStatus: " + $bitlockerStatus + ")")
         }
     }
     catch {
-        Write-Verbose "BitLocker-Status konnte nicht abgerufen werden: $_"
-        Write-Info "BitLocker-Status: Unbekannt (eventuell nicht vorhanden)"
+        Write-Verbose "Could not retrieve BitLocker status: $_"
+        Write-Info "BitLocker Status: Unknown (possibly not available)"
     }
     
     $fvePath = "HKLM:\SOFTWARE\Policies\Microsoft\FVE"
@@ -2662,88 +2666,88 @@ function Enable-BitLockerPolicies {
     # IMPORTANT: RequireActiveDirectoryBackup is INTENTIONALLY NOT set!
     # Reason: Causes yellow warning icon with already activated BitLocker without AD
     
-    Write-Success "BitLocker Policies konfiguriert (XTS-AES-256 + TPM Optional)"
+    Write-Success "BitLocker Policies configured (XTS-AES-256 + TPM Optional)"
     
     if ($bitlockerActive) {
-        Write-Info 'BitLocker ist bereits aktiv - Policies gelten fuer zukuenftige Aenderungen'
+        Write-Info 'BitLocker is already active - Policies apply to future changes'
         Write-Host ""
         Write-Info 'RECOVERY KEY BACKUP:'
-        Write-Info '  1. Microsoft-Konto (empfohlen): https://account.microsoft.com/devices/recoverykey'
-        Write-Info '  2. Lokal anzeigen: manage-bde -protectors -get C:'
-        Write-Info '  3. USB-Stick oder ausdrucken fuer physisches Backup'
+        Write-Info '  1. Microsoft Account (recommended): https://account.microsoft.com/devices/recoverykey'
+        Write-Info '  2. Display locally: manage-bde -protectors -get C:'
+        Write-Info '  3. USB stick or print for physical backup'
         Write-Host ""
-        Write-Warning-Custom 'Ohne Recovery Key sind Daten bei TPM-Defekt PERMANENT verloren!'
+        Write-Warning-Custom 'Without Recovery Key, data is PERMANENTLY lost if TPM fails!'
     }
     else {
-        Write-Info 'BitLocker kann manuell aktiviert werden: Systemsteuerung | BitLocker'
+        Write-Info 'BitLocker can be activated manually: Control Panel | BitLocker'
         Write-Host ""
-        Write-Info 'EMPFEHLUNG bei Aktivierung:'
-        Write-Info '  - Speichere Recovery Key im Microsoft-Konto (automatisch + sicher)'
-        Write-Info '  - Alternative: USB-Stick oder ausdrucken'
+        Write-Info 'RECOMMENDATION on activation:'
+        Write-Info '  - Save Recovery Key in Microsoft Account (automatic + secure)'
+        Write-Info '  - Alternative: USB stick or print'
         Write-Host ""
-        Write-Warning-Custom 'WICHTIG: Recovery Key IMMER an sicherem Ort speichern!'
+        Write-Warning-Custom 'IMPORTANT: ALWAYS store Recovery Key in secure location!'
     }
 }
 
 function Test-BitLockerEncryptionMethod {
     <#
     .SYNOPSIS
-        Prueft BitLocker Verschluesselungsmethode und zeigt GUI-Anleitung
+        Checks BitLocker encryption method and shows GUI instructions
     .DESCRIPTION
-        Windows 11 aktiviert BitLocker automatisch mit AES-128 (Performance).
-        Unsere Policies setzen AES-256, aber das gilt NUR fuer NEUE Verschluesselung.
-        Diese Funktion prueft ob System mit AES-128 verschluesselt ist
-        und zeigt GUI-Anleitung fuer Upgrade auf AES-256.
-        WICHTIG: Alte CPUs (Core i3/i5/i7 Gen 2 und aelter, AMD Phenom II)
-        unterstuetzen NUR AES-128!
+        Windows 11 activates BitLocker automatically with AES-128 (Performance).
+        Our Policies set AES-256, but this applies ONLY to NEW encryption.
+        This function checks if system is encrypted with AES-128
+        and shows GUI instructions for upgrade to AES-256.
+        IMPORTANT: Old CPUs (Core i3/i5/i7 Gen 2 and older, AMD Phenom II)
+        support ONLY AES-128!
     #>
     [CmdletBinding()]
     param()
     
-    Write-Section "BitLocker Verschluesselungsmethode pruefen"
+    Write-Section "Check BitLocker Encryption Method"
     
     try {
         $blVolume = Get-BitLockerVolume -MountPoint "C:" -ErrorAction Stop
         $isActive = $blVolume.ProtectionStatus -eq 'On'
         
         if (-not $isActive) {
-            Write-Info "BitLocker ist nicht aktiv - keine Pruefung noetig"
+            Write-Info "BitLocker is not active - no check needed"
             return
         }
         
         $encMethod = $blVolume.EncryptionMethod
         Write-Info "BitLocker Status: $($blVolume.ProtectionStatus)"
-        Write-Info "Verschluesselungsmethode: $encMethod"
-        Write-Info "Verschluesselt: $($blVolume.EncryptionPercentage)%"
+        Write-Info "Encryption Method: $encMethod"
+        Write-Info "Encrypted: $($blVolume.EncryptionPercentage)%"
         
         # EncryptionMethod Werte:
         # None = 0, Aes128 = 1, Aes256 = 2, XtsAes128 = 6, XtsAes256 = 7
         $needsUpgrade = $encMethod -eq 'XtsAes128' -or $encMethod -eq 'Aes128'
         
         if (-not $needsUpgrade) {
-            Write-Success "BitLocker nutzt bereits AES-256! Keine Aktion noetig."
+            Write-Success "BitLocker already uses AES-256! No action needed."
             return
         }
         
-        # AES-128 erkannt!
+        # AES-128 detected!
         Write-Host ""
-        Write-Warning-Custom "BITLOCKER NUTZT NUR AES-128!"
+        Write-Warning-Custom "BITLOCKER USES ONLY AES-128!"
         Write-Host ""
-        Write-Host "  WARUM AES-128?" -ForegroundColor Cyan
-        Write-Host "    - Windows 11 aktiviert automatisch mit AES-128 (Performance)" -ForegroundColor White
-        Write-Host "    - 20-30% schneller als AES-256" -ForegroundColor White
-        Write-Host "    - Microsoft: 'ausreichend sicher fuer Consumer'" -ForegroundColor White
+        Write-Host "  WHY AES-128?" -ForegroundColor Cyan
+        Write-Host "    - Windows 11 activates automatically with AES-128 (Performance)" -ForegroundColor White
+        Write-Host "    - 20-30% faster than AES-256" -ForegroundColor White
+        Write-Host "    - Microsoft: 'sufficiently secure for Consumer'" -ForegroundColor White
         Write-Host ""
-        Write-Host "  WARUM UPGRADE AUF AES-256?" -ForegroundColor Cyan
+        Write-Host "  WHY UPGRADE TO AES-256?" -ForegroundColor Cyan
         Write-Host "    - Enterprise-Standard (NIST, CIS, DoD)" -ForegroundColor White
-        Write-Host "    - Future-Proof gegen Quantum-Computing" -ForegroundColor White
-        Write-Host "    - Compliance (manche Standards fordern 256-Bit)" -ForegroundColor White
+        Write-Host "    - Future-Proof against Quantum-Computing" -ForegroundColor White
+        Write-Host "    - Compliance (some standards require 256-Bit)" -ForegroundColor White
         Write-Host ""
-        Write-Host "  UNSERE POLICY:" -ForegroundColor Cyan
-        Write-Host "    - Neue Verschluesselung nutzt jetzt AES-256" -ForegroundColor Green
-        Write-Host "    - System-Partition bleibt AES-128 (bereits verschluesselt)" -ForegroundColor Yellow
+        Write-Host "  OUR POLICY:" -ForegroundColor Cyan
+        Write-Host "    - New encryption now uses AES-256" -ForegroundColor Green
+        Write-Host "    - System partition remains AES-128 (already encrypted)" -ForegroundColor Yellow
         Write-Host ""
-        Write-Host "  IHRE CPU-KOMPATIBILITAET:" -ForegroundColor Cyan
+        Write-Host "  YOUR CPU COMPATIBILITY:" -ForegroundColor Cyan
         
         # Check CPU generation and give CLEAR recommendation
         $cpuName = "Unknown"
@@ -2760,138 +2764,138 @@ function Test-BitLockerEncryptionMethod {
             # AMD Server: Opteron (before Bulldozer 2011)
             if ($cpuName -match "Core 2|Pentium(?! Gold)|Celeron|Atom") {
                 Write-Host ""
-                Write-Host "    [!] IHRE CPU:" -ForegroundColor Red
-                Write-Host "        - Unterstuetzt NUR AES-128 (kein AES-NI Support)" -ForegroundColor Red
-                Write-Host "        - AES-256 waere zu langsam auf dieser Hardware" -ForegroundColor Red
+                Write-Host "    [!] YOUR CPU:" -ForegroundColor Red
+                Write-Host "        - Supports ONLY AES-128 (no AES-NI support)" -ForegroundColor Red
+                Write-Host "        - AES-256 would be too slow on this hardware" -ForegroundColor Red
                 Write-Host ""
-                Write-Host "    [EMPFEHLUNG] BEHALTEN SIE AES-128!" -ForegroundColor Yellow
-                Write-Host "                 (Optimal fuer Ihre Hardware)" -ForegroundColor Yellow
+                Write-Host "    [RECOMMENDATION] KEEP AES-128!" -ForegroundColor Yellow
+                Write-Host "                 (Optimal for your hardware)" -ForegroundColor Yellow
                 Write-Host ""
-                Write-Info "AES-128 ist sicher! Kein Upgrade noetig auf alter Hardware."
-                return  # Beende Funktion - keine Upgrade-Anleitung zeigen!
+                Write-Info "AES-128 is secure! No upgrade needed on old hardware."
+                return  # Exit function - do not show upgrade instructions!
             }
             # Intel Server old CPUs - Xeon 5500 and older
             elseif ($cpuName -match "Xeon.*(5[0-5]\d{2}|3[0-4]\d{2}|7[0-4]\d{2})") {
                 Write-Host ""
-                Write-Host "    [!] IHRE CPU:" -ForegroundColor Red
-                Write-Host "        - Unterstuetzt NUR AES-128 (kein AES-NI Support)" -ForegroundColor Red
+                Write-Host "    [!] YOUR CPU:" -ForegroundColor Red
+                Write-Host "        - Supports ONLY AES-128 (no AES-NI support)" -ForegroundColor Red
                 Write-Host "        - Alter Intel Xeon (vor Westmere 2010)" -ForegroundColor Red
                 Write-Host ""
-                Write-Host "    [EMPFEHLUNG] BEHALTEN SIE AES-128!" -ForegroundColor Yellow
-                Write-Host "                 (Optimal fuer Ihre Hardware)" -ForegroundColor Yellow
+                Write-Host "    [RECOMMENDATION] KEEP AES-128!" -ForegroundColor Yellow
+                Write-Host "                 (Optimal for your hardware)" -ForegroundColor Yellow
                 Write-Host ""
-                Write-Info "AES-128 ist sicher! Kein Upgrade noetig auf alter Hardware."
+                Write-Info "AES-128 is secure! No upgrade needed on old hardware."
                 return
             }
             # AMD Desktop old CPUs - explicit models
             elseif ($cpuName -match "Athlon 64|Athlon FX|Athlon II|Phenom") {
                 Write-Host ""
-                Write-Host "    [!] IHRE CPU:" -ForegroundColor Red
-                Write-Host "        - Unterstuetzt NUR AES-128 (kein AES-NI Support)" -ForegroundColor Red
-                Write-Host "        - AES-256 waere zu langsam auf dieser Hardware" -ForegroundColor Red
+                Write-Host "    [!] YOUR CPU:" -ForegroundColor Red
+                Write-Host "        - Supports ONLY AES-128 (no AES-NI support)" -ForegroundColor Red
+                Write-Host "        - AES-256 would be too slow on this hardware" -ForegroundColor Red
                 Write-Host ""
-                Write-Host "    [EMPFEHLUNG] BEHALTEN SIE AES-128!" -ForegroundColor Yellow
-                Write-Host "                 (Optimal fuer Ihre Hardware)" -ForegroundColor Yellow
+                Write-Host "    [RECOMMENDATION] KEEP AES-128!" -ForegroundColor Yellow
+                Write-Host "                 (Optimal for your hardware)" -ForegroundColor Yellow
                 Write-Host ""
-                Write-Info "AES-128 ist sicher! Kein Upgrade noetig auf alter Hardware."
-                return  # Beende Funktion - keine Upgrade-Anleitung zeigen!
+                Write-Info "AES-128 is secure! No upgrade needed on old hardware."
+                return  # Exit function - do not show upgrade instructions!
             }
             # AMD Server old CPUs - Opteron (before Bulldozer 2011)
             elseif ($cpuName -match "Opteron" -and $cpuName -notmatch "Opteron.*(62|63|64|65|66|67|68|69)\d{2}") {
                 Write-Host ""
-                Write-Host "    [!] IHRE CPU:" -ForegroundColor Red
-                Write-Host "        - Unterstuetzt NUR AES-128 (kein AES-NI Support)" -ForegroundColor Red
+                Write-Host "    [!] YOUR CPU:" -ForegroundColor Red
+                Write-Host "        - Supports ONLY AES-128 (no AES-NI support)" -ForegroundColor Red
                 Write-Host "        - Alter AMD Opteron (vor Bulldozer 2011)" -ForegroundColor Red
                 Write-Host ""
-                Write-Host "    [EMPFEHLUNG] BEHALTEN SIE AES-128!" -ForegroundColor Yellow
-                Write-Host "                 (Optimal fuer Ihre Hardware)" -ForegroundColor Yellow
+                Write-Host "    [RECOMMENDATION] KEEP AES-128!" -ForegroundColor Yellow
+                Write-Host "                 (Optimal for your hardware)" -ForegroundColor Yellow
                 Write-Host ""
-                Write-Info "AES-128 ist sicher! Kein Upgrade noetig auf alter Hardware."
+                Write-Info "AES-128 is secure! No upgrade needed on old hardware."
                 return
             }
             # AMD generic Athlon (old without 64/II/FX), BUT NOT modern (Zen-based)
             elseif ($cpuName -match "\bAthlon\b" -and 
                     $cpuName -notmatch "Athlon\s+(Gold|Silver|[0-9]{3,4}[GU])") {
                 Write-Host ""
-                Write-Host "    [!] IHRE CPU:" -ForegroundColor Red
-                Write-Host "        - Unterstuetzt NUR AES-128 (kein AES-NI Support)" -ForegroundColor Red
-                Write-Host "        - Alte AMD Athlon CPU" -ForegroundColor Red
+                Write-Host "    [!] YOUR CPU:" -ForegroundColor Red
+                Write-Host "        - Supports ONLY AES-128 (no AES-NI support)" -ForegroundColor Red
+                Write-Host "        - Old AMD Athlon CPU" -ForegroundColor Red
                 Write-Host ""
-                Write-Host "    [EMPFEHLUNG] BEHALTEN SIE AES-128!" -ForegroundColor Yellow
-                Write-Host "                 (Optimal fuer Ihre Hardware)" -ForegroundColor Yellow
+                Write-Host "    [RECOMMENDATION] KEEP AES-128!" -ForegroundColor Yellow
+                Write-Host "                 (Optimal for your hardware)" -ForegroundColor Yellow
                 Write-Host ""
-                Write-Info "AES-128 ist sicher! Kein Upgrade noetig auf alter Hardware."
+                Write-Info "AES-128 is secure! No upgrade needed on old hardware."
                 return
             }
             # Intel Core i Gen 2 (Sandy Bridge 2011) - last without AES-NI
             elseif ($cpuName -match "Core i[357]-2\d{3}(?!\d)") {
                 Write-Host ""
-                Write-Host "    [!] IHRE CPU:" -ForegroundColor Red
-                Write-Host "        - Unterstuetzt NUR AES-128 (kein AES-NI Support)" -ForegroundColor Red
+                Write-Host "    [!] YOUR CPU:" -ForegroundColor Red
+                Write-Host "        - Supports ONLY AES-128 (no AES-NI support)" -ForegroundColor Red
                 Write-Host "        - Intel Sandy Bridge Gen 2 (2011)" -ForegroundColor Red
                 Write-Host ""
-                Write-Host "    [EMPFEHLUNG] BEHALTEN SIE AES-128!" -ForegroundColor Yellow
-                Write-Host "                 (Optimal fuer Ihre Hardware)" -ForegroundColor Yellow
+                Write-Host "    [RECOMMENDATION] KEEP AES-128!" -ForegroundColor Yellow
+                Write-Host "                 (Optimal for your hardware)" -ForegroundColor Yellow
                 Write-Host ""
-                Write-Info "AES-128 ist sicher! Kein Upgrade noetig auf alter Hardware."
+                Write-Info "AES-128 is secure! No upgrade needed on old hardware."
                 return
             }
             else {
                 Write-Host ""
-                Write-Host "    [OK] IHRE CPU:" -ForegroundColor Green
-                Write-Host "         - Unterstuetzt AES-256 (hat AES-NI Support)" -ForegroundColor Green
-                Write-Host "         - Moderne Hardware - AES-256 Upgrade empfohlen!" -ForegroundColor Green
+                Write-Host "    [OK] YOUR CPU:" -ForegroundColor Green
+                Write-Host "         - Supports AES-256 (has AES-NI support)" -ForegroundColor Green
+                Write-Host "         - Modern hardware - AES-256 upgrade recommended!" -ForegroundColor Green
                 Write-Host ""
             }
         }
         catch {
-            Write-Verbose "CPU-Check fehlgeschlagen: $_"
-            Write-Host "    [?] CPU-Check fehlgeschlagen - Upgrade auf eigenes Risiko" -ForegroundColor Yellow
+            Write-Verbose "CPU check failed: $_"
+            Write-Host "    [?] CPU check failed - upgrade at your own risk" -ForegroundColor Yellow
             Write-Host ""
         }
         
-        Write-Host "  SO UPGRADEN SIE AUF AES-256 (IN WINDOWS):" -ForegroundColor Green
+        Write-Host "  HOW TO UPGRADE TO AES-256 (IN WINDOWS):" -ForegroundColor Green
         Write-Host ""
-        Write-Host "    METHODE 1 - Windows-Startmenue (EINFACHSTE):" -ForegroundColor Cyan
+        Write-Host "    METHOD 1 - Windows Start Menu (EASIEST):" -ForegroundColor Cyan
         Write-Host ""
-        Write-Host "      1. Windows-Taste druecken" -ForegroundColor White
-        Write-Host "      2. Eintippen: BitLocker verwalten" -ForegroundColor White
-        Write-Host "      3. Enter druecken" -ForegroundColor White
-        Write-Host "      4. Klick auf 'BitLocker deaktivieren'" -ForegroundColor White
-        Write-Host "         (WARNUNG: Dauert 30-90 Min!)" -ForegroundColor Yellow
-        Write-Host "      5. Warte bis 'BitLocker deaktiviert' angezeigt wird" -ForegroundColor White
-        Write-Host "      6. Klick auf 'BitLocker aktivieren'" -ForegroundColor White
-        Write-Host "         (Unsere Policy greift = AES-256!)" -ForegroundColor Green
-        Write-Host "      7. <WICHTIG> Recovery Key SICHERN (MS-Konto empfohlen)" -ForegroundColor Yellow
+        Write-Host "      1. Press Windows key" -ForegroundColor White
+        Write-Host "      2. Type: BitLocker manage" -ForegroundColor White
+        Write-Host "      3. Press Enter" -ForegroundColor White
+        Write-Host "      4. Click on 'Disable BitLocker'" -ForegroundColor White
+        Write-Host "         (WARNING: Takes 30-90 min!)" -ForegroundColor Yellow
+        Write-Host "      5. Wait until 'BitLocker disabled' is shown" -ForegroundColor White
+        Write-Host "      6. Click on 'Enable BitLocker'" -ForegroundColor White
+        Write-Host "         (Our Policy applies = AES-256!)" -ForegroundColor Green
+        Write-Host "      7. <IMPORTANT> SAVE Recovery Key (MS Account recommended)" -ForegroundColor Yellow
         Write-Host ""
-        Write-Host "    METHODE 2 - Systemsteuerung:" -ForegroundColor Cyan
+        Write-Host "    METHOD 2 - Control Panel:" -ForegroundColor Cyan
         Write-Host ""
-        Write-Host "      1. Systemsteuerung oeffnen" -ForegroundColor White
-        Write-Host "      2. System und Sicherheit" -ForegroundColor White
-        Write-Host "      3. BitLocker-Laufwerkverschluesselung" -ForegroundColor White
-        Write-Host "      4. Rest wie Methode 1 (Schritt 4-7)" -ForegroundColor White
+        Write-Host "      1. Open Control Panel" -ForegroundColor White
+        Write-Host "      2. System and Security" -ForegroundColor White
+        Write-Host "      3. BitLocker Drive Encryption" -ForegroundColor White
+        Write-Host "      4. Continue as Method 1 (Steps 4-7)" -ForegroundColor White
         Write-Host ""
-        Write-Host "    METHODE 3 - Datei-Explorer:" -ForegroundColor Cyan
+        Write-Host "    METHOD 3 - File Explorer:" -ForegroundColor Cyan
         Write-Host ""
-        Write-Host "      1. Datei-Explorer oeffnen (Win + E)" -ForegroundColor White
-        Write-Host "      2. Rechtsklick auf Laufwerk C:" -ForegroundColor White
-        Write-Host "      3. Klick auf 'BitLocker deaktivieren'" -ForegroundColor White
-        Write-Host "      4. Rest wie Methode 1 (Schritt 5-7)" -ForegroundColor White
+        Write-Host "      1. Open File Explorer (Win + E)" -ForegroundColor White
+        Write-Host "      2. Right-click on Drive C:" -ForegroundColor White
+        Write-Host "      3. Click on 'Disable BitLocker'" -ForegroundColor White
+        Write-Host "      4. Continue as Method 1 (Steps 5-7)" -ForegroundColor White
         Write-Host ""
         Write-Host "  ALTERNATIVE (POWERSHELL):" -ForegroundColor Cyan
-        Write-Host "    manage-bde -status C:        # Status pruefen" -ForegroundColor Gray
-        Write-Host "    manage-bde -off C:           # Deaktivieren (dauert!)" -ForegroundColor Gray
-        Write-Host "    manage-bde -on C: -UsedSpaceOnly  # Aktivieren mit AES-256" -ForegroundColor Gray
+        Write-Host "    manage-bde -status C:        # Check status" -ForegroundColor Gray
+        Write-Host "    manage-bde -off C:           # Disable (takes time!)" -ForegroundColor Gray
+        Write-Host "    manage-bde -on C: -UsedSpaceOnly  # Enable with AES-256" -ForegroundColor Gray
         Write-Host ""
-        Write-Host "  HINWEIS:" -ForegroundColor Cyan
-        Write-Host "    Re-Encryption dauert 30-90 Minuten (je nach Groesse)" -ForegroundColor White
-        Write-Host "    Laptop an Netzteil anschliessen!" -ForegroundColor White
-        Write-Host "    Bei alten CPUs: AES-128 BEHALTEN (bessere Performance)!" -ForegroundColor White
+        Write-Host "  NOTE:" -ForegroundColor Cyan
+        Write-Host "    Re-Encryption takes 30-90 minutes (depending on size)" -ForegroundColor White
+        Write-Host "    Connect laptop to power supply!" -ForegroundColor White
+        Write-Host "    For old CPUs: KEEP AES-128 (better performance)!" -ForegroundColor White
         Write-Host ""
     }
     catch {
-        Write-Error "Fehler bei BitLocker-Pruefung: $_"
-        Write-Warning-Custom "Bei Problemen: manage-bde -status C:"
+        Write-Error "Error checking BitLocker: $_"
+        Write-Warning-Custom "If problems occur: manage-bde -status C:"
     }
 }
 

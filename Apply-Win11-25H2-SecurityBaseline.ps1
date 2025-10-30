@@ -24,10 +24,10 @@
     - Privacy Protection: +200% above baseline (700+ privacy settings)
     
 .NOTES
-    Version:        1.7.11
+    Version:        1.7.12
     Baseline:       Microsoft Security Baseline 25H2 (September 30, 2025)
     Author:         NoID Privacy Project
-    Last Updated:   October 29, 2025
+    Last Updated:   October 30, 2025
     Requires:       Windows 11 25H2/24H2/23H2, PowerShell 5.1+, Admin Rights
     
     Changelog 1.7.9 (26. Oktober 2025):
@@ -844,7 +844,7 @@ if ($Interactive) {
             # Exit code from Restore script
             $restoreExitCode = $restoreProcess.ExitCode
             Write-Host ""
-            Write-Host "$(Get-LocalizedString 'RestoreModeScriptComplete' -f $restoreExitCode)" -ForegroundColor Cyan
+            Write-Host "$(Get-LocalizedString 'RestoreModeScriptComplete' $restoreExitCode)" -ForegroundColor Cyan
             Write-Host "$(Get-LocalizedString 'RestoreModeApplyExitNow')" -ForegroundColor Yellow
             Write-Host ""
             Write-Verbose "Restore-Script beendet mit Exit-Code: $restoreExitCode"
@@ -858,7 +858,7 @@ if ($Interactive) {
             Write-Host "$(Get-LocalizedString 'CriticalNeverReached')" -ForegroundColor Red
         }
         else {
-            Write-Host "$(Get-LocalizedString 'RestoreModeNotFound' -f $restoreScript)" -ForegroundColor Red
+            Write-Host "$(Get-LocalizedString 'RestoreModeNotFound' $restoreScript)" -ForegroundColor Red
             
             # Release Mutex before exit
             if ($mutex) {
@@ -947,7 +947,7 @@ if ($Interactive) {
                 }
                 elseif ($LASTEXITCODE -eq 1) {
                     Write-Host ""
-                    Write-Host "$(Get-LocalizedString 'BackupFailed' -f $LASTEXITCODE)" -ForegroundColor Red
+                    Write-Host "$(Get-LocalizedString 'BackupFailed' $LASTEXITCODE)" -ForegroundColor Red
                     Write-Warning "$(Get-LocalizedString 'BackupContinueRP')"
                     $backupSuccess = $false
                 }
@@ -958,7 +958,7 @@ if ($Interactive) {
             }
             catch {
                 Write-Host ""
-                Write-Host "$(Get-LocalizedString 'BackupFailed' -f $_)" -ForegroundColor Red
+                Write-Host "$(Get-LocalizedString 'BackupFailed' $_)" -ForegroundColor Red
                 Write-Warning "$(Get-LocalizedString 'BackupContinueRP')"
                 $backupSuccess = $false
             }
@@ -1021,7 +1021,7 @@ if ($Interactive) {
             }
         }
         else {
-            Write-Host "$(Get-LocalizedString 'BackupNotFound' -f $backupScript)" -ForegroundColor Yellow
+            Write-Host "$(Get-LocalizedString 'BackupNotFound' $backupScript)" -ForegroundColor Yellow
             Write-Host "$(Get-LocalizedString 'BackupFallbackRP')" -ForegroundColor Yellow
             Write-Host ""
             Start-Sleep -Seconds 2
@@ -1081,24 +1081,26 @@ try {
     
     if ($oldLogs) {
         $oldLogs | Remove-Item -Force -ErrorAction SilentlyContinue
-        Write-Verbose "$(Get-LocalizedString 'VerboseOldLogsCleared' -f $oldLogs.Count)"
+        Write-Verbose "$(Get-LocalizedString 'VerboseOldLogsCleared' ($oldLogs.Count))"
     }
 }
 catch {
-    Write-Verbose "Log-Rotation fehlgeschlagen: $_"
+    Write-Verbose "Could not clean old logs: $_"
 }
 
+# CRITICAL FIX: Set transcript path before starting transcript!
+$timestamp = Get-Date -Format 'yyyyMMdd-HHmmss'
 $script:transcriptPath = Join-Path $LogPath "SecurityBaseline-$Mode-$timestamp.log"
 
 try {
-    # BEST PRACTICE: No -Append = Clean log start without leading \n
+    # Best Practice 25H2: Unique filenames prevent accidental overwrites
     # Timestamp in filename already guarantees unique files (no overwriting)
     Start-Transcript -Path $script:transcriptPath -ErrorAction Stop
     $script:transcriptStarted = $true
-    Write-Verbose "$(Get-LocalizedString 'VerboseTranscriptStarted' -f $script:transcriptPath)"
+    Write-Verbose "$(Get-LocalizedString 'VerboseTranscriptStarted' ($script:transcriptPath))"
 }
 catch {
-    Write-Warning "$(Get-LocalizedString 'WarningTranscriptFailed' -f $_)"
+    Write-Warning "$(Get-LocalizedString 'WarningTranscriptFailed' ($_))"
     Write-Warning "$(Get-LocalizedString 'WarningTranscriptContinue')"
 }
 
@@ -1112,7 +1114,7 @@ Write-Host "               Maximum Security + Privacy + Performance" -Foreground
 Write-Host "" -ForegroundColor Cyan
 Write-Host "=============================================================================" -ForegroundColor Cyan
 Write-Host ""
-Write-Host "  Version: 1.7.11 | Modus: $Mode" -ForegroundColor Cyan
+Write-Host "  Version: 1.7.12 | Modus: $Mode" -ForegroundColor Cyan
 if ($Interactive) {
     Write-Host "  Mode: Interactive Menu" -ForegroundColor Cyan
 }
@@ -1144,7 +1146,14 @@ try {
     }
     else {
         Write-Verbose "System Restore Point creation skipped by user choice"
-        Write-Host "[!] System Restore Point skipped - no safety net!" -ForegroundColor Yellow
+        # CRITICAL FIX: Only warn if NEITHER backup NOR restore point was created!
+        # Don't confuse user when they made a backup - that's their safety net!
+        if (-not $backupSuccess) {
+            Write-Host "[!] System Restore Point skipped - no safety net!" -ForegroundColor Yellow
+        }
+        else {
+            Write-Verbose "Safety net provided by backup - restore point warning skipped"
+        }
     }
     
     # Dynamischer Module Counter

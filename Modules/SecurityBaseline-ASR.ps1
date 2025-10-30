@@ -37,7 +37,7 @@ function Set-AttackSurfaceReductionRules {
     # Best Practice 25H2: Enforce = Block Mode
     $asrMode = if ($Mode -eq 'Enforce') { 1 } else { 2 }
     
-    Write-Info (Get-LocalizedString 'ASRMode' -f $Mode)
+    Write-Info (Get-LocalizedString 'ASRMode' $Mode)
     if ($Mode -eq 'Audit') {
         Write-Warning-Custom "$(Get-LocalizedString 'ASRAuditWarning')"
         Write-Warning-Custom "$(Get-LocalizedString 'ASREvaluateLogs')"
@@ -213,7 +213,7 @@ function Set-AttackSurfaceReductionRules {
         }
         
         if ($existingRulesCount -gt 0) {
-            Write-Warning-Custom (Get-LocalizedString 'ASRExistingRules' -f $existingRulesCount)
+            Write-Warning-Custom (Get-LocalizedString 'ASRExistingRules' $existingRulesCount)
             Write-Warning-Custom "$(Get-LocalizedString 'ASRWillOverwrite')"
         }
         
@@ -257,8 +257,8 @@ function Set-AttackSurfaceReductionRules {
             $verifyMpPrefs.PSObject.Properties['AttackSurfaceReductionRules_Ids'] -and 
             $verifyMpPrefs.AttackSurfaceReductionRules_Ids -and 
             $verifyMpPrefs.AttackSurfaceReductionRules_Ids.Count -gt 0) {
-            Write-Success (Get-LocalizedString 'ASRConfigured' -f $verifyMpPrefs.AttackSurfaceReductionRules_Ids.Count)
-            Write-Info (Get-LocalizedString 'ASRModeSet' -f $Mode)
+            Write-Success (Get-LocalizedString 'ASRConfigured' $verifyMpPrefs.AttackSurfaceReductionRules_Ids.Count)
+            Write-Info (Get-LocalizedString 'ASRModeSet' $Mode)
         }
         else {
             Write-Info "$(Get-LocalizedString 'ASRCannotSetScript')"
@@ -324,7 +324,7 @@ function Get-ASRRuleStatus {
             return
         }
         
-        Write-Info (Get-LocalizedString 'ASRConfiguredRules' -f $mpPrefs.AttackSurfaceReductionRules_Ids.Count)
+        Write-Info (Get-LocalizedString 'ASRConfiguredRules' $mpPrefs.AttackSurfaceReductionRules_Ids.Count)
         
         for ($i = 0; $i -lt $mpPrefs.AttackSurfaceReductionRules_Ids.Count; $i++) {
             $ruleId = $mpPrefs.AttackSurfaceReductionRules_Ids[$i]
@@ -413,7 +413,7 @@ function Enable-SmartAppControl {
             2 { "On (Enforcing)" }
             default { "Unknown" }
         }
-        Write-Info (Get-LocalizedString 'SACStatus' -f $statusText)
+        Write-Info (Get-LocalizedString 'SACStatus' $statusText)
     } else {
         Write-Info "$(Get-LocalizedString 'SACNotConfigured')"
     }

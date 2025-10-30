@@ -5,7 +5,7 @@
 [![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-blue.svg)](https://github.com/PowerShell/PowerShell)
 [![Windows 11](https://img.shields.io/badge/Windows%2011-25H2-0078D4.svg)](https://www.microsoft.com/windows/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-1.7.11-blue.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.7.12-blue.svg)](CHANGELOG.md)
 
 ---
 
@@ -14,7 +14,7 @@
 **NoID Privacy** is a comprehensive PowerShell-based security hardening solution for Windows 11 25H2, implementing the Microsoft Security Baseline with extensive privacy enhancements.
 
 ### What You Get
-- ✅ **100% Microsoft Security Baseline 25H2 Coverage** for standalone Windows 11 systems (all 213 implementable policies) - [See Mapping](SECURITY_MAPPING.md)
+- ✅ **100% Microsoft Security Baseline 25H2 Coverage** for standalone Windows 11 systems - [See Mapping](SECURITY_MAPPING.md)
 - 🔒 **300+ Security Settings** - Enterprise-grade protection at home
 - 🛡️ **180+ Privacy Settings** - Minimizes telemetry to Security-Essential level
 - 🚀 **Modular Architecture** - 13 specialized modules, pick what you need
@@ -55,7 +55,7 @@
 - **Telemetry Minimized** → 10 telemetry services + ~14 tasks + 180 registry keys configured for minimum data collection
 - **AI Lockdown** → Windows Recall DISABLED (no screenshots of passwords!), Copilot blocked (4 layers), Click to Do disabled
 - **App Permission Control** → 33 categories default-DENY (apps can't spy without explicit permission)
-- **Clean System** → 84 bloatware app patterns checked (Xbox, 3D apps, Candy Crush, Teams Chat, Copilot, Widgets)
+- **Clean System** → 82 bloatware app patterns checked (Xbox, 3D apps, Candy Crush, Teams Chat, Copilot, Widgets)
 - **79,776 Trackers Blocked** → DNS-level blocking via Steven Black hosts + Cloudflare DoH
 
 **Bottom Line:** Telemetry reduced to Security-Essential level (Required Diagnostic Data for Windows Update/Defender)
@@ -234,7 +234,7 @@ The project uses a modular architecture with 13 specialized modules:
 | **ASR** | Attack Surface Reduction rules | 19 ASR rules (Enforce mode), Smart App Control |
 | **Advanced** | VBS, Credential Guard, LAPS, Auditing | Credential Guard, VBS, HVCI, LSA-PPL, BitLocker policies, Windows LAPS, TLS/SSL hardening |
 | **DNS** | DNS-over-HTTPS, DNSSEC, Blocklist | Cloudflare DoH (4 servers), DNSSEC validation, 79,776 blocked domains, Strict Inbound Firewall |
-| **Bloatware** | App removal, Consumer features | 84 app patterns, Teams Chat/Copilot/Widgets disabled, Consumer Features blocked |
+| **Bloatware** | App removal, Consumer features | 82 app patterns, Teams Chat/Copilot/Widgets disabled, Consumer Features blocked |
 | **Telemetry** | Privacy protection, App permissions | 10 services, 180 registry keys, 33 app permission categories, Camera/Mic controls |
 | **Performance** | Scheduled tasks, Event logs | ~20 tasks disabled, Event log optimization, Windows Search local-only, Prefetch/Superfetch tuning |
 | **AI** | Recall, Copilot, AI tracking | Recall disabled, Copilot blocked (4 layers), Click to Do/Paint AI/Settings Agent disabled |
@@ -451,11 +451,17 @@ The authors are not responsible for any damage or data loss caused by this scrip
 
 ## 📈 Project Status
 
-**Current Version:** 1.7.11  
-**Last Updated:** October 29, 2025  
+**Current Version:** 1.7.12  
+**Last Updated:** October 30, 2025  
 **Status:** Production-Ready ✅
 
-### Recent Updates (v1.7.11)
+### Recent Updates (v1.7.12)
+- ✅ **Registry Parity Check** - 125 missing keys added, 100% parity achieved
+- ✅ **Backup Bugfix** - NULL reference error fixed for protected registry keys
+- ✅ **App List Localization** - Desktop export fully localized (DE/EN)
+- ✅ **UI Restore** - Widgets, Teams Chat, Lock Screen, Copilot restore capability
+
+### Previous Updates (v1.7.11)
 - ✅ **IPv6 DoH Encryption** - Full IPv6 DNS-over-HTTPS support (Doh6 registry branch)
 - ✅ **Notepad AI Copilot Disable** - Removes Copilot button from Windows Notepad
 - ✅ **Domain Count Fix** - Corrected calculation (79,776 domains instead of 8,064)

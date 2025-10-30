@@ -24,7 +24,9 @@ function Show-Banner {
     }
     catch {
         # Fallback for non-interactive sessions
-        Write-Verbose "Clear-Host nicht verfuegbar (non-interactive session)"
+        $verboseMsg = Get-LocalizedString 'ErrorClearHostFailed'
+        if (-not $verboseMsg) { $verboseMsg = "Clear-Host not available (non-interactive session)" }
+        Write-Verbose $verboseMsg
     }
     
     Write-Host ""
@@ -168,7 +170,9 @@ function Get-UserChoice {
             
             # INPUT VALIDIERUNG (Best Practice 25H2)
             if ([string]::IsNullOrWhiteSpace($choice)) {
-                Write-Host "  [ERROR] Leere Eingabe nicht erlaubt!" -ForegroundColor Red
+                $emptyMsg = Get-LocalizedString 'ErrorEmptyInput'
+                if (-not $emptyMsg) { $emptyMsg = "Empty input not allowed!" }
+                Write-Host "  [ERROR] $emptyMsg" -ForegroundColor Red
                 Write-Host ""
                 continue
             }
@@ -199,7 +203,9 @@ function Get-UserChoice {
             break  # Input ist valide - Loop beenden
         }
         catch {
-            Write-Warning "Eingabe-Fehler: $($_.Exception.Message)"
+            $errorMsg = Get-LocalizedString 'ErrorInputFailed' $_.Exception.Message
+            if (-not $errorMsg) { $errorMsg = "Input error: $($_.Exception.Message)" }
+            Write-Warning $errorMsg
             Write-Host ""
         }
     } while ($true)
@@ -225,7 +231,9 @@ function Show-ModuleSelection {
     
     # Check ob interactive session
     if (-not $Host.UI.RawUI) {
-        Write-Warning "Diese Funktion benoetigt eine interaktive PowerShell-Session."
+        $warnMsg = Get-LocalizedString 'ErrorInteractiveRequired'
+        if (-not $warnMsg) { $warnMsg = "This function requires an interactive PowerShell session." }
+        Write-Warning $warnMsg
         return $null
     }
     
@@ -245,7 +253,9 @@ function Show-ModuleSelection {
         Write-Host ""
         Write-Host "  Alternative: Verwenden Sie Audit/Enforce Mode (Option 1/2)" -ForegroundColor Gray
         Write-Host ""
-        Write-Host "  Druecken Sie eine Taste zum Zurueckkehren..." -ForegroundColor Gray
+        $pressKeyMsg = Get-LocalizedString 'PressAnyKeyToReturn'
+        if (-not $pressKeyMsg) { $pressKeyMsg = "Press any key to return..." }
+        Write-Host "  $pressKeyMsg" -ForegroundColor Gray
         $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
         return $null
     }
@@ -407,7 +417,9 @@ function Show-ModuleSelection {
             $key = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
         }
         catch {
-            Write-Warning "Tastaturabfrage fehlgeschlagen: $_"
+            $errorMsg = Get-LocalizedString 'ErrorKeyboardFailed' $_
+            if (-not $errorMsg) { $errorMsg = "Keyboard input failed: $_" }
+            Write-Warning $errorMsg
             return $null
         }
         
@@ -574,46 +586,46 @@ function Invoke-EnforceMode {
     Write-Host "                          Enforce Mode" -ForegroundColor Yellow
     Write-Host "============================================================================" -ForegroundColor Yellow
     Write-Host ""
-    Write-Host "  ENFORCE MODE - PRODUKTIV-MODUS (VOLLER SCHUTZ):" -ForegroundColor Red
+    Write-Host "  $(Get-LocalizedString 'EnforceBannerTitle')" -ForegroundColor Red
     Write-Host ""
-    Write-Host "  ACHTUNG: Alle Aenderungen werden AKTIV angewendet!" -ForegroundColor Red
-    Write-Host "           Dies ist NICHT rueckgaengig zu machen ohne Backup/Restore!" -ForegroundColor Red
+    Write-Host "  $(Get-LocalizedString 'EnforceBannerWarning1')" -ForegroundColor Red
+    Write-Host "  $(Get-LocalizedString 'EnforceBannerWarning2')" -ForegroundColor Red
     Write-Host ""
-    Write-Host "  ALLE Module werden VOLLSTAENDIG aktiviert:" -ForegroundColor Yellow
+    Write-Host "  $(Get-LocalizedString 'EnforceBannerModulesTitle')" -ForegroundColor Yellow
     Write-Host ""
-    Write-Host "  SECURITY:" -ForegroundColor Cyan
-    Write-Host "    - Microsoft Security Baseline 25H2 (Defender, Firewall, Services)" -ForegroundColor White
-    Write-Host "    - ASR Rules (23 Rules ENFORCE MODE = aktiv blockieren!)" -ForegroundColor White
-    Write-Host "    - VBS + Credential Guard + HVCI + LSA Protection" -ForegroundColor White
-    Write-Host "    - BitLocker Policies (XTS-AES-256 + TPM 2.0)" -ForegroundColor White
-    Write-Host "    - UAC Maximum + Enhanced Privilege Protection" -ForegroundColor White
-    Write-Host "    - ... und vieles mehr!" -ForegroundColor Gray
+    Write-Host "  $(Get-LocalizedString 'EnforceBannerSecurityTitle')" -ForegroundColor Cyan
+    Write-Host "    - $(Get-LocalizedString 'EnforceBannerSecurity1')" -ForegroundColor White
+    Write-Host "    - $(Get-LocalizedString 'EnforceBannerSecurity2')" -ForegroundColor White
+    Write-Host "    - $(Get-LocalizedString 'EnforceBannerSecurity3')" -ForegroundColor White
+    Write-Host "    - $(Get-LocalizedString 'EnforceBannerSecurity4')" -ForegroundColor White
+    Write-Host "    - $(Get-LocalizedString 'EnforceBannerSecurity5')" -ForegroundColor White
+    Write-Host "    - $(Get-LocalizedString 'EnforceBannerSecurityMore')" -ForegroundColor Gray
     Write-Host ""
-    Write-Host "  NETWORK:" -ForegroundColor Cyan
-    Write-Host "    - DNS over HTTPS (Cloudflare 1.1.1.1 - verschluesselt!)" -ForegroundColor White
-    Write-Host "    - DNS Blocklist (80.000+ Malware/Tracking-Domains)" -ForegroundColor White
-    Write-Host "    - Firewall Default Deny + Block All Inbound" -ForegroundColor White
-    Write-Host "    - SMB Signing + NetBIOS + LLMNR + mDNS disabled" -ForegroundColor White
-    Write-Host "    - Remote Access komplett AUS (RDP, WinRM, RemoteRegistry)" -ForegroundColor White
-    Write-Host "    - ... und vieles mehr!" -ForegroundColor Gray
+    Write-Host "  $(Get-LocalizedString 'EnforceBannerNetworkTitle')" -ForegroundColor Cyan
+    Write-Host "    - $(Get-LocalizedString 'EnforceBannerNetwork1')" -ForegroundColor White
+    Write-Host "    - $(Get-LocalizedString 'EnforceBannerNetwork2')" -ForegroundColor White
+    Write-Host "    - $(Get-LocalizedString 'EnforceBannerNetwork3')" -ForegroundColor White
+    Write-Host "    - $(Get-LocalizedString 'EnforceBannerNetwork4')" -ForegroundColor White
+    Write-Host "    - $(Get-LocalizedString 'EnforceBannerNetwork5')" -ForegroundColor White
+    Write-Host "    - $(Get-LocalizedString 'EnforceBannerNetworkMore')" -ForegroundColor Gray
     Write-Host ""
-    Write-Host "  PRIVACY:" -ForegroundColor Cyan
-    Write-Host "    - 37 App Permissions auf 'Deny' (Camera/Mic/Location/etc.)" -ForegroundColor White
-    Write-Host "    - Wireless Display/Miracast komplett deaktiviert" -ForegroundColor White
-    Write-Host "    - Telemetrie Security-Level (Required Diagnostic Data only)" -ForegroundColor White
-    Write-Host "    - OneDrive Auto-Upload blockiert (User hat Kontrolle!)" -ForegroundColor White
-    Write-Host "    - AI Features blockiert (Recall, Copilot, Click to Do, Paint AI)" -ForegroundColor White
-    Write-Host "    - ... und vieles mehr!" -ForegroundColor Gray
+    Write-Host "  $(Get-LocalizedString 'EnforceBannerPrivacyTitle')" -ForegroundColor Cyan
+    Write-Host "    - $(Get-LocalizedString 'EnforceBannerPrivacy1')" -ForegroundColor White
+    Write-Host "    - $(Get-LocalizedString 'EnforceBannerPrivacy2')" -ForegroundColor White
+    Write-Host "    - $(Get-LocalizedString 'EnforceBannerPrivacy3')" -ForegroundColor White
+    Write-Host "    - $(Get-LocalizedString 'EnforceBannerPrivacy4')" -ForegroundColor White
+    Write-Host "    - $(Get-LocalizedString 'EnforceBannerPrivacy5')" -ForegroundColor White
+    Write-Host "    - $(Get-LocalizedString 'EnforceBannerPrivacyMore')" -ForegroundColor Gray
     Write-Host ""
-    Write-Host "  BLOATWARE & PERFORMANCE:" -ForegroundColor Cyan
-    Write-Host "    - 50+ vorinstallierte Apps entfernt (Xbox, Cortana, etc.)" -ForegroundColor White
-    Write-Host "    - Consumer Features disabled (kein Auto-Install von Candy Crush!)" -ForegroundColor White
-    Write-Host "    - 100+ Scheduled Tasks deaktiviert (weniger CPU-Last)" -ForegroundColor White
-    Write-Host "    - Event Logs optimiert (weniger Disk I/O)" -ForegroundColor White
-    Write-Host "    - Background Activities + Startup Apps reduziert" -ForegroundColor White
-    Write-Host "    - ... und vieles mehr!" -ForegroundColor Gray
+    Write-Host "  $(Get-LocalizedString 'EnforceBannerBloatwareTitle')" -ForegroundColor Cyan
+    Write-Host "    - $(Get-LocalizedString 'EnforceBannerBloatware1')" -ForegroundColor White
+    Write-Host "    - $(Get-LocalizedString 'EnforceBannerBloatware2')" -ForegroundColor White
+    Write-Host "    - $(Get-LocalizedString 'EnforceBannerBloatware3')" -ForegroundColor White
+    Write-Host "    - $(Get-LocalizedString 'EnforceBannerBloatware4')" -ForegroundColor White
+    Write-Host "    - $(Get-LocalizedString 'EnforceBannerBloatware5')" -ForegroundColor White
+    Write-Host "    - $(Get-LocalizedString 'EnforceBannerBloatwareMore')" -ForegroundColor Gray
     Write-Host ""
-    Write-Host "  Moechten Sie WIRKLICH fortfahren? [J/N]: " -NoNewline -ForegroundColor Red
+    Write-Host "  $(Get-LocalizedString 'EnforceBannerConfirm') " -NoNewline -ForegroundColor Red
     
     $confirm = Read-Host
     if ($confirm) {
@@ -623,7 +635,7 @@ function Invoke-EnforceMode {
     # Support for German (J) and English (Y)
     if ($confirm -in @('J', 'Y')) {
         Write-Host ""
-        Write-Host "  Starte Enforce Mode..." -ForegroundColor Green
+        Write-Host "  $(Get-LocalizedString 'EnforceBannerStarting')" -ForegroundColor Green
         Write-Host ""
         
         # Best Practice 25H2: Explicitly create hashtable with all properties
@@ -667,7 +679,9 @@ function Invoke-CustomMode {
         Show-Banner
         Write-Host "  Keine Module ausgewaehlt!" -ForegroundColor Red
         Write-Host ""
-        Write-Host "  Druecken Sie eine Taste..." -ForegroundColor Gray
+        $pressKeyMsg = Get-LocalizedString 'PressAnyKey'
+        if (-not $pressKeyMsg) { $pressKeyMsg = "Press any key..." }
+        Write-Host "  $pressKeyMsg" -ForegroundColor Gray
         
         # ReadKey with error handling
         try {
@@ -675,11 +689,15 @@ function Invoke-CustomMode {
                 $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
             }
             else {
-                Read-Host -Prompt "  Druecken Sie Enter"
+                $pressEnterMsg = Get-LocalizedString 'PressEnter'
+                if (-not $pressEnterMsg) { $pressEnterMsg = "Press Enter" }
+                Read-Host -Prompt "  $pressEnterMsg"
             }
         }
         catch {
-            Write-Verbose "ReadKey fehlgeschlagen: $_"
+            $verboseMsg = Get-LocalizedString 'ErrorReadKeyFailed' $_
+            if (-not $verboseMsg) { $verboseMsg = "ReadKey failed: $_" }
+            Write-Verbose $verboseMsg
         }
         return $null
     }
@@ -808,7 +826,9 @@ function Invoke-VerifyMode {
         }
         
         Write-Host ""
-        Write-Host "  Druecken Sie eine Taste..." -ForegroundColor Gray
+        $pressKeyMsg = Get-LocalizedString 'PressAnyKey'
+        if (-not $pressKeyMsg) { $pressKeyMsg = "Press any key..." }
+        Write-Host "  $pressKeyMsg" -ForegroundColor Gray
         
         # ReadKey with error handling
         try {
@@ -816,11 +836,15 @@ function Invoke-VerifyMode {
                 $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
             }
             else {
-                Read-Host -Prompt "  Druecken Sie Enter"
+                $pressEnterMsg = Get-LocalizedString 'PressEnter'
+                if (-not $pressEnterMsg) { $pressEnterMsg = "Press Enter" }
+                Read-Host -Prompt "  $pressEnterMsg"
             }
         }
         catch {
-            Write-Verbose "ReadKey fehlgeschlagen: $_"
+            $verboseMsg = Get-LocalizedString 'ErrorReadKeyFailed' $_
+            if (-not $verboseMsg) { $verboseMsg = "ReadKey failed: $_" }
+            Write-Verbose $verboseMsg
         }
     }
     return $null
@@ -878,7 +902,7 @@ function Invoke-RebootPrompt {
     Write-Host "  [J] $(Get-LocalizedString 'RebootNow')" -ForegroundColor Green
     Write-Host "         $(Get-LocalizedString 'RebootNowDesc')" -ForegroundColor Gray
     Write-Host ""
-    Write-Host "  [S] $(Get-LocalizedString 'RebootLater')" -ForegroundColor Yellow
+    Write-Host "  [N] $(Get-LocalizedString 'RebootLater')" -ForegroundColor Yellow
     Write-Host "         $(Get-LocalizedString 'RebootLaterDesc')" -ForegroundColor Gray
     Write-Host ""
     Write-Host "============================================================================" -ForegroundColor Cyan
@@ -887,9 +911,12 @@ function Invoke-RebootPrompt {
     $promptText = Get-LocalizedString "RebootPrompt"
     if (-not $promptText) { $promptText = "Ihre Wahl" }
     
+    $choiceFormat = Get-LocalizedString "RebootChoiceFormat"
+    if (-not $choiceFormat) { $choiceFormat = "[Y/N]:" }
+    
     do {
         Write-Host "  $promptText " -NoNewline -ForegroundColor Cyan
-        Write-Host "[J/S]: " -NoNewline -ForegroundColor Gray
+        Write-Host "$choiceFormat " -NoNewline -ForegroundColor Gray
         $choice = Read-Host
         
         # Input validation: Trim and ToUpper with null check
@@ -897,17 +924,16 @@ function Invoke-RebootPrompt {
             $choice = $choice.Trim().ToUpper()
         }
         
-        # Support for Y/N (English)
+        # Support for Y (English: Yes = Ja)
         if ($choice -eq 'Y') { $choice = 'J' }
-        if ($choice -eq 'N') { $choice = 'S' }
         
-        if ($choice -notin @('J', 'S')) {
+        if ($choice -notin @('J', 'N')) {
             $errorMsg = Get-LocalizedString 'ErrorInvalidInput'
             if (-not $errorMsg) { $errorMsg = "Ungueltige Eingabe! Bitte eingeben:" }
-            Write-Host "  [ERROR] $errorMsg J/S (oder Y/N)!" -ForegroundColor Red
+            Write-Host "  [ERROR] $errorMsg J/N (oder Y/N)!" -ForegroundColor Red
             Write-Host ""
         }
-    } while ($choice -notin @('J', 'S'))
+    } while ($choice -notin @('J', 'N'))
     
     Write-Host ""
     
@@ -937,14 +963,14 @@ function Invoke-RebootPrompt {
             }
             catch {
                 Write-Host ""
-                Write-Host "  [ERROR] Neustart konnte nicht ausgefuehrt werden!" -ForegroundColor Red
-                Write-Host "  Details: $_" -ForegroundColor Gray
+                Write-Host "  [ERROR] $(Get-LocalizedString 'RebootErrorTitle')" -ForegroundColor Red
+                Write-Host "  $(Get-LocalizedString 'RebootErrorDetails' $_)" -ForegroundColor Gray
                 Write-Host ""
-                Write-Host "  Bitte starten Sie den Computer manuell neu:" -ForegroundColor Yellow
-                Write-Host "  Shutdown /r /t 0" -ForegroundColor Cyan
+                Write-Host "  $(Get-LocalizedString 'RebootManualRestartPrompt')" -ForegroundColor Yellow
+                Write-Host "  $(Get-LocalizedString 'RebootManualRestartCommand')" -ForegroundColor Cyan
             }
         }
-        'S' {
+        'N' {
             Write-Host "  [!] $(Get-LocalizedString 'RebootPostponed')" -ForegroundColor Yellow
             Write-Host ""
             Write-Host "  [!] $(Get-LocalizedString 'RebootImportant')" -ForegroundColor Red

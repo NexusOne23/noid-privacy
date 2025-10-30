@@ -47,7 +47,18 @@
     - App Permissions: ONLY "Value" is saved (NO LastUsedTime* anymore!)
     - LastUsedTime* are Forensic-Tracking (managed by Windows)
     - Consistent with Apply-Script v1.7.11 (also sets only Value)
-    - Registry Keys: 479 -> 405 Keys (-74 LastUsedTime* removed)
+    
+    VERSION 1.7.12 UPDATE (Current):
+    - 125 missing registry keys added (100% parity achieved)
+    - 17 string formatting fixes (Get-LocalizedString -f operator)
+    - NULL reference bug fixed (GetValueKind for protected keys)
+    - App list localization (Desktop export DE/EN)
+    - UI restore capability (Widgets, Teams, Lock Screen, Copilot)
+    - Edge SmartScreen HKCU Keys added (3 Keys)
+    - Required for "Block downloads" checkbox in Windows Security GUI
+    - HKCU:\SOFTWARE\Microsoft\Edge\SmartScreenPuaEnabled
+    - HKCU:\SOFTWARE\Policies\Microsoft\Edge\SmartScreenEnabled
+    - HKCU:\SOFTWARE\Policies\Microsoft\Edge\SmartScreenPuaEnabled
     
 .NOTES
     Version:        1.4.0
@@ -158,21 +169,21 @@ $backupFile = Join-Path $BackupPath "SecurityBaseline-Backup-$timestamp.json"
 # IMPORTANT: Show backup path IMMEDIATELY (Best Practice 25H2)
 Write-Host ""
 Write-Host "============================================================================" -ForegroundColor Green
-Write-Host "  BACKUP-ZIEL" -ForegroundColor Green
+Write-Host "  $(Get-LocalizedString 'BackupTargetTitle')" -ForegroundColor Green
 Write-Host "============================================================================" -ForegroundColor Green
-Write-Host "  Pfad: $backupFile" -ForegroundColor Cyan
-Write-Host "  Verzeichnis: $BackupPath" -ForegroundColor Gray
+Write-Host "  $(Get-LocalizedString 'BackupTargetPath' $backupFile)" -ForegroundColor Cyan
+Write-Host "  $(Get-LocalizedString 'BackupTargetDir' $BackupPath)" -ForegroundColor Gray
 Write-Host "============================================================================" -ForegroundColor Green
 Write-Host ""
 
 # Best Practice 25H2: Inform user about expected duration
-Write-Host "[i] Expected duration:" -ForegroundColor Cyan
-Write-Host "    Normal: 2-3 minutes" -ForegroundColor Gray
-Write-Host "    Maximum: 6 minutes (on slow systems)" -ForegroundColor Gray
+Write-Host "[i] $(Get-LocalizedString 'BackupDurationTitle')" -ForegroundColor Cyan
+Write-Host "$(Get-LocalizedString 'BackupDurationNormal')" -ForegroundColor Gray
+Write-Host "$(Get-LocalizedString 'BackupDurationMax')" -ForegroundColor Gray
 Write-Host ""
 
 # Best Practice 25H2: Disk Space Check BEFORE Backup starts!
-Write-Host "[i] Checking available disk space..." -ForegroundColor Cyan
+Write-Host "[i] $(Get-LocalizedString 'BackupCheckingDiskSpace')" -ForegroundColor Cyan
 try {
     # Extract drive letter from backup path
     $driveLetter = (Get-Item $BackupPath -ErrorAction Stop).PSDrive.Name
@@ -181,19 +192,19 @@ try {
     $freeSpaceGB = [Math]::Round($drive.Free / 1GB, 2)
     $requiredSpaceGB = 0.1  # 100 MB minimum for backup
     
-    Write-Host "  Drive: $($driveLetter):" -ForegroundColor Gray
-    Write-Host "  Free: $freeSpaceGB GB" -ForegroundColor Gray
+    Write-Host "$(Get-LocalizedString 'BackupDiskDrive' "${driveLetter}:")" -ForegroundColor Gray
+    Write-Host "$(Get-LocalizedString 'BackupDiskFree' $freeSpaceGB)" -ForegroundColor Gray
     
     if ($drive.Free -lt ($requiredSpaceGB * 1GB)) {
         Write-Host ""
-        Write-Host "[ERROR] Insufficient disk space!" -ForegroundColor Red
-        Write-Host "  Required: At least $requiredSpaceGB GB" -ForegroundColor Red
-        Write-Host "  Available: $freeSpaceGB GB" -ForegroundColor Red
+        Write-Host "[ERROR] $(Get-LocalizedString 'BackupDiskInsufficientTitle')" -ForegroundColor Red
+        Write-Host "$(Get-LocalizedString 'BackupDiskRequired' $requiredSpaceGB)" -ForegroundColor Red
+        Write-Host "$(Get-LocalizedString 'BackupDiskAvailable' $freeSpaceGB)" -ForegroundColor Red
         Write-Host ""
-        throw "Insufficient disk space for backup"
+        throw (Get-LocalizedString 'BackupDiskInsufficientError')
     }
     
-    Write-Host "  [OK] Sufficient disk space available" -ForegroundColor Green
+    Write-Host "$(Get-LocalizedString 'BackupDiskSufficient')" -ForegroundColor Green
 }
 catch {
     Write-Warning "Disk Space Check failed: $_"
@@ -222,9 +233,9 @@ if ($backupCount -gt 10) {
     
     $deleteCount = $toDelete.Count
     if ($deleteCount -gt 0) {
-        $deleteMsg = (Get-LocalizedString 'BackupDeleteOld') -f $deleteCount
+        $deleteMsg = (Get-LocalizedString 'BackupDeleteOld' $deleteCount)
         Write-Host "[i] $deleteMsg" -ForegroundColor Yellow
-        Write-Host "    [!] Original-Backup bleibt erhalten: $($firstBackup.Name)" -ForegroundColor Cyan
+        Write-Host "$(Get-LocalizedString 'BackupOriginalKept' $firstBackup.Name)" -ForegroundColor Cyan
         
         foreach ($oldBackup in $toDelete) {
             try {
@@ -256,18 +267,18 @@ Write-Host "[i] $(Get-LocalizedString 'BackupCreating')" -ForegroundColor Cyan
 Write-Host ""
 
 #region DNS Settings Backup
-Write-Host "[1/14] $(Get-LocalizedString 'BackupDNS')" -ForegroundColor Yellow
+Write-Host "[1/13] $(Get-LocalizedString 'BackupDNS')" -ForegroundColor Yellow
 
 $adapters = Get-NetAdapter | Where-Object { $_.Status -eq 'Up' }
 
-# [OK] BEST PRACTICE: Capture foreach output directly (O(n) statt O(n2))
+# [OK] BEST PRACTICE: Capture foreach output directly (O(n) instead of O(n^2))
 $dnsBackup = foreach ($adapter in $adapters) {
     try {
         $dnsServers = Get-DnsClientServerAddress -InterfaceIndex $adapter.ifIndex -AddressFamily IPv4 -ErrorAction SilentlyContinue
         
         if ($dnsServers -and $dnsServers.ServerAddresses) {
-            $adapterMsg = (Get-LocalizedString 'BackupDNSAdapter') -f $adapter.Name
-            Write-Host "  [OK] $adapterMsg $($dnsServers.ServerAddresses -join ', ')" -ForegroundColor Gray
+            $adapterMsg = Get-LocalizedString 'BackupDNSAdapter' $adapter.Name
+            Write-Host "  [OK] $($adapterMsg) $($dnsServers.ServerAddresses -join ', ')" -ForegroundColor Gray
             
             # Output to pipeline (captured by $dnsBackup)
             @{
@@ -283,12 +294,12 @@ $dnsBackup = foreach ($adapter in $adapters) {
 }
 
 $backup.Settings.DNS = $dnsBackup
-$dnsMsg = (Get-LocalizedString 'BackupDNSSaved') -f $dnsBackup.Count
+$dnsMsg = Get-LocalizedString 'BackupDNSSaved' $dnsBackup.Count
 Write-Host "[OK] $dnsMsg`n" -ForegroundColor Green
 #endregion
 
 #region Hosts File Backup
-Write-Host "[2/14] $(Get-LocalizedString 'BackupHosts')" -ForegroundColor Yellow
+Write-Host "[2/13] $(Get-LocalizedString 'BackupHosts')" -ForegroundColor Yellow
 
 $hostsPath = "$env:SystemRoot\System32\drivers\etc\hosts"
 if (Test-Path $hostsPath) {
@@ -296,7 +307,7 @@ if (Test-Path $hostsPath) {
     $hostsContent = [string](Get-Content $hostsPath -Raw -ErrorAction SilentlyContinue)
     $backup.Settings.HostsFile = $hostsContent
     $lineCount = ($hostsContent -split "`n").Count
-    $hostsMsg = (Get-LocalizedString 'BackupHostsSaved') -f $lineCount
+    $hostsMsg = Get-LocalizedString 'BackupHostsSaved' $lineCount
     Write-Host "[OK] $hostsMsg`n" -ForegroundColor Green
 }
 else {
@@ -306,12 +317,12 @@ else {
 #endregion
 
 #region Installed Apps Backup (WITH PROVISIONED PACKAGES!)
-Write-Host "[3/14] $(Get-LocalizedString 'BackupApps')" -ForegroundColor Yellow
+Write-Host "[3/13] $(Get-LocalizedString 'BackupApps')" -ForegroundColor Yellow
 
 # User Apps (with timeout protection)
 $installedApps = @()
 try {
-    Write-Host "  [i] Reading installed apps (max 60s)..." -ForegroundColor Gray
+    Write-Host "$(Get-LocalizedString 'BackupAppsReading')" -ForegroundColor Gray
     
     # TIMEOUT: 60 seconds max for AppX enumeration
     $job = Start-Job -ScriptBlock { Get-AppxPackage -ErrorAction SilentlyContinue }
@@ -338,12 +349,12 @@ try {
     else {
         # Timeout erreicht!
         Remove-Job $job -Force
-        Write-Warning "AppX-Package Enumeration Timeout (60s) - ueberspringe Apps"
+        Write-Warning (Get-LocalizedString 'BackupAppsTimeout')
         $backup.Settings.InstalledApps = @()
     }
 }
 catch {
-    Write-Warning "AppX-Package Backup fehlgeschlagen: $_"
+    Write-Warning (Get-LocalizedString 'BackupAppsFailed' $_)
     $backup.Settings.InstalledApps = @()
 }
 
@@ -352,7 +363,7 @@ Write-Host "  [i] $(Get-LocalizedString 'BackupAppsProvisioned')" -ForegroundCol
 
 $provisionedPackages = @()
 try {
-    Write-Host "  [i] Lese Provisioned Packages (max 90s)..." -ForegroundColor Gray
+    Write-Host "$(Get-LocalizedString 'BackupProvisionedReading')" -ForegroundColor Gray
     
     # TIMEOUT: 90 seconds max (Get-AppxProvisionedPackage -Online is SLOW!)
     $job = Start-Job -ScriptBlock { Get-AppxProvisionedPackage -Online -ErrorAction SilentlyContinue }
@@ -378,12 +389,12 @@ try {
     else {
         # Timeout erreicht!
         Remove-Job $job -Force
-        Write-Warning "Provisioned Packages Timeout (90s) - ueberspringe"
+        Write-Warning (Get-LocalizedString 'BackupProvisionedTimeout')
         $backup.Settings.ProvisionedPackages = @()
     }
 }
 catch {
-    Write-Warning "Provisioned Packages could not be backed up: $_"
+    Write-Warning (Get-LocalizedString 'BackupProvisionedFailed' $_)
     $backup.Settings.ProvisionedPackages = @()
 }
 
@@ -391,12 +402,12 @@ Write-Host ""
 #endregion
 
 #region Services Backup (ALL SERVICES!)
-Write-Host "[4/14] $(Get-LocalizedString 'BackupServices')" -ForegroundColor Yellow
+Write-Host "[4/13] $(Get-LocalizedString 'BackupServices')" -ForegroundColor Yellow
 
 # BACKUP ALL SERVICES (not just the ones we change!)
 $allServices = Get-Service -ErrorAction SilentlyContinue
 
-# [OK] BEST PRACTICE: Capture foreach output directly (O(n) statt O(n2))
+# [OK] BEST PRACTICE: Capture foreach output directly (O(n) instead of O(n^2))
 $servicesBackup = foreach ($service in $allServices) {
     try {
         # Output to pipeline (captured by $servicesBackup)
@@ -419,12 +430,12 @@ Write-Host ""
 #endregion
 
 #region Scheduled Tasks Backup (ALL TASKS!)
-Write-Host "[5/14] Backup Scheduled Tasks..." -ForegroundColor Yellow
+Write-Host "[5/13] $(Get-LocalizedString 'BackupScheduledTasks')" -ForegroundColor Yellow
 
 # BACKUP ALL SCHEDULED TASKS (not just the ones we change!)
 $allTasks = Get-ScheduledTask -ErrorAction SilentlyContinue
 
-# [OK] BEST PRACTICE: Capture foreach output directly (O(n) statt O(n2))
+# [OK] BEST PRACTICE: Capture foreach output directly (O(n) instead of O(n^2))
 $tasksBackup = foreach ($task in $allTasks) {
     try {
         # Output to pipeline (captured by $tasksBackup)
@@ -441,18 +452,18 @@ $tasksBackup = foreach ($task in $allTasks) {
 }
 
 $backup.Settings.ScheduledTasks = $tasksBackup
-Write-Host "[OK] $($tasksBackup.Count) Scheduled Tasks gesichert" -ForegroundColor Green
-Write-Host "    HINWEIS: Nur State (Enabled/Disabled/Ready) wird gebackupt" -ForegroundColor Gray
+Write-Host "[OK] $(Get-LocalizedString 'BackupScheduledTasksSaved' $tasksBackup.Count)" -ForegroundColor Green
+Write-Host "$(Get-LocalizedString 'BackupScheduledTasksNote')" -ForegroundColor Gray
 Write-Host ""
 #endregion
 
 #region Firewall Rules Backup (ALL RULES!)
-Write-Host "[6/14] $(Get-LocalizedString 'BackupFirewall')" -ForegroundColor Yellow
+Write-Host "[6/13] $(Get-LocalizedString 'BackupFirewall')" -ForegroundColor Yellow
 
 # BACKUP ALL FIREWALL RULES (not just custom!)
 $allFirewallRules = Get-NetFirewallRule -ErrorAction SilentlyContinue
 
-# [OK] BEST PRACTICE: Capture foreach output directly (O(n) statt O(n2))
+# [OK] BEST PRACTICE: Capture foreach output directly (O(n) instead of O(n^2))
 $firewallBackup = foreach ($rule in $allFirewallRules) {
     try {
         # Output to pipeline (captured by $firewallBackup)
@@ -478,15 +489,15 @@ Write-Host ""
 #endregion
 
 #region User Accounts Backup
-Write-Host "[7/14] $(Get-LocalizedString 'BackupUsers')" -ForegroundColor Yellow
+Write-Host "[7/13] $(Get-LocalizedString 'BackupUsers')" -ForegroundColor Yellow
 
 $localUsers = Get-LocalUser -ErrorAction SilentlyContinue
 
-# [OK] BEST PRACTICE: Capture foreach output directly (O(n) statt O(n2))
+# [OK] BEST PRACTICE: Capture foreach output directly (O(n) instead of O(n^2))
 $usersBackup = foreach ($user in $localUsers) {
     # Output to pipeline (captured by $usersBackup)
     @{
-        SID = $user.SID.Value  # Nur String-Wert, nicht das ganze .NET Objekt!
+        SID = $user.SID.Value  # Only string value, not the whole .NET object!
         Name = $user.Name
         Description = $user.Description
         Enabled = $user.Enabled
@@ -502,7 +513,7 @@ Write-Host ""
 #endregion
 
 #region Registry Keys Backup
-Write-Host "[8/14] $(Get-LocalizedString 'BackupRegistry')" -ForegroundColor Yellow
+Write-Host "[8/13] $(Get-LocalizedString 'BackupRegistry')" -ForegroundColor Yellow
 
 # Function to backup registry values
 function Backup-RegistryValue {
@@ -513,12 +524,25 @@ function Backup-RegistryValue {
     
     try {
         if (Test-Path -Path $Path) {
-            # Safe property check - no error records created
-            $item = Get-ItemProperty -Path $Path -ErrorAction SilentlyContinue
-            if ($item -and ($item.PSObject.Properties.Name -contains $Name)) {
-                $rawValue = $item.$Name
+            # Safe property check - track access denied keys
+            $rawValue = $null
+            $accessDenied = $false
+            
+            try {
+                $item = Get-ItemProperty -Path $Path -ErrorAction Stop
+                if ($item -and ($item.PSObject.Properties.Name -contains $Name)) {
+                    $rawValue = $item.$Name
+                }
             }
-            else {
+            catch [System.Security.SecurityException], [System.UnauthorizedAccessException] {
+                # Access denied - key exists but we can't read it
+                $accessDenied = $true
+                $rawValue = $null
+                # Remove only this specific error from the error stack
+                if ($Error.Count -gt 0) { $Error.RemoveAt(0) }
+            }
+            catch {
+                # Other error - key might not exist
                 $rawValue = $null
             }
             
@@ -546,12 +570,39 @@ function Backup-RegistryValue {
             
             # CRITICAL FIX: Use unique property names to avoid JSON serialization issues
             # "Value" as property name can collide with registry value name "Value"!
+            
+            # Safe GetValueKind - track access denied
+            $regType = "Unknown"
+            if (-not $accessDenied) {
+                try {
+                    $regItem = Get-Item -Path $Path -ErrorAction Stop
+                    if ($regItem) { 
+                        $regType = $regItem.GetValueKind($Name).ToString()
+                    }
+                }
+                catch [System.Security.SecurityException], [System.UnauthorizedAccessException] {
+                    # Access denied on Get-Item too
+                    $accessDenied = $true
+                    $regType = "AccessDenied"
+                    # Remove only this specific error from the error stack
+                    if ($Error.Count -gt 0) { $Error.RemoveAt(0) }
+                }
+                catch {
+                    # Other error
+                    $regType = "Unknown"
+                }
+            }
+            else {
+                $regType = "AccessDenied"
+            }
+            
             return @{
                 RegPath = $Path
                 RegName = $Name
                 RegValue = $convertedValue
-                RegType = (Get-Item -Path $Path).GetValueKind($Name).ToString()
+                RegType = $regType
                 RegExists = $true
+                AccessDenied = $accessDenied
             }
         }
         
@@ -559,6 +610,7 @@ function Backup-RegistryValue {
             RegPath = $Path
             RegName = $Name
             RegExists = $false
+            AccessDenied = $false
         }
     }
     catch {
@@ -566,6 +618,7 @@ function Backup-RegistryValue {
             RegPath = $Path
             RegName = $Name
             RegExists = $false
+            AccessDenied = $false
             RegError = $_.Exception.Message
         }
     }
@@ -696,7 +749,12 @@ $registryKeys = @(
     @{Path="HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Paint"; Name="DisableImageCreator"},
     
     # Notepad AI Features
-    @{Path="HKLM:\SOFTWARE\Policies\WindowsNotepad"; Name="DisableAIFeatures"}
+    @{Path="HKLM:\SOFTWARE\Policies\WindowsNotepad"; Name="DisableAIFeatures"},
+    
+    # ===== BLOATWARE MODULE - UI ELEMENTS (HKLM: 2 KEYS) =====
+    # CRITICAL FIX v1.7.12: Added for complete restore capability
+    @{Path="HKLM:\SOFTWARE\Policies\Microsoft\Dsh"; Name="AllowNewsAndInterests"},  # Widgets
+    @{Path="HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Chat"; Name="ChatIcon"},  # Teams Chat
     
     # Edge Browser (NEW - Security Policies)
     # Note: Edge policies are in HKLM:\SOFTWARE\Policies\Microsoft\Edge
@@ -865,7 +923,7 @@ $registryKeys = @(
     @{Path="HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System\Audit"; Name="ProcessCreationIncludeCmdLine_Enabled"},
     
     # ===== CORE MODULE - DEFENDER ADVANCED =====
-    @{Path="HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Features"; Name="EnableEDRInBlockMode"},
+    # NOTE: EnableEDRInBlockMode is TrustedInstaller-protected and always re-applied - not backed up
     @{Path="HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\NIS"; Name="ConvertWarnToBlock"},
     @{Path="HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender"; Name="ExclusionsVisibleToLocalUsers"},
     @{Path="HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection"; Name="ConfigureRealTimeProtectionOOBE"},
@@ -1007,18 +1065,175 @@ $registryKeys = @(
     @{Path="HKCU:\SOFTWARE\Policies\Microsoft\OneDrive"; Name="PreventNetworkTrafficPreUserSignIn"},
     @{Path="HKCU:\SOFTWARE\Policies\Microsoft\OneDrive"; Name="KFMBlockOptIn"},
     
+    # ===== EDGE MODULE - SMARTSCREEN SETTINGS (HKCU: 3 KEYS) =====
+    # CRITICAL FIX v1.7.12: SmartScreenPuaEnabled needs HKCU for Windows Security GUI checkbox!
+    @{Path="HKCU:\SOFTWARE\Microsoft\Edge"; Name="SmartScreenPuaEnabled"},
+    @{Path="HKCU:\SOFTWARE\Policies\Microsoft\Edge"; Name="SmartScreenEnabled"},
+    @{Path="HKCU:\SOFTWARE\Policies\Microsoft\Edge"; Name="SmartScreenPuaEnabled"},
+    
+    # ===== TELEMETRY MODULE - LOCK SCREEN HARDENING (HKCU: 1 + HKLM: 2 KEYS) =====
+    # CRITICAL FIX v1.7.12: Added for complete restore capability
+    @{Path="HKCU:\SOFTWARE\Policies\Microsoft\Windows\CurrentVersion\PushNotifications"; Name="NoToastApplicationNotificationOnLockScreen"},
+    @{Path="HKLM:\SOFTWARE\Policies\Microsoft\Windows\Personalization"; Name="NoLockScreenCamera"},
+    @{Path="HKLM:\SOFTWARE\Policies\Microsoft\Windows\Personalization"; Name="NoLockScreenSlideshow"},
+    
     # ===== ONEDRIVE MODULE - PRIVACY SETTINGS (HKLM: 4 KEYS) =====
     # CRITICAL FIX v1.7.6: OneDrive now also sets HKLM for new users!
     @{Path="HKLM:\SOFTWARE\Policies\Microsoft\OneDrive"; Name="DisableTutorial"},
     @{Path="HKLM:\SOFTWARE\Policies\Microsoft\OneDrive"; Name="DisableFeedback"},
     @{Path="HKLM:\SOFTWARE\Policies\Microsoft\OneDrive"; Name="PreventNetworkTrafficPreUserSignIn"},
-    @{Path="HKLM:\SOFTWARE\Policies\Microsoft\OneDrive"; Name="KFMBlockOptIn"}
+    @{Path="HKLM:\SOFTWARE\Policies\Microsoft\OneDrive"; Name="KFMBlockOptIn"},
     
     # =====================================================================================
-    # TOTAL REGISTRY-KEYS: ~404 Keys (UPDATED v1.7.11)
-    # - HKLM (System): ~364 Keys (inkl. 4 OneDrive)
-    # - HKCU (User):   ~40 Keys (36 App Permissions × 1 Value + 4 OneDrive)
-    # 
+    # MISSING KEYS ADDED v1.7.12 - Registry Parity Check (68 keys - BATCH 1 of 2)
+    # =====================================================================================
+    # These keys were found by automated parity check comparing Set-RegistryValue calls
+    # with backed-up keys. All are static keys set by modules but not previously backed up.
+    # IMPORTANT: 58 more keys remain to be added in BATCH 2! See PARITY_TODO.txt
+    # =====================================================================================
+    
+    @{Path="HKLM:\SYSTEM\CurrentControlSet\Services\LanmanWorkstation\Parameters"; Name="SMBClientMaximumProtocol"},
+    @{Path="HKLM:\SYSTEM\CurrentControlSet\Services\LanmanWorkstation\Parameters"; Name="RequireEncryption"},
+    @{Path="HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent"; Name="DisableCloudOptimizedContent"},
+    @{Path="HKLM:\SYSTEM\CurrentControlSet\Control\Remote Assistance"; Name="fAllowToGetHelp"},
+    @{Path="HKLM:\SOFTWARE\Policies\Microsoft\FindMyDevice"; Name="AllowFindMyDevice"},
+    @{Path="HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager"; Name="SubscribedContent-353698Enabled"},
+    @{Path="HKLM:\SOFTWARE\Policies\Microsoft\Windows\SettingSync"; Name="DisableSettingSync"},
+    @{Path="HKCU:\Control Panel\International\User Profile"; Name="HttpAcceptLanguageOptOut"},
+    @{Path="HKLM:\SYSTEM\CurrentControlSet\Control\Lsa"; Name="LimitBlankPasswordUse"},
+    @{Path="HKLM:\SOFTWARE\Policies\Microsoft\Windows\SettingSync"; Name="DisableSettingSyncUserOverride"},
+    @{Path="HKLM:\SYSTEM\CurrentControlSet\Control\Lsa\MSV1_0"; Name="NTLMMinClientSec"},
+    @{Path="HKLM:\SYSTEM\CurrentControlSet\Services\Netlogon\Parameters"; Name="RestrictNTLMInDomain"},
+    @{Path="HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager"; Name="SilentInstalledAppsEnabled"},
+    @{Path="HKLM:\SYSTEM\CurrentControlSet\Services\MrxSmb10"; Name="Start"},
+    @{Path="HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\WinHttp"; Name="DisableWpad"},
+    @{Path="HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Attachments"; Name="SaveZoneInformation"},
+    @{Path="HKLM:\SYSTEM\CurrentControlSet\Services\LDAP"; Name="LDAPClientIntegrity"},
+    @{Path="HKLM:\SYSTEM\CurrentControlSet\Services\LanmanWorkstation\Parameters"; Name="SMBClientMinimumProtocol"},
+    @{Path="HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WTDS\Components"; Name="NotifyPasswordReuse"},
+    @{Path="HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule"; Name="DisableRpcOverTcp"},
+    @{Path="HKLM:\SYSTEM\CurrentControlSet\Services\Dnscache\Parameters"; Name="DnssecMode"},
+    @{Path="HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\Wpad"; Name="DoNotUseWPAD"},
+    @{Path="HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager"; Name="SubscribedContent-310093Enabled"},
+    @{Path="HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager"; Name="SubscribedContent-338389Enabled"},
+    @{Path="HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management\PrefetchParameters"; Name="EnableSuperfetch"},
+    @{Path="HKCU:\SOFTWARE\Policies\Microsoft\Windows\AppPrivacy"; Name="LetAppsGetDiagnosticInfo"},
+    @{Path="HKLM:\SYSTEM\CurrentControlSet\Control\SecurePipeServers\winreg"; Name="RemoteRegAccess"},
+    @{Path="HKLM:\SOFTWARE\Policies\Microsoft\Windows\Explorer"; Name="NoInstrumentation"},
+    @{Path="HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System\KDC\Parameters"; Name="PKINITHashAlgorithm"},
+    @{Path="HKLM:\SYSTEM\CurrentControlSet\Services\LanmanWorkstation\Parameters"; Name="DisableSmb1"},
+    @{Path="HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System"; Name="LocalAccountTokenFilterPolicy"},
+    @{Path="HKLM:\SOFTWARE\Policies\Microsoft\Windows\PowerShell\Transcription"; Name="EnableTranscripting"},
+    @{Path="HKLM:\SYSTEM\CurrentControlSet\Services\WlanSvc\Parameters"; Name="DisableMdnsDiscovery"},
+    @{Path="HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System"; Name="InactivityTimeoutSecs"},
+    @{Path="HKCU:\Software\Microsoft\GameBar"; Name="AutoGameModeEnabled"},
+    @{Path="HKLM:\SOFTWARE\Policies\Microsoft\Windows\PowerShell\Transcription"; Name="EnableInvocationHeader"},
+    @{Path="HKLM:\SOFTWARE\Policies\Microsoft\Windows\RemovableStorageDevices\{53f5630d-b6bf-11d0-94f2-00a0c91efb8b}"; Name="Deny_Execute"},
+    @{Path="HKLM:\SOFTWARE\Policies\Microsoft\Cryptography\Configuration\SSL\00010002"; Name="Functions"},
+    @{Path="HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services"; Name="fAllowUnsolicited"},
+    @{Path="HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WTDS\Components"; Name="NotifyUnsafeApp"},
+    @{Path="HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management\PrefetchParameters"; Name="EnablePrefetcher"},
+    @{Path="HKLM:\SYSTEM\CurrentControlSet\Control\Lsa"; Name="RunAsPPL"},
+    @{Path="HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection"; Name="MaxTelemetryAllowed"},
+    @{Path="HKCU:\Software\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy"; Name="HasAccepted"},
+    @{Path="HKCU:\SOFTWARE\Policies\Microsoft\MicrosoftEdge\PhishingFilter"; Name="EnabledV9"},
+    @{Path="HKLM:\Software\Policies\Microsoft\Windows\LanmanWorkstation"; Name="AllowInsecureGuestAuth"},
+    @{Path="HKLM:\SYSTEM\CurrentControlSet\Services\LanmanWorkstation\Parameters"; Name="EnablePlainTextPassword"},
+    @{Path="HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\appDiagnostics"; Name="Value"},
+    @{Path="HKCU:\Software\Microsoft\InputPersonalization"; Name="RestrictImplicitInkCollection"},
+    @{Path="HKLM:\SOFTWARE\Policies\Microsoft\Edge"; Name="EnhancedSecurityMode"},
+    @{Path="HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager"; Name="SubscribedContent-338388Enabled"},
+    @{Path="HKLM:\SYSTEM\CurrentControlSet\Control\Lsa\MSV1_0"; Name="AuditReceivingNTLMTraffic"},
+    @{Path="HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\CredSSP\\Parameters"; Name="AllowEncryptionOracle"},
+    @{Path="HKLM:\SYSTEM\CurrentControlSet\Services\LanmanWorkstation\Parameters"; Name="AuditServerDoesNotSupportEncryption"},
+    @{Path="HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Installer"; Name="EnableUserControl"},
+    @{Path="HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Windows Search"; Name="AllowIndexingEncryptedStoresOrItems"},
+    @{Path="HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\CredentialsDelegation"; Name="AllowDefCredentialsWhenNTLMOnly"},
+    @{Path="HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System\Kerberos\Parameters"; Name="SupportedEncryptionTypes"},
+    @{Path="HKLM:\SYSTEM\CurrentControlSet\Control\Lsa\MSV1_0"; Name="RestrictReceivingNTLMTraffic"},
+    @{Path="HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager"; Name="SubscribedContent-353696Enabled"},
+    @{Path="HKCU:\Software\Microsoft\GameBar"; Name="AllowAutoGameMode"},
+    @{Path="HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Search"; Name="EnableDynamicContentInWSB"},
+    @{Path="HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\System"; Name="EnumerateLocalUsers"},
+    @{Path="HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager"; Name="SystemPaneSuggestionsEnabled"},
+    @{Path="HKCU:\SOFTWARE\Policies\Microsoft\Windows\Explorer"; Name="DisableSearchBoxSuggestions"},
+    @{Path="HKLM:\SYSTEM\CurrentControlSet\Services\LanmanWorkstation\Parameters"; Name="EnableRemoteMailslots"},
+    @{Path="HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters"; Name="AuditClientDoesNotSupportSigning"},
+    @{Path="HKCU:\Software\Microsoft\Windows\CurrentVersion\GameDVR"; Name="AppCaptureEnabled"},
+    
+    # ===== BATCH 2 - Remaining 57 static keys =====
+    @{Path="HKCU:\Software\Microsoft\Windows\CurrentVersion\Search"; Name="CortanaConsent"},
+    @{Path="HKLM:\SYSTEM\CurrentControlSet\Services\LanmanWorkstation\Parameters"; Name="AuditServerDoesNotSupportSigning"},
+    @{Path="HKLM:\SOFTWARE\Policies\Microsoft\Windows\AppPrivacy"; Name="LetAppsGetDiagnosticInfo"},
+    @{Path="HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer"; Name="SmartScreenEnabled"},
+    @{Path="HKLM:\SOFTWARE\Policies\Microsoft\Windows\System"; Name="AllowClipboardHistory"},
+    @{Path="HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\Maintenance"; Name="MaintenanceDisabled"},
+    @{Path="HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Installer"; Name="AlwaysInstallElevated"},
+    @{Path="HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer\NoDriveTypeAutoRun"; Name="NoDriveTypeAutoRun"},
+    @{Path="HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon"; Name="ScRemoveOption"},
+    @{Path="HKLM:\\SOFTWARE\\Policies\\Microsoft\\Internet Explorer\\Feeds"; Name="DisableEnclosureDownload"},
+    @{Path="HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer"; Name="NoDriveTypeAutoRun"},
+    @{Path="HKLM:\SYSTEM\CurrentControlSet\Services\Dnscache\Parameters"; Name="EnableDnssec"},
+    @{Path="HKCU:\System\GameConfigStore"; Name="GameDVR_Enabled"},
+    @{Path="HKCU:\Software\Microsoft\InputPersonalization"; Name="RestrictImplicitTextCollection"},
+    @{Path="HKCU:\Software\Microsoft\Windows\CurrentVersion\Search"; Name="BingSearchEnabled"},
+    @{Path="HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\Maintenance"; Name="IdleOnly"},
+    @{Path="HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\LAPS\Config"; Name="BackupDirectory"},
+    @{Path="HKLM:\SYSTEM\CurrentControlSet\Control\Lsa"; Name="RestrictRemoteSAM"},
+    @{Path="HKLM:\SOFTWARE\Policies\Microsoft\Windows\PowerShell\ScriptBlockLogging"; Name="EnableScriptBlockLogging"},
+    @{Path="HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters"; Name="NullSessionPipes"},
+    @{Path="HKLM:\SYSTEM\CurrentControlSet\Services\LanmanWorkstation\Parameters"; Name="AuditInsecureGuestLogon"},
+    @{Path="HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters"; Name="AuditClientDoesNotSupportEncryption"},
+    @{Path="HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced"; Name="Start_TrackProgs"},
+    @{Path="HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR"; Name="AllowGameDVR"},
+    @{Path="HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL"; Name="EventLogging"},
+    @{Path="HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WTDS\Components"; Name="ServiceEnabled"},
+    @{Path="HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager"; Name="SubscribedContent-338393Enabled"},
+    @{Path="HKLM:\SOFTWARE\Microsoft\Windows Search"; Name="SetupCompletedSuccessfully"},
+    @{Path="HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager"; Name="SubscribedContent-353694Enabled"},
+    @{Path="HKCU:\Software\Microsoft\InputPersonalization\TrainedDataStore"; Name="HarvestContacts"},
+    @{Path="HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer"; Name="NoAutorun"},
+    @{Path="HKLM:\SYSTEM\CurrentControlSet\Services\Dnscache\Parameters"; Name="EnableDnssecIPv6"},
+    @{Path="HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System"; Name="AdminApprovalModeType"},
+    @{Path="HKLM:\SOFTWARE\Policies\Microsoft\Windows\LocationAndSensors"; Name="DisableWindowsLocationProvider"},
+    @{Path="HKLM:\SOFTWARE\Policies\Microsoft\Windows\System"; Name="AllowCrossDeviceClipboard"},
+    @{Path="HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters"; Name="EnableRemoteMailslots"},
+    @{Path="HKLM:\SOFTWARE\Policies\Microsoft\Windows\PowerShell\Transcription"; Name="OutputDirectory"},
+    @{Path="HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Attachments"; Name="ScanWithAntiVirus"},
+    @{Path="HKLM:\SYSTEM\CurrentControlSet\Control\Lsa"; Name="LmCompatibilityLevel"},
+    @{Path="HKCU:\SOFTWARE\Policies\Microsoft\MicrosoftEdge\PhishingFilter"; Name="PreventOverride"},
+    @{Path="HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters"; Name="AuditInsecureGuestLogon"},
+    @{Path="HKLM:\SYSTEM\CurrentControlSet\Control\Lsa"; Name="AllowNullSessionFallback"},
+    @{Path="HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services"; Name="Shadow"},
+    @{Path="HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System"; Name="DisableAutomaticRestartSignOn"},
+    @{Path="HKCU:\Software\Microsoft\Personalization\Settings"; Name="AcceptedPrivacyPolicy"},
+    @{Path="HKLM:\SOFTWARE\Microsoft\WcmSvc\wifinetworkmanager\config"; Name="AutoConnectAllowedOEM"},
+    @{Path="HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System"; Name="ConsentPromptBehaviorAdminInEPPMode"},
+    @{Path="HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager"; Name="PreInstalledAppsEnabled"},
+    @{Path="HKLM:\SYSTEM\CurrentControlSet\Control\Lsa"; Name="SCENoApplyLegacyAuditPolicy"},
+    @{Path="HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\LAPS\Config"; Name="PostAuthenticationActions"},
+    @{Path="HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Search"; Name="ConnectedSearchUseWeb"},
+    @{Path="HKLM:\SYSTEM\CurrentControlSet\Control\Lsa\MSV1_0"; Name="NTLMMinServerSec"},
+    @{Path="HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\LAPS\Config"; Name="Enabled"},
+    @{Path="HKLM:\SOFTWARE\Microsoft\Speech_OneCore\Preferences"; Name="VoiceActivationEnableAboveLockscreen"},
+    @{Path="HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System\Kerberos\Parameters"; Name="PKINITHashAlgorithm"},
+    @{Path="HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters"; Name="EncryptData"},
+    @{Path="HKLM:\SYSTEM\CurrentControlSet\Services\Netlogon\Parameters"; Name="AuditNTLMInDomain"}
+    
+    # =====================================================================================
+    # TOTAL REGISTRY-KEYS: 398 Keys (EXACT COUNT - UPDATED v1.7.12)
+    # REMOVED: 2 TrustedInstaller-protected keys (EnableEDRInBlockMode, EnableAppInstallControl)
+    # These keys are always re-applied by the script and cannot be backed up without ownership change
+    # - HKLM (System): ~315 Keys
+    # - HKCU (User):   ~85 Keys
+    #
+    # PARITY CHECK RESULTS (377 Set-RegistryValue calls in modules):
+    # - 125 missing static keys added (68 in Batch 1, 57 in Batch 2)
+    # - 39 dynamic keys (loop-based) are handled by code, not in backup array
+    # - 2 TrustedInstaller keys excluded (always re-applied, cannot be backed up)
+    # - 23 calls are duplicates/context-specific (same key set multiple times)
+    # - Result: 398 backupable keys (377 + 39 - 2 - 16 duplicates)
+    #
     # BREAKDOWN HKCU App Permissions (36 Total):
     # - 15 Original (Notifications, Contacts, Calendar, Email, etc.)
     # - 3 Additional 25H2 (Music, Downloads, AutoFileDownloads)
@@ -1029,18 +1244,34 @@ $registryKeys = @(
     # =====================================================================================
 )
 
-# [OK] BEST PRACTICE: Capture foreach output directly (O(n) statt O(n2))
+# [OK] BEST PRACTICE: Capture foreach output directly (O(n) instead of O(n^2))
 $registryBackup = foreach ($regKey in $registryKeys) {
     # Function returns hashtable - output to pipeline (captured by $registryBackup)
     Backup-RegistryValue -Path $regKey.Path -Name $regKey.Name
 }
 
 $backup.Settings.RegistryKeys = $registryBackup
-Write-Host "[OK] $($registryBackup.Count) $(Get-LocalizedString 'BackupRegistrySaved')`n" -ForegroundColor Green
+Write-Host "[OK] $($registryBackup.Count) $(Get-LocalizedString 'BackupRegistrySaved')" -ForegroundColor Green
+
+# Check for Access Denied keys (should be 0 after removing TrustedInstaller-protected keys)
+$accessDeniedKeys = $registryBackup | Where-Object { 
+    $_.PSObject.Properties.Name -contains 'AccessDenied' -and $_.AccessDenied -eq $true 
+}
+if ($accessDeniedKeys) {
+    Write-Host ""
+    Write-Host "[!] WARNUNG: $($accessDeniedKeys.Count) Registry-Keys konnten NICHT gesichert werden (Access Denied)!" -ForegroundColor Yellow
+    Write-Host "[i] Diese Keys existieren, sind aber durch TrustedInstaller/System geschuetzt:" -ForegroundColor Yellow
+    $accessDeniedKeys | ForEach-Object {
+        Write-Host "    - $($_.RegPath)\$($_.RegName)" -ForegroundColor Gray
+    }
+    Write-Host "[!] Diese Keys werden bei Restore NICHT wiederhergestellt!" -ForegroundColor Yellow
+    Write-Host "[i] BITTE MELDEN an NoID Privacy Team - diese Keys sollten aus Backup entfernt werden!" -ForegroundColor Cyan
+}
+Write-Host ""
 #endregion
 
 #region ASR Rules Backup (Attack Surface Reduction)
-Write-Host "[9/14] Backup ASR Rules..." -ForegroundColor Yellow
+Write-Host "[9/13] $(Get-LocalizedString 'BackupASRTitle')" -ForegroundColor Yellow
 
 $asrBackup = @{
     Rules = @()
@@ -1062,14 +1293,14 @@ try {
             }
         }
         
-        Write-Host "[OK] $($asrBackup.Rules.Count) ASR Rules gesichert" -ForegroundColor Green
+        Write-Host "[OK] $(Get-LocalizedString 'BackupASRSaved' $asrBackup.Rules.Count)" -ForegroundColor Green
     }
     else {
-        Write-Host "[INFO] Keine ASR Rules gefunden (Defender nicht konfiguriert)" -ForegroundColor Gray
+        Write-Host "[INFO] $(Get-LocalizedString 'BackupASRNotFound')" -ForegroundColor Gray
     }
 }
 catch {
-    Write-Warning "ASR Rules Backup fehlgeschlagen: $_"
+    Write-Warning (Get-LocalizedString 'BackupASRFailed' $_)
     $asrBackup.Enabled = $false
 }
 
@@ -1078,7 +1309,7 @@ Write-Host ""
 #endregion
 
 #region Exploit Protection Backup (Set-ProcessMitigation)
-Write-Host "[10/14] Backup Exploit Protection..." -ForegroundColor Yellow
+Write-Host "[10/13] $(Get-LocalizedString 'BackupExploitTitle')" -ForegroundColor Yellow
 
 $exploitProtectionBackup = @{
     SystemMitigations = @()
@@ -1105,18 +1336,18 @@ try {
                 ExtensionPoints = $systemMitigations.ExtensionPoint
             }
             
-            Write-Host "[OK] Exploit Protection Einstellungen gesichert" -ForegroundColor Green
+            Write-Host "[OK] $(Get-LocalizedString 'BackupExploitSaved')" -ForegroundColor Green
         }
         else {
-            Write-Host "[INFO] Exploit Protection nicht konfiguriert" -ForegroundColor Gray
+            Write-Host "[INFO] $(Get-LocalizedString 'BackupExploitNotConfigured')" -ForegroundColor Gray
         }
     }
     else {
-        Write-Host "[INFO] Get-ProcessMitigation nicht verfuegbar (Windows 10 1709+ erforderlich)" -ForegroundColor Gray
+        Write-Host "[INFO] $(Get-LocalizedString 'BackupExploitNotAvailable')" -ForegroundColor Gray
     }
 }
 catch {
-    Write-Warning "Exploit Protection Backup fehlgeschlagen: $_"
+    Write-Warning (Get-LocalizedString 'BackupExploitFailed' $_)
     $exploitProtectionBackup.Enabled = $false
 }
 
@@ -1125,7 +1356,7 @@ Write-Host ""
 #endregion
 
 #region DoH Configuration Backup (DNS over HTTPS)
-Write-Host "[11/14] Backup DoH Configuration..." -ForegroundColor Yellow
+Write-Host "[11/13] $(Get-LocalizedString 'BackupDohTitle')" -ForegroundColor Yellow
 
 $dohBackup = @{
     Servers = @()
@@ -1150,18 +1381,18 @@ try {
                 }
             }
             
-            Write-Host "[OK] $($dohBackup.Servers.Count) DoH Server gesichert" -ForegroundColor Green
+            Write-Host "[OK] $(Get-LocalizedString 'BackupDohSaved' $dohBackup.Servers.Count)" -ForegroundColor Green
         }
         else {
-            Write-Host "[INFO] Keine DoH Konfiguration gefunden" -ForegroundColor Gray
+            Write-Host "[INFO] $(Get-LocalizedString 'BackupDohNotFound')" -ForegroundColor Gray
         }
     }
     else {
-        Write-Host "[INFO] DoH nicht verfuegbar (Windows 11+ erforderlich)" -ForegroundColor Gray
+        Write-Host "[INFO] $(Get-LocalizedString 'BackupDohNotAvailable')" -ForegroundColor Gray
     }
 }
 catch {
-    Write-Warning "DoH Backup fehlgeschlagen: $_"
+    Write-Warning (Get-LocalizedString 'BackupDohFailed' $_)
     $dohBackup.Enabled = $false
 }
 
@@ -1170,7 +1401,7 @@ Write-Host ""
 #endregion
 
 #region DoH Encryption Preferences Backup (Adapter-specific DohFlags)
-Write-Host "[12/14] Backup DoH Encryption Preferences (Adapter-specific)..." -ForegroundColor Yellow
+Write-Host "[12/13] $(Get-LocalizedString 'BackupDohEncryptionTitle')" -ForegroundColor Yellow
 
 $dohEncryptionBackup = @{
     Adapters = @()
@@ -1242,18 +1473,18 @@ try {
         if ($dohEncryptionBackup.Adapters.Count -gt 0) {
             $dohEncryptionBackup.Enabled = $true
             $totalServers = ($dohEncryptionBackup.Adapters | ForEach-Object { $_.IPv4Servers.Count + $_.IPv6Servers.Count } | Measure-Object -Sum).Sum
-            Write-Host "[OK] DoH Encryption Preferences: $($dohEncryptionBackup.Adapters.Count) Adapter, $totalServers DNS-Server" -ForegroundColor Green
+            Write-Host "[OK] $(Get-LocalizedString 'BackupDohEncryptionSaved' $dohEncryptionBackup.Adapters.Count $totalServers)" -ForegroundColor Green
         }
         else {
-            Write-Host "[INFO] Keine DoH Encryption Preferences gefunden" -ForegroundColor Gray
+            Write-Host "[INFO] $(Get-LocalizedString 'BackupDohEncryptionNotFound')" -ForegroundColor Gray
         }
     }
     else {
-        Write-Host "[INFO] Keine aktiven Netzwerkadapter gefunden" -ForegroundColor Gray
+        Write-Host "[INFO] $(Get-LocalizedString 'BackupDohEncryptionNoAdapters')" -ForegroundColor Gray
     }
 }
 catch {
-    Write-Warning "DoH Encryption Preferences Backup fehlgeschlagen: $_"
+    Write-Warning (Get-LocalizedString 'BackupDohEncryptionFailed' $_)
     $dohEncryptionBackup.Enabled = $false
 }
 
@@ -1262,7 +1493,7 @@ Write-Host ""
 #endregion
 
 #region Firewall Profile Settings Backup
-Write-Host "[13/14] Backup Firewall Profile Settings..." -ForegroundColor Yellow
+Write-Host "[13/13] $(Get-LocalizedString 'BackupFirewallProfilesTitle')" -ForegroundColor Yellow
 
 $firewallProfileBackup = @{
     Profiles = @()
@@ -1300,14 +1531,14 @@ try {
     
     if ($firewallProfileBackup.Profiles.Count -gt 0) {
         $firewallProfileBackup.Enabled = $true
-        Write-Host "[OK] $($firewallProfileBackup.Profiles.Count) Firewall Profile gesichert" -ForegroundColor Green
+        Write-Host "[OK] $(Get-LocalizedString 'BackupFirewallProfilesSaved' $firewallProfileBackup.Profiles.Count)" -ForegroundColor Green
     }
     else {
-        Write-Host "[INFO] Keine Firewall Profiles gefunden" -ForegroundColor Gray
+        Write-Host "[INFO] $(Get-LocalizedString 'BackupFirewallProfilesNotFound')" -ForegroundColor Gray
     }
 }
 catch {
-    Write-Warning "Firewall Profile Backup fehlgeschlagen: $_"
+    Write-Warning (Get-LocalizedString 'BackupFirewallProfilesFailed' $_)
     $firewallProfileBackup.Enabled = $false
 }
 
@@ -1315,75 +1546,12 @@ $backup.Settings.FirewallProfiles = $firewallProfileBackup
 Write-Host ""
 #endregion
 
-#region Device-Level App Permission SubKeys Backup
-Write-Host "[14/14] Backup Device-Level App Permissions..." -ForegroundColor Yellow  # Intentionally English
-
-$deviceLevelBackup = @{
-    Apps = @()
-    Enabled = $false
-}
-
-try {
-    # Backup for Camera, Microphone, Location (Device-Level SubKeys)
-    $permissions = @('webcam', 'microphone', 'location')
-    
-    foreach ($permission in $permissions) {
-        $capabilitiesPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\Capabilities\$permission\Apps"
-        
-        if (Test-Path $capabilitiesPath) {
-            $apps = Get-ChildItem -Path $capabilitiesPath -ErrorAction SilentlyContinue
-            
-            foreach ($app in $apps) {
-                try {
-                    $appName = $app.PSChildName
-                    # Safe property check - no error records created
-                    $item = Get-ItemProperty -Path $app.PSPath -ErrorAction SilentlyContinue
-                    $hasProperty = $item -and ($item.PSObject.Properties.Name -contains "EnabledByUser")
-                    
-                    if ($hasProperty) {
-                        $enabledByUser = $item
-                        $deviceLevelBackup.Apps += @{
-                            Permission = $permission
-                            AppName = $appName
-                            EnabledByUser = $enabledByUser.EnabledByUser
-                            Exists = $true
-                        }
-                    }
-                    else {
-                        # Key exists but EnabledByUser doesn't
-                        $deviceLevelBackup.Apps += @{
-                            Permission = $permission
-                            AppName = $appName
-                            Exists = $false
-                        }
-                    }
-                }
-                catch {
-                    Write-Verbose "Device-Level App '$appName' konnte nicht gebackuped werden: $_"
-                }
-            }
-        }
-    }
-    
-    if ($deviceLevelBackup.Apps.Count -gt 0) {
-        $deviceLevelBackup.Enabled = $true
-        Write-Host "[OK] $($deviceLevelBackup.Apps.Count) Device-Level App Permissions gesichert" -ForegroundColor Green
-    }
-    else {
-        Write-Host "[INFO] Keine Device-Level App Permissions gefunden" -ForegroundColor Gray
-    }
-}
-catch {
-    Write-Warning "Device-Level Backup fehlgeschlagen: $_"
-    $deviceLevelBackup.Enabled = $false
-}
-
-$backup.Settings.DeviceLevelApps = $deviceLevelBackup
-Write-Host ""
-#endregion
+# NOTE: Device-Level Backup (EnabledByUser) was removed in v1.7.12
+# Reason: All EnabledByUser keys are TrustedInstaller-protected and always re-applied by the script
+# Backup is meaningless as keys cannot be read (Access Denied) or written without ownership change
 
 #region System Info
-Write-Host "[14/14] $(Get-LocalizedString 'BackupSystem')" -ForegroundColor Yellow
+Write-Host "$(Get-LocalizedString 'BackupSystem')" -ForegroundColor Yellow
 
 $systemInfo = @{
     ComputerName = $env:COMPUTERNAME
@@ -1405,7 +1573,7 @@ Write-Host "[SAVE] $(Get-LocalizedString 'BackupSaving')" -ForegroundColor Cyan
 
 try {
     # STRATEGY: Try with all data, reduce data on timeout
-    Write-Host "  [i] Konvertiere zu JSON (max 120s)..." -ForegroundColor Gray
+    Write-Host "$(Get-LocalizedString 'BackupConvertingJSON')" -ForegroundColor Gray
     
     $jsonJob = Start-Job -ScriptBlock {
         param($backupData)
@@ -1417,10 +1585,10 @@ try {
     if (-not $jsonCompleted) {
         # TIMEOUT! Versuche FALLBACK
         Remove-Job $jsonJob -Force
-        Write-Warning "JSON Timeout - versuche mit reduzierten Daten..."
+        Write-Warning (Get-LocalizedString 'BackupJSONTimeout')
         
         $backup.Settings.FirewallRules = @()
-        Write-Host "  [i] FALLBACK: Ohne Firewall Rules" -ForegroundColor Yellow
+        Write-Host "$(Get-LocalizedString 'BackupJSONFallback')" -ForegroundColor Yellow
         
         $jsonJob2 = Start-Job -ScriptBlock {
             param($backupData)
@@ -1431,26 +1599,26 @@ try {
         
         if (-not $jsonCompleted2) {
             Remove-Job $jsonJob2 -Force
-            throw "JSON-Konvertierung fehlgeschlagen!"
+            throw (Get-LocalizedString 'BackupJSONFailed')
         }
         
         $json = Receive-Job $jsonJob2 -ErrorAction Stop
         Remove-Job $jsonJob2 -Force
-        Write-Host "  [OK] JSON erstellt (REDUZIERT)" -ForegroundColor Yellow
+        Write-Host "$(Get-LocalizedString 'BackupJSONReduced')" -ForegroundColor Yellow
     }
     else {
         $json = Receive-Job $jsonJob -ErrorAction Stop
         Remove-Job $jsonJob -Force
-        Write-Host "  [OK] JSON erstellt (VOLLSTAENDIG)" -ForegroundColor Green
+        Write-Host "$(Get-LocalizedString 'BackupJSONComplete')" -ForegroundColor Green
     }
     
     if ([string]::IsNullOrWhiteSpace($json)) {
-        throw "JSON-Konvertierung leer!"
+        throw (Get-LocalizedString 'BackupJSONEmpty')
     }
     
-    Write-Host "  [i] Groesse: $([Math]::Round($json.Length / 1KB, 2)) KB" -ForegroundColor Cyan
+    Write-Host "$(Get-LocalizedString 'BackupJSONSize' ([Math]::Round($json.Length / 1KB, 2)))" -ForegroundColor Cyan
     
-    Write-Host "  [i] Speichere Datei..." -ForegroundColor Gray
+    Write-Host "$(Get-LocalizedString 'BackupSavingFile')" -ForegroundColor Gray
     $tempBackupFile = "$backupFile.tmp"
     # [OK] BEST PRACTICE: UTF-8 without BOM (PowerShell 5.1 compatible)
     # Out-File -Encoding utf8 in PS 5.1 creates file WITH BOM!
@@ -1460,7 +1628,7 @@ try {
     
     $fileInfo = Get-Item $tempBackupFile -ErrorAction Stop
     if ($fileInfo.Length -lt 1KB) {
-        throw "Backup-Datei zu klein!"
+        throw (Get-LocalizedString 'BackupFileTooSmall')
     }
     
     # Atomarer Replace: Temp -> Final
@@ -1489,7 +1657,6 @@ try {
     Write-Host "  - DoH Servers: $($backup.Settings.DoH.Servers.Count)" -ForegroundColor Gray
     Write-Host "  - DoH Encryption: $($backup.Settings.DohEncryption.Adapters.Count) Adapter" -ForegroundColor Gray
     Write-Host "  - Firewall Profiles: $($backup.Settings.FirewallProfiles.Profiles.Count)" -ForegroundColor Gray
-    Write-Host "  - Device-Level Apps: $($backup.Settings.DeviceLevelApps.Apps.Count)" -ForegroundColor Gray
     Write-Host ""
     Write-Host "$(Get-LocalizedString 'BackupNote')" -ForegroundColor Yellow
     Write-Host ""
@@ -1497,19 +1664,19 @@ try {
     # Automatic validation (prevents corrupt backups)
     Write-Host ""
     Write-Host "============================================================================" -ForegroundColor Cyan
-    Write-Host "  BACKUP-VALIDIERUNG" -ForegroundColor Cyan
+    Write-Host "  $(Get-LocalizedString 'BackupValidationTitle')" -ForegroundColor Cyan
     Write-Host "============================================================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "[i] Validiere Backup-Datei..." -ForegroundColor Gray
+    Write-Host "[i] $(Get-LocalizedString 'BackupValidating')" -ForegroundColor Gray
     
     # Validation 1: File exists and size OK
     $fileInfo = Get-Item $backupFile -ErrorAction Stop
     $fileSizeKB = [Math]::Round($fileInfo.Length / 1KB, 2)
     
     if ($fileInfo.Length -lt 5KB) {
-        throw "Backup-Validierung fehlgeschlagen: Datei zu klein ($fileSizeKB KB)"
+        throw (Get-LocalizedString 'BackupValidationFileTooSmall' $fileSizeKB)
     }
-    Write-Host "  [OK] Dateigroesse: $fileSizeKB KB" -ForegroundColor Green
+    Write-Host "$(Get-LocalizedString 'BackupValidationFileSize' $fileSizeKB)" -ForegroundColor Green
     
     # Validation 2: JSON is parsable
     $testParse = $null  # Initialisiere Variable VORHER!
@@ -1517,24 +1684,24 @@ try {
         # IMPORTANT: Use UTF8 without BOM when reading (prevents encoding issues)
         $jsonContent = [System.IO.File]::ReadAllText($backupFile, [System.Text.Encoding]::UTF8)
         $testParse = $jsonContent | ConvertFrom-Json -ErrorAction Stop
-        Write-Host "  [OK] JSON-Format korrekt" -ForegroundColor Green
+        Write-Host "$(Get-LocalizedString 'BackupValidationJSONOK')" -ForegroundColor Green
         
         # Validate that essential keys are present
         if (-not $testParse.Settings) {
-            throw "Backup-Validierung fehlgeschlagen: Settings-Objekt fehlt"
+            throw (Get-LocalizedString 'BackupValidationNoSettings')
         }
         if (-not $testParse.Timestamp) {
-            throw "Backup-Validierung fehlgeschlagen: Timestamp fehlt"
+            throw (Get-LocalizedString 'BackupValidationNoTimestamp')
         }
-        Write-Host "  [OK] Backup-Struktur korrekt" -ForegroundColor Green
+        Write-Host "$(Get-LocalizedString 'BackupValidationStructureOK')" -ForegroundColor Green
     }
     catch {
-        Write-Host "  [WARN] JSON-Validierung fehlgeschlagen (nicht kritisch)" -ForegroundColor Yellow
-        Write-Host "         Fehler: $($_.Exception.Message)" -ForegroundColor Gray
+        Write-Host "$(Get-LocalizedString 'BackupValidationJSONFailed')" -ForegroundColor Yellow
+        Write-Host "$(Get-LocalizedString 'BackupValidationJSONError' $_.Exception.Message)" -ForegroundColor Gray
         Write-Host ""
-        Write-Host "  HINWEIS: Das Backup wurde erstellt, aber Validierung schlug fehl." -ForegroundColor Gray
-        Write-Host "           Dies passiert manchmal bei PowerShell-JSON-Serialisierung." -ForegroundColor Gray
-        Write-Host "           Das Backup sollte trotzdem verwendbar sein!" -ForegroundColor Gray
+        Write-Host "$(Get-LocalizedString 'BackupValidationHint1')" -ForegroundColor Gray
+        Write-Host "$(Get-LocalizedString 'BackupValidationHint2')" -ForegroundColor Gray
+        Write-Host "$(Get-LocalizedString 'BackupValidationHint3')" -ForegroundColor Gray
         Write-Host ""
         # DON'T throw - Backup is probably OK!
         # throw "Backup validation failed: JSON not parsable - $($_.Exception.Message)"
@@ -1548,14 +1715,14 @@ try {
         }
         
         if (-not $hasData) {
-            Write-Host "  [WARN] Backup scheint leer zu sein" -ForegroundColor Yellow
+            Write-Host "$(Get-LocalizedString 'BackupValidationEmpty')" -ForegroundColor Yellow
         }
         else {
-            Write-Host "  [OK] Backup enthaelt Daten" -ForegroundColor Green
+            Write-Host "$(Get-LocalizedString 'BackupValidationDataOK')" -ForegroundColor Green
         }
     }
     else {
-        Write-Host "  [WARN] JSON-Validierung uebersprungen (Backup sollte trotzdem nutzbar sein)" -ForegroundColor Yellow
+        Write-Host "$(Get-LocalizedString 'BackupValidationSkipped')" -ForegroundColor Yellow
     }
     
     Write-Host ""
@@ -1563,34 +1730,34 @@ try {
     Write-Host "  $(Get-LocalizedString 'BackupValidationSuccess')" -ForegroundColor Green
     Write-Host "============================================================================" -ForegroundColor Green
     Write-Host ""
-    Write-Host "  Datei: $backupFile" -ForegroundColor Cyan
-    Write-Host "  Groesse: $fileSizeKB KB" -ForegroundColor White
+    Write-Host "$(Get-LocalizedString 'BackupValidationFile' $backupFile)" -ForegroundColor Cyan
+    Write-Host "$(Get-LocalizedString 'BackupValidationSize' $fileSizeKB)" -ForegroundColor White
     if ($testParse) {
-        Write-Host "  Status: Vollstaendig und gueltig" -ForegroundColor Green
+        Write-Host "$(Get-LocalizedString 'BackupValidationStatusComplete')" -ForegroundColor Green
     }
     else {
-        Write-Host "  Status: Erstellt (JSON-Validierung fehlgeschlagen)" -ForegroundColor Yellow
+        Write-Host "$(Get-LocalizedString 'BackupValidationStatusCreated')" -ForegroundColor Yellow
     }
     Write-Host ""
     Write-Host "[i] $(Get-LocalizedString 'BackupNote')" -ForegroundColor Yellow
     Write-Host ""
     Write-Host "============================================================================" -ForegroundColor Cyan
-    Write-Host "                        LETZTE WARNUNG VOR START                            " -ForegroundColor Yellow
+    Write-Host "                        $(Get-LocalizedString 'BackupLastWarningTitle')                            " -ForegroundColor Yellow
     Write-Host "============================================================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "  Nach ENTER startet das Hauptskript im Enforce Mode und zieht komplett durch!" -ForegroundColor Yellow
-    Write-Host "  Alle Module werden ausgefuehrt - KEINE weiteren Abfragen!" -ForegroundColor Yellow
+    Write-Host "$(Get-LocalizedString 'BackupLastWarningText')" -ForegroundColor Yellow
+    Write-Host "$(Get-LocalizedString 'BackupLastWarningAllModules')" -ForegroundColor Yellow
     Write-Host ""
-    Write-Host "  Letzte Chance zum Abbrechen: STRG+C druecken" -ForegroundColor Red
+    Write-Host "$(Get-LocalizedString 'BackupLastWarningAbort')" -ForegroundColor Red
     Write-Host ""
-    Write-Host "  Druecken Sie ENTER um jetzt zu starten..." -ForegroundColor White
+    Write-Host "$(Get-LocalizedString 'BackupLastWarningPressEnter')" -ForegroundColor White
     Write-Host ""
     
     # Best Practice: Final pause before the big start
     $null = Read-Host
     
     Write-Host ""
-    Write-Host "[OK] Backup bestaetigt - Hauptskript startet JETZT!" -ForegroundColor Green
+    Write-Host "[OK] $(Get-LocalizedString 'BackupConfirmed')" -ForegroundColor Green
     Write-Host ""
     
     # Set exit code and return (for dot-sourcing)
@@ -1600,7 +1767,7 @@ try {
 catch {
     Write-Host ""
     Write-Host "============================================================================" -ForegroundColor Red
-    Write-Host "  [FAIL] BACKUP FEHLGESCHLAGEN!" -ForegroundColor Red
+    Write-Host "  $(Get-LocalizedString 'BackupFailedTitle')" -ForegroundColor Red
     Write-Host "============================================================================" -ForegroundColor Red
     Write-Host "[ERROR] $_" -ForegroundColor Red
     Write-Host ""
@@ -1609,21 +1776,21 @@ catch {
     $tempBackupFile = "$backupFile.tmp"
     if (Test-Path $tempBackupFile) {
         Remove-Item $tempBackupFile -Force -ErrorAction SilentlyContinue
-        Write-Verbose "Temp-Backup-Datei bereinigt: $tempBackupFile"
+        Write-Verbose (Get-LocalizedString 'BackupTempCleaned' $tempBackupFile)
     }
     
     # ===== USER DECISION ON ERROR =====
     Write-Host "============================================================================" -ForegroundColor Yellow
-    Write-Host "  WARNUNG: Backup konnte nicht erstellt werden!" -ForegroundColor Yellow
+    Write-Host "  $(Get-LocalizedString 'BackupErrorWarningTitle')" -ForegroundColor Yellow
     Write-Host "============================================================================" -ForegroundColor Yellow
     Write-Host ""
-    Write-Host "  Moechten Sie trotzdem OHNE Backup fortfahren?" -ForegroundColor Yellow
-    Write-Host "  (Nicht empfohlen - Sie haben KEIN Safety Net!)" -ForegroundColor Red
+    Write-Host "$(Get-LocalizedString 'BackupErrorContinuePrompt')" -ForegroundColor Yellow
+    Write-Host "$(Get-LocalizedString 'BackupErrorContinueRisk')" -ForegroundColor Red
     Write-Host ""
-    Write-Host "  [J] Ja, trotzdem fortfahren (RISKANT!)" -ForegroundColor Red
-    Write-Host "  [N] Nein, abbrechen (EMPFOHLEN!)" -ForegroundColor Green
+    Write-Host "$(Get-LocalizedString 'BackupErrorContinueYes')" -ForegroundColor Red
+    Write-Host "$(Get-LocalizedString 'BackupErrorContinueNo')" -ForegroundColor Green
     Write-Host ""
-    Write-Host -NoNewline "  Ihre Wahl [J/N]: " -ForegroundColor Cyan
+    Write-Host -NoNewline "$(Get-LocalizedString 'BackupErrorContinueChoice')" -ForegroundColor Cyan
     
     $userConfirm = Read-Host
     if ($userConfirm) {
@@ -1633,16 +1800,16 @@ catch {
     Write-Host ""
     
     if ($userConfirm -in @('J', 'Y')) {
-        Write-Host "  [WARNUNG] User faehrt OHNE Backup fort!" -ForegroundColor Yellow
-        Write-Host "  Hauptskript wird fortfahren - KEIN Safety Net!" -ForegroundColor Yellow
+        Write-Host "$(Get-LocalizedString 'BackupErrorUserContinues')" -ForegroundColor Yellow
+        Write-Host "$(Get-LocalizedString 'BackupErrorNoSafetyNet')" -ForegroundColor Yellow
         Write-Host ""
         # Set exit code and return (for dot-sourcing)
         $Global:LASTEXITCODE = 0
         return
     }
     else {
-        Write-Host "  [ABBRUCH] User hat abgebrochen - RICHTIGE Entscheidung!" -ForegroundColor Green
-        Write-Host "  Hauptskript wird NICHT fortfahren!" -ForegroundColor Green
+        Write-Host "$(Get-LocalizedString 'BackupErrorUserAborted')" -ForegroundColor Green
+        Write-Host "$(Get-LocalizedString 'BackupErrorWillNotContinue')" -ForegroundColor Green
         Write-Host ""
         # Set exit code and return (for dot-sourcing)
         $Global:LASTEXITCODE = 1

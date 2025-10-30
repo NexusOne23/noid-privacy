@@ -150,7 +150,7 @@ function Set-RegistryValue {
     try {
         # Create key if not exists
         if (-not (Test-Path -Path $Path)) {
-            Write-Verbose (Get-LocalizedString 'CommonCreatingKey' -f $Path)
+            Write-Verbose (Get-LocalizedString 'CommonCreatingKey' $Path)
             $null = New-Item -Path $Path -Force -ErrorAction Stop
         }
         
@@ -172,13 +172,13 @@ function Set-RegistryValue {
             Write-Verbose "     $Description : $Name = $Value"
         }
         else {
-            Write-Verbose (Get-LocalizedString 'CommonRegistrySet' -f $Path, $Name, $Value)
+            Write-Verbose (Get-LocalizedString 'CommonRegistrySet' $Path $Name $Value)
         }
         
         return $true
     }
     catch {
-        Write-Error-Custom (Get-LocalizedString 'CommonRegistryError' -f $Path, $Name, $_)
+        Write-Error-Custom (Get-LocalizedString 'CommonRegistryError' $Path $Name $_)
         Write-Verbose "Details: $($_.Exception.Message)"
         return $false
     }
@@ -227,11 +227,11 @@ function Stop-ServiceSafe {
     try {
         $service = Get-Service -Name $ServiceName -ErrorAction SilentlyContinue
         if (-not $service) {
-            Write-Verbose (Get-LocalizedString 'CommonServiceNotFound' -f $ServiceName)
+            Write-Verbose (Get-LocalizedString 'CommonServiceNotFound' $ServiceName)
             return $false
         }
         
-        Write-Verbose (Get-LocalizedString 'CommonDisablingService' -f $ServiceName, $service.Status)
+        Write-Verbose (Get-LocalizedString 'CommonDisablingService' $ServiceName $service.Status)
         
         # === STEP 1: Set StartupType to Disabled FIRST ===
         # CRITICAL: Prevents service from restarting between Stop and SetStartupType
@@ -264,12 +264,12 @@ function Stop-ServiceSafe {
                 
                 $service = Get-Service -Name $ServiceName
                 if ($service.Status -eq "Stopped") {
-                    Write-Verbose ("     " + (Get-LocalizedString 'CommonServiceStopped' -f $waited))
+                    Write-Verbose ("     " + (Get-LocalizedString 'CommonServiceStopped' $waited))
                     break
                 }
                 
                 if ($waited -ge $MaxWaitSeconds) {
-                    Write-Warning (Get-LocalizedString 'CommonServiceTimeout' -f $ServiceName, $MaxWaitSeconds)
+                    Write-Warning (Get-LocalizedString 'CommonServiceTimeout' $ServiceName $MaxWaitSeconds)
                     Write-Warning "  Status: $($service.Status)"
                     # Not critical - StartupType=Disabled is more important
                     break
@@ -293,29 +293,29 @@ function Stop-ServiceSafe {
                 }
                 else {
                     # StartupType=Disabled is reached, status is less critical
-                    Write-Verbose (Get-LocalizedString 'CommonServiceDisabledWillNotStart' -f $ServiceName, $service.Status)
+                    Write-Verbose (Get-LocalizedString 'CommonServiceDisabledWillNotStart' $ServiceName $service.Status)
                     return $true
                 }
             }
             else {
-                Write-Error-Custom (Get-LocalizedString 'CommonServiceCouldNotDisable' -f $ServiceName, $serviceCim.StartMode)
+                Write-Error-Custom (Get-LocalizedString 'CommonServiceCouldNotDisable' $ServiceName $serviceCim.StartMode)
                 return $false
             }
         }
         catch {
-            Write-Verbose (Get-LocalizedString 'CommonCIMCheckFailed' -f $_)
+            Write-Verbose (Get-LocalizedString 'CommonCIMCheckFailed' $_)
             # Fallback: Assume Set-Service was successful
-            Write-Verbose (Get-LocalizedString 'CommonServiceDisabledAssumed' -f $ServiceName)
+            Write-Verbose (Get-LocalizedString 'CommonServiceDisabledAssumed' $ServiceName)
             return $true
         }
     }
     catch [Microsoft.PowerShell.Commands.ServiceCommandException] {
         # Service doesn't exist - that's OK (already uninstalled or never installed)
-        Write-Verbose (Get-LocalizedString 'CommonServiceNotInstalled' -f $ServiceName)
+        Write-Verbose (Get-LocalizedString 'CommonServiceNotInstalled' $ServiceName)
         return $true
     }
     catch {
-        Write-Error-Custom (Get-LocalizedString 'CommonServiceDisableError' -f $ServiceName, $_)
+        Write-Error-Custom (Get-LocalizedString 'CommonServiceDisableError' $ServiceName $_)
         Write-Verbose "Details: $($_.Exception.Message)"
         return $false
     }

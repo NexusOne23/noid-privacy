@@ -48,8 +48,55 @@ function Set-EdgeSecurityBaseline {
     Set-RegistryValue -Path $edgePolicyPath -Name "SmartScreenEnabled" -Value 1 -Type DWord `
         -Description "Enable SmartScreen (even if deprecated since Edge v139+)"
     
+    # IMPORTANT: SmartScreenPuaEnabled controls "Block downloads" checkbox in Windows Security GUI
+    # NOTE: Edge browser MUST be restarted for this to show in Windows Security GUI!
+    # This is separate from Defender PUA "Block apps" checkbox (configured in Core module)
+    
+    # CRITICAL: Set in HKLM (Policy)
     Set-RegistryValue -Path $edgePolicyPath -Name "SmartScreenPuaEnabled" -Value 1 -Type DWord `
-        -Description "Enable SmartScreen PUA (Potentially Unwanted Apps)"
+        -Description "Enable SmartScreen PUA (Blocks downloads of potentially unwanted apps)"
+    
+    # CRITICAL FIX v1.7.12: Windows Security GUI checks HKCU, not HKLM!
+    # Must set in CURRENT USER in BOTH paths for checkbox to appear in Windows Security GUI
+    $edgeUserPath = "HKCU:\SOFTWARE\Microsoft\Edge"
+    Set-RegistryValue -Path $edgeUserPath -Name "SmartScreenPuaEnabled" -Value 1 -Type DWord `
+        -Description "Enable SmartScreen PUA for current user (Windows Security GUI)"
+    
+    # CRITICAL FIX v1.7.12: Also set in HKCU Policy path (required for GUI checkbox!)
+    # BOTH SmartScreenEnabled AND SmartScreenPuaEnabled needed in HKCU for Windows Security GUI!
+    $edgeUserPolicyPath = "HKCU:\SOFTWARE\Policies\Microsoft\Edge"
+    Set-RegistryValue -Path $edgeUserPolicyPath -Name "SmartScreenEnabled" -Value 1 -Type DWord `
+        -Description "Enable SmartScreen for current user - Policy path (Windows Security GUI)"
+    Set-RegistryValue -Path $edgeUserPolicyPath -Name "SmartScreenPuaEnabled" -Value 1 -Type DWord `
+        -Description "Enable SmartScreen PUA for current user - Policy path (Windows Security GUI)"
+    
+    # CRITICAL FIX v1.7.12: Set for ALL loaded user profiles (HKEY_USERS)
+    # This ensures all logged-in users see the checkbox in Windows Security
+    try {
+        $loadedProfiles = Get-ChildItem -Path "Registry::HKEY_USERS" -ErrorAction SilentlyContinue | 
+            Where-Object { $_.PSChildName -match '^S-1-5-21-[\d\-]+$' }
+        
+        foreach ($userProfile in $loadedProfiles) {
+            # Set in both paths for each user
+            $userEdgePath = "Registry::HKEY_USERS\$($userProfile.PSChildName)\SOFTWARE\Microsoft\Edge"
+            $userEdgePolicyPath = "Registry::HKEY_USERS\$($userProfile.PSChildName)\SOFTWARE\Policies\Microsoft\Edge"
+            
+            if (-not (Test-Path $userEdgePath)) {
+                New-Item -Path $userEdgePath -Force -ErrorAction SilentlyContinue | Out-Null
+            }
+            if (-not (Test-Path $userEdgePolicyPath)) {
+                New-Item -Path $userEdgePolicyPath -Force -ErrorAction SilentlyContinue | Out-Null
+            }
+            
+            Set-ItemProperty -Path $userEdgePath -Name "SmartScreenPuaEnabled" -Value 1 -Type DWord -ErrorAction SilentlyContinue
+            Set-ItemProperty -Path $userEdgePolicyPath -Name "SmartScreenEnabled" -Value 1 -Type DWord -ErrorAction SilentlyContinue
+            Set-ItemProperty -Path $userEdgePolicyPath -Name "SmartScreenPuaEnabled" -Value 1 -Type DWord -ErrorAction SilentlyContinue
+        }
+        Write-Verbose "SmartScreenPuaEnabled set for $($loadedProfiles.Count) loaded user profile(s)"
+    }
+    catch {
+        Write-Verbose "Could not set SmartScreenPuaEnabled for all users: $_"
+    }
     
     Set-RegistryValue -Path $edgePolicyPath -Name "PreventSmartScreenPromptOverride" -Value "true" -Type String `
         -Description "SmartScreen warnings cannot be bypassed"

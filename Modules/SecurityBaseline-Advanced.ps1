@@ -210,7 +210,7 @@ function Enable-AdvancedAuditing {
         }
     }
     catch {
-        Write-Warning (Get-LocalizedString 'AdvancedAuditTranscriptError' -f $_)
+        Write-Warning (Get-LocalizedString 'AdvancedAuditTranscriptError' $_)
     }
     
     Write-Success "$(Get-LocalizedString 'AdvancedAuditActivated')"
@@ -510,7 +510,7 @@ function Add-PrintSpoolerUserRight {
             Write-Info "$(Get-LocalizedString 'AdvancedPrintBaseline')"
         }
         else {
-            Write-Warning-Custom (Get-LocalizedString 'AdvancedPrintImportFailed' -f $LASTEXITCODE)
+            Write-Warning-Custom (Get-LocalizedString 'AdvancedPrintImportFailed' $LASTEXITCODE)
             Write-Verbose "secedit Output: $importResult"
             Write-Info "$(Get-LocalizedString 'AdvancedPrintPrintingWorks')"
         }
@@ -520,7 +520,7 @@ function Add-PrintSpoolerUserRight {
         Remove-Item "$env:windir\security\database\secedit.sdb" -Force -ErrorAction SilentlyContinue
     }
     catch {
-        Write-Warning-Custom (Get-LocalizedString 'AdvancedPrintAssignmentFailed' -f $_)
+        Write-Warning-Custom (Get-LocalizedString 'AdvancedPrintAssignmentFailed' $_)
         Write-Info "$(Get-LocalizedString 'AdvancedPrintStandardPerms')"
         
         # Cleanup on error

@@ -76,8 +76,6 @@ function Remove-BloatwareApps {
         
         # Games & Entertainment
         "*Microsoft.MinecraftUWP*"
-        "*Solitaire*"
-        "*Microsoft.MicrosoftSolitaireCollection*"
         "*Disney*"
         "*Netflix*" # Can be reinstalled from Store
         "*Spotify*" # Can be reinstalled from Store
@@ -137,7 +135,7 @@ function Remove-BloatwareApps {
     )
     
     Write-Info "$(Get-LocalizedString 'BloatwareScanning')"
-    Write-Host ("  [i] " + (Get-LocalizedString 'BloatwareCheckingPatterns' -f $bloatwareList.Count)) -ForegroundColor Gray
+    Write-Host ("  [i] " + (Get-LocalizedString 'BloatwareCheckingPatterns' $bloatwareList.Count)) -ForegroundColor Gray
     
     # PERFORMANCE FIX: Load Get-AppxProvisionedPackage -Online once instead of 78x!
     Write-Host ("  [i] " + (Get-LocalizedString 'BloatwareLoadingPackages')) -ForegroundColor Gray
@@ -147,10 +145,10 @@ function Remove-BloatwareApps {
     $allProvisionedPackages = @()
     try {
         $allProvisionedPackages = @(Get-AppxProvisionedPackage -Online -ErrorAction Stop)
-        Write-Host ("  [OK] " + (Get-LocalizedString 'BloatwarePackagesLoaded' -f $allProvisionedPackages.Count)) -ForegroundColor Green
+        Write-Host ("  [OK] " + (Get-LocalizedString 'BloatwarePackagesLoaded' $allProvisionedPackages.Count)) -ForegroundColor Green
     }
     catch {
-        Write-Verbose (Get-LocalizedString 'BloatwareLoadFailed' -f $_)
+        Write-Verbose (Get-LocalizedString 'BloatwareLoadFailed' $_)
         Write-Host ("  [!] " + (Get-LocalizedString 'BloatwarePackagesSkipped')) -ForegroundColor Yellow
     }
     Write-Host ""
@@ -163,7 +161,7 @@ function Remove-BloatwareApps {
         $currentIndex++
         # Progress display every 10 apps
         if ($currentIndex % 10 -eq 0) {
-            Write-Host ("     " + (Get-LocalizedString 'BloatwareProgress' -f $currentIndex, $bloatwareList.Count)) -ForegroundColor DarkGray
+            Write-Host ("     " + (Get-LocalizedString 'BloatwareProgress' $currentIndex $bloatwareList.Count)) -ForegroundColor DarkGray
         }
         Write-Verbose "Checking: $app"
         
@@ -190,43 +188,32 @@ function Remove-BloatwareApps {
             Write-Verbose "     Removing Provisioned: $($provPackage.DisplayName)"
             Write-Verbose "     NOTE: New users will no longer receive this app"
             
-            # CRITICAL FIX v2: Suppress TerminatingErrors completely (even in Transcript!)
-            # PowerShell writes some TerminatingErrors to Transcript BEFORE Try-Catch catches them
-            # Solution: Set $ErrorActionPreference temporarily to 'SilentlyContinue'
+            # CRITICAL FIX v3: Use ErrorAction Stop + try-catch + clear error record
+            # TerminatingErrors from Remove-AppxProvisionedPackage appear in transcript before catch
+            # Solution: Catch properly then remove the error record
             try {
-                $previousErrorAction = $ErrorActionPreference
-                $ErrorActionPreference = 'SilentlyContinue'
-                
                 Remove-AppxProvisionedPackage -Online -PackageName $provPackage.PackageName `
-                    -WarningAction SilentlyContinue | Out-Null
+                    -ErrorAction Stop -WarningAction SilentlyContinue | Out-Null
                 
-                $ErrorActionPreference = $previousErrorAction
-                
-                # Check if successful (no error in $Error)
-                if ($?) {
-                    $removedCount++
-                    Write-Verbose "     Provisioned package successfully removed"
-                }
-                else {
-                    Write-Verbose "     Provisioned package could not be removed (package does not exist or is protected)"
-                    $failedCount++
-                }
+                $removedCount++
+                Write-Verbose "     Provisioned package successfully removed"
             }
             catch {
-                $ErrorActionPreference = $previousErrorAction
-                Write-Verbose "     Provisioned package could not be removed (package does not exist or is protected)"
+                # Remove the error record to prevent it from appearing in transcript
+                if ($Error.Count -gt 0) { $Error.RemoveAt(0) }
+                Write-Verbose "     Provisioned package could not be removed: $($_.Exception.Message)"
                 $failedCount++
             }
         }
     }
     
     Write-Host ""
-    Write-Host ("     " + (Get-LocalizedString 'BloatwareCompleted' -f $bloatwareList.Count, $bloatwareList.Count)) -ForegroundColor Green
+    Write-Host ("     " + (Get-LocalizedString 'BloatwareCompleted' $bloatwareList.Count $bloatwareList.Count)) -ForegroundColor Green
     
     Write-Success "$(Get-LocalizedString 'BloatwareRemovalDone')"
-    Write-Info (Get-LocalizedString 'BloatwareRemoved' -f $removedCount)
+    Write-Info (Get-LocalizedString 'BloatwareRemoved' $removedCount)
     if ($failedCount -gt 0) {
-        Write-Warning (Get-LocalizedString 'BloatwareFailed' -f $failedCount)
+        Write-Warning (Get-LocalizedString 'BloatwareFailed' $failedCount)
     }
     
     Write-Info "$(Get-LocalizedString 'BloatwareStoreNote')"
