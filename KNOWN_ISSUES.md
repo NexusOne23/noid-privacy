@@ -139,15 +139,18 @@ This document tracks known limitations and issues in **NoID Privacy - Windows 11
 **ShellHost.exe Stack Buffer Overflow Warning**
 
 **Symptom**:  
-After running Wireless Display module, Windows displays error message:  
+After running Wireless Display module, when user clicks "Cast" button (Windows + K or Quick Settings → Cast/Wiedergeben), Windows displays error message:  
 *"Das System hat in dieser Anwendung den Überlauf eines stapelbasierten Puffers ermittelt. Dieser Überlauf könnte einem bösartigen Benutzer ermöglichen, die Steuerung der Anwendung zu übernehmen."*  
 (English: "The system detected a stack-based buffer overflow in this application. This overflow could allow a malicious user to gain control of the application.")
 
+**⚠️ Important:** Error ONLY appears when user actively attempts to cast (clicks Cast button), NOT automatically at system startup or during normal use
+
 **What Happens:**
+- User clicks "Cast" button in Quick Settings or presses Windows + K
 - Windows Shell (ShellHost.exe) attempts to access disabled Miracast services
 - System throws buffer overflow warning as safety mechanism
 - **This is a COSMETIC error message, NOT an actual security vulnerability**
-- The warning appears because Windows expects Miracast services to be available
+- The warning appears because Windows expects Miracast services to be available when Cast is invoked
 
 **Functionality Permanently Lost:**
 - Casting to Smart TV via Miracast

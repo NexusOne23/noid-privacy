@@ -430,10 +430,13 @@ For domain environments:
 *"Das System hat in dieser Anwendung den Überlauf eines stapelbasierten Puffers ermittelt..."*
 
 **What It Means:**
-- This error appears after running the **Wireless Display / Miracast** module
+- This error appears ONLY when you click the **"Cast"** button (Windows + K or Quick Settings → Cast/Wiedergeben)
+- It happens after running the **Wireless Display / Miracast** module
 - Windows Shell tries to access disabled Miracast services
 - **It's a COSMETIC warning, NOT a real security threat**
 - The system is working as designed - services are intentionally disabled
+
+**Important:** Error does NOT appear automatically at startup - only when you actively try to cast
 
 **Why Does It Happen:**
 The Wireless Display module disables casting functionality on 4 levels:

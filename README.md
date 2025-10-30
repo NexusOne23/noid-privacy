@@ -356,10 +356,12 @@ Edit module files in `/Modules/` to adjust settings:
 3. Manual activation: Control Panel → BitLocker
 
 #### ⚠️ ShellHost.exe "Stack Buffer Overflow" Warning
-**Symptom:** After running Wireless Display module, Windows shows:  
+**Symptom:** After running Wireless Display module, when user clicks "Cast" button (Windows + K or Quick Settings → Cast), Windows shows:  
 *"Das System hat in dieser Anwendung den Überlauf eines stapelbasierten Puffers ermittelt..."*
 
-**Cause:** Windows Shell attempts to access disabled Miracast services  
+**Important:** Error ONLY appears when attempting to cast, NOT automatically at system startup
+
+**Cause:** Windows Shell attempts to access disabled Miracast services when Cast button is clicked  
 **Impact:** Cosmetic error message only - NOT an actual security vulnerability  
 **Functionality Lost:** Casting to Smart TV, Miracast, Wireless Display completely disabled
 
