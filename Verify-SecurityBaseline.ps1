@@ -16,10 +16,17 @@
     - Firewall Complete: 25 policies (3 profiles)
     - Network Hardening: 3 settings (mDNS, LLMNR, NetBIOS)
     
-    Total Checks: ~105+ (from ~30)
+    BATCH 3 EXPANSION (Oct 30, 2025):
+    - UAC Detailed: 7 settings (comprehensive)
+    - LSA Protection: 3 settings (Anti-Mimikatz)
+    - Credential Guard/VBS: 5 settings
+    - Windows LAPS: 3 settings
+    - Kerberos Security: 2 settings
+    
+    Total Checks: ~125+ (from ~30)
     
 .NOTES
-    Version:        2.0.0-batch2
+    Version:        2.0.0-batch3
     Last Update:    Oct 30, 2025
     Baseline:       Microsoft Security Baseline 25H2 (Sept 30, 2025)
 #>
@@ -768,16 +775,193 @@ Test-BaselineCheck -Category "Network" -Name "NetBIOS Over TCP/IP Disabled" -Imp
     } `
     -Expected $true
 
-# UAC
-Write-Host "`n=== UAC (USER ACCOUNT CONTROL) ===" -ForegroundColor Yellow
+# ===========================
+# UAC (USER ACCOUNT CONTROL) - DETAILED (7 SETTINGS)
+# ===========================
 
-Test-BaselineCheck -Category "UAC" -Name "UAC Enabled" -Impact "Critical" `
-    -Test { (Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name EnableLUA -ErrorAction SilentlyContinue).EnableLUA } `
+Write-Host "`n=== UAC (USER ACCOUNT CONTROL) - DETAILED (7 SETTINGS) ===" -ForegroundColor Yellow
+
+$uacPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System"
+
+Test-BaselineCheck -Category "UAC" -Name "UAC Enabled (EnableLUA)" -Impact "Critical" `
+    -Test { 
+        $v = Get-ItemProperty $uacPath -Name EnableLUA -ErrorAction SilentlyContinue
+        if ($v) { $v.EnableLUA } else { 0 }
+    } `
     -Expected 1
 
-Test-BaselineCheck -Category "UAC" -Name "UAC Maximum (Slider TOP)" -Impact "High" `
-    -Test { (Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name ConsentPromptBehaviorAdmin -ErrorAction SilentlyContinue).ConsentPromptBehaviorAdmin } `
+Test-BaselineCheck -Category "UAC" -Name "UAC Always Notify (Slider TOP)" -Impact "High" `
+    -Test { 
+        $v = Get-ItemProperty $uacPath -Name ConsentPromptBehaviorAdmin -ErrorAction SilentlyContinue
+        if ($v) { $v.ConsentPromptBehaviorAdmin } else { 5 }
+    } `
     -Expected 2
+
+Test-BaselineCheck -Category "UAC" -Name "UAC Secure Desktop Enabled" -Impact "High" `
+    -Test { 
+        $v = Get-ItemProperty $uacPath -Name PromptOnSecureDesktop -ErrorAction SilentlyContinue
+        if ($v) { $v.PromptOnSecureDesktop } else { 0 }
+    } `
+    -Expected 1
+
+Test-BaselineCheck -Category "UAC" -Name "Standard User Prompt for Credentials" -Impact "Medium" `
+    -Test { 
+        $v = Get-ItemProperty $uacPath -Name ConsentPromptBehaviorUser -ErrorAction SilentlyContinue
+        if ($v) { $v.ConsentPromptBehaviorUser } else { 3 }
+    } `
+    -Expected 1
+
+Test-BaselineCheck -Category "UAC" -Name "UAC Local Account Token Filter (Anti-Pass-the-Hash)" -Impact "Critical" `
+    -Test { 
+        $v = Get-ItemProperty $uacPath -Name LocalAccountTokenFilterPolicy -ErrorAction SilentlyContinue
+        if ($v) { $v.LocalAccountTokenFilterPolicy } else { 1 }
+    } `
+    -Expected 0
+
+Test-BaselineCheck -Category "UAC" -Name "Inactivity Timeout = 900 sec (15 min)" -Impact "High" `
+    -Test { 
+        $v = Get-ItemProperty $uacPath -Name InactivityTimeoutSecs -ErrorAction SilentlyContinue
+        if ($v) { $v.InactivityTimeoutSecs } else { 0 }
+    } `
+    -Expected 900
+
+Test-BaselineCheck -Category "UAC" -Name "EPP Mode Configured (Future-Ready)" -Impact "Low" `
+    -Test { 
+        $v = Get-ItemProperty $uacPath -Name ConsentPromptBehaviorAdminInEPPMode -ErrorAction SilentlyContinue
+        if ($v) { $v.ConsentPromptBehaviorAdminInEPPMode } else { 0 }
+    } `
+    -Expected 2
+
+# ===========================
+# LSA PROTECTION (ANTI-MIMIKATZ) - 3 SETTINGS
+# ===========================
+
+Write-Host "`n=== LSA PROTECTION (ANTI-MIMIKATZ) - 3 SETTINGS ===" -ForegroundColor Yellow
+
+$lsaPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Lsa"
+
+Test-BaselineCheck -Category "LSA" -Name "LSA Protection (RunAsPPL) Enabled" -Impact "Critical" `
+    -Test { 
+        $v = Get-ItemProperty $lsaPath -Name RunAsPPL -ErrorAction SilentlyContinue
+        if ($v) { $v.RunAsPPL } else { 0 }
+    } `
+    -Expected 1
+
+Test-BaselineCheck -Category "LSA" -Name "LM Hash Disabled (Legacy Hashes)" -Impact "High" `
+    -Test { 
+        $v = Get-ItemProperty $lsaPath -Name NoLMHash -ErrorAction SilentlyContinue
+        if ($v) { $v.NoLMHash } else { 0 }
+    } `
+    -Expected 1
+
+Test-BaselineCheck -Category "LSA" -Name "Everyone Excludes Anonymous Users" -Impact "High" `
+    -Test { 
+        $v = Get-ItemProperty $lsaPath -Name EveryoneIncludesAnonymous -ErrorAction SilentlyContinue
+        if ($v) { $v.EveryoneIncludesAnonymous } else { 1 }
+    } `
+    -Expected 0
+
+# ===========================
+# CREDENTIAL GUARD / VBS - 5 SETTINGS
+# ===========================
+
+Write-Host "`n=== CREDENTIAL GUARD / VBS - 5 SETTINGS ===" -ForegroundColor Yellow
+
+$dgPath = "HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard"
+$cgPath = "HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\CredentialGuard"
+$hvciPath = "HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity"
+
+Test-BaselineCheck -Category "CredentialGuard" -Name "VBS (Virtualization-Based Security) Enabled" -Impact "Critical" `
+    -Test { 
+        $v = Get-ItemProperty $dgPath -Name EnableVirtualizationBasedSecurity -ErrorAction SilentlyContinue
+        if ($v) { $v.EnableVirtualizationBasedSecurity } else { 0 }
+    } `
+    -Expected 1
+
+Test-BaselineCheck -Category "CredentialGuard" -Name "VBS Secure Boot + DMA Protection" -Impact "High" `
+    -Test { 
+        $v = Get-ItemProperty $dgPath -Name RequirePlatformSecurityFeatures -ErrorAction SilentlyContinue
+        if ($v) { $v.RequirePlatformSecurityFeatures } else { 0 }
+    } `
+    -Expected 3
+
+Test-BaselineCheck -Category "CredentialGuard" -Name "Credential Guard Enabled (LsaCfgFlags)" -Impact "Critical" `
+    -Test { 
+        $v = Get-ItemProperty $lsaPath -Name LsaCfgFlags -ErrorAction SilentlyContinue
+        if ($v) { $v.LsaCfgFlags } else { 0 }
+    } `
+    -Expected 1
+
+Test-BaselineCheck -Category "CredentialGuard" -Name "Credential Guard Scenario Enabled (25H2)" -Impact "High" `
+    -Test { 
+        $v = Get-ItemProperty $cgPath -Name Enabled -ErrorAction SilentlyContinue
+        if ($v) { $v.Enabled } else { 0 }
+    } `
+    -Expected 1
+
+Test-BaselineCheck -Category "CredentialGuard" -Name "HVCI (Memory Integrity) Enabled" -Impact "Critical" `
+    -Test { 
+        $v = Get-ItemProperty $hvciPath -Name Enabled -ErrorAction SilentlyContinue
+        if ($v) { $v.Enabled } else { 0 }
+    } `
+    -Expected 1
+
+# ===========================
+# WINDOWS LAPS (LOCAL ADMIN PASSWORD SOLUTION) - 3 SETTINGS
+# ===========================
+
+Write-Host "`n=== WINDOWS LAPS (LOCAL ADMIN PASSWORD SOLUTION) - 3 SETTINGS ===" -ForegroundColor Yellow
+
+$lapsPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\LAPS\Config"
+
+if (Test-Path $lapsPath) {
+    
+    Test-BaselineCheck -Category "LAPS" -Name "LAPS Enabled" -Impact "High" `
+        -Test { 
+            $v = Get-ItemProperty $lapsPath -Name Enabled -ErrorAction SilentlyContinue
+            if ($v) { $v.Enabled } else { 0 }
+        } `
+        -Expected 1
+    
+    Test-BaselineCheck -Category "LAPS" -Name "LAPS Password Complexity = Maximum (4)" -Impact "Medium" `
+        -Test { 
+            $v = Get-ItemProperty $lapsPath -Name PasswordComplexity -ErrorAction SilentlyContinue
+            if ($v) { $v.PasswordComplexity } else { 0 }
+        } `
+        -Expected 4
+    
+    Test-BaselineCheck -Category "LAPS" -Name "LAPS Backup to AD/Entra Enabled" -Impact "Medium" `
+        -Test { 
+            $v = Get-ItemProperty $lapsPath -Name BackupDirectory -ErrorAction SilentlyContinue
+            if ($v) { $v.BackupDirectory } else { 0 }
+        } `
+        -Expected 2
+        
+} else {
+    Write-Host "  [!] Windows LAPS not available (Home edition or not configured)" -ForegroundColor Yellow
+}
+
+# ===========================
+# KERBEROS SECURITY - 2 SETTINGS
+# ===========================
+
+Write-Host "`n=== KERBEROS SECURITY - 2 SETTINGS ===" -ForegroundColor Yellow
+
+$kerbPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System\Kerberos\Parameters"
+
+Test-BaselineCheck -Category "Kerberos" -Name "Kerberos PKINIT Hash = SHA256/384/512" -Impact "Medium" `
+    -Test { 
+        $v = Get-ItemProperty $kerbPath -Name PKINITHashAlgorithm -ErrorAction SilentlyContinue
+        if ($v) { $v.PKINITHashAlgorithm } else { 0 }
+    } `
+    -Expected 56
+
+Test-BaselineCheck -Category "Kerberos" -Name "Kerberos Supported Encryption Types (Modern)" -Impact "Medium" `
+    -Test { 
+        $v = Get-ItemProperty $kerbPath -Name SupportedEncryptionTypes -ErrorAction SilentlyContinue
+        if ($v) { $v.SupportedEncryptionTypes } else { 0 }
+    } `
+    -Expected { param($value) $value -ge 24 }
 
 # DNS over HTTPS
 Write-Host "`n=== DNS OVER HTTPS (DoH) ===" -ForegroundColor Yellow
