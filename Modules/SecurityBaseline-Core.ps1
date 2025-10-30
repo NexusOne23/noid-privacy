@@ -2429,6 +2429,27 @@ function Enable-CredentialGuard {
     
     Write-Success "Credential Guard, VBS, HVCI, LSA-PPL configured"
     Write-Warning-Custom "Reboot required!"
+    
+    # CRITICAL: Verify VBS/Credential Guard activation post-reboot
+    # These features can fail silently if hardware requirements are not met
+    Write-Host ""
+    Write-Host "  [!] POST-REBOOT VERIFICATION REQUIRED:" -ForegroundColor Yellow
+    Write-Host ""
+    Write-Host "  After reboot, verify that VBS/Credential Guard are ACTUALLY running:" -ForegroundColor White
+    Write-Host ""
+    Write-Host "  PowerShell Command:" -ForegroundColor Cyan
+    Write-Host '    $vbs = Get-CimInstance -ClassName Win32_DeviceGuard -Namespace root\Microsoft\Windows\DeviceGuard' -ForegroundColor Gray
+    Write-Host '    $vbs.SecurityServicesRunning' -ForegroundColor Gray
+    Write-Host ""
+    Write-Host "  Expected Output: 1 or 2 (Credential Guard running)" -ForegroundColor Green
+    Write-Host "  If Output is empty or 0: VBS/Credential Guard FAILED to start!" -ForegroundColor Red
+    Write-Host ""
+    Write-Host "  Common Causes of Failure:" -ForegroundColor Yellow
+    Write-Host "    - TPM 2.0 not present or not enabled" -ForegroundColor White
+    Write-Host "    - Virtualization disabled in BIOS/UEFI" -ForegroundColor White
+    Write-Host "    - Incompatible CPU (Intel <8th Gen, AMD <Ryzen 2000)" -ForegroundColor White
+    Write-Host "    - Incompatible Hypervisor (VMware, VirtualBox without nested VT)" -ForegroundColor White
+    Write-Host ""
 }
 
 #endregion
@@ -2679,13 +2700,27 @@ function Enable-BitLockerPolicies {
         Write-Warning-Custom 'Without Recovery Key, data is PERMANENTLY lost if TPM fails!'
     }
     else {
-        Write-Info 'BitLocker can be activated manually: Control Panel | BitLocker'
+        # CRITICAL WARNING: BitLocker policies are configured but NOT active!
+        # This can create false sense of security - user MUST manually enable it
         Write-Host ""
-        Write-Info 'RECOMMENDATION on activation:'
-        Write-Info '  - Save Recovery Key in Microsoft Account (automatic + secure)'
-        Write-Info '  - Alternative: USB stick or print'
+        Write-Host "  ⚠️⚠️⚠️ CRITICAL: BITLOCKER IS NOT ACTIVE! ⚠️⚠️⚠️" -ForegroundColor Red
         Write-Host ""
-        Write-Warning-Custom 'IMPORTANT: ALWAYS store Recovery Key in secure location!'
+        Write-Host "  Policies are configured, but BitLocker is NOT enabled!" -ForegroundColor Yellow
+        Write-Host "  Your drive is NOT encrypted - data can be stolen if device is lost!" -ForegroundColor Yellow
+        Write-Host ""
+        Write-Host "  YOU MUST MANUALLY ENABLE BITLOCKER:" -ForegroundColor Red
+        Write-Host ""
+        Write-Host "  Option 1: Control Panel" -ForegroundColor Cyan
+        Write-Host "    1. Open Control Panel" -ForegroundColor White
+        Write-Host "    2. Navigate to: System and Security -> BitLocker Drive Encryption" -ForegroundColor White
+        Write-Host "    3. Click 'Turn on BitLocker' for C: drive" -ForegroundColor White
+        Write-Host "    4. Save Recovery Key to Microsoft Account (recommended)" -ForegroundColor White
+        Write-Host ""
+        Write-Host "  Option 2: PowerShell (requires admin)" -ForegroundColor Cyan
+        Write-Host '    Enable-BitLocker -MountPoint "C:" -EncryptionMethod XtsAes256' -ForegroundColor Gray
+        Write-Host ""
+        Write-Host "  ⚠️  WITHOUT BITLOCKER ENABLED, YOUR DATA IS NOT ENCRYPTED!" -ForegroundColor Red
+        Write-Host ""
     }
 }
 
