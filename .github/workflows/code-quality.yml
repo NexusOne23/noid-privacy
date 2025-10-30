@@ -32,9 +32,14 @@ jobs:
         
         Write-Host "Found $($files.Count) PowerShell files to analyze"
         
-        # Run analyzer on all files
+        # Run analyzer on all files with custom settings
+        $settingsFile = ".\.pssa-settings.psd1"
         $results = $files | ForEach-Object {
-          Invoke-ScriptAnalyzer -Path $_.FullName -Severity Error,Warning
+          if (Test-Path $settingsFile) {
+            Invoke-ScriptAnalyzer -Path $_.FullName -Settings $settingsFile
+          } else {
+            Invoke-ScriptAnalyzer -Path $_.FullName -Severity Error,Warning
+          }
         }
         
         # Display results

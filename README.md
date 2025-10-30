@@ -418,13 +418,18 @@ This project uses GitHub Actions for automated quality checks and releases:
 # Install PSScriptAnalyzer
 Install-Module -Name PSScriptAnalyzer -Force
 
-# Run analysis on all scripts
-Get-ChildItem -Include *.ps1,*.psm1 -Recurse | Invoke-ScriptAnalyzer
+# Run analysis with project settings (recommended)
+Invoke-ScriptAnalyzer -Path . -Settings .pssa-settings.psd1 -Recurse
+
+# Or check specific file
+Invoke-ScriptAnalyzer -Path "Apply-Win11-25H2-SecurityBaseline.ps1" -Settings .pssa-settings.psd1
 
 # Validate syntax
 $file = "Apply-Win11-25H2-SecurityBaseline.ps1"
 [System.Management.Automation.Language.Parser]::ParseFile($file, [ref]$null, [ref]$null)
 ```
+
+**Note:** This project uses `.pssa-settings.psd1` to exclude rules not applicable to interactive, user-facing scripts (e.g., `PSAvoidUsingWriteHost` is intentionally used for colored console output).
 
 ---
 
