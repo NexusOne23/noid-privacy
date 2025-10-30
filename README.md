@@ -456,10 +456,11 @@ The authors are not responsible for any damage or data loss caused by this scrip
 **Status:** Production-Ready ✅
 
 ### Recent Updates (v1.7.12)
-- ✅ **Registry Parity Check** - 125 missing keys added, 100% parity achieved
-- ✅ **Backup Bugfix** - NULL reference error fixed for protected registry keys
-- ✅ **App List Localization** - Desktop export fully localized (DE/EN)
-- ✅ **UI Restore** - Widgets, Teams Chat, Lock Screen, Copilot restore capability
+- ✅ **Access Denied Errors Fixed** - Device-Level Backup removed (TrustedInstaller-protected, always re-applied)
+- ✅ **Bloatware TerminatingError Fixed** - Removed problematic Solitaire patterns (corrupted path)
+- ✅ **Step Counters Updated** - Changed from [X/14] to [X/13] (13 user-visible backup steps)
+- ✅ **Registry Key Count** - Documented 398 keys (was 400, removed 2 TrustedInstaller keys)
+- ✅ **Error Handling Improved** - Using $Error.RemoveAt(0) instead of $Error.Clear()
 
 ### Previous Updates (v1.7.11)
 - ✅ **IPv6 DoH Encryption** - Full IPv6 DNS-over-HTTPS support (Doh6 registry branch)
