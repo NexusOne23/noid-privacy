@@ -25,9 +25,13 @@
     
     Total Checks: ~125+ (from ~30)
     
+    CHANGELOG (Oct 31, 2025):
+    - Added transcript logging for audit trail and debugging
+    - Logs saved to: C:\ProgramData\SecurityBaseline\Logs\Verify-*.log
+    
 .NOTES
-    Version:        2.0.0-batch3
-    Last Update:    Oct 30, 2025
+    Version:        2.0.1
+    Last Update:    Oct 31, 2025
     Baseline:       Microsoft Security Baseline 25H2 (Sept 30, 2025)
 #>
 
@@ -60,6 +64,28 @@ catch {
 
 if (-not (Test-Path $ReportPath)) {
     $null = New-Item -Path $ReportPath -ItemType Directory -Force
+}
+
+# Script-scope variables for transcript
+$script:transcriptPath = ""
+$script:transcriptStarted = $false
+
+# Start Transcript for audit trail
+$LogPath = "$env:ProgramData\SecurityBaseline\Logs"
+if (-not (Test-Path $LogPath)) {
+    $null = New-Item -Path $LogPath -ItemType Directory -Force
+}
+
+$timestamp = Get-Date -Format 'yyyyMMdd-HHmmss'
+$script:transcriptPath = Join-Path $LogPath "Verify-SecurityBaseline-$timestamp.log"
+
+try {
+    Start-Transcript -Path $script:transcriptPath -ErrorAction Stop
+    $script:transcriptStarted = $true
+    Write-Verbose "Transcript started: $script:transcriptPath"
+}
+catch {
+    Write-Warning "Could not start transcript: $_"
 }
 
 Write-Host "`n================================================================" -ForegroundColor Cyan
@@ -1100,6 +1126,23 @@ if ($ExportReport) {
     $csvPath = Join-Path $ReportPath "Verification-$timestamp.csv"
     $script:results | Export-Csv -Path $csvPath -NoTypeInformation
     Write-Host "`n   Report exported: $csvPath" -ForegroundColor Cyan
+}
+
+# Stop Transcript
+if ($script:transcriptStarted) {
+    Write-Host ""
+    Write-Host "================================================================" -ForegroundColor Gray
+    Write-Host "LOGS & DETAILS" -ForegroundColor White
+    Write-Host "================================================================" -ForegroundColor Gray
+    Write-Host "Transcript Log: $script:transcriptPath" -ForegroundColor Cyan
+    Write-Host ""
+    
+    try {
+        Stop-Transcript -ErrorAction Stop
+    }
+    catch {
+        Write-Verbose "Could not stop transcript: $_"
+    }
 }
 
 Write-Host ""
