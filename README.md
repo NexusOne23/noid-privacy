@@ -40,7 +40,7 @@
 
 **Your Computer Becomes a Fortress:**
 - **Microsoft Defender** → 6 protection layers = Real-time malware blocking + Cloud AI threat detection + PUA + EDR
-- **16 Attack Surface Reduction Rules** → Blocks ransomware, macros, exploits, credential theft - [See ASR Details](ASR_RULES.md)
+- **19 Attack Surface Reduction Rules** → Blocks ransomware, macros, exploits, credential theft - [See ASR Details](ASR_RULES.md)
 - **10 Exploit Mitigations** → Memory-based attacks fail (DEP, SEHOP, ASLR, CFG Strict, Heap Protection, Image Load Protection)
 - **Credential Protection** → Your passwords can't be stolen from memory (Credential Guard + LSA Protection + Mimikatz mitigation)
 - **BitLocker XTS-AES-256** → Stolen laptop = useless encrypted brick (TPM 2.0 + optional PIN)
@@ -401,7 +401,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
   - 100+ extended hardening settings beyond baseline
 
 - **[ASR Rules Reference](ASR_RULES.md)** - Attack Surface Reduction rules detailed breakdown
-  - All 16 rule GUIDs and descriptions
+  - All 19 rule GUIDs and descriptions
   - Deployment modes (Audit/Warn/Block)
   - False positive guidance
   - Event monitoring and troubleshooting

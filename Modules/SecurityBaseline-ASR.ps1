@@ -11,7 +11,7 @@ function Set-AttackSurfaceReductionRules {
     .SYNOPSIS
         Configure Attack Surface Reduction Rules (ASR)
     .DESCRIPTION
-        Sets the 23 Microsoft-recommended ASR rules for Windows 11.
+        Sets 19 Microsoft-recommended ASR rules for Windows 11.
         ASR reduces the attack surface by blocking dangerous behaviors.
         Best Practice 25H2: Audit or Block Mode, CmdletBinding, ArrayList Performance.
     .PARAMETER Mode
@@ -43,7 +43,7 @@ function Set-AttackSurfaceReductionRules {
         Write-Warning-Custom "$(Get-LocalizedString 'ASREvaluateLogs')"
     }
     
-    # 23 ASR Rules (Microsoft Best Practice 25H2)
+    # 19 ASR Rules (Microsoft Best Practice 25H2)
     $asrRules = @{
         "56a863a9-875e-4185-98a7-b882c64b5ce5" = @{
             Name = "Block abuse of exploited vulnerable signed drivers"

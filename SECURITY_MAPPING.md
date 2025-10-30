@@ -91,7 +91,7 @@ Full ASR rules mapping available in [ASR_RULES.md](ASR_RULES.md).
 | **Credential Theft** | 2 rules | Enforce | `SecurityBaseline-ASR.ps1` |
 | **Ransomware** | 2 rules | Enforce | `SecurityBaseline-ASR.ps1` |
 
-**Total:** 16 ASR rules (all from Microsoft Security Baseline 25H2)
+**Total:** 19 ASR rules (all from Microsoft Security Baseline 25H2)
 
 ---
 
