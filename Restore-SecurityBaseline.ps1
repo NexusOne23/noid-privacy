@@ -450,6 +450,81 @@ foreach ($dnsConfig in $backup.Settings.DNS) {
     }
 }
 
+# CRITICAL: Also reset IPv6 on ALL other adapters (in case Apply set Cloudflare IPv6 on adapters not in backup)
+# This handles the case where:
+# 1. Backup was made BEFORE Apply set Cloudflare DNS
+# 2. Apply set Cloudflare IPv6 on adapter that was down/not in backup
+# 3. Restore only touches adapters from backup → Cloudflare IPv6 stays
+Write-Verbose "Checking for leftover IPv6 DNS on adapters not in backup..."
+
+try {
+    # Get list of InterfaceIndexes that were in backup
+    $backedUpIndexes = @($backup.Settings.DNS | ForEach-Object { $_.InterfaceIndex } | Where-Object { $_ })
+    
+    # Get all adapters
+    $allAdapters = Get-NetAdapter -ErrorAction Stop | Where-Object { $_.Status -eq "Up" }
+    
+    # VPN/VM adapter patterns (same as Apply script)
+    $vpnPatterns = @(
+        "*VPN*", "*Tunnel*", "*TAP*", "*WireGuard*", "*OpenVPN*", 
+        "*Cisco*", "*Pulse*", "*FortiClient*", "*Virtual*Adapter*", 
+        "*PPP*", "*PPTP*", "*L2TP*", "*IKEv2*"
+    )
+    $vmPatterns = @(
+        "*Hyper-V*", "*VMware*", "*VirtualBox*", "*Docker*", "*WSL*"
+    )
+    
+    foreach ($adapter in $allAdapters) {
+        # Skip if adapter was in backup (already handled)
+        if ($adapter.ifIndex -in $backedUpIndexes) {
+            Write-Verbose "  Adapter '$($adapter.Name)' was in backup - already restored"
+            continue
+        }
+        
+        # Skip VPN adapters
+        $isVPN = $false
+        foreach ($pattern in $vpnPatterns) {
+            if ($adapter.InterfaceDescription -like $pattern -or $adapter.Name -like $pattern) {
+                $isVPN = $true
+                break
+            }
+        }
+        if ($adapter.InterfaceType -eq 131 -or $adapter.MediaType -eq "Tunnel") {
+            $isVPN = $true
+        }
+        
+        # Skip VM adapters
+        $isVM = $false
+        foreach ($pattern in $vmPatterns) {
+            if ($adapter.InterfaceDescription -like $pattern -or $adapter.Name -like $pattern) {
+                $isVM = $true
+                break
+            }
+        }
+        
+        if ($isVPN) {
+            Write-Verbose "  Adapter '$($adapter.Name)' is VPN - skipped"
+            continue
+        }
+        if ($isVM) {
+            Write-Verbose "  Adapter '$($adapter.Name)' is VM - skipped"
+            continue
+        }
+        
+        # Check if this adapter has IPv6 DNS set
+        $currentIPv6 = Get-DnsClientServerAddress -InterfaceIndex $adapter.ifIndex -AddressFamily IPv6 -ErrorAction SilentlyContinue
+        
+        if ($currentIPv6 -and $currentIPv6.ServerAddresses) {
+            # Adapter not in backup but has IPv6 DNS (probably set by Apply) - reset it
+            Write-Verbose "  Adapter '$($adapter.Name)' not in backup but has IPv6 DNS: $($currentIPv6.ServerAddresses -join ', ') - resetting"
+            Set-DnsClientServerAddress -InterfaceIndex $adapter.ifIndex -AddressFamily IPv6 -ResetServerAddresses -ErrorAction SilentlyContinue
+        }
+    }
+}
+catch {
+    Write-Verbose "Could not check/reset leftover IPv6 DNS: $_"
+}
+
 # Summary
 if ($dnsRestoredCount -gt 0) {
     Write-Host "  [OK] $dnsRestoredCount DNS adapter(s) restored" -ForegroundColor Green
