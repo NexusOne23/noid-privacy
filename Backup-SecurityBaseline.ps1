@@ -1096,7 +1096,7 @@ try {
     # Validation 3: At least a few important entries (only if testParse exists)
     if ($testParse) {
         $hasData = $false
-        if ($testParse.Settings.DNS -or $testParse.Settings.Services -or $testParse.Settings.RegistryKeys) {
+        if ($testParse.Settings.DNS -or $testParse.Settings.Services -or $testParse.Settings.RegistrySnapshots) {
             $hasData = $true
         }
         
