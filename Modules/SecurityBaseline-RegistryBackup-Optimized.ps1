@@ -37,16 +37,48 @@ function Backup-SpecificRegistryKeys {
         [array]$RegistryChanges
     )
     
+    # Explicit admin check (works even when dot-sourced)
+    $isAdmin = ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)
+    if (-not $isAdmin) {
+        Write-Error "Registry backup requires Administrator privileges. Please run as Administrator."
+        throw "Administrator privileges required"
+    }
+    
+    # Protected hives that cannot be accessed even with Admin rights
+    # These require TrustedInstaller or SYSTEM level access
+    $protectedHives = @(
+        'HKLM:\SAM',
+        'HKLM:\SECURITY',
+        'HKLM:\SYSTEM\CurrentControlSet\Control\SecurePipeServers',
+        'HKLM:\BCD00000000'
+    )
+    
     Write-Verbose "[Backup] Starting specific registry backup for $($RegistryChanges.Count) keys..."
     
     $backup = @()
     $successCount = 0
     $errorCount = 0
+    $skippedProtected = 0
     
     foreach ($change in $RegistryChanges) {
         $currentValue = $null
         $exists = $false
         $valueType = $null
+        
+        # Check if this is a protected hive that we should skip
+        $isProtectedHive = $false
+        foreach ($protectedPath in $protectedHives) {
+            if ($change.Path -like "$protectedPath*") {
+                $isProtectedHive = $true
+                break
+            }
+        }
+        
+        if ($isProtectedHive) {
+            Write-Verbose "[Backup] SKIP protected hive (requires TrustedInstaller): $($change.Path)\$($change.Name)"
+            $skippedProtected++
+            continue
+        }
         
         try {
             # Check if registry path exists
@@ -111,7 +143,12 @@ function Backup-SpecificRegistryKeys {
         }
     }
     
-    Write-Verbose "[Backup] Complete: $successCount backed up, $errorCount errors"
+    if ($skippedProtected -gt 0) {
+        Write-Verbose "[Backup] Complete: $successCount backed up, $errorCount errors, $skippedProtected protected hives skipped (TrustedInstaller required)"
+    }
+    else {
+        Write-Verbose "[Backup] Complete: $successCount backed up, $errorCount errors"
+    }
     
     return $backup
 }
