@@ -83,32 +83,26 @@ function Backup-SpecificRegistryKeys {
         try {
             # Check if registry path exists
             if (Test-Path $change.Path) {
-                # CRITICAL: Get ALL properties first, then check if our property exists
-                # Using Get-ItemProperty with -Name creates error records even with -ErrorAction SilentlyContinue
-                try {
-                    $allProps = Get-ItemProperty -Path $change.Path -ErrorAction Stop
-                }
-                catch [System.UnauthorizedAccessException] {
-                    # Additional protected key not in our list - skip it
-                    Write-Verbose "[Backup SKIP] Protected key (Access Denied): $($change.Path)"
-                    $skippedProtected++
-                    continue
-                }
-                catch [System.Security.SecurityException] {
-                    # Also a protected key (SecurityException instead of UnauthorizedAccessException)
-                    Write-Verbose "[Backup SKIP] Protected key (Security Exception): $($change.Path)"
-                    $skippedProtected++
-                    continue
-                }
-                catch {
-                    # Check if it's an Access Denied error (fallback for different Exception types)
-                    if ($_.Exception.Message -match 'unzulässig|denied|access') {
-                        Write-Verbose "[Backup SKIP] Protected key (Access pattern in message): $($change.Path)"
+                # CRITICAL: Use SilentlyContinue to prevent error logging, then check for null
+                # ErrorAction Stop logs error BEFORE catch can handle it - causes "Critical Error" in logs
+                $allProps = $null
+                $allProps = Get-ItemProperty -Path $change.Path -ErrorAction SilentlyContinue
+                
+                # Check if access failed (protected key)
+                if (-not $allProps) {
+                    # Could be: Access Denied, key deleted, or other issue
+                    # Check last error to determine if it's Access Denied
+                    $lastError = $Error[0]
+                    if ($lastError.Exception -is [System.UnauthorizedAccessException] -or
+                        $lastError.Exception -is [System.Security.SecurityException] -or
+                        $lastError.Exception.Message -match 'unzulässig|denied|access') {
+                        # Protected key - skip silently
+                        Write-Verbose "[Backup SKIP] Protected key (Access Denied): $($change.Path)"
                         $skippedProtected++
                         continue
                     }
-                    # Real error - log it
-                    Write-Verbose "[Backup ERROR] Cannot read key $($change.Path): $_"
+                    # Real error (key deleted, etc.) - log it
+                    Write-Verbose "[Backup ERROR] Cannot read key $($change.Path): $($lastError.Exception.Message)"
                     $errorCount++
                     continue
                 }
