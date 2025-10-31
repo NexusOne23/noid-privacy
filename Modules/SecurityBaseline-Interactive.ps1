@@ -700,29 +700,17 @@ function Invoke-CustomMode {
             Write-Verbose $verboseMsg
         }
         
-        # CRITICAL FIX v4: FAST INPUT BUFFER FLUSH (same as Verify)!
-        # ROOT CAUSE: KeyAvailable returns FALSE even when input is buffered!
-        # USER FEEDBACK: Reduced delays for faster response
+        # INPUT BUFFER FLUSH - only flush actually buffered keys
+        # ROOT CAUSE: After Custom module selection, keyboard buffer may contain stray input
+        # SOLUTION: Flush only while KeyAvailable (don't consume user input!)
         try {
-            # Short delay for OS to process
             Start-Sleep -Milliseconds 50
             
-            # Flush attempt 1: While KeyAvailable
+            # Flush only buffered keys (KeyAvailable check protects user input)
             $flushed = 0
             while ($Host.UI.RawUI.KeyAvailable -and $flushed -lt 20) {
                 $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
                 $flushed++
-            }
-            
-            # Flush attempt 2: FORCE-consume WITHOUT KeyAvailable check!
-            for ($i = 0; $i -lt 5; $i++) {
-                try {
-                    $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
-                    $flushed++
-                }
-                catch {
-                    break
-                }
             }
             
             if ($flushed -gt 0) {
@@ -881,32 +869,17 @@ function Invoke-VerifyMode {
             Write-Verbose $verboseMsg
         }
         
-        # CRITICAL FIX v4: FAST INPUT BUFFER FLUSH (reduced delays!)
-        # ROOT CAUSE: KeyAvailable returns FALSE even when input is buffered!
-        # USER FEEDBACK: v2/v3 took too long (250ms delays = "forever")
-        # SOLUTION: Shorter delays + force-consume
+        # INPUT BUFFER FLUSH - only flush actually buffered keys
+        # ROOT CAUSE: After Verify script, keyboard buffer may contain stray input
+        # SOLUTION: Flush only while KeyAvailable (don't consume user input!)
         try {
-            # Short delay for OS to process (reduced from 150ms)
             Start-Sleep -Milliseconds 50
             
-            # Flush attempt 1: While KeyAvailable (quick loop)
+            # Flush only buffered keys (KeyAvailable check protects user input)
             $flushed = 0
             while ($Host.UI.RawUI.KeyAvailable -and $flushed -lt 20) {
                 $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
                 $flushed++
-            }
-            
-            # Flush attempt 2: FORCE-consume WITHOUT KeyAvailable check!
-            # Try unconditionally - catch handles "no keys"
-            for ($i = 0; $i -lt 5; $i++) {
-                try {
-                    $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
-                    $flushed++
-                }
-                catch {
-                    # No keys = OK, exit loop
-                    break
-                }
             }
             
             # Flush completed silently
