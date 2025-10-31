@@ -1092,6 +1092,40 @@ Write-Verbose "Modules: $($SelectedModules -join ', ')"
 Write-Verbose "CreateRestorePoint: $script:createRestorePoint"
 Write-Verbose "===================="
 
+# CRITICAL FIX: SAFE EXIT if no modules selected (e.g. interactive VERIFY + EXIT)
+# ROOT CAUSE: After Verify → Exit, no config is set, but script continues to common part
+# PROBLEM: Common part assumes $SelectedModules always exists → crash at Line 1180
+# SYMPTOM: Creates unwanted Audit log even though user chose Exit
+# SOLUTION: Check if $SelectedModules exists and has items BEFORE common execution part
+if (-not $SelectedModules -or $SelectedModules.Count -eq 0) {
+    Write-Host ""
+    Write-Host "[i] No modules selected (probably VERIFY + EXIT). Exiting..." -ForegroundColor Yellow
+    Write-Host ""
+    
+    # Stop transcript if started
+    if ((Test-Path Variable:script:transcriptStarted) -and $script:transcriptStarted) {
+        try {
+            Stop-Transcript -ErrorAction SilentlyContinue
+        }
+        catch {
+            # Ignore
+        }
+    }
+    
+    # Release mutex if acquired
+    if ((Test-Path Variable:mutexAcquired) -and $mutexAcquired -and (Test-Path Variable:mutex) -and $mutex) {
+        try {
+            $mutex.ReleaseMutex()
+            $mutex.Dispose()
+        }
+        catch {
+            # Ignore
+        }
+    }
+    
+    exit 0
+}
+
 $script:transcriptStarted = $false
 $script:criticalError = $false  # Track if critical error occurred in catch block
 # Transcript-Log Rotation (Best Practice 25H2 - prevents unlimited growth)
