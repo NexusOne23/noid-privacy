@@ -444,33 +444,49 @@ Write-Host ""
 #region Restore Scheduled Tasks
 Write-Host "[4/14] Restore Scheduled Tasks..." -ForegroundColor Yellow
 
-# CRITICAL ROOT CAUSE FIX: SKIP ENTIRE SCHEDULED TASKS RESTORE!
-# REASON: Even with timeout, the script HANGS at .Count access on $backup.Settings.ScheduledTasks
-# PROBLEM: Not Get-ScheduledTask itself, but accessing the ScheduledTasks collection HANGS
-# OBSERVATION: User reported script hangs at "[4/14] Restore Scheduled Tasks..." with timeout in place
-# CONCLUSION: The backup collection itself is corrupted or lazy-loaded and hangs on enumeration
-# SOLUTION: Skip scheduled tasks restore entirely until we fix the backup corruption issue
-# TODO: Fix root cause in Backup-SecurityBaseline.ps1 (how ScheduledTasks are collected/stored)
-
-Write-Host "  [!] Scheduled Tasks restore DISABLED (known hang issue)" -ForegroundColor Yellow
-Write-Host "  [i] Reason: Backup collection access causes indefinite hang" -ForegroundColor Gray
-Write-Host "  [i] Tasks will remain in current state (usually correct after reboot)" -ForegroundColor Gray
-$restoreStats.Skipped++
-
-# DISABLED CODE (causes hang):
-if ($false) {
-    # CRITICAL: Check if Task Scheduler service is available
-    # ROOT CAUSE: Schedule service is protected (TrustedInstaller/SYSTEM)
-    # REASON: If service is not running, Get-ScheduledTask will HANG indefinitely
-    # SOLUTION: Check service status FIRST, skip if not available
-    $scheduleService = Get-Service -Name 'Schedule' -ErrorAction SilentlyContinue
-    if (-not $scheduleService -or $scheduleService.Status -ne 'Running') {
-        Write-Host "  [!] Task Scheduler service not available - skipping scheduled tasks restore" -ForegroundColor Yellow
-        Write-Host "  [i] Reason: Service 'Schedule' is protected or not running" -ForegroundColor Gray
-        $restoreStats.Skipped++
+# CRITICAL: Check if Task Scheduler service is available
+# ROOT CAUSE: Schedule service is protected (TrustedInstaller/SYSTEM)
+# REASON: If service is not running, Get-ScheduledTask will HANG indefinitely
+# SOLUTION: Check service status FIRST, skip if not available
+$scheduleService = Get-Service -Name 'Schedule' -ErrorAction SilentlyContinue
+if (-not $scheduleService -or $scheduleService.Status -ne 'Running') {
+    Write-Host "  [!] Task Scheduler service not available - skipping scheduled tasks restore" -ForegroundColor Yellow
+    Write-Host "  [i] Reason: Service 'Schedule' is protected or not running" -ForegroundColor Gray
+    $restoreStats.Skipped++
+}
+else {
+    # CRITICAL ROOT CAUSE FIX: Even accessing .Count can hang!
+    # SOLUTION: Wrap COUNT access in try-catch with timeout
+    # If backup.Settings.ScheduledTasks is corrupted/lazy-loaded, this will hang
+    try {
+        # Use Start-Job for timeout on COUNT access
+        $countJob = Start-Job -ScriptBlock {
+            param($tasks)
+            if ($tasks) { @($tasks).Count } else { 0 }
+        } -ArgumentList $backup.Settings.ScheduledTasks
+        
+        $countJob | Wait-Job -Timeout 5 | Out-Null
+        
+        if ($countJob.State -eq 'Completed') {
+            $tasksCount = Receive-Job $countJob
+            Remove-Job $countJob -Force -ErrorAction SilentlyContinue
+        }
+        else {
+            Stop-Job $countJob -ErrorAction SilentlyContinue
+            Remove-Job $countJob -Force -ErrorAction SilentlyContinue
+            Write-Host "  [!] Scheduled Tasks enumeration TIMEOUT (5 sec) - skipping restore" -ForegroundColor Yellow
+            Write-Host "  [i] Reason: Backup collection access hangs (corrupted backup or lazy-loading)" -ForegroundColor Gray
+            $restoreStats.Skipped++
+            $tasksCount = 0
+        }
     }
-    else {
-        $tasksCount = if ($backup.Settings.ScheduledTasks) { @($backup.Settings.ScheduledTasks).Count } else { 0 }
+    catch {
+        Write-Host "  [!] Scheduled Tasks enumeration ERROR - skipping restore" -ForegroundColor Yellow
+        Write-Host "  [i] Error: $_" -ForegroundColor Gray
+        $restoreStats.Skipped++
+        $tasksCount = 0
+    }
+    
     if ($tasksCount -gt 0) {
         $restoredTasks = 0
         $changedTasks = 0
@@ -523,8 +539,7 @@ if ($false) {
         Write-Host "  [!] Keine Scheduled Tasks im Backup" -ForegroundColor Yellow
         $restoreStats.Skipped++
     }
-    } # End of else block (service running)
-} # End of if ($false) - disabled code
+}
 
 Write-Host ""
 #endregion
@@ -601,15 +616,35 @@ Write-Host "[6/14] $(Get-LocalizedString 'RestoreRegistry')" -ForegroundColor Ye
 foreach ($regConfig in $backup.Settings.RegistryKeys) {
     try {
         # CRITICAL FIX v1.7.5: Support ALL property name variants for backward compatibility
+        # ROOT CAUSE: Direct property access ($regConfig.PropertyName) throws PropertyNotFoundException
+        # SOLUTION: Use PSObject.Properties.Name to check existence BEFORE accessing value
         # OLD FORMATS:
         #   1. Very Old: Path, Name, Value (BROKEN - "Value" collides with Registry-Key named "Value"!)
         #   2. Old: Path, Name, RegistryValue (better, but long)
         #   3. New: RegPath, RegName, RegValue (consistent, short)
-        $path = if ($regConfig.RegPath) { $regConfig.RegPath } else { $regConfig.Path }
-        $name = if ($regConfig.RegName) { $regConfig.RegName } else { $regConfig.Name }
-        $exists = if ($null -ne $regConfig.RegExists) { $regConfig.RegExists } else { $regConfig.Exists }
-        # Try new format (RegValue), then old format (RegistryValue), then very old format (Value)
-        $value = if ($null -ne $regConfig.RegValue) { $regConfig.RegValue } elseif ($null -ne $regConfig.RegistryValue) { $regConfig.RegistryValue } else { $regConfig.Value }
+        
+        # Get property names safely (no PropertyNotFoundException)
+        $props = $regConfig.PSObject.Properties.Name
+        
+        # Path: RegPath (new) or Path (old)
+        $path = if ('RegPath' -in $props) { $regConfig.RegPath } else { $regConfig.Path }
+        
+        # Name: RegName (new) or Name (old)
+        $name = if ('RegName' -in $props) { $regConfig.RegName } else { $regConfig.Name }
+        
+        # Exists: RegExists (new) or Exists (old)
+        $exists = if ('RegExists' -in $props) { $regConfig.RegExists } else { $regConfig.Exists }
+        
+        # Value: Try RegValue (new), then RegistryValue (old), then Value (very old)
+        if ('RegValue' -in $props) {
+            $value = $regConfig.RegValue
+        }
+        elseif ('RegistryValue' -in $props) {
+            $value = $regConfig.RegistryValue
+        }
+        else {
+            $value = $regConfig.Value
+        }
         
         if ($exists -eq $true) {
             if ($PSCmdlet.ShouldProcess("$path\$name", "Set value: $value")) {
@@ -637,8 +672,10 @@ foreach ($regConfig in $backup.Settings.RegistryKeys) {
         }
     }
     catch {
-        $path = if ($regConfig.RegPath) { $regConfig.RegPath } else { $regConfig.Path }
-        $name = if ($regConfig.RegName) { $regConfig.RegName } else { $regConfig.Name }
+        # CRITICAL FIX: Use PSObject.Properties here too (catch block can also throw PropertyNotFoundException!)
+        $props = $regConfig.PSObject.Properties.Name
+        $path = if ('RegPath' -in $props) { $regConfig.RegPath } else { $regConfig.Path }
+        $name = if ('RegName' -in $props) { $regConfig.RegName } else { $regConfig.Name }
         Write-Host "  [X] Registry error '$path\$name': $_" -ForegroundColor Red
         $restoreStats.Failed++
     }
