@@ -384,10 +384,6 @@ foreach ($adapter in $currentAdapters) {
             } | Select-Object -First 1
         }
         
-        # Get current DNS (needed for decision logic)
-        $currIPv4 = Get-DnsClientServerAddress -InterfaceIndex $adapter.ifIndex -AddressFamily IPv4 -ErrorAction SilentlyContinue
-        $currIPv6 = Get-DnsClientServerAddress -InterfaceIndex $adapter.ifIndex -AddressFamily IPv6 -ErrorAction SilentlyContinue
-        
         if ($saved) {
             # Adapter found in backup - restore its DNS
             $dnsIPv4 = if ($saved.PSObject.Properties.Name -contains 'DNS_IPv4') { $saved.DNS_IPv4 } else { @() }
@@ -400,42 +396,22 @@ foreach ($adapter in $currentAdapters) {
             
             Write-Verbose "Restoring DNS for $($adapter.Name) (matched via $( if ($saved.InterfaceGuid -eq $adapter.InterfaceGuid) { 'GUID' } elseif ($saved.AdapterName -eq $adapter.Name) { 'Alias' } else { 'IfIndex' }))"
             
-            # Restore IPv4
-            if ($hasIPv4) {
-                Set-DnsClientServerAddress -InterfaceIndex $adapter.ifIndex -AddressFamily IPv4 -ServerAddresses $dnsIPv4 -ErrorAction Stop
-                Write-Verbose "  IPv4: $($dnsIPv4 -join ', ')"
-            }
-            else {
-                # No IPv4 in backup - reset to auto
-                Set-DnsClientServerAddress -InterfaceIndex $adapter.ifIndex -AddressFamily IPv4 -ResetServerAddresses -ErrorAction SilentlyContinue
-                Write-Verbose "  IPv4: Auto (backup had none)"
-            }
+            # CRITICAL: PowerShell 5.1 does NOT have -AddressFamily parameter!
+            # Must set IPv4 + IPv6 together in one call
             
-            # Restore IPv6
-            if ($hasIPv6) {
-                # Combine: current IPv4 (just set) + backup IPv6
-                $finalIPv4 = if ($hasIPv4) { $dnsIPv4 } else { $currIPv4.ServerAddresses }
-                $combo = @()
-                if ($finalIPv4) { $combo += $finalIPv4 }
-                $combo += $dnsIPv6
+            if ($hasIPv4 -or $hasIPv6) {
+                # Combine IPv4 + IPv6 addresses
+                $allAddresses = @()
+                if ($hasIPv4) { $allAddresses += $dnsIPv4 }
+                if ($hasIPv6) { $allAddresses += $dnsIPv6 }
                 
-                Set-DnsClientServerAddress -InterfaceIndex $adapter.ifIndex -AddressFamily IPv6 -ServerAddresses $combo -ErrorAction Stop
-                Write-Verbose "  IPv6: $($dnsIPv6 -join ', ')"
+                Set-DnsClientServerAddress -InterfaceIndex $adapter.ifIndex -ServerAddresses $allAddresses -ErrorAction Stop
+                Write-Verbose "  DNS restored: $($allAddresses -join ', ')"
             }
             else {
-                # No IPv6 in backup - if current has manual IPv6 (e.g. Cloudflare), reset it!
-                if ($currIPv6 -and $currIPv6.ServerAddresses) {
-                    Set-DnsClientServerAddress -InterfaceIndex $adapter.ifIndex -AddressFamily IPv6 -ResetServerAddresses -ErrorAction SilentlyContinue
-                    Write-Verbose "  IPv6: Reset to Auto (backup had none, but current had: $($currIPv6.ServerAddresses -join ', '))"
-                    
-                    # Re-apply IPv4 (Reset clears both!)
-                    if ($hasIPv4) {
-                        Set-DnsClientServerAddress -InterfaceIndex $adapter.ifIndex -AddressFamily IPv4 -ServerAddresses $dnsIPv4 -ErrorAction SilentlyContinue
-                    }
-                    elseif ($currIPv4 -and $currIPv4.ServerAddresses) {
-                        Set-DnsClientServerAddress -InterfaceIndex $adapter.ifIndex -AddressFamily IPv4 -ServerAddresses $currIPv4.ServerAddresses -ErrorAction SilentlyContinue
-                    }
-                }
+                # No DNS in backup - reset to auto
+                Set-DnsClientServerAddress -InterfaceIndex $adapter.ifIndex -ResetServerAddresses -ErrorAction SilentlyContinue
+                Write-Verbose "  DNS reset to Auto (backup had no DNS)"
             }
             
             Write-Host "  [OK] $($adapter.Name) restored" -ForegroundColor Green
@@ -443,13 +419,10 @@ foreach ($adapter in $currentAdapters) {
             $restoreStats.Success++
         }
         else {
-            # Adapter NOT in backup - clear any manual IPv6 (e.g. Cloudflare from Apply)
-            if ($currIPv6 -and $currIPv6.ServerAddresses) {
-                Write-Verbose "$($adapter.Name): No backup, but manual IPv6 found ($($currIPv6.ServerAddresses -join ', ')) - resetting"
-                Set-DnsClientServerAddress -InterfaceIndex $adapter.ifIndex -AddressFamily IPv6 -ResetServerAddresses -ErrorAction SilentlyContinue
-                Write-Host "  [OK] $($adapter.Name) IPv6 cleared (not in backup)" -ForegroundColor Green
-                # Don't touch IPv4!
-            }
+            # Adapter NOT in backup - reset to auto
+            # CRITICAL: PowerShell 5.1 does NOT have -AddressFamily parameter!
+            Set-DnsClientServerAddress -InterfaceIndex $adapter.ifIndex -ResetServerAddresses -ErrorAction SilentlyContinue
+            Write-Host "  [OK] $($adapter.Name) reset to auto (not in backup)" -ForegroundColor Green
         }
     }
     catch {
@@ -459,23 +432,7 @@ foreach ($adapter in $currentAdapters) {
     }
 }
 
-# CRITICAL: Final Safety Sweep - ensure ALL active adapters have IPv6 DNS cleared
-# This catches any edge cases (VPN adapters that came up during restore, etc.)
-Write-Verbose "Final IPv6 DNS safety sweep..."
-try {
-    Get-NetAdapter | Where-Object { $_.Status -eq 'Up' } | ForEach-Object {
-        try {
-            Set-DnsClientServerAddress -InterfaceIndex $_.IfIndex -AddressFamily IPv6 -ResetServerAddresses -ErrorAction SilentlyContinue
-        }
-        catch {
-            # Ignore errors (VPN/VM adapters might not support it)
-        }
-    }
-    Write-Verbose "IPv6 DNS safety sweep completed"
-}
-catch {
-    Write-Verbose "IPv6 DNS safety sweep failed: $_"
-}
+# NOTE: Safety sweep removed - main loop already handles all adapters correctly
 
 # Summary
 if ($dnsRestoredCount -gt 0) {
