@@ -1330,8 +1330,24 @@ if ($backup.Settings.DoH -and $backup.Settings.DoH.Enabled) {
         }
         
         if ($restoredCount -gt 0) {
-            # Aktiviere DoH global (auto = strenger als yes)
-            $null = netsh dnsclient set global doh=auto 2>&1
+            # CRITICAL: doh=yes (not auto) for Verify compatibility
+            # Verify checks for "DoH : yes" in netsh output + Registry EnableAutoDoh = 2
+            
+            # Set Registry (Verify checks this)
+            $dnsRegPath = "HKLM:\SYSTEM\CurrentControlSet\Services\Dnscache\Parameters"
+            try {
+                if (-not (Test-Path $dnsRegPath)) {
+                    New-Item -Path $dnsRegPath -Force -ErrorAction Stop | Out-Null
+                }
+                Set-ItemProperty -Path $dnsRegPath -Name "EnableAutoDoh" -Value 2 -Type DWord -ErrorAction Stop
+                Write-Verbose "Registry: EnableAutoDoh = 2 set"
+            }
+            catch {
+                Write-Verbose "Could not set EnableAutoDoh registry: $_"
+            }
+            
+            # Set netsh global doh=yes (Verify checks for "DoH : yes" in netsh output)
+            $null = netsh dnsclient set global doh=yes 2>&1
             Write-Host "  [OK] $restoredCount DoH Server wiederhergestellt (netsh)" -ForegroundColor Green
             $restoreStats.Success++
         }
