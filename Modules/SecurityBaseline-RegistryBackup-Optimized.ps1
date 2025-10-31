@@ -79,18 +79,19 @@ function Backup-SpecificRegistryKeys {
             }
         }
         catch {
-            # Check if it's an Access Denied error (protected key)
-            if ($_.Exception.Message -match "unzulässig|Access.*denied|unauthorized") {
+            # Check Exception Type (language-independent) instead of error message
+            # UnauthorizedAccessException = Access Denied (protected registry key)
+            if ($_.Exception -is [System.UnauthorizedAccessException]) {
                 # Protected key (TrustedInstaller, SYSTEM) - don't count as error
                 # CRITICAL: Don't add to backup! We can't read it, can't backup it, can't restore it.
                 # Adding it with Exists=false would cause Restore to try deleting it (wrong!)
-                Write-Verbose "[Backup] SKIP protected key (not added to backup): $($change.Path)\$($change.Name)"
+                Write-Verbose "[Backup] SKIP protected key (UnauthorizedAccess, not added to backup): $($change.Path)\$($change.Name)"
                 # Skip to next key - don't add this one to backup
                 continue
             }
             else {
                 # Real error - log it
-                Write-Verbose "[Backup] Error reading $($change.Path)\$($change.Name): $_"
+                Write-Verbose "[Backup] Error reading $($change.Path)\$($change.Name): $($_.Exception.GetType().Name) - $_"
                 $errorCount++
             }
         }
@@ -245,17 +246,18 @@ function Restore-SpecificRegistryKeys {
             }
         }
         catch {
-            # Check if it's an Access Denied error (protected key)
-            if ($_.Exception.Message -match "unzulässig|Access.*denied|unauthorized") {
+            # Check Exception Type (language-independent) instead of error message
+            # UnauthorizedAccessException = Access Denied (protected registry key)
+            if ($_.Exception -is [System.UnauthorizedAccessException]) {
                 # Protected key - can't modify it (TrustedInstaller/SYSTEM)
                 # This is NORMAL and expected - don't count as Failed!
                 $stats.Unchanged++
-                Write-Verbose "[Restore SKIP] Protected key (Access Denied): $($entry.Path)\$($entry.Name)"
+                Write-Verbose "[Restore SKIP] Protected key (UnauthorizedAccess): $($entry.Path)\$($entry.Name)"
             }
             else {
-                # Real error
+                # Real error - count as failed
                 $stats.Failed++
-                Write-Verbose "[Restore ERROR] $($entry.Path)\$($entry.Name): $_"
+                Write-Verbose "[Restore ERROR] $($entry.Path)\$($entry.Name): $($_.Exception.GetType().Name) - $_"
             }
         }
     }
