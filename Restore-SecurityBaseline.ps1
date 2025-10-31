@@ -366,19 +366,13 @@ if ($backup.Settings.HostsFile) {
     
     if ($PSCmdlet.ShouldProcess($hostsPath, "Restore Hosts file")) {
         try {
-            # CRITICAL FIX: hosts backup belongs in Backups folder, not Logs!
-            # REASON: Backups = data backups, Logs = script logs (transcript)
-            $backupPath = "$env:ProgramData\SecurityBaseline\Backups"
-            if (-not (Test-Path $backupPath)) {
-                $null = New-Item -Path $backupPath -ItemType Directory -Force
-            }
-            $currentHostsBackup = Join-Path $backupPath "hosts.backup-before-restore-$timestamp"
-            Copy-Item -Path $hostsPath -Destination $currentHostsBackup -Force -ErrorAction SilentlyContinue
+            # ROOT CAUSE FIX: NO "backup-before-restore" needed!
+            # REASON: Original hosts is ALREADY in backup JSON (HostsFile)
+            # What we would backup here = Steven Black hosts (from Apply-Script)
+            # → Useless and confusing! Just restore original directly.
             
             $backup.Settings.HostsFile | Out-File -FilePath $hostsPath -Encoding ASCII -Force
             Write-Host "  [OK] $(Get-LocalizedString 'RestoreHostsOK')" -ForegroundColor Green
-            $backupMsg = Get-LocalizedString 'RestoreHostsBackup' $currentHostsBackup
-            Write-Host "  [i] $backupMsg" -ForegroundColor Gray
             $restoreStats.Success++
         }
         catch {
