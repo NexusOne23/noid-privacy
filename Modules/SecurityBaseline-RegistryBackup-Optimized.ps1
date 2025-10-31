@@ -294,7 +294,18 @@ function Restore-SpecificRegistryKeys {
             else {
                 # Real error - count as failed
                 $stats.Failed++
-                Write-Verbose "[Restore ERROR] $($entry.Path)\$($entry.Name): $($_.Exception.GetType().Name) - $_"
+                # Log the SPECIFIC key that failed (visible in normal output, not just verbose)
+                $failedKey = "$($entry.Path)\$($entry.Name)"
+                Write-Verbose "[Restore ERROR] $failedKey : $($_.Exception.GetType().Name) - $_"
+                # Also track failed keys for summary (user can see which keys failed)
+                if (-not $script:FailedRegistryKeys) {
+                    $script:FailedRegistryKeys = @()
+                }
+                $script:FailedRegistryKeys += @{
+                    Path = $entry.Path
+                    Name = $entry.Name
+                    Error = $_.Exception.Message
+                }
             }
         }
     }

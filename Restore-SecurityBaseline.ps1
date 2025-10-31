@@ -524,6 +524,16 @@ foreach ($svcConfig in $backup.Settings.Services) {
             continue
         }
         
+        # Skip per-user services with dynamic suffixes (e.g., AarSvc_4223c, BcastDVRUserService_12a4f)
+        # These services have random hex suffixes per session/user and won't exist after reboot/different machine
+        $dynamicSuffixPattern = '_[0-9a-f]{4,}$'
+        if ($svcConfig.Name -match $dynamicSuffixPattern) {
+            Write-Verbose "  [SKIP] Per-user service with dynamic suffix: $($svcConfig.Name) (session-specific)"
+            $servicesSkippedCount++
+            $restoreStats.Skipped++
+            continue
+        }
+        
         $service = Get-Service -Name $svcConfig.Name -ErrorAction SilentlyContinue
         
         if ($service) {
@@ -829,6 +839,14 @@ if ($backup.Settings.RegistryBackup) {
         Write-Host "  - $($result.Unchanged) keys unchanged (already correct)" -ForegroundColor Gray
         if ($result.Failed -gt 0) {
             Write-Host "  - $($result.Failed) keys failed (protected or access denied)" -ForegroundColor Yellow
+            # Show which specific keys failed (if tracked)
+            if ($script:FailedRegistryKeys -and $script:FailedRegistryKeys.Count -gt 0) {
+                Write-Host "    Failed keys:" -ForegroundColor Gray
+                foreach ($failedKey in $script:FailedRegistryKeys) {
+                    Write-Host "      - $($failedKey.Path)\$($failedKey.Name)" -ForegroundColor Gray
+                    Write-Host "        Error: $($failedKey.Error)" -ForegroundColor DarkGray
+                }
+            }
         }
         
         $restoreStats.Success += $result.Restored + $result.Deleted
