@@ -408,19 +408,36 @@ if ($tasksCount -gt 0) {
     $restoredTasks = 0
     $changedTasks = 0
     
+    # CRITICAL FIX: Use Job with timeout to prevent hanging
+    # REASON: Get-ScheduledTask can hang on fresh systems/VMs
     foreach ($taskConfig in $backup.Settings.ScheduledTasks) {
         try {
-            $currentTask = Get-ScheduledTask -TaskPath $taskConfig.TaskPath -TaskName $taskConfig.TaskName -ErrorAction SilentlyContinue
+            # Use timeout for Get-ScheduledTask (5 seconds max)
+            $job = Start-Job -ScriptBlock {
+                param($path, $name)
+                Get-ScheduledTask -TaskPath $path -TaskName $name -ErrorAction SilentlyContinue
+            } -ArgumentList $taskConfig.TaskPath, $taskConfig.TaskName
+            
+            $currentTask = $job | Wait-Job -Timeout 5 | Receive-Job
+            Remove-Job $job -Force -ErrorAction SilentlyContinue
             
             if ($currentTask) {
                 if ($currentTask.State.ToString() -ne $taskConfig.State) {
                     if ($PSCmdlet.ShouldProcess("$($taskConfig.TaskPath)$($taskConfig.TaskName)", "Set State: $($taskConfig.State)")) {
-                        if ($taskConfig.State -eq 'Disabled') {
-                            Disable-ScheduledTask -TaskPath $taskConfig.TaskPath -TaskName $taskConfig.TaskName -ErrorAction Stop | Out-Null
-                        }
-                        elseif ($taskConfig.State -eq 'Ready') {
-                            Enable-ScheduledTask -TaskPath $taskConfig.TaskPath -TaskName $taskConfig.TaskName -ErrorAction Stop | Out-Null
-                        }
+                        # Use timeout for Enable/Disable too (5 seconds max)
+                        $changeJob = Start-Job -ScriptBlock {
+                            param($path, $name, $state)
+                            if ($state -eq 'Disabled') {
+                                Disable-ScheduledTask -TaskPath $path -TaskName $name -ErrorAction Stop | Out-Null
+                            }
+                            elseif ($state -eq 'Ready') {
+                                Enable-ScheduledTask -TaskPath $path -TaskName $name -ErrorAction Stop | Out-Null
+                            }
+                        } -ArgumentList $taskConfig.TaskPath, $taskConfig.TaskName, $taskConfig.State
+                        
+                        $null = $changeJob | Wait-Job -Timeout 5
+                        Remove-Job $changeJob -Force -ErrorAction SilentlyContinue
+                        
                         $changedTasks++
                         $restoreStats.Success++
                     }
@@ -429,7 +446,8 @@ if ($tasksCount -gt 0) {
             }
         }
         catch {
-            # Not critical
+            # Not critical - timeout or task not accessible
+            Write-Verbose "Task restore timeout or error: $($taskConfig.TaskPath)$($taskConfig.TaskName)"
         }
     }
     
