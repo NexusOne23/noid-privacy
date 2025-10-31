@@ -124,8 +124,8 @@ function Restore-SpecificRegistryKeys {
     $stats = @{
         Restored = 0
         Deleted = 0
-        Skipped = 0
-        Errors = 0
+        Unchanged = 0
+        Failed = 0
     }
     
     # Check if Ownership module exists
@@ -164,7 +164,7 @@ function Restore-SpecificRegistryKeys {
                             Write-Verbose "[Restore OK] $($entry.Path)\$($entry.Name) = $($entry.OriginalValue)"
                         }
                         else {
-                            $stats.Skipped++
+                            $stats.Unchanged++
                             Write-Verbose "[Restore SKIP] $($entry.Path)\$($entry.Name) (protected)"
                         }
                     }
@@ -190,7 +190,7 @@ function Restore-SpecificRegistryKeys {
                 }
                 else {
                     Write-Verbose "[Restore SKIP] $($entry.Path)\$($entry.Name) (no original value)"
-                    $stats.Skipped++
+                    $stats.Unchanged++
                 }
             }
             else {
@@ -211,7 +211,7 @@ function Restore-SpecificRegistryKeys {
                                 Write-Verbose "[Delete OK] $($entry.Path)\$($entry.Name)"
                             }
                             else {
-                                $stats.Skipped++
+                                $stats.Unchanged++
                                 Write-Verbose "[Delete SKIP] $($entry.Path)\$($entry.Name) (protected)"
                             }
                         }
@@ -226,12 +226,12 @@ function Restore-SpecificRegistryKeys {
             }
         }
         catch {
-            $stats.Errors++
+            $stats.Failed++
             Write-Verbose "[Restore ERROR] $($entry.Path)\$($entry.Name): $_"
         }
     }
     
-    Write-Verbose "[Restore] Complete: $($stats.Restored) restored, $($stats.Deleted) deleted, $($stats.Skipped) skipped, $($stats.Errors) errors"
+    Write-Verbose "[Restore] Complete: $($stats.Restored) restored, $($stats.Deleted) deleted, $($stats.Unchanged) unchanged, $($stats.Failed) failed"
     
     return $stats
 }
