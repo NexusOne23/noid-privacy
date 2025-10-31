@@ -749,25 +749,38 @@ else {
             # Restore state if different (direct call, no job needed)
             if ($currentTask.State.ToString() -ne $taskConfig.State) {
                 if ($PSCmdlet.ShouldProcess("$($taskConfig.TaskPath)$($taskConfig.TaskName)", "Set State: $($taskConfig.State)")) {
-                    try {
-                        if ($taskConfig.State -eq 'Disabled') {
-                            Disable-ScheduledTask -TaskPath $taskConfig.TaskPath -TaskName $taskConfig.TaskName -ErrorAction Stop | Out-Null
-                        } 
-                        elseif ($taskConfig.State -eq 'Ready') {
-                            Enable-ScheduledTask -TaskPath $taskConfig.TaskPath -TaskName $taskConfig.TaskName -ErrorAction Stop | Out-Null
-                        }
+                    # CRITICAL FIX: Use SilentlyContinue instead of Stop
+                    # ROOT CAUSE: -ErrorAction Stop writes error to transcript BEFORE catch handles it
+                    # SOLUTION: SilentlyContinue + manual success check via $? or $Error[0]
+                    $success = $false
+                    
+                    if ($taskConfig.State -eq 'Disabled') {
+                        Disable-ScheduledTask -TaskPath $taskConfig.TaskPath -TaskName $taskConfig.TaskName -ErrorAction SilentlyContinue | Out-Null
+                        $success = $?
+                    } 
+                    elseif ($taskConfig.State -eq 'Ready') {
+                        Enable-ScheduledTask -TaskPath $taskConfig.TaskPath -TaskName $taskConfig.TaskName -ErrorAction SilentlyContinue | Out-Null
+                        $success = $?
+                    }
+                    
+                    if ($success) {
                         $changedTasks++
                         $restoreStats.Success++
                     }
-                    catch [System.UnauthorizedAccessException] {
-                        # Protected task (SYSTEM/TrustedInstaller) - skip with info message not error
-                        Write-Verbose "  [SKIP] Task '$($taskConfig.TaskPath)$($taskConfig.TaskName)' is protected (access denied)"
-                        $restoreStats.Skipped++
-                    }
-                    catch {
-                        # Other errors (rare)
-                        Write-Verbose "Failed to change task state: $($taskConfig.TaskPath)$($taskConfig.TaskName) - $_"
-                        $restoreStats.Failed++
+                    else {
+                        # Check if it was Access Denied (protected task) or real error
+                        $lastError = $Error[0]
+                        if ($lastError.Exception -is [System.UnauthorizedAccessException] -or 
+                            $lastError.Exception.Message -match 'Zugriff verweigert|Access.*denied') {
+                            # Protected task (SYSTEM/TrustedInstaller) - skip silently
+                            Write-Verbose "  [SKIP] Task '$($taskConfig.TaskPath)$($taskConfig.TaskName)' is protected (access denied)"
+                            $restoreStats.Skipped++
+                        }
+                        else {
+                            # Real error - log it
+                            Write-Verbose "Failed to change task state: $($taskConfig.TaskPath)$($taskConfig.TaskName) - $($lastError.Exception.Message)"
+                            $restoreStats.Failed++
+                        }
                     }
                 }
             }

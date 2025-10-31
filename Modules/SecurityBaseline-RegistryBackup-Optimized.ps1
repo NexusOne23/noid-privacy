@@ -294,9 +294,27 @@ function Restore-SpecificRegistryKeys {
                         }
                         else {
                             # Fallback: Standard method
-                            Remove-ItemProperty -Path $entry.Path -Name $entry.Name -Force -ErrorAction Stop
-                            $stats.Deleted++
-                            Write-Verbose "[Delete OK] $($entry.Path)\$($entry.Name)"
+                            # CRITICAL: Use SilentlyContinue to prevent error logging before catch
+                            Remove-ItemProperty -Path $entry.Path -Name $entry.Name -Force -ErrorAction SilentlyContinue
+                            if ($?) {
+                                $stats.Deleted++
+                                Write-Verbose "[Delete OK] $($entry.Path)\$($entry.Name)"
+                            }
+                            else {
+                                # Check if Access Denied (protected key)
+                                $lastError = $Error[0]
+                                if ($lastError.Exception -is [System.UnauthorizedAccessException] -or
+                                    $lastError.Exception -is [System.Security.SecurityException] -or
+                                    $lastError.Exception.Message -match 'unzulässig|denied|access') {
+                                    # Protected key - skip silently (will be caught by outer catch too)
+                                    $stats.Unchanged++
+                                    Write-Verbose "[Delete SKIP] $($entry.Path)\$($entry.Name) (protected - fallback)"
+                                }
+                                else {
+                                    # Real error - will be caught by outer catch
+                                    throw $lastError
+                                }
+                            }
                         }
                     }
                 }
