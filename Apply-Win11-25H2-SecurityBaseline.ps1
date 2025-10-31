@@ -914,6 +914,11 @@ if ($Interactive) {
     }
     
     # === BACKUP LOGIC (from Start-InteractiveMode) ===
+    # CRITICAL FIX: Initialize $backupSuccess BEFORE backup block!
+    # REASON: Variable is checked later (line 1156) even if backup was not created (AUDIT mode)
+    # Without initialization: PropertyNotFoundException in AUDIT mode!
+    $backupSuccess = $false
+    
     # Check if backup should be created
     if ($config.ContainsKey('CreateBackup') -and $config.CreateBackup -eq $true) {
         Write-Host ""
