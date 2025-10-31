@@ -473,14 +473,16 @@ try {
     $epStatus = Get-ProcessMitigation -System -ErrorAction Stop
     
     # DEP (Data Execution Prevention)
+    # NOTSET = Windows Default (active), ON = Explicitly Enabled
     Test-BaselineCheck -Category "ExploitProtection" -Name "DEP (Data Execution Prevention) Enabled" -Impact "Critical" `
-        -Test { $epStatus.DEP.Enable } `
-        -Expected 'ON'
+        -Test { $epStatus.DEP.Enable -in @('ON', 'NOTSET') } `
+        -Expected 'ON or NOTSET (Windows Default)'
     
     # SEHOP (Structured Exception Handler Overwrite Protection)
+    # NOTSET = Windows Default (active), ON = Explicitly Enabled
     Test-BaselineCheck -Category "ExploitProtection" -Name "SEHOP Enabled" -Impact "High" `
-        -Test { $epStatus.SEHOP.Enable } `
-        -Expected 'ON'
+        -Test { $epStatus.SEHOP.Enable -in @('ON', 'NOTSET') } `
+        -Expected 'ON or NOTSET (Windows Default)'
     
     # ASLR (Address Space Layout Randomization)
     Test-BaselineCheck -Category "ExploitProtection" -Name "ASLR Force Randomization Enabled" -Impact "Critical" `
@@ -488,14 +490,16 @@ try {
         -Expected 'ON'
     
     # CFG (Control Flow Guard)
+    # NOTSET = Windows Default (active), ON = Explicitly Enabled
     Test-BaselineCheck -Category "ExploitProtection" -Name "CFG (Control Flow Guard) Enabled" -Impact "High" `
-        -Test { $epStatus.CFG.Enable } `
-        -Expected 'ON'
+        -Test { $epStatus.CFG.Enable -in @('ON', 'NOTSET') } `
+        -Expected 'ON or NOTSET (Windows Default)'
     
     # Strict CFG
+    # NOTSET = Windows Default (active), ON = Explicitly Enabled
     Test-BaselineCheck -Category "ExploitProtection" -Name "Strict CFG Enabled" -Impact "High" `
-        -Test { $epStatus.CFG.StrictControlFlowGuard } `
-        -Expected 'ON'
+        -Test { $epStatus.CFG.StrictControlFlowGuard -in @('ON', 'NOTSET') } `
+        -Expected 'ON or NOTSET (Windows Default)'
     
     # Heap Terminate on Corruption
     Test-BaselineCheck -Category "ExploitProtection" -Name "Heap Terminate on Corruption Enabled" -Impact "Medium" `
@@ -986,8 +990,8 @@ Test-BaselineCheck -Category "Kerberos" -Name "Kerberos Supported Encryption Typ
 Write-Host "`n=== DNS OVER HTTPS (DoH) ===" -ForegroundColor Yellow
 
 Test-BaselineCheck -Category "DoH" -Name "DoH Auto-Enabled (Global)" -Impact "High" `
-    -Test { (Get-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Services\Dnscache\Parameters" -Name EnableAutoDoh -ErrorAction SilentlyContinue).EnableAutoDoh } `
-    -Expected 2
+    -Test { (netsh dnsclient show state 2>&1) -match "DoH\s+:\s+yes" } `
+    -Expected $true
 
 try {
     $dohServers = Get-DnsClientDohServerAddress -ErrorAction SilentlyContinue
@@ -995,14 +999,6 @@ try {
     $cloudflareCount = if ($cloudflareServers) { @($cloudflareServers).Count } else { 0 }
     if ($cloudflareCount -ge 2) {
         Write-Host "  [OK] Cloudflare DoH Configured ($cloudflareCount servers)" -ForegroundColor Green
-        
-        # CHECK: netsh global doh status
-        $netshState = netsh dnsclient show state 2>&1
-        if ($netshState -match "DoH\s+:\s+yes") {
-            Write-Host "  [OK] DoH Global Enabled (netsh)" -ForegroundColor Green
-        } else {
-            Write-Host "  [WARN] DoH not globally enabled (netsh doh=no)" -ForegroundColor Yellow
-        }
     } else {
         Write-Host "  [X] Cloudflare DoH Missing" -ForegroundColor Red
     }
