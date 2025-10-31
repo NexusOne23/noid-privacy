@@ -149,12 +149,14 @@
 - CEIP services
 - 20+ more data collection services
 
-**180+ Registry Keys Set:**
+**110 Registry Keys Set:**
 - AllowTelemetry = 0 (Security level)
 - Diagnostic data viewer = BLOCKED
 - Feedback = DISABLED
 - Advertising ID = DELETED
-- 175+ more privacy settings
+- Location services DISABLED
+- Activity History DISABLED
+- 100+ more privacy settings
 
 **30 Scheduled Tasks Disabled:**
 - Microsoft Compatibility Appraiser
@@ -304,7 +306,7 @@ All apps CANNOT access (unless you allow):
 **Use Case:** Coffee shop Wi-Fi, untrusted networks
 
 ### Unnecessary Services Disabled
-✅ **24 Services Disabled (CIS Benchmark)**
+✅ **25 Services Disabled (CIS Benchmark)**
 
 **Module:** `SecurityBaseline-Core.ps1` → `Disable-UnnecessaryServices`
 
@@ -397,8 +399,9 @@ All apps CANNOT access (unless you allow):
 **Services (25):**
 Every single diagnostic/telemetry service disabled
 
-**Registry (180+ keys):**
+**Registry (110 telemetry-specific keys):**
 Every telemetry setting = OFF/BLOCKED/DISABLED
+(375 total registry keys modified across all modules)
 
 **Tasks (30):**
 All data collection tasks disabled

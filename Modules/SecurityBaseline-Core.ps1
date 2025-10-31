@@ -1340,7 +1340,7 @@ function Disable-UnnecessaryServices {
     .SYNOPSIS
         Disables unnecessary Windows Services
     .DESCRIPTION
-        Disables 24 Services according to CIS Benchmark Level 1 + Level 2.
+        Disables 25 Services according to CIS Benchmark Level 1 + Level 2.
         Best Practice 25H2: CmdletBinding, Try-Catch for each service.
         
         IMPORTANT: Smart Card Services (SCardSvr, ScDeviceEnum, SCPolicySvc) 
