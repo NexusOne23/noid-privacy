@@ -1060,20 +1060,10 @@ function Start-InteractiveMode {
     while ($continue) {
         Show-MainMenu
         
-        # CRITICAL FIX: DEFENSIVE FLUSH BEFORE Get-UserChoice!
-        # ROOT CAUSE: Input from previous operations (Verify, Custom) can stay in buffer
-        # SOLUTION: Always flush before reading user choice in main menu
-        try {
-            Start-Sleep -Milliseconds 50
-            $flushed = 0
-            while ($Host.UI.RawUI.KeyAvailable -and $flushed -lt 10) {
-                $key = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
-                $flushed++
-            }
-        }
-        catch {
-            # Flush errors are non-critical
-        }
+        # NO FLUSH NEEDED!
+        # Previous flush system was symptom-fix for Exit bug (Array pollution)
+        # Root cause fixed with Array cleanup (Lines 777-824 in Apply script)
+        # Buffer is clean after normal ReadKey operations
         
         $promptText = Get-LocalizedString 'MainMenuPrompt'
         $choice = Get-UserChoice -Prompt $promptText -ValidChoices @('1', '2', '3', '4', '5')
