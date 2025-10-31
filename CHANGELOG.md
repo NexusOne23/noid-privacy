@@ -313,6 +313,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.6.5] - 2025-10-01
 
+### Changed
+- **Updated to Microsoft Security Baseline 25H2** (released September 30, 2025)
+- Full compliance with Windows 11 25H2 security policies
+
 ### Added
 - Interactive mode with language selection (German/English)
 - Modular menu system for selective hardening
@@ -388,7 +392,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Initial release
-- Microsoft Security Baseline 25H2 implementation
 - Core security hardening
 - Defender baseline configuration
 - Firewall policies
