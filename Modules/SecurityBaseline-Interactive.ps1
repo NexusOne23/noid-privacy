@@ -864,12 +864,10 @@ function Invoke-VerifyMode {
         if (-not $pressKeyMsg) { $pressKeyMsg = "Press any key..." }
         Write-Host "  $pressKeyMsg" -ForegroundColor Gray
         
-        # ReadKey with error handling + DEBUG
+        # ReadKey with error handling
         try {
             if ($Host.UI.RawUI) {
-                Write-Host "[DEBUG VERIFY] Waiting for key press..." -ForegroundColor Magenta
                 $key = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
-                Write-Host "[DEBUG VERIFY] Key pressed: VirtualKeyCode=$($key.VirtualKeyCode) Character='$($key.Character)' KeyDown=$($key.KeyDown)" -ForegroundColor Magenta
             }
             else {
                 $pressEnterMsg = Get-LocalizedString 'PressEnter'
@@ -911,14 +909,10 @@ function Invoke-VerifyMode {
                 }
             }
             
-            if ($flushed -gt 0) {
-                Write-Host "[DEBUG VERIFY] Flushed $flushed keyboard events" -ForegroundColor Magenta
-            } else {
-                Write-Host "[DEBUG VERIFY] No events to flush (buffer was clean)" -ForegroundColor Magenta
-            }
+            # Flush completed silently
         }
         catch {
-            Write-Host "[DEBUG VERIFY] Flush error: $_" -ForegroundColor Red
+            # Flush errors are non-critical
         }
     }
     return $null
@@ -1129,33 +1123,24 @@ function Start-InteractiveMode {
         # ROOT CAUSE: Input from previous operations (Verify, Custom) can stay in buffer
         # SOLUTION: Always flush before reading user choice in main menu
         try {
-            Write-Host "[DEBUG MENU] Pre-menu flush starting..." -ForegroundColor Cyan
             Start-Sleep -Milliseconds 50
             $flushed = 0
             while ($Host.UI.RawUI.KeyAvailable -and $flushed -lt 10) {
                 $key = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
-                Write-Host "[DEBUG MENU] Flushing event #$($flushed+1): VirtualKeyCode=$($key.VirtualKeyCode) Character='$($key.Character)'" -ForegroundColor Yellow
                 $flushed++
-            }
-            if ($flushed -gt 0) {
-                Write-Host "[DEBUG MENU] Pre-menu flush completed: $flushed events removed" -ForegroundColor Cyan
-            } else {
-                Write-Host "[DEBUG MENU] Pre-menu flush: Buffer was clean (no events)" -ForegroundColor Cyan
             }
         }
         catch {
-            Write-Host "[DEBUG MENU] Pre-menu flush error: $_" -ForegroundColor Red
+            # Flush errors are non-critical
         }
         
         $promptText = Get-LocalizedString 'MainMenuPrompt'
         $choice = Get-UserChoice -Prompt $promptText -ValidChoices @('1', '2', '3', '4', '5')
-        Write-Host "[DEBUG MENU] User choice read: '$choice'" -ForegroundColor Cyan
         
         $config = $null
         
         switch ($choice) {
             '1' { 
-                Write-Host "[DEBUG MENU] Executing: Invoke-AuditMode" -ForegroundColor Cyan
                 $config = Invoke-AuditMode 
             }
             '2' { $config = Invoke-EnforceMode }
