@@ -85,7 +85,20 @@ function Backup-SpecificRegistryKeys {
             if (Test-Path $change.Path) {
                 # CRITICAL: Get ALL properties first, then check if our property exists
                 # Using Get-ItemProperty with -Name creates error records even with -ErrorAction SilentlyContinue
-                $allProps = Get-ItemProperty -Path $change.Path -ErrorAction SilentlyContinue
+                try {
+                    $allProps = Get-ItemProperty -Path $change.Path -ErrorAction Stop
+                }
+                catch [System.UnauthorizedAccessException] {
+                    # Additional protected key not in our list - skip it
+                    Write-Verbose "[Backup SKIP] Protected key (Access Denied): $($change.Path)"
+                    $skippedProtected++
+                    continue
+                }
+                catch {
+                    Write-Warning "[Backup ERROR] Cannot read key $($change.Path): $_"
+                    $errorCount++
+                    continue
+                }
                 
                 if ($allProps) {
                     # Check if the specific property exists using PSObject
