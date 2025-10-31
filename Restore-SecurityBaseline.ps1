@@ -1270,15 +1270,32 @@ else {
 Write-Host ""
 Write-Host "[14/14] Restore Device-Level App Permissions..." -ForegroundColor Yellow
 
-if ($backup.Settings.DeviceLevelApps -and $backup.Settings.DeviceLevelApps.Enabled) {
-    try {
-        $restoredApps = 0
-        $deletedApps = 0
-        
-        # Check if Set-RegistryValueSmart is available (from RegistryOwnership module)
-        $hasOwnershipModule = Get-Command Set-RegistryValueSmart -ErrorAction SilentlyContinue
-        
-        foreach ($appConfig in $backup.Settings.DeviceLevelApps.Apps) {
+# CRITICAL FIX: Check property existence BEFORE access (StrictMode compatibility)
+# ROOT CAUSE: Direct property access crashes under StrictMode if property doesn't exist
+# SOLUTION: Use PSObject.Properties.Name to check existence first
+$hasDeviceLevelApps = 
+    $null -ne $backup.Settings -and
+    'DeviceLevelApps' -in $backup.Settings.PSObject.Properties.Name
+
+if ($hasDeviceLevelApps) {
+    $deviceApps = $backup.Settings.DeviceLevelApps
+    
+    # Check if enabled and has apps
+    $hasApps = 
+        $null -ne $deviceApps -and
+        'Apps' -in $deviceApps.PSObject.Properties.Name -and
+        $null -ne $deviceApps.Apps -and
+        ($deviceApps.Apps | Measure-Object).Count -gt 0
+    
+    if ($hasApps) {
+        try {
+            $restoredApps = 0
+            $deletedApps = 0
+            
+            # Check if Set-RegistryValueSmart is available (from RegistryOwnership module)
+            $hasOwnershipModule = Get-Command Set-RegistryValueSmart -ErrorAction SilentlyContinue
+            
+            foreach ($appConfig in $deviceApps.Apps) {
             try {
                 $appPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\Capabilities\$($appConfig.Permission)\Apps\$($appConfig.AppName)"
                 
@@ -1332,14 +1349,21 @@ if ($backup.Settings.DeviceLevelApps -and $backup.Settings.DeviceLevelApps.Enabl
             Write-Host "  [OK] $restoredApps Device-Level Apps restored, $deletedApps deleted" -ForegroundColor Green
             $restoreStats.Success++
         }
+        else {
+            Write-Host "  [i] No device-level apps needed restoration" -ForegroundColor Gray
+        }
+        }
+        catch {
+            Write-Warning "Device-Level App Restore fehlgeschlagen: $_"
+            $restoreStats.Errors++
+        }
     }
-    catch {
-        Write-Warning "Device-Level App Restore fehlgeschlagen: $_"
-        $restoreStats.Errors++
+    else {
+        Write-Host "  [i] No device-level apps in backup (Apps list empty or missing)" -ForegroundColor DarkYellow
     }
 }
 else {
-    Write-Host "  [SKIP] Keine Device-Level App Permissions im Backup" -ForegroundColor Gray
+    Write-Host "  [i] Backup has no 'DeviceLevelApps' section - skipping" -ForegroundColor DarkYellow
 }
 #endregion
 
