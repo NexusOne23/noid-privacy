@@ -1072,7 +1072,7 @@ if ($missingAppsCount -gt 0) {
         Write-Host "      $moreMsg" -ForegroundColor Gray
     }
     
-    # CRITICAL FIX v1.7.12: Write app list to Desktop for user reference
+    # CRITICAL FIX v1.7.13: Write app list to Desktop for user reference
     # User will need to reboot - list will be available on desktop after restart
     try {
         $desktopPath = [Environment]::GetFolderPath("Desktop")

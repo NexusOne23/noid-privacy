@@ -56,13 +56,13 @@ function Set-EdgeSecurityBaseline {
     Set-RegistryValue -Path $edgePolicyPath -Name "SmartScreenPuaEnabled" -Value 1 -Type DWord `
         -Description "Enable SmartScreen PUA (Blocks downloads of potentially unwanted apps)"
     
-    # CRITICAL FIX v1.7.12: Windows Security GUI checks HKCU, not HKLM!
+    # CRITICAL FIX v1.7.13: Windows Security GUI checks HKCU, not HKLM!
     # Must set in CURRENT USER in BOTH paths for checkbox to appear in Windows Security GUI
     $edgeUserPath = "HKCU:\SOFTWARE\Microsoft\Edge"
     Set-RegistryValue -Path $edgeUserPath -Name "SmartScreenPuaEnabled" -Value 1 -Type DWord `
         -Description "Enable SmartScreen PUA for current user (Windows Security GUI)"
     
-    # CRITICAL FIX v1.7.12: Also set in HKCU Policy path (required for GUI checkbox!)
+    # CRITICAL FIX v1.7.13: Also set in HKCU Policy path (required for GUI checkbox!)
     # BOTH SmartScreenEnabled AND SmartScreenPuaEnabled needed in HKCU for Windows Security GUI!
     $edgeUserPolicyPath = "HKCU:\SOFTWARE\Policies\Microsoft\Edge"
     Set-RegistryValue -Path $edgeUserPolicyPath -Name "SmartScreenEnabled" -Value 1 -Type DWord `
@@ -70,7 +70,7 @@ function Set-EdgeSecurityBaseline {
     Set-RegistryValue -Path $edgeUserPolicyPath -Name "SmartScreenPuaEnabled" -Value 1 -Type DWord `
         -Description "Enable SmartScreen PUA for current user - Policy path (Windows Security GUI)"
     
-    # CRITICAL FIX v1.7.12: Set for ALL loaded user profiles (HKEY_USERS)
+    # CRITICAL FIX v1.7.13: Set for ALL loaded user profiles (HKEY_USERS)
     # This ensures all logged-in users see the checkbox in Windows Security
     try {
         $loadedProfiles = Get-ChildItem -Path "Registry::HKEY_USERS" -ErrorAction SilentlyContinue | 

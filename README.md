@@ -5,7 +5,7 @@
 [![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-blue.svg)](https://github.com/PowerShell/PowerShell)
 [![Windows 11](https://img.shields.io/badge/Windows%2011-25H2-0078D4.svg)](https://www.microsoft.com/windows/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-1.7.12-blue.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.7.13-blue.svg)](CHANGELOG.md)
 
 ---
 
@@ -522,11 +522,11 @@ The authors are not responsible for any damage or data loss caused by this scrip
 
 ## 📈 Project Status
 
-**Current Version:** 1.7.12  
-**Last Updated:** October 30, 2025  
+**Current Version:** 1.7.13  
+**Last Updated:** October 31, 2025  
 **Status:** Production-Ready ✅
 
-### Recent Updates (v1.7.12)
+### Recent Updates (v1.7.13)
 - ✅ **Access Denied Errors Fixed** - Device-Level Backup removed (TrustedInstaller-protected, always re-applied)
 - ✅ **Bloatware TerminatingError Fixed** - Removed problematic Solitaire patterns (corrupted path)
 - ✅ **Step Counters Updated** - Changed from [X/14] to [X/13] (13 user-visible backup steps)

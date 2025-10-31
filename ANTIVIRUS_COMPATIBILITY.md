@@ -237,6 +237,6 @@ ConvertFrom-SddlString -Sddl "O:BAG:BAD:(A;;RC;;;BA)"
 ## 🔄 Last Updated
 
 **Date:** October 31, 2025  
-**Version:** 1.7.12  
+**Version:** 1.7.13  
 **Affected Antivirus:** Bitdefender (all versions)  
 **Status:** Known issue - Workaround documented

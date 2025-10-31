@@ -794,7 +794,7 @@ Solitaire, Candy Crush, Bubble Witch
 **6. Metadata**
 - Backup timestamp (UTC)
 - Windows version (build number)
-- Script version (e.g., 1.7.12)
+- Script version (e.g., 1.7.13)
 - Applied modules list
 - User settings
 - Computer name
@@ -1032,5 +1032,5 @@ Solitaire, Candy Crush, Bubble Witch
 
 ---
 
-**Last Updated:** October 2025 (v1.7.12)  
+**Last Updated:** October 2025 (v1.7.13)  
 **Source:** [NoID Privacy GitHub](https://github.com/NexusOne23/noid-privacy)

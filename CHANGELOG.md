@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.13] - 2025-10-31
+
+### Fixed
+- **DoH Verification** - Fixed `Out-String` boolean conversion (netsh output array to boolean)
+- **DoH Verification** - Changed from `show state` to `show global` (correct command)
+- **DNS Restore** - PowerShell 5.1 compatibility (removed `-AddressFamily` parameter)
+- **DNS Restore** - Array coercion for `.Count` property access (PropertyNotFoundException)
+- **Backup** - EnableAutoDoh PSObject.Properties pattern (robust property check)
+
+### Changed
+- **DNS Restore** - Simplified logic (combines IPv4+IPv6 in single call)
+- **DNS Restore** - Removed safety sweep (no longer needed)
+
 ## [1.7.12] - 2025-10-30
 
 ### Added

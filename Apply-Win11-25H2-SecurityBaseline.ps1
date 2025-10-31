@@ -24,7 +24,7 @@
     - Privacy Protection: +200% above baseline (700+ privacy settings)
     
 .NOTES
-    Version:        1.7.12
+    Version:        1.7.13
     Baseline:       Microsoft Security Baseline 25H2 (September 30, 2025)
     Author:         NoID Privacy Project
     Last Updated:   October 30, 2025
@@ -1246,7 +1246,7 @@ Write-Host "               Maximum Security + Privacy + Performance" -Foreground
 Write-Host "" -ForegroundColor Cyan
 Write-Host "=============================================================================" -ForegroundColor Cyan
 Write-Host ""
-Write-Host "  Version: 1.7.12 | Modus: $Mode" -ForegroundColor Cyan
+Write-Host "  Version: 1.7.13 | Modus: $Mode" -ForegroundColor Cyan
 if ($Interactive) {
     Write-Host "  Mode: Interactive Menu" -ForegroundColor Cyan
 }

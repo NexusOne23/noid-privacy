@@ -1,6 +1,6 @@
 name: Create Release
 
-# Trigger on version tags (v1.0.0, v1.7.12, etc.)
+# Trigger on version tags (v1.0.0, v1.7.13, etc.)
 on:
   push:
     tags:

@@ -48,7 +48,7 @@
     - LastUsedTime* are Forensic-Tracking (managed by Windows)
     - Consistent with Apply-Script v1.7.11 (also sets only Value)
     
-    VERSION 1.7.12 UPDATE (Current):
+    VERSION 1.7.13 UPDATE (Current):
     - 125 missing registry keys added (100% parity achieved)
     - 17 string formatting fixes (Get-LocalizedString -f operator)
     - NULL reference bug fixed (GetValueKind for protected keys)
@@ -895,7 +895,7 @@ $backup.Settings.FirewallProfiles = $firewallProfileBackup
 Write-Host ""
 #endregion
 
-# NOTE: Device-Level Backup (EnabledByUser) was removed in v1.7.12
+# NOTE: Device-Level Backup (EnabledByUser) was removed in v1.7.13
 # Reason: All EnabledByUser keys are TrustedInstaller-protected and always re-applied by the script
 # Backup is meaningless as keys cannot be read (Access Denied) or written without ownership change
 
