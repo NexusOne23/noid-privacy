@@ -116,11 +116,18 @@ function Backup-SpecificRegistryKeys {
                         $exists = $true
                         
                         # Get value type for accurate restore
-                        try {
-                            $regKey = Get-Item -Path $change.Path -ErrorAction Stop
-                            $valueType = $regKey.GetValueKind($change.Name).ToString()
+                        # CRITICAL: Use SilentlyContinue to prevent error logging
+                        $regKey = Get-Item -Path $change.Path -ErrorAction SilentlyContinue
+                        if ($regKey) {
+                            try {
+                                $valueType = $regKey.GetValueKind($change.Name).ToString()
+                            }
+                            catch {
+                                # Fallback to defined type
+                                $valueType = $change.Type
+                            }
                         }
-                        catch {
+                        else {
                             # Fallback to defined type
                             $valueType = $change.Type
                         }
@@ -248,21 +255,49 @@ function Restore-SpecificRegistryKeys {
                     else {
                         # Fallback: Standard method
                         if (-not (Test-Path $entry.Path)) {
-                            New-Item -Path $entry.Path -Force -ErrorAction Stop | Out-Null
+                            # CRITICAL: Use SilentlyContinue to prevent error logging before catch
+                            New-Item -Path $entry.Path -Force -ErrorAction SilentlyContinue | Out-Null
+                            if (-not $?) {
+                                # New-Item failed (likely Access Denied on protected parent key)
+                                $lastError = $Error[0]
+                                throw $lastError
+                            }
                         }
                         
                         # Check if property exists
                         $propExists = Get-ItemProperty -Path $entry.Path -Name $entry.Name -ErrorAction SilentlyContinue
                         
+                        # CRITICAL: Use SilentlyContinue to prevent error logging before catch
+                        # ROOT CAUSE: -ErrorAction Stop writes error to transcript BEFORE catch handles it
+                        $success = $false
+                        
                         if ($propExists) {
-                            Set-ItemProperty -Path $entry.Path -Name $entry.Name -Value $entry.OriginalValue -Force -ErrorAction Stop
+                            Set-ItemProperty -Path $entry.Path -Name $entry.Name -Value $entry.OriginalValue -Force -ErrorAction SilentlyContinue
+                            $success = $?
                         }
                         else {
-                            New-ItemProperty -Path $entry.Path -Name $entry.Name -Value $entry.OriginalValue -PropertyType $entry.OriginalType -Force -ErrorAction Stop | Out-Null
+                            New-ItemProperty -Path $entry.Path -Name $entry.Name -Value $entry.OriginalValue -PropertyType $entry.OriginalType -Force -ErrorAction SilentlyContinue | Out-Null
+                            $success = $?
                         }
                         
-                        $stats.Restored++
-                        Write-Verbose "[Restore OK] $($entry.Path)\$($entry.Name) = $($entry.OriginalValue)"
+                        if ($success) {
+                            $stats.Restored++
+                            Write-Verbose "[Restore OK] $($entry.Path)\$($entry.Name) = $($entry.OriginalValue)"
+                        }
+                        else {
+                            # Check if Access Denied (protected key)
+                            $lastError = $Error[0]
+                            if ($lastError.Exception -is [System.UnauthorizedAccessException] -or
+                                $lastError.Exception -is [System.Security.SecurityException] -or
+                                $lastError.Exception.Message -match 'unzulässig|denied|access') {
+                                # Protected key - will be caught by outer catch
+                                throw $lastError
+                            }
+                            else {
+                                # Real error
+                                throw $lastError
+                            }
+                        }
                     }
                 }
                 else {
