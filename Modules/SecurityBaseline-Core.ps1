@@ -920,13 +920,27 @@ function Set-SmartScreenExtended {
             -Description "Warning when starting unsafe apps")
     }
     
+    # ===== GROUP POLICY SMARTSCREEN (for Verify compatibility) =====
+    # CRITICAL: Verify checks HKLM:\SOFTWARE\Policies\Microsoft\Windows\System
+    # We must set BOTH paths (Explorer for functionality + Policies for Verify)
+    $smartScreenPolicyPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System"
+    
+    # Enable SmartScreen via Group Policy
+    [void](Set-RegistryValue -Path $smartScreenPolicyPath -Name "EnableSmartScreen" -Value 1 -Type DWord `
+        -Description "SmartScreen enabled via Group Policy")
+    
+    # Set SmartScreen level to "Block" (strictest mode)
+    # Options: Warn (default), Block (strictest)
+    [void](Set-RegistryValue -Path $smartScreenPolicyPath -Name "ShellSmartScreenLevel" -Value "Block" -Type String `
+        -Description "SmartScreen: Block unknown apps (strictest mode)")
+    
     Write-Success "SmartScreen Extended: AKTIV"
-    Write-Info "  - Windows SmartScreen: RequireAdmin (Unknown apps require UAC)"
+    Write-Info "  - Windows SmartScreen: Block mode (strictest)"
     Write-Info "  - Edge SmartScreen: Phishing + PUA Protection"
     Write-Info "  - Enhanced Phishing Protection (Password Reuse + Unsafe Apps)"
     Write-Info "DEFENSE IN DEPTH: +5% Phishing/Malware Resistance"
     Write-Info "Note: Edge DNS-over-HTTPS is configured in Edge module"
-    Write-Warning-Custom "Unknown apps now show Admin prompt (increased security)"
+    Write-Warning-Custom "SmartScreen now BLOCKS unknown apps (maximum security)"
 }
 
 #endregion
