@@ -770,29 +770,10 @@ function Enable-ExploitProtection {
         Write-Info (Get-LocalizedString 'CoreExploitExtension')
         Write-Info (Get-LocalizedString 'CoreExploitResistance')
         
-        # CRITICAL: Export Exploit Protection configuration for Verify
-        # Verify checks if these settings are actually applied
-        # Without export, Verify will fail even though settings are active
-        try {
-            $epExportPath = "$env:ProgramData\SecurityBaseline"
-            if (-not (Test-Path $epExportPath)) {
-                New-Item -ItemType Directory -Path $epExportPath -Force | Out-Null
-            }
-            
-            # Export as JSON (easier to parse, contains all info)
-            $epJsonFile = Join-Path $epExportPath "ExploitProtection-25H2.json"
-            $mitigations = Get-ProcessMitigation -System
-            $mitigations | ConvertTo-Json -Depth 10 | Out-File -FilePath $epJsonFile -Encoding UTF8 -Force
-            
-            Write-Verbose "Exploit Protection config exported to: $epJsonFile"
-        }
-        catch {
-            Write-Verbose "Could not export Exploit Protection config: $_"
-            # Non-critical - settings are still applied
-        }
+        Write-Success (Get-LocalizedString 'CoreExploitProtectionSuccess')
     }
     catch {
-        Write-Warning-Custom (Get-LocalizedString 'CoreExploitFailed' $_)
+        Write-Warning-Custom "Failed to set Exploit Protection: $_"
         Write-Info (Get-LocalizedString 'CoreExploitManual')
     }
 }

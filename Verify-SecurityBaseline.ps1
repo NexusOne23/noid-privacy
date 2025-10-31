@@ -468,14 +468,7 @@ Test-ASRRule -Name "Block use of copied or impersonated system tools (preview)" 
 
 Write-Host "`n=== EXPLOIT PROTECTION (10 MITIGATIONS) ===" -ForegroundColor Yellow
 
-# Check if Exploit Protection XML exists
-$epConfigPath = "$env:ProgramData\SecurityBaseline\Exploit-Protection-Config.xml"
-
-Test-BaselineCheck -Category "ExploitProtection" -Name "Exploit Protection Config File Exists" -Impact "High" `
-    -Test { Test-Path $epConfigPath } `
-    -Expected $true
-
-# Try to get current system-wide mitigations
+# Get current system-wide mitigations directly (no JSON needed)
 try {
     $epStatus = Get-ProcessMitigation -System -ErrorAction Stop
     
