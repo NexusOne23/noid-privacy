@@ -774,8 +774,23 @@ if (-not (Test-Path Variable:\Global:CurrentLanguage) -or [string]::IsNullOrEmpt
 if ($Interactive) {
     $config = Start-InteractiveMode -LogPath $LogPath
     
+    # CRITICAL FIX: Clean up config IMMEDIATELY (BEFORE any property access!)
+    # ROOT CAUSE: Menu can return Object[] instead of Hashtable
+    # PROBLEM: Somewhere in menu pipeline $true or validation output leaks through
+    # EXAMPLE: $config = @(@{Mode='Audit'...}, $true) instead of just @{Mode='Audit'...}
+    # SYMPTOM: .ContainsKey() crashes with "System.Array/Object[] has no method ContainsKey"
+    # SOLUTION: Extract first Hashtable from array if needed, BEFORE any .ContainsKey() access
+    
+    # Step 1: If config is array, extract first hashtable
+    if ($config -is [object[]]) {
+        Write-Verbose "Config is array - extracting first hashtable"
+        $config = $config | Where-Object { $_ -is [hashtable] } | Select-Object -First 1
+    }
+    
+    # Step 2: If nothing left, user cancelled
     if ($null -eq $config) {
         # User cancelled
+        Write-Host "[!] Operation cancelled by user" -ForegroundColor Yellow
         
         # Release Mutex before exit
         if ($mutexAcquired -and $mutex) {
@@ -790,6 +805,25 @@ if ($Interactive) {
         
         exit 0
     }
+    
+    # Step 3: If not hashtable after cleanup, exit with warning
+    if ($config -isnot [hashtable]) {
+        Write-Warning "Interactive menu returned unexpected value (type: $($config.GetType().FullName)). Exiting..."
+        
+        # Release Mutex before exit
+        if ($mutexAcquired -and $mutex) {
+            try { 
+                $mutex.ReleaseMutex()
+                $mutex.Dispose()
+            } catch { 
+                Write-Verbose "Mutex release in type-guard failed: $_"
+            }
+        }
+        
+        exit 0
+    }
+    
+    # NOW config is guaranteed to be a Hashtable - safe to use .ContainsKey()!
     
     # SPECIAL: User chose Restore (parameter OR backup prompt)
     # IMPORTANT: Hashtable uses ContainsKey() not PSObject.Properties!
@@ -886,37 +920,8 @@ if ($Interactive) {
         [Environment]::Exit(99)
     }
     
-    # CRITICAL FIX: Check if $config is NOT NULL FIRST!
-    # ROOT CAUSE: If Invoke-AuditMode/Enforce/Custom returns $null (user cancels),
-    # accessing $config.Mode will crash even in safety checks!
-    # MUST check BEFORE any property access (including Line 890)!
-    # CRITICAL: Use exit (not return!) - return only exits if-block, script continues!
-    if ($null -eq $config) {
-        Write-Host "[!] Operation cancelled by user" -ForegroundColor Yellow
-        exit 0
-    }
-    
-    # CRITICAL FIX A: Defensive TYPE check (after Verify + Exit, $config can be String not Hashtable!)
-    # ROOT CAUSE: After VERIFY → EXIT, menu sometimes returns String/True instead of null
-    # PROBLEM: Then .ContainsKey() crashes with "System.String does not contain method ContainsKey"
-    # SYMPTOM: Creates unwanted Audit log, crashes at SelectedModules.Count
-    # SOLUTION: Type-check BEFORE any .ContainsKey() access
-    if ($config -isnot [hashtable]) {
-        Write-Warning "Interactive menu returned unexpected value (type: $($config.GetType().FullName)). Exiting..."
-        
-        # Release mutex cleanly
-        if ($mutexAcquired -and $mutex) {
-            try {
-                $mutex.ReleaseMutex()
-                $mutex.Dispose()
-            } 
-            catch {
-                Write-Verbose "Mutex release in interactive-type-guard failed: $_"
-            }
-        }
-        
-        exit 0
-    }
+    # NOTE: $config null/type checks already done at top of Interactive block (Lines 784-824)
+    # This code only runs if config is valid Hashtable
     
     # SAFETY CHECK: If Mode='Restore', then something went wrong!
     if ($config.Mode -eq 'Restore') {
