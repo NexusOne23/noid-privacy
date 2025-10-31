@@ -393,8 +393,10 @@ foreach ($adapter in $currentAdapters) {
             $dnsIPv4 = if ($saved.PSObject.Properties.Name -contains 'DNS_IPv4') { $saved.DNS_IPv4 } else { @() }
             $dnsIPv6 = if ($saved.PSObject.Properties.Name -contains 'DNS_IPv6') { $saved.DNS_IPv6 } else { @() }
             
-            $hasIPv4 = ($dnsIPv4 -and $dnsIPv4.Count -gt 0)
-            $hasIPv6 = ($dnsIPv6 -and $dnsIPv6.Count -gt 0)
+            # CRITICAL: Force array with @() - DNS_IPv4/IPv6 can be single string (no .Count property!)
+            # Without @() wrap: PropertyNotFoundException "Count not found"
+            $hasIPv4 = ($dnsIPv4 -and @($dnsIPv4).Count -gt 0)
+            $hasIPv6 = ($dnsIPv6 -and @($dnsIPv6).Count -gt 0)
             
             Write-Verbose "Restoring DNS for $($adapter.Name) (matched via $( if ($saved.InterfaceGuid -eq $adapter.InterfaceGuid) { 'GUID' } elseif ($saved.AdapterName -eq $adapter.Name) { 'Alias' } else { 'IfIndex' }))"
             
