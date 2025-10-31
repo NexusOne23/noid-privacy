@@ -13,6 +13,9 @@
 
 **NoID Privacy** is a comprehensive PowerShell-based security hardening solution for Windows 11 25H2, implementing the Microsoft Security Baseline with extensive privacy enhancements.
 
+![NoID Privacy - Enforce Mode](docs/screenshots/enforce-mode.png)
+*Enforce Mode showing comprehensive security modules: Defender, ASR Rules, Firewall, VBS, DNS-over-HTTPS, Privacy Settings, Bloatware Removal, and more*
+
 ### What You Get
 - ✅ **100% Microsoft Security Baseline 25H2 Coverage** for standalone Windows 11 systems - [See Mapping](SECURITY_MAPPING.md)
 - 🔒 **300+ Security Settings** - Enterprise-grade protection at home
