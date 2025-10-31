@@ -606,12 +606,43 @@ Write-Host "  [i] $(Get-LocalizedString 'RestoreFirewallRestoring')" -Foreground
 
 $fwRulesCount = if ($backup.Settings.FirewallRules) { @($backup.Settings.FirewallRules).Count } else { 0 }
 if ($fwRulesCount -gt 0) {
+    # PERFORMANCE FIX: Bulk load ALL firewall rules ONCE then lookup in hashtable
+    # ROOT CAUSE: Calling Get-NetFirewallRule 497x is slow (Windows Filtering Platform COM)
+    # SOLUTION: Load all rules once (2-3s), store in hashtable, then O(1) lookup per rule
+    Write-Host "  [i] Loading all firewall rules (one-time operation)..." -ForegroundColor Gray
+    try {
+        $allRules = Get-NetFirewallRule -All
+        $ruleMap = @{}
+        foreach ($r in $allRules) {
+            $ruleMap[$r.Name] = $r
+        }
+        Write-Host "  [OK] Loaded $($allRules.Count) rules into cache" -ForegroundColor Green
+    }
+    catch {
+        Write-Host "  [!] Could not load firewall rules - skipping restore" -ForegroundColor Yellow
+        Write-Host "  [i] Error: $_" -ForegroundColor Gray
+        $restoreStats.Skipped++
+        $ruleMap = @{}
+    }
+    
     $restoredRules = 0
     $changedRules = 0
+    $ruleIndex = 0
     
     foreach ($backupRule in $backup.Settings.FirewallRules) {
+        $ruleIndex++
+        
+        # Progress output every 50 rules (so user knows it's working)
+        if ($ruleIndex % 50 -eq 0 -or $ruleIndex -eq $fwRulesCount) {
+            Write-Host "    [>] Processing rule $ruleIndex/$fwRulesCount..." -ForegroundColor DarkCyan
+        }
+        
         try {
-            $currentRule = Get-NetFirewallRule -Name $backupRule.Name -ErrorAction SilentlyContinue
+            # Fast lookup in hashtable (O(1) instead of COM API call)
+            $currentRule = $null
+            if ($ruleMap.ContainsKey($backupRule.Name)) {
+                $currentRule = $ruleMap[$backupRule.Name]
+            }
             
             if ($currentRule) {
                 if ($currentRule.Enabled -ne $backupRule.Enabled) {
