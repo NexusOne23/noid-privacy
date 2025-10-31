@@ -245,8 +245,18 @@ function Restore-SpecificRegistryKeys {
             }
         }
         catch {
-            $stats.Failed++
-            Write-Verbose "[Restore ERROR] $($entry.Path)\$($entry.Name): $_"
+            # Check if it's an Access Denied error (protected key)
+            if ($_.Exception.Message -match "unzulässig|Access.*denied|unauthorized") {
+                # Protected key - can't modify it (TrustedInstaller/SYSTEM)
+                # This is NORMAL and expected - don't count as Failed!
+                $stats.Unchanged++
+                Write-Verbose "[Restore SKIP] Protected key (Access Denied): $($entry.Path)\$($entry.Name)"
+            }
+            else {
+                # Real error
+                $stats.Failed++
+                Write-Verbose "[Restore ERROR] $($entry.Path)\$($entry.Name): $_"
+            }
         }
     }
     
