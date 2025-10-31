@@ -335,17 +335,32 @@ $dnsFailedCount = 0
 foreach ($dnsConfig in $backup.Settings.DNS) {
     try {
         $adapterName = $dnsConfig.AdapterName
+        $interfaceIndex = $dnsConfig.InterfaceIndex
         $dnsServers = $dnsConfig.DNS_IPv4
         
+        # Use InterfaceIndex (stable) instead of InterfaceAlias (can change)
+        # Fallback to InterfaceAlias if InterfaceIndex not available (old backups)
         if ($PSCmdlet.ShouldProcess($adapterName, "Restore DNS: $($dnsServers -join ', ')")) {
             $dnsCount = if ($dnsServers) { @($dnsServers).Count } else { 0 }
             if ($dnsCount -eq 0 -or $null -eq $dnsServers[0]) {
-                Set-DnsClientServerAddress -InterfaceAlias $adapterName -ResetServerAddresses -ErrorAction Stop
+                if ($interfaceIndex) {
+                    Set-DnsClientServerAddress -InterfaceIndex $interfaceIndex -ResetServerAddresses -ErrorAction Stop
+                }
+                else {
+                    # Fallback for old backups without InterfaceIndex
+                    Set-DnsClientServerAddress -InterfaceAlias $adapterName -ResetServerAddresses -ErrorAction Stop
+                }
                 $autoMsg = Get-LocalizedString 'RestoreDNSAuto' $adapterName
                 Write-Host "  [OK] $autoMsg" -ForegroundColor Green
             }
             else {
-                Set-DnsClientServerAddress -InterfaceAlias $adapterName -ServerAddresses $dnsServers -ErrorAction Stop
+                if ($interfaceIndex) {
+                    Set-DnsClientServerAddress -InterfaceIndex $interfaceIndex -ServerAddresses $dnsServers -ErrorAction Stop
+                }
+                else {
+                    # Fallback for old backups without InterfaceIndex
+                    Set-DnsClientServerAddress -InterfaceAlias $adapterName -ServerAddresses $dnsServers -ErrorAction Stop
+                }
                 $dnsOkMsg = Get-LocalizedString 'RestoreDNSOK' $adapterName
                 Write-Host "  [OK] $dnsOkMsg $($dnsServers -join ', ')" -ForegroundColor Green
             }
