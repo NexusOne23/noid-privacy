@@ -617,7 +617,7 @@ function Show-PerformanceReport {
     Write-Section "Performance Optimierung - Report"
     
     Write-Host "`n=== OPTIMIERT ===" -ForegroundColor Green
-    Write-Host "[OK] Scheduled Tasks: ~20 unnoetige Tasks deaktiviert" -ForegroundColor Green
+    Write-Host "[OK] Scheduled Tasks: ~30 unnoetige Tasks deaktiviert" -ForegroundColor Green
     Write-Host "[OK] Event Logs: Kritische erhoeht, Noise reduziert" -ForegroundColor Green
     Write-Host "[OK] Background Activities: Search/Prefetch optimiert" -ForegroundColor Green
     Write-Host "[OK] System Maintenance: Nur im Idle" -ForegroundColor Green

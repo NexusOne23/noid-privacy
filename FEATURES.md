@@ -397,13 +397,11 @@ Every single diagnostic/telemetry service disabled
 **Registry (180+ keys):**
 Every telemetry setting = OFF/BLOCKED/DISABLED
 
-**Tasks (60+):**
+**Tasks (30):**
 All data collection tasks disabled
 
-**Network (200+ domains):**
-Microsoft telemetry servers blocked
-
 **Result: Telemetry minimized to essential security data only**
+(Note: Telemetry domains blocked via DNS hosts file, not firewall)
 
 ---
 
@@ -707,14 +705,14 @@ Solitaire, Candy Crush, Bubble Witch
 **Module:** `SecurityBaseline-Performance.ps1` → `Show-PerformanceReport`
 
 **Shows:**
-- Tasks disabled count
-- Event logs optimized count
-- Background activities disabled
-- Visual effects optimized
-- Estimated performance gain
-- What's still active (Windows Update, Defender)
+- ~30 Tasks disabled (telemetry, performance)
+- Event logs optimized (critical increased, noise reduced)
+- Background activities disabled (Search, Prefetch, Maintenance)
+- Visual effects balanced (fast + readable)
+- Performance improvements (less CPU/disk activity, faster response)
+- What's still active (Windows Update, Defender, BITS)
 
-**User Benefit:** Know exactly what was optimized
+**User Benefit:** See qualitative improvements, understand what changed
 
 ---
 
