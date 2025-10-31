@@ -989,10 +989,13 @@ Test-BaselineCheck -Category "Kerberos" -Name "Kerberos Supported Encryption Typ
 # DNS over HTTPS
 Write-Host "`n=== DNS OVER HTTPS (DoH) ===" -ForegroundColor Yellow
 
-# CRITICAL: Multi-language support (English: yes, German: Ja/aktiviert, etc.)
+# CRITICAL: Multi-language support (English: yes, German: auto enabled, etc.)
 # netsh output is localized - must match multiple languages!
+# IMPORTANT: Use 'show global' NOT 'show state' - state doesn't show DoH!
+# German format: "DoH-Einstellungen                : auto enabled"
+# English format: "DoH settings                     : yes"
 Test-BaselineCheck -Category "DoH" -Name "DoH Auto-Enabled (Global)" -Impact "High" `
-    -Test { (netsh dnsclient show state 2>&1) -match "DoH\s*:\s*(yes|ja|enabled|aktiviert|activ)" } `
+    -Test { (netsh dnsclient show global 2>&1) -match "(DoH|DoH-Einstellungen).*:\s*(yes|ja|enabled|auto enabled|aktiviert)" } `
     -Expected $true
 
 try {
