@@ -890,9 +890,10 @@ if ($Interactive) {
     # ROOT CAUSE: If Invoke-AuditMode/Enforce/Custom returns $null (user cancels),
     # accessing $config.Mode will crash even in safety checks!
     # MUST check BEFORE any property access (including Line 890)!
+    # CRITICAL: Use exit (not return!) - return only exits if-block, script continues!
     if ($null -eq $config) {
-        Write-Error "Interactive mode returned null config - user cancelled operation!"
-        return
+        Write-Host "[!] Operation cancelled by user" -ForegroundColor Yellow
+        exit 0
     }
     
     # SAFETY CHECK: If Mode='Restore', then something went wrong!
