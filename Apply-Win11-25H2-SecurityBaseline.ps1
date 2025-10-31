@@ -896,6 +896,28 @@ if ($Interactive) {
         exit 0
     }
     
+    # CRITICAL FIX A: Defensive TYPE check (after Verify + Exit, $config can be String not Hashtable!)
+    # ROOT CAUSE: After VERIFY → EXIT, menu sometimes returns String/True instead of null
+    # PROBLEM: Then .ContainsKey() crashes with "System.String does not contain method ContainsKey"
+    # SYMPTOM: Creates unwanted Audit log, crashes at SelectedModules.Count
+    # SOLUTION: Type-check BEFORE any .ContainsKey() access
+    if ($config -isnot [hashtable]) {
+        Write-Warning "Interactive menu returned unexpected value (type: $($config.GetType().FullName)). Exiting..."
+        
+        # Release mutex cleanly
+        if ($mutexAcquired -and $mutex) {
+            try {
+                $mutex.ReleaseMutex()
+                $mutex.Dispose()
+            } 
+            catch {
+                Write-Verbose "Mutex release in interactive-type-guard failed: $_"
+            }
+        }
+        
+        exit 0
+    }
+    
     # SAFETY CHECK: If Mode='Restore', then something went wrong!
     if ($config.Mode -eq 'Restore') {
         Write-Host "$(Get-LocalizedString 'CriticalRestoreNotCaught')" -ForegroundColor Red
@@ -1141,6 +1163,31 @@ try {
 }
 catch {
     Write-Verbose "Could not clean old logs: $_"
+}
+
+# CRITICAL FIX B: Safety exit BEFORE transcript if no modules (second defensive barrier)
+# ROOT CAUSE: Interactive VERIFY → EXIT might slip through with invalid $SelectedModules
+# PROBLEM: Even if type-check passed, $SelectedModules might be null/string/empty
+# SYMPTOM: Unwanted Audit transcript starts, then crashes at $SelectedModules.Count
+# SOLUTION: Final check before transcript - if no valid modules in Interactive mode, exit cleanly
+if ($Interactive -and (-not $SelectedModules -or ($SelectedModules -is [string]) -or ($SelectedModules.Count -eq 0))) {
+    Write-Host ""
+    Write-Host "[i] No modules selected (interactive VERIFY/EXIT). Exiting..." -ForegroundColor Yellow
+    Write-Host ""
+    
+    # Release mutex cleanly
+    if ($mutexAcquired -and $mutex) {
+        try {
+            $mutex.ReleaseMutex()
+            $mutex.Dispose()
+            Write-Verbose "Mutex released in interactive safety-exit"
+        } 
+        catch {
+            Write-Verbose "Mutex release failed in interactive safety-exit: $_"
+        }
+    }
+    
+    exit 0
 }
 
 # CRITICAL FIX: Set transcript path before starting transcript!
