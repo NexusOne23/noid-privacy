@@ -611,6 +611,30 @@ function Test-ModuleDependencies {
     return $true
 }
 
+function Test-HasSelectedModules {
+    <#
+    .SYNOPSIS
+        Safely checks if SelectedModules exists and has items (StrictMode-compatible)
+    .DESCRIPTION
+        Under Set-StrictMode -Version Latest accessing .Count on non-existent variable crashes
+        This function uses Test-Path to check existence first then Measure-Object for count
+    .OUTPUTS
+        [bool] True if SelectedModules exists and has at least 1 item
+    #>
+    if (-not (Test-Path Variable:SelectedModules)) {
+        return $false
+    }
+    
+    $tmp = $SelectedModules
+    if ($null -eq $tmp) {
+        return $false
+    }
+    
+    # Use Measure-Object instead of .Count (works with strings and arrays)
+    $count = ($tmp | Measure-Object).Count
+    return ($count -gt 0)
+}
+
 # ===== CRITICAL FIX #5: Removed Default Language DUPLICATE =====
 # Default language was already set early (see CRITICAL FIX #2)
 # Duplicate removed to avoid redundancy
@@ -1122,9 +1146,10 @@ Write-Verbose "===================="
 # CRITICAL FIX: SAFE EXIT if no modules selected (e.g. interactive VERIFY + EXIT)
 # ROOT CAUSE: After Verify → Exit, no config is set, but script continues to common part
 # PROBLEM: Common part assumes $SelectedModules always exists → crash at Line 1180
-# SYMPTOM: Creates unwanted Audit log even though user chose Exit
-# SOLUTION: Check if $SelectedModules exists and has items BEFORE common execution part
-if (-not $SelectedModules -or $SelectedModules.Count -eq 0) {
+# CRITICAL FIX: SAFE-EXIT with StrictMode compatibility
+# ROOT CAUSE: Under Set-StrictMode accessing $SelectedModules.Count crashes if variable not set
+# SOLUTION: Use Test-HasSelectedModules helper (checks existence first then count)
+if (-not (Test-HasSelectedModules)) {
     Write-Host ""
     Write-Host "[i] No modules selected (probably VERIFY + EXIT). Exiting..." -ForegroundColor Yellow
     Write-Host ""
@@ -1170,12 +1195,12 @@ catch {
     Write-Verbose "Could not clean old logs: $_"
 }
 
-# CRITICAL FIX B: Safety exit BEFORE transcript if no modules (second defensive barrier)
+# CRITICAL FIX B: Safety exit BEFORE transcript if no modules (second defensive barrier + StrictMode fix)
 # ROOT CAUSE: Interactive VERIFY → EXIT might slip through with invalid $SelectedModules
 # PROBLEM: Even if type-check passed, $SelectedModules might be null/string/empty
 # SYMPTOM: Unwanted Audit transcript starts, then crashes at $SelectedModules.Count
-# SOLUTION: Final check before transcript - if no valid modules in Interactive mode, exit cleanly
-if ($Interactive -and (-not $SelectedModules -or ($SelectedModules -is [string]) -or ($SelectedModules.Count -eq 0))) {
+# SOLUTION: Use Test-HasSelectedModules helper (StrictMode-safe check)
+if ($Interactive -and -not (Test-HasSelectedModules)) {
     Write-Host ""
     Write-Host "[i] No modules selected (interactive VERIFY/EXIT). Exiting..." -ForegroundColor Yellow
     Write-Host ""
@@ -1236,7 +1261,9 @@ try {
     }
     
     # 1. System validation (always)
-    Test-SystemRequirements
+    # CRITICAL FIX: Pipe to Out-Null to prevent [bool]True leaking into pipeline
+    # ROOT CAUSE: Function returns $true which can pollute caller's return array
+    Test-SystemRequirements | Out-Null
     
     # 2. Create System Restore Point (Safety Net) - only if desired)
     if ($script:createRestorePoint) {
