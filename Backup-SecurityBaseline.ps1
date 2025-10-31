@@ -691,6 +691,7 @@ Write-Host "[11/13] $(Get-LocalizedString 'BackupDohTitle')" -ForegroundColor Ye
 $dohBackup = @{
     Servers = @()
     Enabled = $false
+    EnableAutoDoh = $null  # Registry value (0/1/2)
 }
 
 try {
@@ -715,6 +716,19 @@ try {
         }
         else {
             Write-Host "[INFO] $(Get-LocalizedString 'BackupDohNotFound')" -ForegroundColor Gray
+        }
+        
+        # CRITICAL: Also backup EnableAutoDoh registry value
+        $dnsRegPath = "HKLM:\SYSTEM\CurrentControlSet\Services\Dnscache\Parameters"
+        try {
+            $enableAutoDoh = (Get-ItemProperty -Path $dnsRegPath -Name "EnableAutoDoh" -ErrorAction SilentlyContinue).EnableAutoDoh
+            if ($null -ne $enableAutoDoh) {
+                $dohBackup.EnableAutoDoh = $enableAutoDoh
+                Write-Verbose "Backed up EnableAutoDoh = $enableAutoDoh"
+            }
+        }
+        catch {
+            Write-Verbose "EnableAutoDoh registry value not found (will use default on restore)"
         }
     }
     else {
