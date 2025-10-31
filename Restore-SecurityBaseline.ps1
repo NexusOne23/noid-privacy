@@ -473,8 +473,11 @@ else {
         Write-Host "  [DEBUG] Wait-Job completed, checking state: $($countJob.State)" -ForegroundColor Gray
         
         if ($countJob.State -eq 'Completed') {
+            Write-Host "  [DEBUG] Receiving job result..." -ForegroundColor Gray
             $tasksCount = Receive-Job $countJob
+            Write-Host "  [DEBUG] Receive-Job completed, Count=$tasksCount" -ForegroundColor Gray
             Remove-Job $countJob -Force -ErrorAction SilentlyContinue
+            Write-Host "  [DEBUG] Job removed" -ForegroundColor Gray
         }
         else {
             Stop-Job $countJob -ErrorAction SilentlyContinue
@@ -492,11 +495,15 @@ else {
         $tasksCount = 0
     }
     
+    Write-Host "  [DEBUG] Checking if tasksCount > 0: $tasksCount" -ForegroundColor Gray
     if ($tasksCount -gt 0) {
+        Write-Host "  [DEBUG] Entering restore loop for $tasksCount tasks..." -ForegroundColor Gray
         $restoredTasks = 0
         $changedTasks = 0
         
+        Write-Host "  [DEBUG] Starting foreach loop..." -ForegroundColor Gray
         foreach ($taskConfig in $backup.Settings.ScheduledTasks) {
+            Write-Host "  [DEBUG] Processing task: $($taskConfig.TaskName)" -ForegroundColor Gray
             try {
                 # Use timeout for Get-ScheduledTask (5 seconds max)
                 $job = Start-Job -ScriptBlock {
