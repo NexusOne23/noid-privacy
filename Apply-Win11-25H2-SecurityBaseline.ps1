@@ -972,7 +972,7 @@ if ($Interactive) {
         Write-Verbose "Modules from interactive config: $($SelectedModules -join ', ')"
     } else {
         Write-Warning "Config missing Modules property - using all modules"
-        $SelectedModules = @('Core', 'ASR', 'Advanced', 'DNS', 'Bloatware', 'Telemetry', 'Performance', 'AI', 'WirelessDisplay', 'OneDrive', 'UAC', 'WindowsUpdate', 'Edge', 'RegistryOwnership')
+        $SelectedModules = @('Core', 'ASR', 'Advanced', 'DNS', 'Bloatware', 'Telemetry', 'Performance', 'AI', 'WirelessDisplay', 'OneDrive', 'UAC', 'WindowsUpdate', 'Edge')
     }
     
     # === BACKUP LOGIC (from Start-InteractiveMode) ===
@@ -1114,7 +1114,7 @@ if ($Interactive) {
     
     # Default: All modules (or from -SelectedModules parameter)
     if (-not $SelectedModules) {
-        $SelectedModules = @('Core', 'ASR', 'Advanced', 'DNS', 'Bloatware', 'Telemetry', 'Performance', 'AI', 'WirelessDisplay', 'OneDrive', 'UAC', 'WindowsUpdate', 'Edge', 'RegistryOwnership')
+        $SelectedModules = @('Core', 'ASR', 'Advanced', 'DNS', 'Bloatware', 'Telemetry', 'Performance', 'AI', 'WirelessDisplay', 'OneDrive', 'UAC', 'WindowsUpdate', 'Edge')
         Write-Verbose "Non-interactive mode - using all modules"
     }
     
