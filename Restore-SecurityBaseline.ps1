@@ -1257,28 +1257,118 @@ Write-Host "[10/14] Restore Exploit Protection..." -ForegroundColor Yellow
 
 if ($backup.Settings.ExploitProtection -and $backup.Settings.ExploitProtection.Enabled) {
     try {
-        # Check if Set-ProcessMitigation is available
-        if (Get-Command Set-ProcessMitigation -ErrorAction SilentlyContinue) {
-            # Note: Restore is complex because Set-ProcessMitigation requires specific parameter combinations
-            # We have the backup data but auto-restore is too risky
-            # Mitigation data: $backup.Settings.ExploitProtection.SystemMitigations
-            Write-Host "  [INFO] Exploit Protection Restore ist komplex - nur kritische Mitigations" -ForegroundColor Gray
-            Write-Host "  [INFO] Fuer vollstaendigen Restore: Script erneut ausfuehren" -ForegroundColor Gray
-            
-            # Basic restore - may need manual intervention for full restore
-            Write-Host "  [OK] Exploit Protection Backup vorhanden (manueller Restore empfohlen)" -ForegroundColor Yellow
+        # Check if Set-ProcessMitigation is available (Windows 10 1709+)
+        if (-not (Get-Command Set-ProcessMitigation -ErrorAction SilentlyContinue)) {
+            Write-Host "  [SKIP] Set-ProcessMitigation nicht verfuegbar (Windows 10 1709+ required)" -ForegroundColor Gray
+            $restoreStats.Skipped++
         }
         else {
-            Write-Host "  [SKIP] Set-ProcessMitigation nicht verfuegbar" -ForegroundColor Gray
+            Write-Verbose "Restoring Exploit Protection mitigations (same as Apply)..."
+            
+            # STRATEGY: Mirror Apply behavior (idempotent)
+            # Backup had Exploit Protection enabled → restore to hardened state
+            # This is safer than trying to parse backup data and restore individual settings
+            
+            $mitigationsSet = 0
+            $mitigationsFailed = 0
+            
+            # ===== BASIC MITIGATIONS (Standard) =====
+            try {
+                Write-Verbose "Setting basic mitigations (DEP, SEHOP, ASLR)..."
+                Set-ProcessMitigation -System -Enable DEP, SEHOP, ForceRelocateImages, BottomUp, HighEntropy -ErrorAction Stop
+                Write-Verbose "  [OK] Basic mitigations: DEP, SEHOP, ASLR"
+                $mitigationsSet += 5
+            }
+            catch {
+                Write-Verbose "  [FAILED] Basic mitigations: $($_.Exception.Message)"
+                $mitigationsFailed += 5
+            }
+            
+            # ===== EXTENDED MITIGATIONS (Best Practice) =====
+            # Individual try-catch for each (not all systems support all mitigations)
+            
+            # Heap Protection (Terminate on Error)
+            try {
+                Set-ProcessMitigation -System -Enable TerminateOnError -ErrorAction Stop
+                Write-Verbose "  [OK] Heap Protection: Terminate on Error"
+                $mitigationsSet++
+            }
+            catch {
+                Write-Verbose "  [SKIP] Heap Protection: $($_.Exception.Message)"
+            }
+            
+            # Control Flow Guard - Strict Mode
+            try {
+                Set-ProcessMitigation -System -Enable StrictCFG -ErrorAction Stop
+                Write-Verbose "  [OK] CFG: Strict Mode"
+                $mitigationsSet++
+            }
+            catch {
+                Write-Verbose "  [SKIP] CFG Strict: $($_.Exception.Message)"
+            }
+            
+            # CFG - Suppress Exports (Anti-ROP)
+            try {
+                Set-ProcessMitigation -System -Enable SuppressExports -ErrorAction Stop
+                Write-Verbose "  [OK] CFG: Export Suppression (Anti-ROP)"
+                $mitigationsSet++
+            }
+            catch {
+                Write-Verbose "  [SKIP] CFG Exports: $($_.Exception.Message)"
+            }
+            
+            # Image Load Protection - Block Remote Images
+            try {
+                Set-ProcessMitigation -System -Enable BlockRemoteImageLoads -ErrorAction Stop
+                Write-Verbose "  [OK] Image Load: Block Remote (DLL Hijacking Protection)"
+                $mitigationsSet++
+            }
+            catch {
+                Write-Verbose "  [SKIP] Image Load Remote: $($_.Exception.Message)"
+            }
+            
+            # Image Load Protection - Block Low Integrity Images
+            try {
+                Set-ProcessMitigation -System -Enable BlockLowLabelImageLoads -ErrorAction Stop
+                Write-Verbose "  [OK] Image Load: Block Low Integrity (Untrusted Sources)"
+                $mitigationsSet++
+            }
+            catch {
+                Write-Verbose "  [SKIP] Image Load Low Integrity: $($_.Exception.Message)"
+            }
+            
+            # Disable Extension Points (Legacy COM)
+            try {
+                Set-ProcessMitigation -System -Enable DisableExtensionPoints -ErrorAction Stop
+                Write-Verbose "  [OK] Disable Extension Points (Legacy COM)"
+                $mitigationsSet++
+            }
+            catch {
+                Write-Verbose "  [SKIP] Extension Points: $($_.Exception.Message)"
+            }
+            
+            if ($mitigationsSet -gt 0) {
+                Write-Host "  [OK] Exploit Protection: $mitigationsSet mitigations restored" -ForegroundColor Green
+                $restoreStats.Success++
+            }
+            elseif ($mitigationsFailed -gt 0) {
+                Write-Host "  [!] Exploit Protection: All mitigations failed (incompatible system?)" -ForegroundColor Yellow
+                $restoreStats.Failed++
+            }
+            else {
+                Write-Host "  [!] Exploit Protection: No mitigations set (hardware incompatible)" -ForegroundColor Yellow
+                $restoreStats.Skipped++
+            }
         }
     }
     catch {
         Write-Warning "Exploit Protection Restore fehlgeschlagen: $_"
-        $restoreStats.Errors++
+        $restoreStats.Failed++
     }
 }
 else {
-    Write-Host "  [SKIP] Keine Exploit Protection im Backup" -ForegroundColor Gray
+    Write-Host "  [SKIP] Keine Exploit Protection im Backup (oder nicht aktiviert)" -ForegroundColor Gray
+    $restoreStats.Skipped++
 }
 #endregion
 
