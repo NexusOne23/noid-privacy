@@ -316,8 +316,12 @@ $cleanupScriptBlock = {
     Write-Host "$(Get-LocalizedString 'AbortUserCancelled')" -ForegroundColor Red
     Write-Host "$(Get-LocalizedString 'AbortCleanup')" -ForegroundColor Yellow
     
-    # Stop transcript
-    if ($script:transcriptStarted) {
+    # CRITICAL FIX: Defensive variable checks
+    # REASON: After running Verify in Interactive Menu, script-scope variables might be set
+    # which causes PropertyNotFoundException when trying to access them in cleanup
+    
+    # Stop transcript - check if variable exists first
+    if ((Test-Path Variable:script:transcriptStarted) -and $script:transcriptStarted) {
         try {
             Stop-Transcript -ErrorAction SilentlyContinue
             Write-Verbose "Transcript gestoppt (CTRL+C Handler)"
@@ -327,8 +331,8 @@ $cleanupScriptBlock = {
         }
     }
     
-    # Mutex freigeben
-    if ($script:mutexAcquired -and $script:mutex) {
+    # Mutex freigeben - check if variables exist first
+    if ((Test-Path Variable:script:mutexAcquired) -and (Test-Path Variable:script:mutex) -and $script:mutexAcquired -and $script:mutex) {
         try {
             $script:mutex.ReleaseMutex()
             $script:mutex.Dispose()
@@ -1671,8 +1675,10 @@ NOTE: Script is idempotent - safe to run multiple times.
     }
     
     # CRITICAL: Transcript and Mutex CLEANUP (ALWAYS execute!)
+    # CRITICAL FIX: Defensive variable existence checks (after Verify in Interactive Menu)
+    
     # 1. STOP TRANSCRIPT (if started)
-    if ($script:transcriptStarted) {
+    if ((Test-Path Variable:script:transcriptStarted) -and $script:transcriptStarted) {
         try {
             Stop-Transcript -ErrorAction Stop
             Write-Verbose "Transcript successfully stopped"
@@ -1684,7 +1690,7 @@ NOTE: Script is idempotent - safe to run multiple times.
     }
     
     # 2. MUTEX FREIGEBEN (falls acquired)
-    if ($script:mutexAcquired -and $script:mutex) {
+    if ((Test-Path Variable:script:mutexAcquired) -and (Test-Path Variable:script:mutex) -and $script:mutexAcquired -and $script:mutex) {
         try {
             # SAFETY CHECK: Is Mutex still valid?
             if ($script:mutex.SafeWaitHandle -and -not $script:mutex.SafeWaitHandle.IsClosed) {
