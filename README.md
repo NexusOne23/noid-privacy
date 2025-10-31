@@ -55,10 +55,10 @@
 ### 🔒 Privacy Protection - Minimized Telemetry
 
 **Your Privacy is Maximized:**
-- **Telemetry Minimized** → 10 telemetry services + 30 tasks + 375 registry keys configured for minimum data collection
+- **Telemetry Minimized** → 25+ services + 30 tasks + 375 registry keys configured for minimum data collection
 - **AI Lockdown (9 features)** → Windows Recall DISABLED (no screenshots of passwords!), Copilot blocked (4 layers), Click to Do, Paint AI (3), Notepad AI, Settings Agent, Copilot Proactive
 - **App Permission Control** → 37 categories default-DENY (apps can't spy without explicit permission)
-- **Clean System** → 82 bloatware app patterns checked (Xbox, 3D apps, Candy Crush, Teams Chat, Copilot, Widgets)
+- **Clean System** → 80+ bloatware app patterns checked (Xbox, 3D apps, Candy Crush, Teams Chat, Copilot, Widgets)
 - **79,776 Trackers Blocked** → DNS-level blocking via Steven Black hosts + Cloudflare DoH
 
 **Bottom Line:** Telemetry reduced to Security-Essential level (Required Diagnostic Data for Windows Update/Defender)
@@ -109,7 +109,7 @@ This project minimizes telemetry via Registry, Services, Firewall, and DNS block
 - ✅ Updated regularly from Steven Black repository
 
 **Why Compression?**
-- Windows DNS Cache: Performance issues with large hosts files (community best practice: keep under ~20k entries)
+- Windows DNS Cache: Performance issues with large hosts files (best practice: keep under ~20k entries)
 - Original 80k+ lines would cause cache overflow
 - Our format: **MAX 9 domains per line** (community best practice)
 - Result: Full protection + Fast DNS resolution
@@ -237,8 +237,8 @@ The project uses a modular architecture with 13 specialized modules:
 | **ASR** | Attack Surface Reduction rules | 19 ASR rules (Enforce mode), Smart App Control |
 | **Advanced** | VBS, Credential Guard, LAPS, Auditing | Credential Guard, VBS, HVCI, LSA-PPL, BitLocker policies, Windows LAPS, TLS/SSL hardening |
 | **DNS** | DNS-over-HTTPS, DNSSEC, Blocklist | Cloudflare DoH (4 servers), DNSSEC validation, 79,776 blocked domains, Strict Inbound Firewall |
-| **Bloatware** | App removal, Consumer features | 82 app patterns, Teams Chat/Copilot/Widgets disabled, Consumer Features blocked |
-| **Telemetry** | Privacy protection, App permissions | 10 services, 375 registry keys (110 telemetry-specific), 37 app permission categories, Camera/Mic controls |
+| **Bloatware** | App removal, Consumer features | 80+ app patterns, Teams Chat/Copilot/Widgets disabled, Consumer Features blocked |
+| **Telemetry** | Privacy protection, App permissions | 25+ services, 375 registry keys (110 telemetry-specific), 37 app permission categories, Camera/Mic controls |
 | **Performance** | Scheduled tasks, Event logs | 30 tasks disabled, Event log optimization, Windows Search local-only, Prefetch/Superfetch tuning |
 | **AI** | Recall, Copilot, AI tracking | 9 AI features disabled: Recall, Copilot (4 layers), Click to Do, Paint AI (3), Notepad AI, Settings Agent, Copilot Proactive |
 | **Edge** | Microsoft Edge security baseline | SmartScreen enforced, Tracking Prevention, DoH automatic, Site Isolation, Extension policies |

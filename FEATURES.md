@@ -12,7 +12,7 @@
 - [Privacy Features](#-privacy-features) - 300+ Settings  
 - [Network Security](#-network-security) - DNS, Firewall, SMB
 - [AI & Tracking Lockdown](#-ai--tracking-lockdown) - 9 AI Features Disabled
-- [Telemetry Control](#-telemetry-control) - 25 Services, 375 Keys, 30 Tasks
+- [Telemetry Control](#-telemetry-control) - 25+ Services, 375 Keys, 30 Tasks
 - [Application Control](#-application-control) - 50+ Apps Removed
 - [Windows Update](#-windows-update) - Secure Auto-Update Configuration
 - [System Hardening](#-system-hardening) - 15+ Additional Protections
@@ -143,7 +143,7 @@
 
 **Module:** `SecurityBaseline-Telemetry.ps1`
 
-**25 Services Stopped:**
+**25+ Services Stopped:**
 - DiagTrack (Connected User Experiences)
 - WerSvc (Windows Error Reporting)  
 - All diagnostic services
@@ -307,7 +307,7 @@ All apps CANNOT access (unless you allow):
 **Use Case:** Coffee shop Wi-Fi, untrusted networks
 
 ### Unnecessary Services Disabled
-✅ **25 Services Disabled (CIS Benchmark)**
+✅ **25+ Services Disabled (CIS Benchmark)**
 
 **Module:** `SecurityBaseline-Core.ps1` → `Disable-UnnecessaryServices`
 
@@ -397,7 +397,7 @@ All apps CANNOT access (unless you allow):
 ### What Gets Stopped
 ✅ **Complete Telemetry Lockdown**
 
-**Services (25):**
+**Services (25+):**
 Every single diagnostic/telemetry service disabled
 
 **Registry (110 telemetry-specific keys):**
@@ -977,16 +977,16 @@ Solitaire, Candy Crush, Bubble Witch
 
 | Category | Count | Details |
 |----------|-------|---------|
-| **Security Settings** | 400+ | 217 reg keys + 25 services + 19 ASR + 13 mitigations + 18 audit + more |
-| **Privacy Settings** | 300+ | 158 reg keys + 37 permissions + 30 tasks + 9 AI + 50+ apps + more |
+| **Security Settings** | 400+ | 217 reg keys + 25+ services + 19 ASR + 13 mitigations + 18 audit + more |
+| **Privacy Settings** | 300+ | 158 reg keys + 37 permissions + 30 tasks + 9 AI + 80+ apps + more |
 | **System Hardening** | 15 | Controlled Folder Access, AutoPlay, Admin Shares, Print Spooler, Remote Access, IE11, Sudo, SID Enum, MotW, Kerberos, Admin Account, Process Auditing, SmartScreen, etc. |
 | **Network Hardening** | 5 | SMB, TLS/SSL (ciphers!), Legacy Protocols, Wireless, DNS |
 | **Advanced Security** | 5 | LAPS, Advanced Auditing, NTLM Auditing, Smart App Control, USB Device Control |
-| **Services Disabled** | 25 | DiagTrack, WerSvc, Diagnostics, etc. |
+| **Services Disabled** | 25+ | DiagTrack, WerSvc, Diagnostics, etc. |
 | **Tasks Disabled** | 30 | CEIP, Appraiser, Data Collection |
 | **Registry Keys** | 375 | Security, Privacy, Network, Performance (see REGISTRY_KEYS.md) |
 | **Domains Blocked** | 79,776 | Malware + Ads + Tracking (hosts) |
-| **Apps Removed** | 50+ | Bloatware, Xbox, 3D, Games |
+| **Apps Removed** | 80+ | Bloatware, Xbox, 3D, Games |
 | **Windows Update** | 6 settings | Auto-update config + Delivery Optimization |
 | **ASR Rules** | 19 | Attack Surface Reduction |
 | **Exploit Mitigations** | 13 | DEP, ASLR, CFG, SEHOP, etc. |
@@ -1003,7 +1003,7 @@ Solitaire, Candy Crush, Bubble Witch
 → Defender (11 layers) + ASR (19 rules) + BitLocker + Exploit Protection (13 mitigations) + System Hardening (15 protections)
 
 **Want Maximum Privacy?**
-→ Telemetry OFF (25 services + 30 tasks + 375 keys) + App Permissions (37 categories) + AI Lockdown (9 features) + 79,776 domains blocked
+→ Telemetry OFF (25+ services + 30 tasks + 375 keys) + App Permissions (37 categories) + AI Lockdown (9 features) + 79,776 domains blocked
 
 **Want Ransomware Protection?**
 → ASR Rules + Controlled Folder Access + AutoPlay OFF + Network Protection
