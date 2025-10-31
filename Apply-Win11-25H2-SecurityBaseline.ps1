@@ -886,6 +886,15 @@ if ($Interactive) {
         [Environment]::Exit(99)
     }
     
+    # CRITICAL FIX: Check if $config is NOT NULL FIRST!
+    # ROOT CAUSE: If Invoke-AuditMode/Enforce/Custom returns $null (user cancels),
+    # accessing $config.Mode will crash even in safety checks!
+    # MUST check BEFORE any property access (including Line 890)!
+    if ($null -eq $config) {
+        Write-Error "Interactive mode returned null config - user cancelled operation!"
+        return
+    }
+    
     # SAFETY CHECK: If Mode='Restore', then something went wrong!
     if ($config.Mode -eq 'Restore') {
         Write-Host "$(Get-LocalizedString 'CriticalRestoreNotCaught')" -ForegroundColor Red
@@ -897,13 +906,6 @@ if ($Interactive) {
     # Adopt configuration from interactive menu with validation
     # IMPORTANT: $config is a Hashtable, NOT a PSCustomObject!
     # Therefore: Use ContainsKey(), NOT PSObject.Properties!
-    # CRITICAL FIX: Check if $config is NOT NULL before accessing properties!
-    # ROOT CAUSE: If Invoke-AuditMode/Enforce/Custom returns $null (user cancels),
-    # accessing $config.Mode will throw PropertyNotFoundException!
-    if ($null -eq $config) {
-        Write-Error "Interactive mode returned null config - user cancelled operation!"
-        return
-    }
     
     if ($config.ContainsKey('Mode') -and $config.Mode) {
         $Mode = $config.Mode
