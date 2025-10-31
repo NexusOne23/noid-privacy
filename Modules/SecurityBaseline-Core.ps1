@@ -539,6 +539,34 @@ function Set-DefenderBaselineSettings {
     # Quick Scan: Include Exclusions (already have ScanExcludedFilesInQuickScan above)
     # This is essentially covered by policy #5 above
     
+    # ===========================
+    # ADDITIONAL DEFENDER SETTINGS - SCANNING (Email + USB)
+    # ===========================
+    # CRITICAL: Verify showed these as [X] - they were missing!
+    # Email and Removable Drive scanning must be ENABLED
+    
+    # Enable Email Scanning (scan attachments and email content)
+    $null = Set-MpPreference -DisableEmailScanning $false -ErrorAction SilentlyContinue
+    if ($?) {
+        Write-Verbose "Email scanning enabled"
+    }
+    else {
+        # Fallback to Registry if Set-MpPreference fails
+        Set-RegistryValue -Path $scanPath -Name "DisableEmailScanning" -Value 0 -Type DWord `
+            -Description "Email scanning enabled"
+    }
+    
+    # Enable Removable Drive Scanning (USB sticks, external drives)
+    $null = Set-MpPreference -DisableRemovableDriveScanning $false -ErrorAction SilentlyContinue
+    if ($?) {
+        Write-Verbose "Removable drive scanning enabled"
+    }
+    else {
+        # Fallback to Registry if Set-MpPreference fails
+        Set-RegistryValue -Path $scanPath -Name "DisableRemovableDriveScanning" -Value 0 -Type DWord `
+            -Description "Removable drive scanning enabled"
+    }
+    
     Write-Success (Get-LocalizedString 'CoreDefender6Activated')
     Write-Success (Get-LocalizedString 'CoreDefenderActive')
 }
