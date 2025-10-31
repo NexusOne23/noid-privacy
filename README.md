@@ -55,8 +55,8 @@
 ### 🔒 Privacy Protection - Minimized Telemetry
 
 **Your Privacy is Maximized:**
-- **Telemetry Minimized** → 10 telemetry services + ~14 tasks + 180 registry keys configured for minimum data collection
-- **AI Lockdown** → Windows Recall DISABLED (no screenshots of passwords!), Copilot blocked (4 layers), Click to Do disabled
+- **Telemetry Minimized** → 10 telemetry services + 30 tasks + 375 registry keys configured for minimum data collection
+- **AI Lockdown (9 features)** → Windows Recall DISABLED (no screenshots of passwords!), Copilot blocked (4 layers), Click to Do, Paint AI (3), Notepad AI, Settings Agent, Copilot Proactive
 - **App Permission Control** → 33 categories default-DENY (apps can't spy without explicit permission)
 - **Clean System** → 82 bloatware app patterns checked (Xbox, 3D apps, Candy Crush, Teams Chat, Copilot, Widgets)
 - **79,776 Trackers Blocked** → DNS-level blocking via Steven Black hosts + Cloudflare DoH
@@ -73,7 +73,7 @@ This project minimizes telemetry via Registry, Services, Firewall, and DNS block
 ### ⚡ Performance - Faster & Cleaner
 
 **Your PC Breathes Easier:**
-- **~20 Background Tasks Disabled** → Less CPU/disk usage when idle (Update/Defender tasks stay active!)
+- **30 Background Tasks Disabled** → Less CPU/disk usage when idle (Update/Defender tasks stay active!)
 - **Event Log Optimization** → Critical logs increased, noise logs reduced = less disk I/O
 - **Windows Search Optimized** → Local-only, no web/Bing queries
 - **No Bloatware** → Faster boot, more disk space, cleaner Start Menu
@@ -238,9 +238,9 @@ The project uses a modular architecture with 13 specialized modules:
 | **Advanced** | VBS, Credential Guard, LAPS, Auditing | Credential Guard, VBS, HVCI, LSA-PPL, BitLocker policies, Windows LAPS, TLS/SSL hardening |
 | **DNS** | DNS-over-HTTPS, DNSSEC, Blocklist | Cloudflare DoH (4 servers), DNSSEC validation, 79,776 blocked domains, Strict Inbound Firewall |
 | **Bloatware** | App removal, Consumer features | 82 app patterns, Teams Chat/Copilot/Widgets disabled, Consumer Features blocked |
-| **Telemetry** | Privacy protection, App permissions | 10 services, 180 registry keys, 33 app permission categories, Camera/Mic controls |
-| **Performance** | Scheduled tasks, Event logs | ~20 tasks disabled, Event log optimization, Windows Search local-only, Prefetch/Superfetch tuning |
-| **AI** | Recall, Copilot, AI tracking | Recall disabled, Copilot blocked (4 layers), Click to Do/Paint AI/Settings Agent disabled |
+| **Telemetry** | Privacy protection, App permissions | 10 services, 375 registry keys (110 telemetry-specific), 33 app permission categories, Camera/Mic controls |
+| **Performance** | Scheduled tasks, Event logs | 30 tasks disabled, Event log optimization, Windows Search local-only, Prefetch/Superfetch tuning |
+| **AI** | Recall, Copilot, AI tracking | 9 AI features disabled: Recall, Copilot (4 layers), Click to Do, Paint AI (3), Notepad AI, Settings Agent, Copilot Proactive |
 | **Edge** | Microsoft Edge security baseline | SmartScreen enforced, Tracking Prevention, DoH automatic, Site Isolation, Extension policies |
 | **OneDrive** | OneDrive privacy hardening | Tutorial/Feedback disabled, Network silent, KFM blocked, User-controlled uploads |
 | **UAC** | User Account Control enhancement | Maximum security (always notify), Enhanced Privilege Protection Mode (future-ready) |
