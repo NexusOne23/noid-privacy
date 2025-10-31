@@ -269,11 +269,14 @@ All apps CANNOT access (unless you allow):
 ### Legacy Protocols - All Disabled
 ✅ **Attack Surface Minimized**
 
-**Module:** `SecurityBaseline-Core.ps1` → `Disable-NetworkLegacyProtocols`
+**Modules:** 
+- `SecurityBaseline-Core.ps1` → `Disable-NetworkLegacyProtocols`
+- `SecurityBaseline-Advanced.ps1` → `Disable-WDigest`
 
 - LLMNR: OFF (MITM credential theft)
 - NetBIOS: OFF (network poisoning)
 - WPAD: OFF (proxy attacks)
+- WDigest: OFF (plaintext passwords in RAM)
 - mDNS: OFF (multicast DNS)
 - SSDP: OFF (UPnP discovery)
 - WSD: OFF (Web Services Discovery)
@@ -756,13 +759,13 @@ Solitaire, Candy Crush, Bubble Witch
 
 **6 Backup Components:**
 
-**1. Registry Snapshots (374 keys)**
+**1. Registry Snapshots (375 keys)**
 - Security policy keys (Defender, ASR, BitLocker, Firewall, VBS, etc.)
 - Privacy setting keys (Telemetry, App Permissions, AI, Tracking)
-- Network configuration keys (DNS, TLS/SSL, Legacy Protocols)
+- Network configuration keys (DNS, TLS/SSL, Legacy Protocols, WDigest)
 - All modified HKLM:\SOFTWARE\Policies paths
 - All modified HKLM:\SYSTEM\CurrentControlSet paths
-- Per-module breakdown: Core (127), Telemetry (110), Advanced (33), Edge (25), AI (15), etc.
+- Per-module breakdown: Core (127), Telemetry (110), Advanced (34), Edge (25), AI (15), etc.
 
 **2. Service States (25+ services)**
 - Service name
@@ -977,7 +980,7 @@ Solitaire, Candy Crush, Bubble Witch
 | **Advanced Security** | 5 | LAPS, Advanced Auditing, NTLM Auditing, Smart App Control, USB Device Control |
 | **Services Disabled** | 25 | DiagTrack, WerSvc, Diagnostics, etc. |
 | **Tasks Disabled** | 30 | CEIP, Appraiser, Data Collection |
-| **Registry Keys** | 374 | Security, Privacy, Network, Performance (see REGISTRY_KEYS.md) |
+| **Registry Keys** | 375 | Security, Privacy, Network, Performance (see REGISTRY_KEYS.md) |
 | **Domains Blocked** | 79,776 | Malware + Ads + Tracking (hosts) |
 | **Apps Removed** | 50+ | Bloatware, Xbox, 3D, Games |
 | **Windows Update** | 6 settings | Auto-update config + Delivery Optimization |

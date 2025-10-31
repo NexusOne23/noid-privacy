@@ -426,6 +426,47 @@ function Set-TLSHardening {
 # HTML Compliance Report REMOVED - unreliable checks with false positives
 # Use Verify-SecurityBaseline.ps1 for manual verification instead
 
+#region WDIGEST AUTHENTICATION (CREDENTIAL PROTECTION)
+
+function Disable-WDigest {
+    <#
+    .SYNOPSIS
+        Disables WDigest Authentication to prevent plaintext password storage in memory
+    .DESCRIPTION
+        WDigest is a legacy authentication protocol that stores passwords in PLAINTEXT in RAM.
+        This makes it trivial for attackers to extract passwords using Mimikatz.
+        
+        CRITICAL: Disable WDigest to prevent credential theft!
+        
+        Registry: HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\WDigest
+        Value: UseLogonCredential = 0 (disabled)
+    .NOTES
+        Default in Windows 10/11: Disabled (but can be re-enabled by malware)
+        This function ensures it stays disabled even if tampered with
+    #>
+    [CmdletBinding()]
+    [OutputType([void])]
+    param()
+    
+    Write-Section "WDigest Authentication (Credential Protection)"
+    
+    Write-Info "Disabling WDigest to prevent plaintext password storage in RAM..."
+    
+    $wdigestPath = "HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\WDigest"
+    
+    # Disable WDigest (UseLogonCredential = 0)
+    # Value 0 = Passwords NOT stored in plaintext in RAM
+    # Value 1 = Passwords stored in plaintext (DANGEROUS!)
+    Set-RegistryValue -Path $wdigestPath -Name "UseLogonCredential" -Value 0 -Type DWord `
+        -Description "WDigest disabled (no plaintext passwords in RAM)"
+    
+    Write-Success "WDigest authentication disabled"
+    Write-Info "Credentials are now protected from Mimikatz-style attacks"
+    Write-Warning "NOTE: This blocks Digest authentication (rarely used, legacy protocol)"
+}
+
+#endregion
+
 #region PRINT SPOOLER USER RIGHTS (MS BASELINE 25H2)
 
 function Add-PrintSpoolerUserRight {

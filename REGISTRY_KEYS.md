@@ -1,6 +1,6 @@
-﻿# 🔐 Registry Keys Reference
+# 🔐 Registry Keys Reference
 
-**Complete list of all 374 registry keys modified by NoID Privacy**
+**Complete list of all 375 registry keys modified by NoID Privacy**
 
 
 > Auto-generated from RegistryChanges-Definition.ps1
@@ -11,7 +11,7 @@
 
 ## 📑 Modules
 
-- **SecurityBaseline-Advanced.ps1**: 33 keys
+- **SecurityBaseline-Advanced.ps1**: 34 keys
 
 - **SecurityBaseline-AI.ps1**: 15 keys
 
@@ -47,7 +47,7 @@
 
 **Source**: `SecurityBaseline-Advanced.ps1`
 
-**Keys**: 33
+**Keys**: 34
 
 
 | Path | Name | Value | Type | Description |
@@ -119,6 +119,8 @@
 | `$path` | SystemDefaultTlsVersions | 1 | DWord | .NET System TLS Versions |
 
 | `HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL` | EventLogging | 7 | DWord | Schannel Event Logging (all events) |
+
+| `HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\WDigest` | UseLogonCredential | 0 | DWord | WDigest disabled (no plaintext passwords in RAM) |
 
 
 

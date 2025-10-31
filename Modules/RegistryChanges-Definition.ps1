@@ -1,18 +1,18 @@
-# Parsed 374 entries, 374 valid
+# Parsed 375 entries, 375 valid
 <#
 .SYNOPSIS
     Registry Changes Definition
     
 .DESCRIPTION
-    Contains all 374 registry changes that the Security Baseline applies.
+    Contains all 375 registry changes that the Security Baseline applies.
     Used by Backup and Restore scripts for specific (fast) backup/restore.
     
     This file was AUTO-GENERATED from registry-changes-complete.txt
     Do not modify manually - regenerate from source!
     
 .NOTES
-    Generated: 2025-10-31 06:33:04
-    Total Entries: 374
+    Generated: 2025-10-31 17:15:00
+    Total Entries: 375
     Source: registry-changes-complete.txt
 #>
 
@@ -416,6 +416,14 @@ $script:RegistryChanges = @(
         Type = 'DWord'
         ApplyValue = 7
         Description = 'Schannel Event Logging (all events)'
+        File = 'SecurityBaseline-Advanced.ps1'
+    },
+    @{
+        Path = 'HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\WDigest'
+        Name = 'UseLogonCredential'
+        Type = 'DWord'
+        ApplyValue = 0
+        Description = 'WDigest disabled (no plaintext passwords in RAM)'
         File = 'SecurityBaseline-Advanced.ps1'
     },
     @{

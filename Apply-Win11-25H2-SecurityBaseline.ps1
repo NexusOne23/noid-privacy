@@ -1375,6 +1375,9 @@ try {
         # TLS/SSL Haertung
         Set-TLSHardening
         
+        # WDigest Credential Protection
+        Disable-WDigest
+        
         # Print Spooler User Right (Baseline 25H2 - Windows Protected Print)
         Add-PrintSpoolerUserRight
         
