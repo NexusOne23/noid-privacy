@@ -515,6 +515,7 @@ $Global:Strings = @{
         CoreExploitImageLoad = "  - Image Load Protection (Block Remote + Low Integrity)"
         CoreExploitExtension = "  - Extension Points Disabled (Legacy COM)"
         CoreExploitResistance = "EXTENDED MITIGATIONS: +8% Exploit Resistance vs. Standard"
+        CoreExploitProtectionSuccess = "Exploit Protection successfully configured"
         CoreExploitFailed = "Exploit Protection could not be fully configured: {0}"
         CoreExploitManual = "Manually check: Windows Security | App and browser control | Exploit protection"
         
@@ -1577,6 +1578,7 @@ $Global:Strings = @{
         CoreExploitImageLoad = "  - Image Load Protection (Block Remote + Low Integrity)"
         CoreExploitExtension = "  - Extension Points Disabled (Legacy COM)"
         CoreExploitResistance = "ERWEITERTE MITIGATIONS: +8% Exploit Resistance vs. Standard"
+        CoreExploitProtectionSuccess = "Exploit Protection erfolgreich konfiguriert"
         CoreExploitFailed = "Exploit Protection konnte nicht vollstaendig konfiguriert werden: {0}"
         CoreExploitManual = "Manuell pruefen: Windows Security | App and browser control | Exploit protection"
         
