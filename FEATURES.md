@@ -156,18 +156,21 @@
 - Advertising ID = DELETED
 - 175+ more privacy settings
 
-**60+ Scheduled Tasks Disabled:**
+**30 Scheduled Tasks Disabled:**
 - Microsoft Compatibility Appraiser
 - Consolidator
 - UsbCeip
 - KernelCeipTask
-- 56+ more data collection tasks
+- 25+ more data collection tasks
 
-**200+ Domains Blocked (Firewall):**
-- vortex.data.microsoft.com
-- telemetry.microsoft.com
-- watson.microsoft.com
-- 197+ more Microsoft servers
+**Network Restrictions:** Search Privacy
+✅ **Local-Only Search**
+
+- Web Search: OFF (no Bing queries)
+- Cortana: Removed
+- Search Suggestions: OFF
+- Cloud Search: OFF
+- Location in Search: OFF
 
 ### Windows Search Privacy
 ✅ **Local-Only Search**
@@ -271,7 +274,6 @@ All apps CANNOT access (unless you allow):
 - LLMNR: OFF (MITM credential theft)
 - NetBIOS: OFF (network poisoning)
 - WPAD: OFF (proxy attacks)
-- WDigest: OFF (plaintext passwords)
 - mDNS: OFF (multicast DNS)
 - SSDP: OFF (UPnP discovery)
 - WSD: OFF (Web Services Discovery)
@@ -345,7 +347,7 @@ All apps CANNOT access (unless you allow):
 
 ## 🤖 AI & Tracking Lockdown
 
-### 8 AI Features Completely Disabled
+### 9 AI Features Completely Disabled
 ✅ **Zero AI Spying**
 
 **Module:** `SecurityBaseline-AI.ps1`
@@ -358,6 +360,7 @@ All apps CANNOT access (unless you allow):
 | **Paint Cocreator** | Cloud-based image generation | ❌ DISABLED |
 | **Paint Generative Fill** | Cloud AI editing | ❌ DISABLED |
 | **Paint Image Creator** | Cloud AI art | ❌ DISABLED |
+| **Notepad AI** | Copilot integration in Notepad | ❌ DISABLED |
 | **Settings Agent** | AI in Settings menu | ❌ DISABLED |
 | **Copilot Proactive** | Unsolicited AI suggestions | ❌ DISABLED |
 
@@ -780,8 +783,8 @@ Solitaire, Candy Crush, Bubble Witch
 
 **4. Firewall Rules**
 - All custom rules created
-- Telemetry blocking rules (200+ domains)
-- Miracast port blocks
+- Protocol blocking rules (mDNS, LLMNR, NetBIOS, SSDP, WSD)
+- Port blocking rules (RDP, Miracast)
 - Rule direction, action, protocol, ports
 - Rule enabled/disabled state
 
@@ -976,16 +979,15 @@ Solitaire, Candy Crush, Bubble Witch
 | **Network Hardening** | 5 | SMB, TLS/SSL (ciphers!), Legacy Protocols, Wireless, DNS |
 | **Advanced Security** | 5 | LAPS, Advanced Auditing, NTLM Auditing, Smart App Control, USB Device Control |
 | **Services Disabled** | 25 | DiagTrack, WerSvc, Diagnostics, etc. |
-| **Tasks Disabled** | 60+ | CEIP, Appraiser, Data Collection |
+| **Tasks Disabled** | 30 | CEIP, Appraiser, Data Collection |
 | **Registry Keys** | 180+ | Telemetry/Privacy/Security |
 | **Domains Blocked** | 79,776 | Malware + Ads + Tracking (hosts) |
-| **Domains Blocked** | 200+ | Microsoft telemetry (firewall) |
 | **Apps Removed** | 50+ | Bloatware, Xbox, 3D, Games |
 | **Windows Update** | 6 settings | Auto-update config + Delivery Optimization |
 | **ASR Rules** | 19 | Attack Surface Reduction |
 | **Exploit Mitigations** | 13 | DEP, ASLR, CFG, SEHOP, etc. |
 | **App Permissions** | 37 | Default-DENY categories |
-| **AI Features Blocked** | 8 | Recall, Copilot, Paint AI, etc. |
+| **AI Features Blocked** | 9 | Recall, Copilot, Paint AI, Notepad AI, etc. |
 | **Audit Categories** | 18 | Security event logging |
 | **Backup Components** | 6 | Registry, Services, Tasks, Firewall, Files, Metadata |
 
