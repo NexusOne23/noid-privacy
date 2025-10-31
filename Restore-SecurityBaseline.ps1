@@ -329,6 +329,9 @@ $restoreStats = @{
 #region Restore DNS Settings
 Write-Host "[1/14] $(Get-LocalizedString 'RestoreDNS')" -ForegroundColor Yellow
 
+$dnsRestoredCount = 0
+$dnsFailedCount = 0
+
 foreach ($dnsConfig in $backup.Settings.DNS) {
     try {
         $adapterName = $dnsConfig.AdapterName
@@ -346,13 +349,23 @@ foreach ($dnsConfig in $backup.Settings.DNS) {
                 $dnsOkMsg = Get-LocalizedString 'RestoreDNSOK' $adapterName
                 Write-Host "  [OK] $dnsOkMsg $($dnsServers -join ', ')" -ForegroundColor Green
             }
+            $dnsRestoredCount++
             $restoreStats.Success++
         }
     }
     catch {
         Write-Host "  [X] DNS restore error for '$adapterName': $_" -ForegroundColor Red
+        $dnsFailedCount++
         $restoreStats.Failed++
     }
+}
+
+# Summary
+if ($dnsRestoredCount -gt 0) {
+    Write-Host "  [OK] $dnsRestoredCount DNS adapter(s) restored" -ForegroundColor Green
+}
+if ($dnsFailedCount -gt 0) {
+    Write-Host "  [!] $dnsFailedCount DNS adapter(s) failed" -ForegroundColor Yellow
 }
 
 Write-Host ""
@@ -407,11 +420,16 @@ $protectedServices = @(
     'WinHttpAutoProxySvc', 'wscsvc'
 )
 
+$servicesRestoredCount = 0
+$servicesSkippedCount = 0
+$servicesFailedCount = 0
+
 foreach ($svcConfig in $backup.Settings.Services) {
     try {
         # Skip protected services (prevent Access Denied errors)
         if ($protectedServices -contains $svcConfig.Name) {
             Write-Verbose "  [SKIP] Protected service: $($svcConfig.DisplayName) (TrustedInstaller/SYSTEM only)"
+            $servicesSkippedCount++
             $restoreStats.Skipped++
             continue
         }
@@ -423,19 +441,33 @@ foreach ($svcConfig in $backup.Settings.Services) {
                 Set-Service -Name $svcConfig.Name -StartupType $svcConfig.StartType -ErrorAction Stop
                 $svcMsg = Get-LocalizedString 'RestoreServicesOK' $svcConfig.StartType
                 Write-Host "  [OK] $($svcConfig.DisplayName): $svcMsg" -ForegroundColor Green
+                $servicesRestoredCount++
                 $restoreStats.Success++
             }
         }
         else {
             $notFoundMsg = Get-LocalizedString 'RestoreServicesNotFound' $svcConfig.Name
             Write-Host "  [!] $notFoundMsg" -ForegroundColor Yellow
+            $servicesSkippedCount++
             $restoreStats.Skipped++
         }
     }
     catch {
         Write-Host "  [X] Service '$($svcConfig.Name)' error: $_" -ForegroundColor Red
+        $servicesFailedCount++
         $restoreStats.Failed++
     }
+}
+
+# Summary
+if ($servicesRestoredCount -gt 0) {
+    Write-Host "  [OK] $servicesRestoredCount Service(s) restored" -ForegroundColor Green
+}
+if ($servicesSkippedCount -gt 0) {
+    Write-Host "  [i] $servicesSkippedCount Service(s) skipped (protected or not found)" -ForegroundColor Gray
+}
+if ($servicesFailedCount -gt 0) {
+    Write-Host "  [!] $servicesFailedCount Service(s) failed" -ForegroundColor Yellow
 }
 
 Write-Host ""
@@ -679,6 +711,10 @@ Write-Host ""
 #region Restore Registry Keys
 Write-Host "[6/14] $(Get-LocalizedString 'RestoreRegistry')" -ForegroundColor Yellow
 
+$registryRestoredCount = 0
+$registryDeletedCount = 0
+$registryFailedCount = 0
+
 foreach ($regConfig in $backup.Settings.RegistryKeys) {
     try {
         # CRITICAL FIX v1.7.5: Support ALL property name variants for backward compatibility
@@ -721,6 +757,7 @@ foreach ($regConfig in $backup.Settings.RegistryKeys) {
                 Set-ItemProperty -Path $path -Name $name -Value $value -ErrorAction Stop
                 $regMsg = Get-LocalizedString 'RestoreRegistryOK' $value
                 Write-Host "  [OK] $path\$name = $regMsg" -ForegroundColor Green
+                $registryRestoredCount++
                 $restoreStats.Success++
             }
         }
@@ -731,6 +768,7 @@ foreach ($regConfig in $backup.Settings.RegistryKeys) {
                     if ($PSCmdlet.ShouldProcess("$path\$name", "Delete value")) {
                         Remove-ItemProperty -Path $path -Name $name -ErrorAction Stop
                         Write-Host "  [OK] $path\$name $(Get-LocalizedString 'RestoreRegistryDeleted')" -ForegroundColor Green
+                        $registryDeletedCount++
                         $restoreStats.Success++
                     }
                 }
@@ -743,8 +781,20 @@ foreach ($regConfig in $backup.Settings.RegistryKeys) {
         $path = if ('RegPath' -in $props) { $regConfig.RegPath } else { $regConfig.Path }
         $name = if ('RegName' -in $props) { $regConfig.RegName } else { $regConfig.Name }
         Write-Host "  [X] Registry error '$path\$name': $_" -ForegroundColor Red
+        $registryFailedCount++
         $restoreStats.Failed++
     }
+}
+
+# Summary
+if ($registryRestoredCount -gt 0) {
+    Write-Host "  [OK] $registryRestoredCount Registry key(s) restored" -ForegroundColor Green
+}
+if ($registryDeletedCount -gt 0) {
+    Write-Host "  [OK] $registryDeletedCount Registry key(s) deleted (cleanup)" -ForegroundColor Green
+}
+if ($registryFailedCount -gt 0) {
+    Write-Host "  [!] $registryFailedCount Registry key(s) failed (protected or access denied)" -ForegroundColor Yellow
 }
 
 Write-Host ""
@@ -1474,7 +1524,7 @@ if (-not $promptText) { $promptText = "Ihre Wahl" }
 
 do {
     Write-Host "  $promptText " -NoNewline -ForegroundColor Cyan
-    Write-Host "[J/S]: " -NoNewline -ForegroundColor Gray
+    Write-Host "[Y/N]: " -NoNewline -ForegroundColor Gray
     $reboot = Read-Host
     
     # Input validation: Trim and ToUpper with null check
@@ -1482,19 +1532,19 @@ do {
         $reboot = $reboot.Trim().ToUpper()
     }
     
-    # Support for Y/N (English)
-    if ($reboot -eq 'Y') { $reboot = 'J' }
-    if ($reboot -eq 'N') { $reboot = 'S' }
+    # Support for J/S (German)
+    if ($reboot -eq 'J') { $reboot = 'Y' }
+    if ($reboot -eq 'S') { $reboot = 'N' }
     
-    if ($reboot -notin @('J', 'S')) {
+    if ($reboot -notin @('Y', 'N')) {
         $errorMsg = Get-LocalizedString 'ErrorInvalidInput'
-        if (-not $errorMsg) { $errorMsg = "Ungueltige Eingabe! Bitte eingeben:" }
-        Write-Host "  [ERROR] $errorMsg J/S (oder Y/N)!" -ForegroundColor Red
+        if (-not $errorMsg) { $errorMsg = "Invalid input! Please enter:" }
+        Write-Host "  [ERROR] $errorMsg Y/N (or J/N for German)!" -ForegroundColor Red
         Write-Host ""
     }
-} while ($reboot -notin @('J', 'S'))
+} while ($reboot -notin @('Y', 'N'))
 
-if ($reboot -eq 'J') {
+if ($reboot -eq 'Y') {
     Write-Host ""
     Write-Host "[i] $(Get-LocalizedString 'RestoreRebooting')" -ForegroundColor Cyan
     Write-Host "    $(Get-LocalizedString 'RestoreRebootAbort')" -ForegroundColor Gray
