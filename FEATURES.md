@@ -8,8 +8,8 @@
 
 ## 📑 Table of Contents
 
-- [Security Features](#-security-features) - 550+ Settings
-- [Privacy Features](#-privacy-features) - 700+ Settings  
+- [Security Features](#-security-features) - 400+ Settings
+- [Privacy Features](#-privacy-features) - 300+ Settings  
 - [Network Security](#-network-security) - DNS, Firewall, SMB
 - [AI & Tracking Lockdown](#-ai--tracking-lockdown) - 9 AI Features Disabled
 - [Telemetry Control](#-telemetry-control) - 25 Services, 375 Keys, 30 Tasks
@@ -976,8 +976,8 @@ Solitaire, Candy Crush, Bubble Witch
 
 | Category | Count | Details |
 |----------|-------|---------|
-| **Security Settings** | 550+ | Defender, ASR, BitLocker, Firewall, etc. |
-| **Privacy Settings** | 700+ | Telemetry, Permissions, AI, Tracking |
+| **Security Settings** | 400+ | 217 reg keys + 25 services + 19 ASR + 13 mitigations + 18 audit + more |
+| **Privacy Settings** | 300+ | 158 reg keys + 37 permissions + 30 tasks + 9 AI + 50+ apps + more |
 | **System Hardening** | 15 | Controlled Folder Access, AutoPlay, Admin Shares, Print Spooler, Remote Access, IE11, Sudo, SID Enum, MotW, Kerberos, Admin Account, Process Auditing, SmartScreen, etc. |
 | **Network Hardening** | 5 | SMB, TLS/SSL (ciphers!), Legacy Protocols, Wireless, DNS |
 | **Advanced Security** | 5 | LAPS, Advanced Auditing, NTLM Auditing, Smart App Control, USB Device Control |

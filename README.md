@@ -18,8 +18,8 @@
 
 ### What You Get
 - ✅ **100% Microsoft Security Baseline 25H2 Coverage** for standalone Windows 11 systems - [See Mapping](SECURITY_MAPPING.md)
-- 🔒 **300+ Security Settings** - Enterprise-grade protection at home
-- 🛡️ **180+ Privacy Settings** - Minimizes telemetry to Security-Essential level
+- 🔒 **400+ Security Settings** - Enterprise-grade protection at home
+- 🛡️ **300+ Privacy Settings** - Minimizes telemetry to Security-Essential level
 - 🚀 **Modular Architecture** - 13 specialized modules, pick what you need
 - 🔄 **Complete Backup & Restore** - Can restore most settings (Services, Registry, Firewall, DNS, Scheduled Tasks)
 - 🌐 **Multi-Language Support** - English/German with real-time switching
