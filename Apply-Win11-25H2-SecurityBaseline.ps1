@@ -169,6 +169,7 @@ $script:criticalError = $false
 $script:mutexAcquired = $false
 $script:mutex = $null
 $script:transcriptPath = ""
+$script:createRestorePoint = $false  # Default: false (can be overridden by Interactive/CLI mode)
 
 # Clear Error Collection IMMEDIATELY (before any operations that might fail)
 # REASON: $Error accumulates ALL errors including non-fatal ones

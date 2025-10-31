@@ -97,6 +97,25 @@ catch {
     Write-Verbose "Console Window Size konnte nicht gesetzt werden: $_"
 }
 
+# ===== START TRANSCRIPT FOR AUDIT TRAIL =====
+$script:transcriptPath = ""
+$script:transcriptStarted = $false
+
+if (-not (Test-Path $LogPath)) {
+    $null = New-Item -Path $LogPath -ItemType Directory -Force
+}
+
+$script:transcriptPath = Join-Path $LogPath "Restore-$timestamp.log"
+
+try {
+    Start-Transcript -Path $script:transcriptPath -ErrorAction Stop
+    $script:transcriptStarted = $true
+    Write-Verbose "Transcript started: $script:transcriptPath"
+}
+catch {
+    Write-Warning "Could not start transcript: $_"
+}
+
 # Load Localization Module
 $scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 try {
@@ -373,8 +392,30 @@ Write-Host ""
 #region Restore Services
 Write-Host "[3/14] $(Get-LocalizedString 'RestoreServices')" -ForegroundColor Yellow
 
+# CRITICAL: Protected Services List
+# ROOT CAUSE: These services are protected by TrustedInstaller/SYSTEM
+# REASON: Windows prevents modification by Admin to protect system integrity
+# SOLUTION: Skip these services with informative message (not error!)
+$protectedServices = @(
+    'AppIDSvc', 'AppXSvc', 'BFE', 'BrokerInfrastructure', 'ClipSVC',
+    'CoreMessagingRegistrar', 'DcomLaunch', 'Dnscache', 'DoSvc',
+    'embeddedmode', 'EntAppSvc', 'gpsvc', 'LSM', 'MDCoreSvc',
+    'mpssvc', 'msiserver', 'NgcCtnrSvc', 'NgcSvc', 'RpcEptMapper',
+    'RpcSs', 'Schedule', 'SecurityHealthService', 'Sense', 'sppsvc',
+    'StateRepository', 'SystemEventsBroker', 'TextInputManagementService',
+    'TimeBrokerSvc', 'WaaSMedicSvc', 'WdNisSvc', 'WinDefend',
+    'WinHttpAutoProxySvc', 'wscsvc'
+)
+
 foreach ($svcConfig in $backup.Settings.Services) {
     try {
+        # Skip protected services (prevent Access Denied errors)
+        if ($protectedServices -contains $svcConfig.Name) {
+            Write-Verbose "  [SKIP] Protected service: $($svcConfig.DisplayName) (TrustedInstaller/SYSTEM only)"
+            $restoreStats.Skipped++
+            continue
+        }
+        
         $service = Get-Service -Name $svcConfig.Name -ErrorAction SilentlyContinue
         
         if ($service) {
@@ -403,60 +444,70 @@ Write-Host ""
 #region Restore Scheduled Tasks
 Write-Host "[4/14] Restore Scheduled Tasks..." -ForegroundColor Yellow
 
-$tasksCount = if ($backup.Settings.ScheduledTasks) { @($backup.Settings.ScheduledTasks).Count } else { 0 }
-if ($tasksCount -gt 0) {
-    $restoredTasks = 0
-    $changedTasks = 0
-    
-    # CRITICAL FIX: Use Job with timeout to prevent hanging
-    # REASON: Get-ScheduledTask can hang on fresh systems/VMs
-    foreach ($taskConfig in $backup.Settings.ScheduledTasks) {
-        try {
-            # Use timeout for Get-ScheduledTask (5 seconds max)
-            $job = Start-Job -ScriptBlock {
-                param($path, $name)
-                Get-ScheduledTask -TaskPath $path -TaskName $name -ErrorAction SilentlyContinue
-            } -ArgumentList $taskConfig.TaskPath, $taskConfig.TaskName
-            
-            $currentTask = $job | Wait-Job -Timeout 5 | Receive-Job
-            Remove-Job $job -Force -ErrorAction SilentlyContinue
-            
-            if ($currentTask) {
-                if ($currentTask.State.ToString() -ne $taskConfig.State) {
-                    if ($PSCmdlet.ShouldProcess("$($taskConfig.TaskPath)$($taskConfig.TaskName)", "Set State: $($taskConfig.State)")) {
-                        # Use timeout for Enable/Disable too (5 seconds max)
-                        $changeJob = Start-Job -ScriptBlock {
-                            param($path, $name, $state)
-                            if ($state -eq 'Disabled') {
-                                Disable-ScheduledTask -TaskPath $path -TaskName $name -ErrorAction Stop | Out-Null
-                            }
-                            elseif ($state -eq 'Ready') {
-                                Enable-ScheduledTask -TaskPath $path -TaskName $name -ErrorAction Stop | Out-Null
-                            }
-                        } -ArgumentList $taskConfig.TaskPath, $taskConfig.TaskName, $taskConfig.State
-                        
-                        $null = $changeJob | Wait-Job -Timeout 5
-                        Remove-Job $changeJob -Force -ErrorAction SilentlyContinue
-                        
-                        $changedTasks++
-                        $restoreStats.Success++
-                    }
-                }
-                $restoredTasks++
-            }
-        }
-        catch {
-            # Not critical - timeout or task not accessible
-            Write-Verbose "Task restore timeout or error: $($taskConfig.TaskPath)$($taskConfig.TaskName)"
-        }
-    }
-    
-    Write-Host "  [OK] $restoredTasks Scheduled Tasks geprueft" -ForegroundColor Green
-    Write-Host "      $changedTasks Tasks State wiederhergestellt" -ForegroundColor Gray
+# CRITICAL: Check if Task Scheduler service is available
+# ROOT CAUSE: Schedule service is protected (TrustedInstaller/SYSTEM)
+# REASON: If service is not running, Get-ScheduledTask will HANG indefinitely
+# SOLUTION: Check service status FIRST, skip if not available
+$scheduleService = Get-Service -Name 'Schedule' -ErrorAction SilentlyContinue
+if (-not $scheduleService -or $scheduleService.Status -ne 'Running') {
+    Write-Host "  [!] Task Scheduler service not available - skipping scheduled tasks restore" -ForegroundColor Yellow
+    Write-Host "  [i] Reason: Service 'Schedule' is protected or not running" -ForegroundColor Gray
+    $restoreStats.Skipped++
 }
 else {
-    Write-Host "  [!] Keine Scheduled Tasks im Backup" -ForegroundColor Yellow
-    $restoreStats.Skipped++
+    $tasksCount = if ($backup.Settings.ScheduledTasks) { @($backup.Settings.ScheduledTasks).Count } else { 0 }
+    if ($tasksCount -gt 0) {
+        $restoredTasks = 0
+        $changedTasks = 0
+        
+        foreach ($taskConfig in $backup.Settings.ScheduledTasks) {
+            try {
+                # Use timeout for Get-ScheduledTask (5 seconds max)
+                $job = Start-Job -ScriptBlock {
+                    param($path, $name)
+                    Get-ScheduledTask -TaskPath $path -TaskName $name -ErrorAction SilentlyContinue
+                } -ArgumentList $taskConfig.TaskPath, $taskConfig.TaskName
+                
+                $currentTask = $job | Wait-Job -Timeout 5 | Receive-Job
+                Remove-Job $job -Force -ErrorAction SilentlyContinue
+                
+                if ($currentTask) {
+                    if ($currentTask.State.ToString() -ne $taskConfig.State) {
+                        if ($PSCmdlet.ShouldProcess("$($taskConfig.TaskPath)$($taskConfig.TaskName)", "Set State: $($taskConfig.State)")) {
+                            # Use timeout for Enable/Disable too (5 seconds max)
+                            $changeJob = Start-Job -ScriptBlock {
+                                param($path, $name, $state)
+                                if ($state -eq 'Disabled') {
+                                    Disable-ScheduledTask -TaskPath $path -TaskName $name -ErrorAction Stop | Out-Null
+                                }
+                                elseif ($state -eq 'Ready') {
+                                    Enable-ScheduledTask -TaskPath $path -TaskName $name -ErrorAction Stop | Out-Null
+                                }
+                            } -ArgumentList $taskConfig.TaskPath, $taskConfig.TaskName, $taskConfig.State
+                            
+                            $null = $changeJob | Wait-Job -Timeout 5
+                            Remove-Job $changeJob -Force -ErrorAction SilentlyContinue
+                            
+                            $changedTasks++
+                            $restoreStats.Success++
+                        }
+                    }
+                    $restoredTasks++
+                }
+            }
+            catch {
+                # Not critical - timeout or task not accessible
+                Write-Verbose "Task restore timeout or error: $($taskConfig.TaskPath)$($taskConfig.TaskName)"
+            }
+        }
+    
+        Write-Host "  [OK] $restoredTasks Scheduled Tasks geprueft" -ForegroundColor Green
+        Write-Host "      $changedTasks Tasks State wiederhergestellt" -ForegroundColor Gray
+    }
+    else {
+        Write-Host "  [!] Keine Scheduled Tasks im Backup" -ForegroundColor Yellow
+        $restoreStats.Skipped++
+    }
 }
 
 Write-Host ""
@@ -1240,9 +1291,14 @@ Write-Host ""
 if ($restoreStats.Failed -gt 0) {
     Write-Host "[!] $(Get-LocalizedString 'RestoreSomeErrors')" -ForegroundColor Yellow
     $logMsg = (Get-LocalizedString 'RestoreCheckLog')
-    Write-Host "    $logMsg $transcriptPath" -ForegroundColor Gray
+    Write-Host "    $logMsg $script:transcriptPath" -ForegroundColor Gray
 }
 
+Write-Host ""
+Write-Host "============================================================================" -ForegroundColor Gray
+Write-Host "LOGS & DETAILS" -ForegroundColor White
+Write-Host "============================================================================" -ForegroundColor Gray
+Write-Host "Transcript Log: $script:transcriptPath" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "============================================================================" -ForegroundColor Yellow
 Write-Host "                       $(Get-LocalizedString 'RestoreRebootTitle')" -ForegroundColor Yellow
@@ -1301,7 +1357,16 @@ if ($reboot -eq 'J') {
     Write-Host "    $(Get-LocalizedString 'RestoreRebootAbort')" -ForegroundColor Gray
     Start-Sleep -Seconds 10
     
-    Stop-Transcript -ErrorAction SilentlyContinue
+    # Stop transcript before reboot
+    if ($script:transcriptStarted) {
+        try {
+            Stop-Transcript -ErrorAction Stop
+        }
+        catch {
+            Write-Verbose "Could not stop transcript: $_"
+        }
+    }
+    
     Restart-Computer -Force
 }
 else {
@@ -1311,4 +1376,12 @@ else {
     Write-Host ""
 }
 
-Stop-Transcript -ErrorAction SilentlyContinue
+# Stop transcript if not rebooting
+if ($script:transcriptStarted) {
+    try {
+        Stop-Transcript -ErrorAction Stop
+    }
+    catch {
+        Write-Verbose "Could not stop transcript: $_"
+    }
+}
