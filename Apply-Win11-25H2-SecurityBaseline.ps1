@@ -13,28 +13,28 @@
     FEATURES:
     [OK] Microsoft Security Baseline 25H2 (September 30, 2025): 100% compliant
     [OK] Privacy-First: Telemetry, AI features, app permissions disabled
-    [OK] Bloatware Removal: 50+ unnecessary apps removed
+    [OK] Bloatware Removal: 80+ unnecessary apps removed
     [OK] Performance: Services and scheduled tasks optimized
     [OK] Best Practices: AutoPlay, SmartScreen, Exploit Protection extended
     
     COMPLIANCE:
-    - Microsoft Baseline 25H2: 100% (350+ settings)
+    - Microsoft Baseline 25H2: 100% (375 registry keys)
     - CIS Benchmark Level 2: 95%
-    - Defense in Depth: +150% above baseline (550+ additional security settings)
-    - Privacy Protection: +200% above baseline (700+ privacy settings)
+    - Security Settings: 400+ (217 reg keys + 25+ services + 19 ASR + 13 mitigations + more)
+    - Privacy Settings: 300+ (158 reg keys + 37 permissions + 30 tasks + 9 AI + 80+ apps + more)
     
 .NOTES
     Version:        1.7.13
     Baseline:       Microsoft Security Baseline 25H2 (September 30, 2025)
     Author:         NoID Privacy Project
-    Last Updated:   October 30, 2025
+    Last Updated:   October 31, 2025
     Requires:       Windows 11 25H2/24H2/23H2, PowerShell 5.1+, Admin Rights
     
     Changelog 1.7.9 (26. Oktober 2025):
     - CRITICAL FIX: App Permissions Toggles now work REALLY!
     - ROOT CAUSE: Windows GUI shows PER-APP Toggles, not Master-Toggle!
     - FIX: All 37 Permissions now set ALL existing App Sub-Keys to Deny
-    - BETROFFENE FUNKTIONEN: Disable-AllAppPermissionsDefaults (33), Camera (1), Microphone (1), Location (1)
+    - BETROFFENE FUNKTIONEN: Disable-AllAppPermissionsDefaults (37), Camera (1), Microphone (1), Location (1)
     - TEST: Settings | Privacy now shows ALL Toggles OFF (after Settings restart)
     
     Changelog 1.7.8 (26. Oktober 2025):
