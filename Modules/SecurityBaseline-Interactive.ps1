@@ -721,13 +721,13 @@ function Invoke-CustomMode {
                 $flushed++
             }
             
-            # Flush attempt 3: Force-consume even if KeyAvailable is false
-            for ($i = 0; $i -lt 3; $i++) {
+            # Flush attempt 3: FORCE-consume WITHOUT KeyAvailable check!
+            # ROOT CAUSE: KeyAvailable is UNRELIABLE and returns FALSE even with buffered input!
+            for ($i = 0; $i -lt 5; $i++) {
                 try {
-                    if ($Host.UI.RawUI.KeyAvailable) {
-                        $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
-                        $flushed++
-                    }
+                    # NO if-check! Just try to read!
+                    $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+                    $flushed++
                 }
                 catch {
                     break
@@ -913,17 +913,17 @@ function Invoke-VerifyMode {
                 $flushed++
             }
             
-            # Flush attempt 3: Force-consume even if KeyAvailable is false
-            # (KeyAvailable can lie - input might still be buffered!)
-            for ($i = 0; $i -lt 3; $i++) {
+            # Flush attempt 3: FORCE-consume WITHOUT KeyAvailable check!
+            # ROOT CAUSE: KeyAvailable is UNRELIABLE and returns FALSE even with buffered input!
+            # SOLUTION: Try to read unconditionally - catch will handle "no keys" case
+            for ($i = 0; $i -lt 5; $i++) {
                 try {
-                    if ($Host.UI.RawUI.KeyAvailable) {
-                        $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
-                        $flushed++
-                    }
+                    # NO if-check! Just try to read!
+                    $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+                    $flushed++
                 }
                 catch {
-                    # Expected if no keys - ignore
+                    # Expected if no keys available - this is OK
                     break
                 }
             }
