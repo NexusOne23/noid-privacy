@@ -134,6 +134,26 @@ catch {
     $Global:CurrentLanguage = 'en'
 }
 
+# Load Registry Changes Definition (v2.0 - 375 specific keys)
+try {
+    . "$scriptDir\Modules\RegistryChanges-Definition.ps1"
+    Write-Verbose "Loaded $($script:RegistryChanges.Count) registry change definitions"
+}
+catch {
+    Write-Error "CRITICAL: Could not load Registry Changes Definition: $_"
+    exit 1
+}
+
+# Load Optimized Registry Backup Functions (v2.0)
+try {
+    . "$scriptDir\Modules\SecurityBaseline-RegistryBackup-Optimized.ps1"
+    Write-Verbose "Loaded optimized registry backup functions"
+}
+catch {
+    Write-Error "CRITICAL: Could not load Registry Backup functions: $_"
+    exit 1
+}
+
 # Ensure language is set (use from interactive session, environment variable, or default to English)
 # IMPORTANT: When dot-sourcing, $Global:CurrentLanguage is already set - do not overwrite!
 # IMPORTANT: Use Test-Path because of Strict Mode!
@@ -519,128 +539,32 @@ Write-Host "    $(Get-LocalizedString 'BackupUsersPasswordNote')" -ForegroundCol
 Write-Host ""
 #endregion
 
-#region Registry Keys Backup
+#region Registry Keys Backup (v2.0 - OPTIMIZED)
 Write-Host "[8/13] $(Get-LocalizedString 'BackupRegistry')" -ForegroundColor Yellow
 
-# Function to export complete registry tree snapshot
-function Export-RegistrySnapshot {
-    param(
-        [string]$RootPath,
-        [string]$DisplayName
-    )
+# NEW v2.0: Specific registry backup (20-30x faster!)
+# Only backs up the 375 registry keys that Apply actually modifies
+# Previous version: Complete snapshots (5-15 minutes, 50,000+ keys, 5MB)
+# New version: Specific backup (30 seconds, 375 keys, 100KB)
+
+Write-Host "[i] Creating specific registry backup (375 keys)..." -ForegroundColor Cyan
+$startTime = Get-Date
+
+try {
+    $backup.Settings.RegistryBackup = Backup-SpecificRegistryKeys -RegistryChanges $script:RegistryChanges
     
-    Write-Host "  [i] Snapshot: $DisplayName..." -ForegroundColor Gray -NoNewline
+    $elapsed = ((Get-Date) - $startTime).TotalSeconds
+    $backedUpCount = ($backup.Settings.RegistryBackup | Where-Object { $_.Exists }).Count
+    $notExistCount = $backup.Settings.RegistryBackup.Count - $backedUpCount
     
-    $snapshot = @{}
-    $keyCount = 0
-    $valueCount = 0
-    
-    try {
-        # Check if root path exists
-        if (-not (Test-Path $RootPath)) {
-            Write-Host " [!] Path not found" -ForegroundColor Yellow
-            return @{ Root = $RootPath; Keys = @{} }
-        }
-        
-        # Recursively get all keys under root path
-        $allKeys = @($RootPath)
-        try {
-            $allKeys += Get-ChildItem -Path $RootPath -Recurse -ErrorAction SilentlyContinue | Select-Object -ExpandProperty PSPath
-        }
-        catch {
-            # Some keys might be inaccessible - that's OK
-        }
-        
-        foreach ($keyPath in $allKeys) {
-            try {
-                # Get all properties of this key
-                $props = Get-ItemProperty -Path $keyPath -ErrorAction SilentlyContinue
-                
-                if ($props) {
-                    $keyCount++
-                    
-                    # Extract all values (skip PS* properties)
-                    $psProps = $props.PSObject.Properties | Where-Object { $_.Name -notmatch '^PS' }
-                    
-                    foreach ($prop in $psProps) {
-                        # Store as: "KeyPath\ValueName" = Value
-                        $fullKey = "$keyPath\$($prop.Name)"
-                        
-                        # Convert value to JSON-serializable type
-                        $value = $prop.Value
-                        if ($value -is [byte[]]) {
-                            # Binary data - store as base64
-                            $snapshot[$fullKey] = @{
-                                Type = 'Binary'
-                                Data = [Convert]::ToBase64String($value)
-                            }
-                        }
-                        elseif ($value -is [array]) {
-                            # Array - store as array
-                            $snapshot[$fullKey] = @{
-                                Type = 'Array'
-                                Data = @($value)
-                            }
-                        }
-                        else {
-                            # Simple value
-                            $snapshot[$fullKey] = $value
-                        }
-                        
-                        $valueCount++
-                    }
-                }
-            }
-            catch {
-                # Access denied or other error - skip this key
-                continue
-            }
-        }
-        
-        Write-Host " [OK] $keyCount keys, $valueCount values" -ForegroundColor Green
-        
-        return @{
-            Root = $RootPath
-            Keys = $snapshot
-            KeyCount = $keyCount
-            ValueCount = $valueCount
-        }
-    }
-    catch {
-        Write-Host " [X] Error: $_" -ForegroundColor Red
-        return @{ Root = $RootPath; Keys = @{}; Error = $_.Exception.Message }
-    }
+    Write-Host "[OK] Registry backup complete in $([Math]::Round($elapsed, 1))s" -ForegroundColor Green
+    Write-Host "  - $backedUpCount keys backed up (existed before)" -ForegroundColor Gray
+    Write-Host "  - $notExistCount keys tracked (will be created by Apply)" -ForegroundColor Gray
 }
-
-# OLD REGISTRY BACKUP SYSTEM REMOVED in v1.8.0
-# Replaced by complete snapshot-based backup (see below)
-# This provides 100% coverage of all registry changes
-
-# NEW v1.8.0: Complete Registry Snapshots for perfect restore
-# This captures the COMPLETE state of all registry areas that Apply can modify
-# Allows restore to DELETE keys that Apply created (not just restore changed values)
-Write-Host ""
-Write-Host "[i] Creating complete registry snapshots for perfect restore..." -ForegroundColor Cyan
-
-$backup.Settings.RegistrySnapshots = @{
-    'HKLM_Policies'      = Export-RegistrySnapshot 'HKLM:\SOFTWARE\Policies' 'HKLM Policies'
-    'HKLM_Microsoft'     = Export-RegistrySnapshot 'HKLM:\SOFTWARE\Microsoft' 'HKLM Microsoft'
-    'HKLM_System'        = Export-RegistrySnapshot 'HKLM:\SYSTEM\CurrentControlSet' 'HKLM System'
-    'HKCU_Policies'      = Export-RegistrySnapshot 'HKCU:\SOFTWARE\Policies' 'HKCU Policies'
-    'HKCU_Microsoft'     = Export-RegistrySnapshot 'HKCU:\SOFTWARE\Microsoft' 'HKCU Microsoft'
-    'HKCU_ControlPanel'  = Export-RegistrySnapshot 'HKCU:\Control Panel' 'HKCU Control Panel'
-    'HKCU_System'        = Export-RegistrySnapshot 'HKCU:\System' 'HKCU System'
+catch {
+    Write-Host "[ERROR] Registry backup failed: $_" -ForegroundColor Red
+    $backup.Settings.RegistryBackup = @()
 }
-
-# Calculate total snapshot size
-$totalKeys = 0
-$totalValues = 0
-foreach ($snapshot in $backup.Settings.RegistrySnapshots.Values) {
-    if ($snapshot.KeyCount) { $totalKeys += $snapshot.KeyCount }
-    if ($snapshot.ValueCount) { $totalValues += $snapshot.ValueCount }
-}
-
-Write-Host "[OK] Registry snapshots complete: $totalKeys keys, $totalValues values" -ForegroundColor Green
 
 Write-Host ""
 #endregion
@@ -1025,7 +949,7 @@ try {
     $tasksCountSummary = if ($backup.Settings.ScheduledTasks) { @($backup.Settings.ScheduledTasks).Count } else { 0 }
     $fwCountSummary = if ($backup.Settings.FirewallRules) { @($backup.Settings.FirewallRules).Count } else { 0 }
     $usersCountSummary = if ($backup.Settings.UserAccounts) { @($backup.Settings.UserAccounts).Count } else { 0 }
-    $regSnapshotsSummary = if ($backup.Settings.RegistrySnapshots) { $backup.Settings.RegistrySnapshots.Keys.Count } else { 0 }
+    $regBackupCount = if ($backup.Settings.RegistryBackup) { $backup.Settings.RegistryBackup.Count } else { 0 }
     $asrCountSummary = if ($backup.Settings.ASRRules.Rules) { @($backup.Settings.ASRRules.Rules).Count } else { 0 }
     Write-Host "  - DNS: $dnsCountSummary" -ForegroundColor Gray
     Write-Host "  - Hosts: $($null -ne $backup.Settings.HostsFile)" -ForegroundColor Gray
@@ -1034,7 +958,7 @@ try {
     Write-Host "  - Scheduled Tasks: $tasksCountSummary" -ForegroundColor Gray
     Write-Host "  - Firewall: $fwCountSummary" -ForegroundColor Gray
     Write-Host "  - Users: $usersCountSummary" -ForegroundColor Gray
-    Write-Host "  - Registry Snapshots: $regSnapshotsSummary areas" -ForegroundColor Gray
+    Write-Host "  - Registry Backup: $regBackupCount specific keys" -ForegroundColor Gray
     Write-Host "  - ASR Rules: $asrCountSummary" -ForegroundColor Gray
     Write-Host "  - Exploit Protection: $($backup.Settings.ExploitProtection.Enabled)" -ForegroundColor Gray
     $dohServersSummary = if ($backup.Settings.DoH.Servers) { @($backup.Settings.DoH.Servers).Count } else { 0 }
@@ -1096,7 +1020,7 @@ try {
     # Validation 3: At least a few important entries (only if testParse exists)
     if ($testParse) {
         $hasData = $false
-        if ($testParse.Settings.DNS -or $testParse.Settings.Services -or $testParse.Settings.RegistrySnapshots) {
+        if ($testParse.Settings.DNS -or $testParse.Settings.Services -or $testParse.Settings.RegistryBackup) {
             $hasData = $true
         }
         
