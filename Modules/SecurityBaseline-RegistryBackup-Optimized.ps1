@@ -168,7 +168,7 @@ function Restore-SpecificRegistryKeys {
             # Determine what to do
             if ($entry.Exists) {
                 # Key existed before - restore original value
-                if ($entry.OriginalValue -ne $null -or $entry.OriginalType -eq "DWord") {
+                if ($null -ne $entry.OriginalValue -or $entry.OriginalType -eq "DWord") {
                     # Use Smart method if available (handles TrustedInstaller)
                     if ($hasOwnershipModule -and (Get-Command Set-RegistryValueSmart -ErrorAction SilentlyContinue)) {
                         $result = Set-RegistryValueSmart `
@@ -265,16 +265,16 @@ function Restore-SpecificRegistryKeys {
     return $stats
 }
 
-function Validate-RegistryRestore {
+function Test-RegistryRestore {
     <#
     .SYNOPSIS
-        Validiert ob alle Registry-Keys korrekt wiederhergestellt wurden
+        Validates whether all registry keys were correctly restored
         
     .PARAMETER BackupData
-        Array mit Backup-Daten
+        Array with backup data
         
     .EXAMPLE
-        $isValid = Validate-RegistryRestore -BackupData $backup
+        $isValid = Test-RegistryRestore -BackupData $backup
     #>
     [CmdletBinding()]
     param(
@@ -329,8 +329,8 @@ function Validate-RegistryRestore {
     
     if ($invalid -gt 0) {
         Write-Warning "[Validation] Found $invalid validation errors:"
-        foreach ($error in $errors) {
-            Write-Warning "  - $error"
+        foreach ($errorMsg in $errors) {
+            Write-Warning "  - $errorMsg"
         }
     }
     
