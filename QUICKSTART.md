@@ -187,8 +187,8 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) to improve the project!
 Your Windows 11 is now hardened to enterprise security standards!
 
 **What Changed?**
-- 🛡️ Security: 550+ settings
-- 🔒 Privacy: 700+ settings
+- 🛡️ Security: 400+ settings
+- 🔒 Privacy: 300+ settings
 - 📊 Coverage: Microsoft Baseline 25H2 (100%)
 
 **Enjoy your secure and private Windows!** 🚀
