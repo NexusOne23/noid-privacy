@@ -699,6 +699,22 @@ function Invoke-CustomMode {
             if (-not $verboseMsg) { $verboseMsg = "ReadKey failed: $_" }
             Write-Verbose $verboseMsg
         }
+        
+        # CRITICAL FIX: FLUSH INPUT BUFFER after Custom Mode selection!
+        # Same bug as Verify: ReadKey leaves characters in buffer
+        try {
+            if ($Host.UI.RawUI.KeyAvailable) {
+                Write-Verbose "Flushing keyboard buffer..."
+                while ($Host.UI.RawUI.KeyAvailable) {
+                    $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+                }
+                Write-Verbose "Keyboard buffer flushed"
+            }
+        }
+        catch {
+            Write-Verbose "Could not flush keyboard buffer: $_"
+        }
+        
         return $null
     }
     
@@ -845,6 +861,24 @@ function Invoke-VerifyMode {
             $verboseMsg = Get-LocalizedString 'ErrorReadKeyFailed' $_
             if (-not $verboseMsg) { $verboseMsg = "ReadKey failed: $_" }
             Write-Verbose $verboseMsg
+        }
+        
+        # CRITICAL FIX: FLUSH INPUT BUFFER after Verify!
+        # ROOT CAUSE: ReadKey("NoEcho,IncludeKeyDown") only consumes KeyDown event
+        # PROBLEM: If user presses "1" at "Press any key", the character stays in buffer
+        # RESULT: Next Read-Host in menu consumes "1" immediately → Audit starts instead of Exit!
+        # SOLUTION: Flush keyboard buffer by consuming all pending keys
+        try {
+            if ($Host.UI.RawUI.KeyAvailable) {
+                Write-Verbose "Flushing keyboard buffer..."
+                while ($Host.UI.RawUI.KeyAvailable) {
+                    $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+                }
+                Write-Verbose "Keyboard buffer flushed"
+            }
+        }
+        catch {
+            Write-Verbose "Could not flush keyboard buffer: $_"
         }
     }
     return $null
