@@ -51,24 +51,30 @@ function Backup-SpecificRegistryKeys {
         try {
             # Check if registry path exists
             if (Test-Path $change.Path) {
-                # Try to get the property
-                $property = Get-ItemProperty -Path $change.Path -Name $change.Name -ErrorAction SilentlyContinue
+                # CRITICAL: Get ALL properties first, then check if our property exists
+                # Using Get-ItemProperty with -Name creates error records even with -ErrorAction SilentlyContinue
+                $allProps = Get-ItemProperty -Path $change.Path -ErrorAction SilentlyContinue
                 
-                if ($property) {
-                    $currentValue = $property.$($change.Name)
-                    $exists = $true
+                if ($allProps) {
+                    # Check if the specific property exists using PSObject
+                    $propNames = $allProps.PSObject.Properties.Name
                     
-                    # Get value type for accurate restore
-                    try {
-                        $regKey = Get-Item -Path $change.Path -ErrorAction Stop
-                        $valueType = $regKey.GetValueKind($change.Name).ToString()
+                    if ($change.Name -in $propNames) {
+                        $currentValue = $allProps.$($change.Name)
+                        $exists = $true
+                        
+                        # Get value type for accurate restore
+                        try {
+                            $regKey = Get-Item -Path $change.Path -ErrorAction Stop
+                            $valueType = $regKey.GetValueKind($change.Name).ToString()
+                        }
+                        catch {
+                            # Fallback to defined type
+                            $valueType = $change.Type
+                        }
+                        
+                        $successCount++
                     }
-                    catch {
-                        # Fallback to defined type
-                        $valueType = $change.Type
-                    }
-                    
-                    $successCount++
                 }
             }
         }
