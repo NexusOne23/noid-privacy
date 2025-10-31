@@ -700,15 +700,42 @@ function Invoke-CustomMode {
             Write-Verbose $verboseMsg
         }
         
-        # CRITICAL FIX: FLUSH INPUT BUFFER after Custom Mode selection!
-        # Same bug as Verify: ReadKey leaves characters in buffer
+        # CRITICAL FIX v2: AGGRESSIVE INPUT BUFFER FLUSH (same as Verify)!
+        # ROOT CAUSE: KeyAvailable returns FALSE even when input is buffered!
+        # SOLUTION: Multiple flush attempts with delays + unconditional reads
         try {
-            if ($Host.UI.RawUI.KeyAvailable) {
-                Write-Verbose "Flushing keyboard buffer..."
-                while ($Host.UI.RawUI.KeyAvailable) {
-                    $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+            # Give OS time to process all key events
+            Start-Sleep -Milliseconds 150
+            
+            # Flush attempt 1: While KeyAvailable
+            $flushed = 0
+            while ($Host.UI.RawUI.KeyAvailable -and $flushed -lt 20) {
+                $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+                $flushed++
+            }
+            
+            # Flush attempt 2: Additional delay + check again
+            Start-Sleep -Milliseconds 100
+            while ($Host.UI.RawUI.KeyAvailable -and $flushed -lt 40) {
+                $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+                $flushed++
+            }
+            
+            # Flush attempt 3: Force-consume even if KeyAvailable is false
+            for ($i = 0; $i -lt 3; $i++) {
+                try {
+                    if ($Host.UI.RawUI.KeyAvailable) {
+                        $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+                        $flushed++
+                    }
                 }
-                Write-Verbose "Keyboard buffer flushed"
+                catch {
+                    break
+                }
+            }
+            
+            if ($flushed -gt 0) {
+                Write-Verbose "Flushed $flushed keyboard events (aggressive mode)"
             }
         }
         catch {
@@ -863,18 +890,46 @@ function Invoke-VerifyMode {
             Write-Verbose $verboseMsg
         }
         
-        # CRITICAL FIX: FLUSH INPUT BUFFER after Verify!
-        # ROOT CAUSE: ReadKey("NoEcho,IncludeKeyDown") only consumes KeyDown event
-        # PROBLEM: If user presses "1" at "Press any key", the character stays in buffer
+        # CRITICAL FIX v2: AGGRESSIVE INPUT BUFFER FLUSH!
+        # ROOT CAUSE: KeyAvailable returns FALSE even when input is buffered!
+        # PROBLEM: If user presses "1" at "Press any key", character stays in buffer
         # RESULT: Next Read-Host in menu consumes "1" immediately → Audit starts instead of Exit!
-        # SOLUTION: Flush keyboard buffer by consuming all pending keys
+        # SOLUTION: Multiple flush attempts with delays + unconditional reads
         try {
-            if ($Host.UI.RawUI.KeyAvailable) {
-                Write-Verbose "Flushing keyboard buffer..."
-                while ($Host.UI.RawUI.KeyAvailable) {
-                    $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+            # Give OS time to process all key events
+            Start-Sleep -Milliseconds 150
+            
+            # Flush attempt 1: While KeyAvailable
+            $flushed = 0
+            while ($Host.UI.RawUI.KeyAvailable -and $flushed -lt 20) {
+                $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+                $flushed++
+            }
+            
+            # Flush attempt 2: Additional delay + check again
+            Start-Sleep -Milliseconds 100
+            while ($Host.UI.RawUI.KeyAvailable -and $flushed -lt 40) {
+                $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+                $flushed++
+            }
+            
+            # Flush attempt 3: Force-consume even if KeyAvailable is false
+            # (KeyAvailable can lie - input might still be buffered!)
+            for ($i = 0; $i -lt 3; $i++) {
+                try {
+                    if ($Host.UI.RawUI.KeyAvailable) {
+                        $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+                        $flushed++
+                    }
                 }
-                Write-Verbose "Keyboard buffer flushed"
+                catch {
+                    # Expected if no keys - ignore
+                    break
+                }
+            }
+            
+            if ($flushed -gt 0) {
+                Write-Verbose "Flushed $flushed keyboard events (aggressive mode)"
             }
         }
         catch {

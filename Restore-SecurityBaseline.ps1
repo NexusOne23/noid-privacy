@@ -443,12 +443,14 @@ Write-Host ""
 
 #region Restore Scheduled Tasks
 Write-Host "[4/14] Restore Scheduled Tasks..." -ForegroundColor Yellow
+Write-Host "  [DEBUG] Checking Task Scheduler service..." -ForegroundColor Gray
 
 # CRITICAL: Check if Task Scheduler service is available
 # ROOT CAUSE: Schedule service is protected (TrustedInstaller/SYSTEM)
 # REASON: If service is not running, Get-ScheduledTask will HANG indefinitely
 # SOLUTION: Check service status FIRST, skip if not available
 $scheduleService = Get-Service -Name 'Schedule' -ErrorAction SilentlyContinue
+Write-Host "  [DEBUG] Service check completed: Status=$($scheduleService.Status)" -ForegroundColor Gray
 if (-not $scheduleService -or $scheduleService.Status -ne 'Running') {
     Write-Host "  [!] Task Scheduler service not available - skipping scheduled tasks restore" -ForegroundColor Yellow
     Write-Host "  [i] Reason: Service 'Schedule' is protected or not running" -ForegroundColor Gray
@@ -459,13 +461,16 @@ else {
     # SOLUTION: Wrap COUNT access in try-catch with timeout
     # If backup.Settings.ScheduledTasks is corrupted/lazy-loaded, this will hang
     try {
+        Write-Host "  [DEBUG] Starting Count enumeration job (5 sec timeout)..." -ForegroundColor Gray
         # Use Start-Job for timeout on COUNT access
         $countJob = Start-Job -ScriptBlock {
             param($tasks)
             if ($tasks) { @($tasks).Count } else { 0 }
         } -ArgumentList $backup.Settings.ScheduledTasks
         
+        Write-Host "  [DEBUG] Waiting for Count job to complete..." -ForegroundColor Gray
         $countJob | Wait-Job -Timeout 5 | Out-Null
+        Write-Host "  [DEBUG] Wait-Job completed, checking state: $($countJob.State)" -ForegroundColor Gray
         
         if ($countJob.State -eq 'Completed') {
             $tasksCount = Receive-Job $countJob

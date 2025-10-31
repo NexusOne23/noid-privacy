@@ -897,6 +897,14 @@ if ($Interactive) {
     # Adopt configuration from interactive menu with validation
     # IMPORTANT: $config is a Hashtable, NOT a PSCustomObject!
     # Therefore: Use ContainsKey(), NOT PSObject.Properties!
+    # CRITICAL FIX: Check if $config is NOT NULL before accessing properties!
+    # ROOT CAUSE: If Invoke-AuditMode/Enforce/Custom returns $null (user cancels),
+    # accessing $config.Mode will throw PropertyNotFoundException!
+    if ($null -eq $config) {
+        Write-Error "Interactive mode returned null config - user cancelled operation!"
+        return
+    }
+    
     if ($config.ContainsKey('Mode') -and $config.Mode) {
         $Mode = $config.Mode
         Write-Verbose "Mode from interactive config: $Mode"
