@@ -1588,6 +1588,10 @@ finally {
             ($msg -like "*not installed*") -or  # App nicht installiert
             ($msg -like "*nicht installiert*") -or
             ($msg -like "*Falscher Parameter*" -and $msg -like "*NRPT*") -or  # DNS NRPT "falscher Parameter" (nicht kritisch)
+            ($msg -like "*Der angeforderte Registrierungszugriff ist unzul*ssig*") -or  # Protected registry key (German)
+            ($msg -like "*requested registry access is not allowed*") -or  # Protected registry key (English)
+            ($msg -like "*Zugriff verweigert*") -or  # Access denied (German)
+            ($msg -like "*Access is denied*") -or  # Access denied (English)
             ($categoryInfo -eq 'ObjectNotFound') -or  # PowerShell Standard "nicht gefunden" Fehler
             ($categoryInfo -eq 'ResourceUnavailable') -or  # Ressource nicht verfuegbar
             ($categoryInfo -eq 'NotSpecified')  # Unspezifizierte Fehler
