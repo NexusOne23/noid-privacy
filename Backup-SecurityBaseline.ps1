@@ -719,16 +719,21 @@ try {
         }
         
         # CRITICAL: Also backup EnableAutoDoh registry value
+        # IMPORTANT: Use PSObject.Properties pattern to avoid error records!
+        # Get-ItemProperty with -Name creates error even with -ErrorAction SilentlyContinue
         $dnsRegPath = "HKLM:\SYSTEM\CurrentControlSet\Services\Dnscache\Parameters"
         try {
-            $enableAutoDoh = (Get-ItemProperty -Path $dnsRegPath -Name "EnableAutoDoh" -ErrorAction SilentlyContinue).EnableAutoDoh
-            if ($null -ne $enableAutoDoh) {
-                $dohBackup.EnableAutoDoh = $enableAutoDoh
-                Write-Verbose "Backed up EnableAutoDoh = $enableAutoDoh"
+            $dnsRegItem = Get-ItemProperty -Path $dnsRegPath -ErrorAction SilentlyContinue
+            if ($dnsRegItem -and ($dnsRegItem.PSObject.Properties.Name -contains 'EnableAutoDoh')) {
+                $dohBackup.EnableAutoDoh = $dnsRegItem.EnableAutoDoh
+                Write-Verbose "Backed up EnableAutoDoh = $($dnsRegItem.EnableAutoDoh)"
+            }
+            else {
+                Write-Verbose "EnableAutoDoh registry value not found (will use default on restore)"
             }
         }
         catch {
-            Write-Verbose "EnableAutoDoh registry value not found (will use default on restore)"
+            Write-Verbose "Could not access DNS registry path: $_"
         }
     }
     else {
