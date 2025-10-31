@@ -395,7 +395,7 @@ foreach ($dnsConfig in $backup.Settings.DNS) {
             
             # Restore IPv6 DNS (separate call required)
             if ($ipv6Count -gt 0 -and $null -ne $dnsIPv6[0]) {
-                # For IPv6, we need to use the NetIPInterface cmdlet or Set-DnsClientServerAddress with proper IPv6 addresses
+                # Backup had IPv6 servers - restore them
                 if ($interfaceIndex) {
                     # PowerShell automatically detects IPv6 by address format
                     $currentIPv4 = Get-DnsClientServerAddress -InterfaceIndex $interfaceIndex -AddressFamily IPv4 -ErrorAction SilentlyContinue
@@ -409,6 +409,31 @@ foreach ($dnsConfig in $backup.Settings.DNS) {
                     Set-DnsClientServerAddress -InterfaceAlias $adapterName -ServerAddresses $combinedServers -ErrorAction Stop
                 }
                 Write-Verbose "Restored IPv6 DNS: $($dnsIPv6 -join ', ')"
+            }
+            else {
+                # Backup had NO IPv6 servers (automatic) - reset IPv6 to automatic
+                # CRITICAL: We must explicitly clear IPv6 DNS, otherwise it stays on whatever Apply set!
+                if ($interfaceIndex) {
+                    try {
+                        # Get current IPv6 DNS
+                        $currentIPv6 = Get-DnsClientServerAddress -InterfaceIndex $interfaceIndex -AddressFamily IPv6 -ErrorAction SilentlyContinue
+                        
+                        if ($currentIPv6 -and $currentIPv6.ServerAddresses) {
+                            # IPv6 has manual DNS - clear it (set to automatic)
+                            Set-DnsClientServerAddress -InterfaceIndex $interfaceIndex -ResetServerAddresses -ErrorAction Stop
+                            Write-Verbose "Reset IPv6 DNS to automatic (was: $($currentIPv6.ServerAddresses -join ', '))"
+                            
+                            # Re-apply IPv4 if needed (ResetServerAddresses clears BOTH!)
+                            if ($ipv4Count -gt 0 -and $null -ne $dnsIPv4[0]) {
+                                Set-DnsClientServerAddress -InterfaceIndex $interfaceIndex -ServerAddresses $dnsIPv4 -ErrorAction Stop
+                                Write-Verbose "Re-applied IPv4 DNS after IPv6 reset: $($dnsIPv4 -join ', ')"
+                            }
+                        }
+                    }
+                    catch {
+                        Write-Verbose "Could not reset IPv6 DNS: $_"
+                    }
+                }
             }
             
             $dnsOkMsg = Get-LocalizedString 'RestoreDNSOK' $adapterName
