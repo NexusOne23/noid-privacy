@@ -1855,11 +1855,11 @@ function Enable-CloudflareDNSoverHTTPS {
     Write-Success (Get-LocalizedString 'CoreDNSRegistered')
     
     # B. Enable global DoH
-    # CRITICAL FIX v1.7.11: doh=auto instead of doh=yes for stricter enforcement
-    # auto = only DoH for known/registered servers (no fallback!)
-    # yes = DoH where possible, but fallback allowed
+    # CRITICAL: doh=yes (not auto) for Verify compatibility
+    # yes = DoH globally enabled (Verify checks for "DoH : yes" in netsh output)
+    # auto = stricter but Verify would fail
     Write-Info (Get-LocalizedString 'CoreDNSStep2')
-    $result = netsh dnsclient set global doh=auto 2>&1
+    $result = netsh dnsclient set global doh=yes 2>&1
     if ($LASTEXITCODE -eq 0) {
         Write-Success (Get-LocalizedString 'CoreDNSGlobalActivated')
     } else {
