@@ -735,24 +735,56 @@ foreach ($regConfig in $backup.Settings.RegistryKeys) {
         # Get property names safely (no PropertyNotFoundException)
         $props = $regConfig.PSObject.Properties.Name
         
-        # Path: RegPath (new) or Path (old)
-        $path = if ('RegPath' -in $props) { $regConfig.RegPath } else { $regConfig.Path }
+        # Path: RegPath (new) or Path (old) - must exist
+        if ('RegPath' -in $props) {
+            $path = $regConfig.RegPath
+        }
+        elseif ('Path' -in $props) {
+            $path = $regConfig.Path
+        }
+        else {
+            # Malformed backup entry - skip
+            continue
+        }
         
-        # Name: RegName (new) or Name (old)
-        $name = if ('RegName' -in $props) { $regConfig.RegName } else { $regConfig.Name }
+        # Name: RegName (new) or Name (old) - must exist
+        if ('RegName' -in $props) {
+            $name = $regConfig.RegName
+        }
+        elseif ('Name' -in $props) {
+            $name = $regConfig.Name
+        }
+        else {
+            # Malformed backup entry - skip
+            continue
+        }
         
-        # Exists: RegExists (new) or Exists (old)
-        $exists = if ('RegExists' -in $props) { $regConfig.RegExists } else { $regConfig.Exists }
+        # Exists: RegExists (new) or Exists (old) - default to $true if not present
+        if ('RegExists' -in $props) {
+            $exists = $regConfig.RegExists
+        }
+        elseif ('Exists' -in $props) {
+            $exists = $regConfig.Exists
+        }
+        else {
+            # Very old format without Exists property - assume exists
+            $exists = $true
+        }
         
         # Value: Try RegValue (new), then RegistryValue (old), then Value (very old)
+        # CRITICAL: Must check property existence even for fallback to avoid PropertyNotFoundException
         if ('RegValue' -in $props) {
             $value = $regConfig.RegValue
         }
         elseif ('RegistryValue' -in $props) {
             $value = $regConfig.RegistryValue
         }
-        else {
+        elseif ('Value' -in $props) {
             $value = $regConfig.Value
+        }
+        else {
+            # No value property at all (e.g. RegExists=$false entries)
+            $value = $null
         }
         
         if ($exists -eq $true) {
@@ -761,11 +793,31 @@ foreach ($regConfig in $backup.Settings.RegistryKeys) {
                     New-Item -Path $path -Force -ErrorAction Stop | Out-Null
                 }
                 
-                Set-ItemProperty -Path $path -Name $name -Value $value -ErrorAction Stop
-                $regMsg = Get-LocalizedString 'RestoreRegistryOK' $value
-                Write-Host "  [OK] $path\$name = $regMsg" -ForegroundColor Green
-                $registryRestoredCount++
-                $restoreStats.Success++
+                # Use SilentlyContinue to avoid PS>TerminatingError in transcript
+                # Then check $? and $Error[0] to determine if it was UnauthorizedAccessException
+                $Error.Clear()
+                Set-ItemProperty -Path $path -Name $name -Value $value -ErrorAction SilentlyContinue
+                
+                if ($?) {
+                    # Success
+                    $regMsg = Get-LocalizedString 'RestoreRegistryOK' $value
+                    Write-Host "  [OK] $path\$name = $regMsg" -ForegroundColor Green
+                    $registryRestoredCount++
+                    $restoreStats.Success++
+                }
+                else {
+                    # Failed - check exception type
+                    $lastError = $Error[0]
+                    if ($lastError.Exception -is [System.UnauthorizedAccessException]) {
+                        # Protected key - skip silently
+                        Write-Verbose "  [RO] Registry key '$path\$name' is read-only (protected by SYSTEM)"
+                        $restoreStats.Skipped++
+                    }
+                    else {
+                        # Real error
+                        throw $lastError
+                    }
+                }
             }
         }
         else {
@@ -782,17 +834,8 @@ foreach ($regConfig in $backup.Settings.RegistryKeys) {
             }
         }
     }
-    catch [System.UnauthorizedAccessException] {
-        # Protected registry key (TrustedInstaller/SYSTEM) - skip with warning not error
-        # Common for: Defender, Exploit Guard, WTDS, AppGuard keys
-        $props = $regConfig.PSObject.Properties.Name
-        $path = if ('RegPath' -in $props) { $regConfig.RegPath } else { $regConfig.Path }
-        $name = if ('RegName' -in $props) { $regConfig.RegName } else { $regConfig.Name }
-        Write-Verbose "  [RO] Registry key '$path\$name' is read-only (protected by SYSTEM)"
-        $restoreStats.Skipped++
-    }
     catch {
-        # Other errors (property not found, invalid format, etc.)
+        # Catch errors from: property access, path parsing, throw from inline error check
         $props = $regConfig.PSObject.Properties.Name
         $path = if ('RegPath' -in $props) { $regConfig.RegPath } else { $regConfig.Path }
         $name = if ('RegName' -in $props) { $regConfig.RegName } else { $regConfig.Name }
