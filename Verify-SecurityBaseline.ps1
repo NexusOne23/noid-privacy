@@ -456,7 +456,7 @@ Test-ASRRule -Name "Block abuse of exploited vulnerable signed drivers" `
     -GUID "56A863A9-875E-4185-98A7-B882C64B5CE5" -Impact "High"
 
 Test-ASRRule -Name "Block rebooting machine in Safe Mode (preview)" `
-    -GUID "33DDDEFA7-4F17-4A42-B1BB-BF01C8A88478" -Impact "Medium"
+    -GUID "33ddedf1-c6e0-47cb-833e-de6133960387" -Impact "Medium"
 
 Test-ASRRule -Name "Block use of copied or impersonated system tools (preview)" `
     -GUID "C0033C00-D16D-4114-A5A0-DC9B3A7D2CEB" -Impact "Medium"
