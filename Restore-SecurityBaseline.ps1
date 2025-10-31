@@ -584,8 +584,15 @@ else {
                         $changedTasks++
                         $restoreStats.Success++
                     }
+                    catch [System.UnauthorizedAccessException] {
+                        # Protected task (SYSTEM/TrustedInstaller) - skip with info message not error
+                        Write-Verbose "  [SKIP] Task '$($taskConfig.TaskPath)$($taskConfig.TaskName)' is protected (access denied)"
+                        $restoreStats.Skipped++
+                    }
                     catch {
-                        Write-Verbose "Failed to change task state: $($taskConfig.TaskPath)$($taskConfig.TaskName)"
+                        # Other errors (rare)
+                        Write-Verbose "Failed to change task state: $($taskConfig.TaskPath)$($taskConfig.TaskName) - $_"
+                        $restoreStats.Failed++
                     }
                 }
             }
@@ -775,8 +782,17 @@ foreach ($regConfig in $backup.Settings.RegistryKeys) {
             }
         }
     }
+    catch [System.UnauthorizedAccessException] {
+        # Protected registry key (TrustedInstaller/SYSTEM) - skip with warning not error
+        # Common for: Defender, Exploit Guard, WTDS, AppGuard keys
+        $props = $regConfig.PSObject.Properties.Name
+        $path = if ('RegPath' -in $props) { $regConfig.RegPath } else { $regConfig.Path }
+        $name = if ('RegName' -in $props) { $regConfig.RegName } else { $regConfig.Name }
+        Write-Verbose "  [RO] Registry key '$path\$name' is read-only (protected by SYSTEM)"
+        $restoreStats.Skipped++
+    }
     catch {
-        # CRITICAL FIX: Use PSObject.Properties here too (catch block can also throw PropertyNotFoundException!)
+        # Other errors (property not found, invalid format, etc.)
         $props = $regConfig.PSObject.Properties.Name
         $path = if ('RegPath' -in $props) { $regConfig.RegPath } else { $regConfig.Path }
         $name = if ('RegName' -in $props) { $regConfig.RegName } else { $regConfig.Name }
