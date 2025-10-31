@@ -977,7 +977,7 @@ Solitaire, Candy Crush, Bubble Witch
 | **Advanced Security** | 5 | LAPS, Advanced Auditing, NTLM Auditing, Smart App Control, USB Device Control |
 | **Services Disabled** | 25 | DiagTrack, WerSvc, Diagnostics, etc. |
 | **Tasks Disabled** | 30 | CEIP, Appraiser, Data Collection |
-| **Registry Keys** | 180+ | Telemetry/Privacy/Security |
+| **Registry Keys** | 374 | Security, Privacy, Network, Performance (see REGISTRY_KEYS.md) |
 | **Domains Blocked** | 79,776 | Malware + Ads + Tracking (hosts) |
 | **Apps Removed** | 50+ | Bloatware, Xbox, 3D, Games |
 | **Windows Update** | 6 settings | Auto-update config + Delivery Optimization |
