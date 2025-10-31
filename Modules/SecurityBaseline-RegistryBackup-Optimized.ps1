@@ -310,12 +310,22 @@ function Restore-SpecificRegistryKeys {
         }
         catch {
             # Check Exception Type (language-independent) instead of error message
-            # UnauthorizedAccessException = Access Denied (protected registry key)
+            # Triple-layer catching for ALL Access Denied scenarios (same as Backup)
             if ($_.Exception -is [System.UnauthorizedAccessException]) {
                 # Protected key - can't modify it (TrustedInstaller/SYSTEM)
                 # This is NORMAL and expected - don't count as Failed!
                 $stats.Unchanged++
                 Write-Verbose "[Restore SKIP] Protected key (UnauthorizedAccess): $($entry.Path)\$($entry.Name)"
+            }
+            elseif ($_.Exception -is [System.Security.SecurityException]) {
+                # Also a protected key (SecurityException instead of UnauthorizedAccessException)
+                $stats.Unchanged++
+                Write-Verbose "[Restore SKIP] Protected key (SecurityException): $($entry.Path)\$($entry.Name)"
+            }
+            elseif ($_.Exception.Message -match 'unzulässig|denied|access') {
+                # Fallback: Check if message contains access denied pattern (language-independent)
+                $stats.Unchanged++
+                Write-Verbose "[Restore SKIP] Protected key (Access pattern in message): $($entry.Path)\$($entry.Name)"
             }
             else {
                 # Real error - count as failed
