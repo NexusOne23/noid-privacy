@@ -994,8 +994,9 @@ Write-Host "`n=== DNS OVER HTTPS (DoH) ===" -ForegroundColor Yellow
 # IMPORTANT: Use 'show global' NOT 'show state' - state doesn't show DoH!
 # German format: "DoH-Einstellungen                : auto enabled"
 # English format: "DoH settings                     : yes"
+# CRITICAL FIX: Must convert to string with Out-String, otherwise -match returns array not boolean!
 Test-BaselineCheck -Category "DoH" -Name "DoH Auto-Enabled (Global)" -Impact "High" `
-    -Test { (netsh dnsclient show global 2>&1) -match "(DoH|DoH-Einstellungen).*:\s*(yes|ja|enabled|auto enabled|aktiviert)" } `
+    -Test { (netsh dnsclient show global 2>&1 | Out-String) -match "(DoH|DoH-Einstellungen).*:\s*(yes|ja|enabled|auto enabled|aktiviert)" } `
     -Expected $true
 
 try {
