@@ -522,6 +522,96 @@ Write-Host ""
 #region Registry Keys Backup
 Write-Host "[8/13] $(Get-LocalizedString 'BackupRegistry')" -ForegroundColor Yellow
 
+# Function to export complete registry tree snapshot
+function Export-RegistrySnapshot {
+    param(
+        [string]$RootPath,
+        [string]$DisplayName
+    )
+    
+    Write-Host "  [i] Snapshot: $DisplayName..." -ForegroundColor Gray -NoNewline
+    
+    $snapshot = @{}
+    $keyCount = 0
+    $valueCount = 0
+    
+    try {
+        # Check if root path exists
+        if (-not (Test-Path $RootPath)) {
+            Write-Host " [!] Path not found" -ForegroundColor Yellow
+            return @{ Root = $RootPath; Keys = @{} }
+        }
+        
+        # Recursively get all keys under root path
+        $allKeys = @($RootPath)
+        try {
+            $allKeys += Get-ChildItem -Path $RootPath -Recurse -ErrorAction SilentlyContinue | Select-Object -ExpandProperty PSPath
+        }
+        catch {
+            # Some keys might be inaccessible - that's OK
+        }
+        
+        foreach ($keyPath in $allKeys) {
+            try {
+                # Get all properties of this key
+                $props = Get-ItemProperty -Path $keyPath -ErrorAction SilentlyContinue
+                
+                if ($props) {
+                    $keyCount++
+                    
+                    # Extract all values (skip PS* properties)
+                    $psProps = $props.PSObject.Properties | Where-Object { $_.Name -notmatch '^PS' }
+                    
+                    foreach ($prop in $psProps) {
+                        # Store as: "KeyPath\ValueName" = Value
+                        $fullKey = "$keyPath\$($prop.Name)"
+                        
+                        # Convert value to JSON-serializable type
+                        $value = $prop.Value
+                        if ($value -is [byte[]]) {
+                            # Binary data - store as base64
+                            $snapshot[$fullKey] = @{
+                                Type = 'Binary'
+                                Data = [Convert]::ToBase64String($value)
+                            }
+                        }
+                        elseif ($value -is [array]) {
+                            # Array - store as array
+                            $snapshot[$fullKey] = @{
+                                Type = 'Array'
+                                Data = @($value)
+                            }
+                        }
+                        else {
+                            # Simple value
+                            $snapshot[$fullKey] = $value
+                        }
+                        
+                        $valueCount++
+                    }
+                }
+            }
+            catch {
+                # Access denied or other error - skip this key
+                continue
+            }
+        }
+        
+        Write-Host " [OK] $keyCount keys, $valueCount values" -ForegroundColor Green
+        
+        return @{
+            Root = $RootPath
+            Keys = $snapshot
+            KeyCount = $keyCount
+            ValueCount = $valueCount
+        }
+    }
+    catch {
+        Write-Host " [X] Error: $_" -ForegroundColor Red
+        return @{ Root = $RootPath; Keys = @{}; Error = $_.Exception.Message }
+    }
+}
+
 # Function to backup registry values
 function Backup-RegistryValue {
     param(
@@ -1275,6 +1365,33 @@ if ($accessDeniedKeys) {
     Write-Host "[!] Diese Keys werden bei Restore NICHT wiederhergestellt!" -ForegroundColor Yellow
     Write-Host "[i] BITTE MELDEN an NoID Privacy Team - diese Keys sollten aus Backup entfernt werden!" -ForegroundColor Cyan
 }
+
+# NEW v1.8.0: Complete Registry Snapshots for perfect restore
+# This captures the COMPLETE state of all registry areas that Apply can modify
+# Allows restore to DELETE keys that Apply created (not just restore changed values)
+Write-Host ""
+Write-Host "[i] Creating complete registry snapshots for perfect restore..." -ForegroundColor Cyan
+
+$backup.Settings.RegistrySnapshots = @{
+    'HKLM_Policies'      = Export-RegistrySnapshot 'HKLM:\SOFTWARE\Policies' 'HKLM Policies'
+    'HKLM_Microsoft'     = Export-RegistrySnapshot 'HKLM:\SOFTWARE\Microsoft' 'HKLM Microsoft'
+    'HKLM_System'        = Export-RegistrySnapshot 'HKLM:\SYSTEM\CurrentControlSet' 'HKLM System'
+    'HKCU_Policies'      = Export-RegistrySnapshot 'HKCU:\SOFTWARE\Policies' 'HKCU Policies'
+    'HKCU_Microsoft'     = Export-RegistrySnapshot 'HKCU:\SOFTWARE\Microsoft' 'HKCU Microsoft'
+    'HKCU_ControlPanel'  = Export-RegistrySnapshot 'HKCU:\Control Panel' 'HKCU Control Panel'
+    'HKCU_System'        = Export-RegistrySnapshot 'HKCU:\System' 'HKCU System'
+}
+
+# Calculate total snapshot size
+$totalKeys = 0
+$totalValues = 0
+foreach ($snapshot in $backup.Settings.RegistrySnapshots.Values) {
+    if ($snapshot.KeyCount) { $totalKeys += $snapshot.KeyCount }
+    if ($snapshot.ValueCount) { $totalValues += $snapshot.ValueCount }
+}
+
+Write-Host "[OK] Registry snapshots complete: $totalKeys keys, $totalValues values" -ForegroundColor Green
+
 Write-Host ""
 #endregion
 

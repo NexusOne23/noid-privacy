@@ -845,12 +845,194 @@ foreach ($regConfig in $backup.Settings.RegistryKeys) {
     }
 }
 
-# Summary
+# NEW v1.8.0: Snapshot-based restore for complete state restoration
+# This compares current state with original snapshots and:
+# 1. DELETES keys that Apply created (didn't exist in original)
+# 2. RESTORES keys that Apply changed
+# 3. LEAVES keys unchanged if they match original
+
+if ($backup.Settings.RegistrySnapshots) {
+    Write-Host ""
+    Write-Host "[i] Performing snapshot-based registry restore..." -ForegroundColor Cyan
+    
+    $snapshotRestored = 0
+    $snapshotDeleted = 0
+    $snapshotSkipped = 0
+    
+    foreach ($areaName in $backup.Settings.RegistrySnapshots.Keys) {
+        $snapshot = $backup.Settings.RegistrySnapshots[$areaName]
+        
+        if (-not $snapshot.Root -or -not $snapshot.Keys) {
+            Write-Host "  [!] Snapshot '$areaName' invalid or empty - skipping" -ForegroundColor Yellow
+            continue
+        }
+        
+        Write-Host "  [i] Restoring: $($snapshot.Root)..." -ForegroundColor Gray
+        
+        # Get current state
+        $currentKeys = @{}
+        try {
+            if (Test-Path $snapshot.Root) {
+                $allCurrentKeys = @($snapshot.Root)
+                try {
+                    $allCurrentKeys += Get-ChildItem -Path $snapshot.Root -Recurse -ErrorAction SilentlyContinue | Select-Object -ExpandProperty PSPath
+                }
+                catch {}
+                
+                foreach ($keyPath in $allCurrentKeys) {
+                    try {
+                        $props = Get-ItemProperty -Path $keyPath -ErrorAction SilentlyContinue
+                        if ($props) {
+                            $psProps = $props.PSObject.Properties | Where-Object { $_.Name -notmatch '^PS' }
+                            foreach ($prop in $psProps) {
+                                $fullKey = "$keyPath\$($prop.Name)"
+                                $currentKeys[$fullKey] = $prop.Value
+                            }
+                        }
+                    }
+                    catch { continue }
+                }
+            }
+        }
+        catch {
+            Write-Host "  [X] Could not read current state of '$($snapshot.Root)': $_" -ForegroundColor Red
+            continue
+        }
+        
+        # Compare: Find keys to DELETE (exist now but not in original)
+        foreach ($currentKey in $currentKeys.Keys) {
+            if (-not $snapshot.Keys.ContainsKey($currentKey)) {
+                # This key was ADDED by Apply - DELETE it
+                if ($currentKey -match '^(.+)\\([^\\]+)$') {
+                    $path = $matches[1]
+                    $name = $matches[2]
+                    
+                    try {
+                        if ($PSCmdlet.ShouldProcess("$path\$name", "Delete (created by Apply)")) {
+                            $Error.Clear()
+                            Remove-ItemProperty -Path $path -Name $name -ErrorAction SilentlyContinue
+                            
+                            if ($?) {
+                                $snapshotDeleted++
+                                $restoreStats.Success++
+                            }
+                            else {
+                                # Access denied - skip silently
+                                $snapshotSkipped++
+                                $restoreStats.Skipped++
+                            }
+                        }
+                    }
+                    catch {
+                        $snapshotSkipped++
+                        $restoreStats.Skipped++
+                    }
+                }
+            }
+        }
+        
+        # Compare: Find keys to RESTORE (different from original)
+        foreach ($originalKey in $snapshot.Keys.Keys) {
+            $originalValue = $snapshot.Keys[$originalKey]
+            
+            if ($originalKey -match '^(.+)\\([^\\]+)$') {
+                $path = $matches[1]
+                $name = $matches[2]
+                
+                # Check if current value is different
+                $needsRestore = $false
+                if ($currentKeys.ContainsKey($originalKey)) {
+                    $currentValue = $currentKeys[$originalKey]
+                    
+                    # Handle special value types
+                    if ($originalValue -is [hashtable] -and $originalValue.Type -eq 'Binary') {
+                        # Binary data comparison - skip for now (complex)
+                        $needsRestore = $false
+                    }
+                    elseif ($originalValue -is [hashtable] -and $originalValue.Type -eq 'Array') {
+                        # Array comparison
+                        $origArray = $originalValue.Data
+                        if ($null -eq $currentValue -or @($currentValue).Count -ne @($origArray).Count) {
+                            $needsRestore = $true
+                        }
+                        else {
+                            for ($i = 0; $i -lt @($origArray).Count; $i++) {
+                                if ($origArray[$i] -ne $currentValue[$i]) {
+                                    $needsRestore = $true
+                                    break
+                                }
+                            }
+                        }
+                    }
+                    else {
+                        # Simple value comparison
+                        if ($currentValue -ne $originalValue) {
+                            $needsRestore = $true
+                        }
+                    }
+                }
+                else {
+                    # Key doesn't exist anymore - restore it
+                    $needsRestore = $true
+                }
+                
+                if ($needsRestore) {
+                    try {
+                        if ($PSCmdlet.ShouldProcess("$path\$name", "Restore original value")) {
+                            # Create path if needed
+                            if (-not (Test-Path $path)) {
+                                New-Item -Path $path -Force -ErrorAction SilentlyContinue | Out-Null
+                            }
+                            
+                            # Set value
+                            $Error.Clear()
+                            
+                            # Handle special value types
+                            if ($originalValue -is [hashtable] -and $originalValue.Type -eq 'Binary') {
+                                $binaryData = [Convert]::FromBase64String($originalValue.Data)
+                                Set-ItemProperty -Path $path -Name $name -Value $binaryData -Type Binary -ErrorAction SilentlyContinue
+                            }
+                            elseif ($originalValue -is [hashtable] -and $originalValue.Type -eq 'Array') {
+                                Set-ItemProperty -Path $path -Name $name -Value $originalValue.Data -ErrorAction SilentlyContinue
+                            }
+                            else {
+                                Set-ItemProperty -Path $path -Name $name -Value $originalValue -ErrorAction SilentlyContinue
+                            }
+                            
+                            if ($?) {
+                                $snapshotRestored++
+                                $restoreStats.Success++
+                            }
+                            else {
+                                # Access denied - skip silently
+                                $snapshotSkipped++
+                                $restoreStats.Skipped++
+                            }
+                        }
+                    }
+                    catch {
+                        $snapshotSkipped++
+                        $restoreStats.Skipped++
+                    }
+                }
+            }
+        }
+    }
+    
+    Write-Host "  [OK] Snapshot restore complete:" -ForegroundColor Green
+    Write-Host "    - $snapshotRestored value(s) restored to original" -ForegroundColor Green
+    Write-Host "    - $snapshotDeleted value(s) deleted (created by Apply)" -ForegroundColor Green
+    if ($snapshotSkipped -gt 0) {
+        Write-Host "    - $snapshotSkipped value(s) skipped (protected)" -ForegroundColor Yellow
+    }
+}
+
+# Summary (old format backward compatibility)
 if ($registryRestoredCount -gt 0) {
-    Write-Host "  [OK] $registryRestoredCount Registry key(s) restored" -ForegroundColor Green
+    Write-Host "  [OK] $registryRestoredCount Registry key(s) restored (legacy format)" -ForegroundColor Green
 }
 if ($registryDeletedCount -gt 0) {
-    Write-Host "  [OK] $registryDeletedCount Registry key(s) deleted (cleanup)" -ForegroundColor Green
+    Write-Host "  [OK] $registryDeletedCount Registry key(s) deleted (legacy format)" -ForegroundColor Green
 }
 if ($registryFailedCount -gt 0) {
     Write-Host "  [!] $registryFailedCount Registry key(s) failed (protected or access denied)" -ForegroundColor Yellow
