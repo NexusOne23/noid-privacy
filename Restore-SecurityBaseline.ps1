@@ -444,18 +444,33 @@ Write-Host ""
 #region Restore Scheduled Tasks
 Write-Host "[4/14] Restore Scheduled Tasks..." -ForegroundColor Yellow
 
-# CRITICAL: Check if Task Scheduler service is available
-# ROOT CAUSE: Schedule service is protected (TrustedInstaller/SYSTEM)
-# REASON: If service is not running, Get-ScheduledTask will HANG indefinitely
-# SOLUTION: Check service status FIRST, skip if not available
-$scheduleService = Get-Service -Name 'Schedule' -ErrorAction SilentlyContinue
-if (-not $scheduleService -or $scheduleService.Status -ne 'Running') {
-    Write-Host "  [!] Task Scheduler service not available - skipping scheduled tasks restore" -ForegroundColor Yellow
-    Write-Host "  [i] Reason: Service 'Schedule' is protected or not running" -ForegroundColor Gray
-    $restoreStats.Skipped++
-}
-else {
-    $tasksCount = if ($backup.Settings.ScheduledTasks) { @($backup.Settings.ScheduledTasks).Count } else { 0 }
+# CRITICAL ROOT CAUSE FIX: SKIP ENTIRE SCHEDULED TASKS RESTORE!
+# REASON: Even with timeout, the script HANGS at .Count access on $backup.Settings.ScheduledTasks
+# PROBLEM: Not Get-ScheduledTask itself, but accessing the ScheduledTasks collection HANGS
+# OBSERVATION: User reported script hangs at "[4/14] Restore Scheduled Tasks..." with timeout in place
+# CONCLUSION: The backup collection itself is corrupted or lazy-loaded and hangs on enumeration
+# SOLUTION: Skip scheduled tasks restore entirely until we fix the backup corruption issue
+# TODO: Fix root cause in Backup-SecurityBaseline.ps1 (how ScheduledTasks are collected/stored)
+
+Write-Host "  [!] Scheduled Tasks restore DISABLED (known hang issue)" -ForegroundColor Yellow
+Write-Host "  [i] Reason: Backup collection access causes indefinite hang" -ForegroundColor Gray
+Write-Host "  [i] Tasks will remain in current state (usually correct after reboot)" -ForegroundColor Gray
+$restoreStats.Skipped++
+
+# DISABLED CODE (causes hang):
+if ($false) {
+    # CRITICAL: Check if Task Scheduler service is available
+    # ROOT CAUSE: Schedule service is protected (TrustedInstaller/SYSTEM)
+    # REASON: If service is not running, Get-ScheduledTask will HANG indefinitely
+    # SOLUTION: Check service status FIRST, skip if not available
+    $scheduleService = Get-Service -Name 'Schedule' -ErrorAction SilentlyContinue
+    if (-not $scheduleService -or $scheduleService.Status -ne 'Running') {
+        Write-Host "  [!] Task Scheduler service not available - skipping scheduled tasks restore" -ForegroundColor Yellow
+        Write-Host "  [i] Reason: Service 'Schedule' is protected or not running" -ForegroundColor Gray
+        $restoreStats.Skipped++
+    }
+    else {
+        $tasksCount = if ($backup.Settings.ScheduledTasks) { @($backup.Settings.ScheduledTasks).Count } else { 0 }
     if ($tasksCount -gt 0) {
         $restoredTasks = 0
         $changedTasks = 0
@@ -508,7 +523,8 @@ else {
         Write-Host "  [!] Keine Scheduled Tasks im Backup" -ForegroundColor Yellow
         $restoreStats.Skipped++
     }
-}
+    } # End of else block (service running)
+} # End of if ($false) - disabled code
 
 Write-Host ""
 #endregion
