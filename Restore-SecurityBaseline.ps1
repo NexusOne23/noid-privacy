@@ -443,14 +443,12 @@ Write-Host ""
 
 #region Restore Scheduled Tasks
 Write-Host "[4/14] Restore Scheduled Tasks..." -ForegroundColor Yellow
-Write-Host "  [DEBUG] Checking Task Scheduler service..." -ForegroundColor Gray
 
 # CRITICAL: Check if Task Scheduler service is available
 # ROOT CAUSE: Schedule service is protected (TrustedInstaller/SYSTEM)
 # REASON: If service is not running, Get-ScheduledTask will HANG indefinitely
 # SOLUTION: Check service status FIRST, skip if not available
 $scheduleService = Get-Service -Name 'Schedule' -ErrorAction SilentlyContinue
-Write-Host "  [DEBUG] Service check completed: Status=$($scheduleService.Status)" -ForegroundColor Gray
 if (-not $scheduleService -or $scheduleService.Status -ne 'Running') {
     Write-Host "  [!] Task Scheduler service not available - skipping scheduled tasks restore" -ForegroundColor Yellow
     Write-Host "  [i] Reason: Service 'Schedule' is protected or not running" -ForegroundColor Gray
@@ -462,11 +460,9 @@ else {
     # PROBLEM: Serialization/Deserialization of large objects blocks indefinitely
     # SOLUTION: Force array enumeration directly - triggers lazy-loading immediately or fails fast
     try {
-        Write-Host "  [DEBUG] Enumerating tasks array (direct, no job)..." -ForegroundColor Gray
         # Force arrayization - this triggers enumeration HERE, not in background job
         $tasksArray = @($backup.Settings.ScheduledTasks)
         $tasksCount = $tasksArray.Count
-        Write-Host "  [DEBUG] Enumeration completed: $tasksCount tasks" -ForegroundColor Gray
     }
     catch {
         Write-Host "  [!] Could not enumerate Scheduled Tasks from backup - skipping" -ForegroundColor Yellow
@@ -476,57 +472,67 @@ else {
         $tasksArray = @()
     }
     
-    Write-Host "  [DEBUG] Checking if tasksCount > 0: $tasksCount" -ForegroundColor Gray
     if ($tasksCount -gt 0) {
-        Write-Host "  [DEBUG] Entering restore loop for $tasksCount tasks..." -ForegroundColor Gray
+        Write-Host "  [i] $tasksCount Scheduled Tasks in backup" -ForegroundColor Cyan
         $restoredTasks = 0
         $changedTasks = 0
         
-        Write-Host "  [DEBUG] Starting foreach loop..." -ForegroundColor Gray
         foreach ($taskConfig in $tasksArray) {
-            Write-Host "  [DEBUG] Processing task: $($taskConfig.TaskName)" -ForegroundColor Gray
+            $currentTask = $null
+            
+            # PERFORMANCE FIX: Fast path - try direct Get-ScheduledTask first (90% of cases)
+            # Job overhead is 400-800ms per task - only use as fallback for problem cases
             try {
-                # Use timeout for Get-ScheduledTask (5 seconds max)
-                $job = Start-Job -ScriptBlock {
-                    param($path, $name)
-                    Get-ScheduledTask -TaskPath $path -TaskName $name -ErrorAction SilentlyContinue
-                } -ArgumentList $taskConfig.TaskPath, $taskConfig.TaskName
-                
-                $currentTask = $job | Wait-Job -Timeout 5 | Receive-Job
-                Remove-Job $job -Force -ErrorAction SilentlyContinue
-                
-                if ($currentTask) {
-                    if ($currentTask.State.ToString() -ne $taskConfig.State) {
-                        if ($PSCmdlet.ShouldProcess("$($taskConfig.TaskPath)$($taskConfig.TaskName)", "Set State: $($taskConfig.State)")) {
-                            # Use timeout for Enable/Disable too (5 seconds max)
-                            $changeJob = Start-Job -ScriptBlock {
-                                param($path, $name, $state)
-                                if ($state -eq 'Disabled') {
-                                    Disable-ScheduledTask -TaskPath $path -TaskName $name -ErrorAction Stop | Out-Null
-                                }
-                                elseif ($state -eq 'Ready') {
-                                    Enable-ScheduledTask -TaskPath $path -TaskName $name -ErrorAction Stop | Out-Null
-                                }
-                            } -ArgumentList $taskConfig.TaskPath, $taskConfig.TaskName, $taskConfig.State
-                            
-                            $null = $changeJob | Wait-Job -Timeout 5
-                            Remove-Job $changeJob -Force -ErrorAction SilentlyContinue
-                            
-                            $changedTasks++
-                            $restoreStats.Success++
-                        }
-                    }
-                    $restoredTasks++
-                }
+                # Fast path: direct call, usually <100ms
+                $currentTask = Get-ScheduledTask -TaskPath $taskConfig.TaskPath -TaskName $taskConfig.TaskName -ErrorAction Stop
             }
             catch {
-                # Not critical - timeout or task not accessible
-                Write-Verbose "Task restore timeout or error: $($taskConfig.TaskPath)$($taskConfig.TaskName)"
+                # Slow fallback: only for problem tasks (deleted, User-tasks, OEM stuff)
+                # Timeout reduced to 2s instead of 5s for faster failures
+                try {
+                    $job = Start-Job -ScriptBlock {
+                        param($path, $name)
+                        Get-ScheduledTask -TaskPath $path -TaskName $name -ErrorAction SilentlyContinue
+                    } -ArgumentList $taskConfig.TaskPath, $taskConfig.TaskName
+                    
+                    $job | Wait-Job -Timeout 2 | Out-Null
+                    if ($job.State -eq 'Completed') {
+                        $currentTask = Receive-Job $job
+                    }
+                    Remove-Job $job -Force -ErrorAction SilentlyContinue
+                }
+                catch {
+                    Write-Verbose "Task not accessible: $($taskConfig.TaskPath)$($taskConfig.TaskName)"
+                }
             }
+            
+            if (-not $currentTask) {
+                $restoreStats.Skipped++
+                continue
+            }
+            
+            # Restore state if different (direct call, no job needed)
+            if ($currentTask.State.ToString() -ne $taskConfig.State) {
+                if ($PSCmdlet.ShouldProcess("$($taskConfig.TaskPath)$($taskConfig.TaskName)", "Set State: $($taskConfig.State)")) {
+                    try {
+                        if ($taskConfig.State -eq 'Disabled') {
+                            Disable-ScheduledTask -TaskPath $taskConfig.TaskPath -TaskName $taskConfig.TaskName -ErrorAction Stop | Out-Null
+                        } 
+                        elseif ($taskConfig.State -eq 'Ready') {
+                            Enable-ScheduledTask -TaskPath $taskConfig.TaskPath -TaskName $taskConfig.TaskName -ErrorAction Stop | Out-Null
+                        }
+                        $changedTasks++
+                        $restoreStats.Success++
+                    }
+                    catch {
+                        Write-Verbose "Failed to change task state: $($taskConfig.TaskPath)$($taskConfig.TaskName)"
+                    }
+                }
+            }
+            $restoredTasks++
         }
     
-        Write-Host "  [OK] $restoredTasks Scheduled Tasks geprueft" -ForegroundColor Green
-        Write-Host "      $changedTasks Tasks State wiederhergestellt" -ForegroundColor Gray
+        Write-Host "  [OK] $restoredTasks Scheduled Tasks checked, $changedTasks changed" -ForegroundColor Green
     }
     else {
         Write-Host "  [!] Keine Scheduled Tasks im Backup" -ForegroundColor Yellow
