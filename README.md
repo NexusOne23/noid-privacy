@@ -527,11 +527,18 @@ The authors are not responsible for any damage or data loss caused by this scrip
 **Status:** Production-Ready ✅
 
 ### Recent Updates (v1.7.13)
-- ✅ **Access Denied Errors Fixed** - Device-Level Backup removed (TrustedInstaller-protected, always re-applied)
-- ✅ **Bloatware TerminatingError Fixed** - Removed problematic Solitaire patterns (corrupted path)
+- ✅ **DoH Verification Fixed** - Boolean conversion (Out-String) and correct command (show global)
+- ✅ **DNS Restore Fixed** - PowerShell 5.1 compatibility (removed -AddressFamily parameter)
+- ✅ **DNS Restore Fixed** - Array coercion for .Count property (PropertyNotFoundException)
+- ✅ **Backup Fixed** - EnableAutoDoh PSObject.Properties pattern (robust property check)
+- ✅ **DNS Restore Simplified** - Combines IPv4+IPv6 in single call, removed safety sweep
+
+### Previous Updates (v1.7.12)
+- ✅ **Access Denied Errors Fixed** - Device-Level Backup removed (TrustedInstaller-protected)
+- ✅ **Bloatware TerminatingError Fixed** - Removed problematic Solitaire patterns
 - ✅ **Step Counters Updated** - Changed from [X/14] to [X/13] (13 user-visible backup steps)
-- ✅ **Registry Key Count** - Documented 398 keys (was 400, removed 2 TrustedInstaller keys)
-- ✅ **Error Handling Improved** - Using $Error.RemoveAt(0) instead of $Error.Clear()
+- ✅ **Registry Parity** - 125 missing keys added (100% parity achieved)
+- ✅ **App List Localization** - Desktop export now fully localized (DE/EN)
 
 ### Previous Updates (v1.7.11)
 - ✅ **IPv6 DoH Encryption** - Full IPv6 DNS-over-HTTPS support (Doh6 registry branch)
