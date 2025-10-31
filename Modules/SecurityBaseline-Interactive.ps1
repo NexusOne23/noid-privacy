@@ -700,26 +700,9 @@ function Invoke-CustomMode {
             Write-Verbose $verboseMsg
         }
         
-        # INPUT BUFFER FLUSH - only flush actually buffered keys
-        # ROOT CAUSE: After Custom module selection, keyboard buffer may contain stray input
-        # SOLUTION: Flush only while KeyAvailable (don't consume user input!)
-        try {
-            Start-Sleep -Milliseconds 50
-            
-            # Flush only buffered keys (KeyAvailable check protects user input)
-            $flushed = 0
-            while ($Host.UI.RawUI.KeyAvailable -and $flushed -lt 20) {
-                $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
-                $flushed++
-            }
-            
-            if ($flushed -gt 0) {
-                Write-Verbose "Flushed $flushed keyboard events"
-            }
-        }
-        catch {
-            Write-Verbose "Could not flush keyboard buffer: $_"
-        }
+        # NO FLUSH AFTER CUSTOM!
+        # User already pressed key to continue - flushing would consume that key or KeyUp event
+        # causing them to press twice before menu responds
         
         return $null
     }
@@ -869,24 +852,9 @@ function Invoke-VerifyMode {
             Write-Verbose $verboseMsg
         }
         
-        # INPUT BUFFER FLUSH - only flush actually buffered keys
-        # ROOT CAUSE: After Verify script, keyboard buffer may contain stray input
-        # SOLUTION: Flush only while KeyAvailable (don't consume user input!)
-        try {
-            Start-Sleep -Milliseconds 50
-            
-            # Flush only buffered keys (KeyAvailable check protects user input)
-            $flushed = 0
-            while ($Host.UI.RawUI.KeyAvailable -and $flushed -lt 20) {
-                $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
-                $flushed++
-            }
-            
-            # Flush completed silently
-        }
-        catch {
-            # Flush errors are non-critical
-        }
+        # NO FLUSH AFTER VERIFY!
+        # User already pressed key to continue - flushing would consume that key or KeyUp event
+        # causing them to press twice before menu responds
     }
     return $null
 }
