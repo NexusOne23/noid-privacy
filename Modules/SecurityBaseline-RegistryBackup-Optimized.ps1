@@ -92,19 +92,28 @@ function Backup-SpecificRegistryKeys {
                 if (-not $allProps) {
                     # Could be: Access Denied, key deleted, or other issue
                     # Check last error to determine if it's Access Denied
-                    $lastError = $Error[0]
-                    if ($lastError.Exception -is [System.UnauthorizedAccessException] -or
-                        $lastError.Exception -is [System.Security.SecurityException] -or
-                        $lastError.Exception.Message -match 'unzulässig|denied|access') {
-                        # Protected key - skip silently
-                        Write-Verbose "[Backup SKIP] Protected key (Access Denied): $($change.Path)"
+                    # CRITICAL: Check if $Error array has entries before accessing $Error[0]
+                    if ($Error.Count -gt 0) {
+                        $lastError = $Error[0]
+                        if ($lastError.Exception -is [System.UnauthorizedAccessException] -or
+                            $lastError.Exception -is [System.Security.SecurityException] -or
+                            $lastError.Exception.Message -match 'unzulässig|denied|access') {
+                            # Protected key - skip silently
+                            Write-Verbose "[Backup SKIP] Protected key (Access Denied): $($change.Path)"
+                            $skippedProtected++
+                            continue
+                        }
+                        # Real error (key deleted, etc.) - log it
+                        Write-Verbose "[Backup ERROR] Cannot read key $($change.Path): $($lastError.Exception.Message)"
+                        $errorCount++
+                        continue
+                    }
+                    else {
+                        # No error details - skip
+                        Write-Verbose "[Backup SKIP] Cannot read key $($change.Path) (no error details)"
                         $skippedProtected++
                         continue
                     }
-                    # Real error (key deleted, etc.) - log it
-                    Write-Verbose "[Backup ERROR] Cannot read key $($change.Path): $($lastError.Exception.Message)"
-                    $errorCount++
-                    continue
                 }
                 
                 if ($allProps) {
@@ -259,8 +268,14 @@ function Restore-SpecificRegistryKeys {
                             New-Item -Path $entry.Path -Force -ErrorAction SilentlyContinue | Out-Null
                             if (-not $?) {
                                 # New-Item failed (likely Access Denied on protected parent key)
-                                $lastError = $Error[0]
-                                throw $lastError
+                                # CRITICAL: Check if $Error array has entries before accessing $Error[0]
+                                if ($Error.Count -gt 0) {
+                                    $lastError = $Error[0]
+                                    throw $lastError
+                                }
+                                else {
+                                    throw "New-Item failed for path: $($entry.Path) (no error details)"
+                                }
                             }
                         }
                         
@@ -286,16 +301,23 @@ function Restore-SpecificRegistryKeys {
                         }
                         else {
                             # Check if Access Denied (protected key)
-                            $lastError = $Error[0]
-                            if ($lastError.Exception -is [System.UnauthorizedAccessException] -or
-                                $lastError.Exception -is [System.Security.SecurityException] -or
-                                $lastError.Exception.Message -match 'unzulässig|denied|access') {
-                                # Protected key - will be caught by outer catch
-                                throw $lastError
+                            # CRITICAL: Check if $Error array has entries before accessing $Error[0]
+                            if ($Error.Count -gt 0) {
+                                $lastError = $Error[0]
+                                if ($lastError.Exception -is [System.UnauthorizedAccessException] -or
+                                    $lastError.Exception -is [System.Security.SecurityException] -or
+                                    $lastError.Exception.Message -match 'unzulässig|denied|access') {
+                                    # Protected key - will be caught by outer catch
+                                    throw $lastError
+                                }
+                                else {
+                                    # Real error
+                                    throw $lastError
+                                }
                             }
                             else {
-                                # Real error
-                                throw $lastError
+                                # No error details - throw generic error
+                                throw "Set/New-ItemProperty failed for $($entry.Path)\$($entry.Name) (no error details)"
                             }
                         }
                     }
@@ -337,17 +359,24 @@ function Restore-SpecificRegistryKeys {
                             }
                             else {
                                 # Check if Access Denied (protected key)
-                                $lastError = $Error[0]
-                                if ($lastError.Exception -is [System.UnauthorizedAccessException] -or
-                                    $lastError.Exception -is [System.Security.SecurityException] -or
-                                    $lastError.Exception.Message -match 'unzulässig|denied|access') {
-                                    # Protected key - skip silently (will be caught by outer catch too)
-                                    $stats.Unchanged++
-                                    Write-Verbose "[Delete SKIP] $($entry.Path)\$($entry.Name) (protected - fallback)"
+                                # CRITICAL: Check if $Error array has entries before accessing $Error[0]
+                                if ($Error.Count -gt 0) {
+                                    $lastError = $Error[0]
+                                    if ($lastError.Exception -is [System.UnauthorizedAccessException] -or
+                                        $lastError.Exception -is [System.Security.SecurityException] -or
+                                        $lastError.Exception.Message -match 'unzulässig|denied|access') {
+                                        # Protected key - skip silently (will be caught by outer catch too)
+                                        $stats.Unchanged++
+                                        Write-Verbose "[Delete SKIP] $($entry.Path)\$($entry.Name) (protected - fallback)"
+                                    }
+                                    else {
+                                        # Real error - will be caught by outer catch
+                                        throw $lastError
+                                    }
                                 }
                                 else {
-                                    # Real error - will be caught by outer catch
-                                    throw $lastError
+                                    # No error details - throw generic error
+                                    throw "Remove-ItemProperty failed for $($entry.Path)\$($entry.Name) (no error details)"
                                 }
                             }
                         }

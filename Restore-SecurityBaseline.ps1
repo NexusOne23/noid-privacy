@@ -769,16 +769,24 @@ else {
                     }
                     else {
                         # Check if it was Access Denied (protected task) or real error
-                        $lastError = $Error[0]
-                        if ($lastError.Exception -is [System.UnauthorizedAccessException] -or 
-                            $lastError.Exception.Message -match 'Zugriff verweigert|Access.*denied') {
-                            # Protected task (SYSTEM/TrustedInstaller) - skip silently
-                            Write-Verbose "  [SKIP] Task '$($taskConfig.TaskPath)$($taskConfig.TaskName)' is protected (access denied)"
-                            $restoreStats.Skipped++
+                        # CRITICAL: Check if $Error array has entries before accessing $Error[0]
+                        if ($Error.Count -gt 0) {
+                            $lastError = $Error[0]
+                            if ($lastError.Exception -is [System.UnauthorizedAccessException] -or 
+                                $lastError.Exception.Message -match 'Zugriff verweigert|Access.*denied') {
+                                # Protected task (SYSTEM/TrustedInstaller) - skip silently
+                                Write-Verbose "  [SKIP] Task '$($taskConfig.TaskPath)$($taskConfig.TaskName)' is protected (access denied)"
+                                $restoreStats.Skipped++
+                            }
+                            else {
+                                # Real error - log it
+                                Write-Verbose "Failed to change task state: $($taskConfig.TaskPath)$($taskConfig.TaskName) - $($lastError.Exception.Message)"
+                                $restoreStats.Failed++
+                            }
                         }
                         else {
-                            # Real error - log it
-                            Write-Verbose "Failed to change task state: $($taskConfig.TaskPath)$($taskConfig.TaskName) - $($lastError.Exception.Message)"
+                            # No error in $Error array - treat as failure
+                            Write-Verbose "Failed to change task state: $($taskConfig.TaskPath)$($taskConfig.TaskName) - Unknown error (no details in `$Error array)"
                             $restoreStats.Failed++
                         }
                     }
