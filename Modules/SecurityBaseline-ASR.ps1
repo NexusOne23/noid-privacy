@@ -119,9 +119,9 @@ function Set-AttackSurfaceReductionRules {
         }
         "d1e49aac-8f56-4280-b9ba-993a6d77406c" = @{
             Name = "Block process creations from PSExec and WMI"
-            Mode = 2
+            Mode = $asrMode
             Critical = $true
-            Description = "Detect privilege escalation via PSExec/WMI (always audit)"
+            Description = "Block/Audit privilege escalation via PSExec/WMI"
         }
         "d3e037e1-3eb8-44c8-a917-57927947596d" = @{
             Name = "Block JavaScript or VBScript from launching downloaded executable content"
