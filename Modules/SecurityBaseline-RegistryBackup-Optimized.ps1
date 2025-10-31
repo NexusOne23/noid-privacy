@@ -95,9 +95,13 @@ function Backup-SpecificRegistryKeys {
                     # CRITICAL: Check if $Error array has entries before accessing $Error[0]
                     if ($Error.Count -gt 0) {
                         $lastError = $Error[0]
+                        $msg = $lastError.Exception.Message
                         if ($lastError.Exception -is [System.UnauthorizedAccessException] -or
                             $lastError.Exception -is [System.Security.SecurityException] -or
-                            $lastError.Exception.Message -match 'unzulässig|denied|access') {
+                            $msg -like "*Der angeforderte Registrierungszugriff ist unzul*ssig*" -or
+                            $msg -like "*requested registry access is not allowed*" -or
+                            $msg -like "*Zugriff verweigert*" -or
+                            $msg -like "*Access is denied*") {
                             # Protected key - skip silently
                             Write-Verbose "[Backup SKIP] Protected key (Access Denied): $($change.Path)"
                             $skippedProtected++
@@ -304,9 +308,13 @@ function Restore-SpecificRegistryKeys {
                             # CRITICAL: Check if $Error array has entries before accessing $Error[0]
                             if ($Error.Count -gt 0) {
                                 $lastError = $Error[0]
+                                $msg = $lastError.Exception.Message
                                 if ($lastError.Exception -is [System.UnauthorizedAccessException] -or
                                     $lastError.Exception -is [System.Security.SecurityException] -or
-                                    $lastError.Exception.Message -match 'unzulässig|denied|access') {
+                                    $msg -like "*Der angeforderte Registrierungszugriff ist unzul*ssig*" -or
+                                    $msg -like "*requested registry access is not allowed*" -or
+                                    $msg -like "*Zugriff verweigert*" -or
+                                    $msg -like "*Access is denied*") {
                                     # Protected key - will be caught by outer catch
                                     throw $lastError
                                 }
@@ -362,9 +370,13 @@ function Restore-SpecificRegistryKeys {
                                 # CRITICAL: Check if $Error array has entries before accessing $Error[0]
                                 if ($Error.Count -gt 0) {
                                     $lastError = $Error[0]
+                                    $msg = $lastError.Exception.Message
                                     if ($lastError.Exception -is [System.UnauthorizedAccessException] -or
                                         $lastError.Exception -is [System.Security.SecurityException] -or
-                                        $lastError.Exception.Message -match 'unzulässig|denied|access') {
+                                        $msg -like "*Der angeforderte Registrierungszugriff ist unzul*ssig*" -or
+                                        $msg -like "*requested registry access is not allowed*" -or
+                                        $msg -like "*Zugriff verweigert*" -or
+                                        $msg -like "*Access is denied*") {
                                         # Protected key - skip silently (will be caught by outer catch too)
                                         $stats.Unchanged++
                                         Write-Verbose "[Delete SKIP] $($entry.Path)\$($entry.Name) (protected - fallback)"
@@ -398,14 +410,20 @@ function Restore-SpecificRegistryKeys {
                 $stats.Unchanged++
                 Write-Verbose "[Restore SKIP] Protected key (SecurityException): $($entry.Path)\$($entry.Name)"
             }
-            elseif ($_.Exception.Message -match 'unzulässig|denied|access') {
-                # Fallback: Check if message contains access denied pattern (language-independent)
-                $stats.Unchanged++
-                Write-Verbose "[Restore SKIP] Protected key (Access pattern in message): $($entry.Path)\$($entry.Name)"
-            }
             else {
-                # Real error - count as failed
-                $stats.Failed++
+                # Fallback: Check if message contains access denied pattern
+                $msg = $_.Exception.Message
+                if ($msg -like "*Der angeforderte Registrierungszugriff ist unzul*ssig*" -or
+                    $msg -like "*requested registry access is not allowed*" -or
+                    $msg -like "*Zugriff verweigert*" -or
+                    $msg -like "*Access is denied*") {
+                    # Protected key (fallback match on message text)
+                    $stats.Unchanged++
+                    Write-Verbose "[Restore SKIP] Protected key (Access pattern in message): $($entry.Path)\$($entry.Name)"
+                }
+                else {
+                    # Real error - count as failed
+                    $stats.Failed++
                 # Log the SPECIFIC key that failed (visible in normal output, not just verbose)
                 $failedKey = "$($entry.Path)\$($entry.Name)"
                 Write-Verbose "[Restore ERROR] $failedKey : $($_.Exception.GetType().Name) - $_"
@@ -417,6 +435,7 @@ function Restore-SpecificRegistryKeys {
                     Path = $entry.Path
                     Name = $entry.Name
                     Error = $_.Exception.Message
+                }
                 }
             }
         }
