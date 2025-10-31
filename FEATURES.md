@@ -756,14 +756,13 @@ Solitaire, Candy Crush, Bubble Witch
 
 **6 Backup Components:**
 
-**1. Registry Snapshots (1,200+ keys)**
-- All security policy keys (500+)
-- All privacy setting keys (700+)
-- Network configuration keys
-- All HKLM:\SOFTWARE\Policies paths
-- All HKLM:\SYSTEM\CurrentControlSet paths
-- Telemetry-related keys
-- Application permission keys
+**1. Registry Snapshots (374 keys)**
+- Security policy keys (Defender, ASR, BitLocker, Firewall, VBS, etc.)
+- Privacy setting keys (Telemetry, App Permissions, AI, Tracking)
+- Network configuration keys (DNS, TLS/SSL, Legacy Protocols)
+- All modified HKLM:\SOFTWARE\Policies paths
+- All modified HKLM:\SYSTEM\CurrentControlSet paths
+- Per-module breakdown: Core (127), Telemetry (110), Advanced (33), Edge (25), AI (15), etc.
 
 **2. Service States (25+ services)**
 - Service name
@@ -772,7 +771,7 @@ Solitaire, Candy Crush, Bubble Witch
 - Dependencies
 - Service description
 
-**3. Scheduled Tasks (60+ tasks)**
+**3. Scheduled Tasks (30 tasks)**
 - Task name
 - Task path (\Microsoft\Windows\*)
 - Enabled/Disabled state
