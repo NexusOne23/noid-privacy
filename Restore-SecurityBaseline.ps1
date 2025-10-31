@@ -457,7 +457,25 @@ foreach ($adapter in $currentAdapters) {
     }
 }
 
-# Summary (old safety sweep removed - new code already handles all adapters)
+# CRITICAL: Final Safety Sweep - ensure ALL active adapters have IPv6 DNS cleared
+# This catches any edge cases (VPN adapters that came up during restore, etc.)
+Write-Verbose "Final IPv6 DNS safety sweep..."
+try {
+    Get-NetAdapter | Where-Object { $_.Status -eq 'Up' } | ForEach-Object {
+        try {
+            Set-DnsClientServerAddress -InterfaceIndex $_.IfIndex -AddressFamily IPv6 -ResetServerAddresses -ErrorAction SilentlyContinue
+        }
+        catch {
+            # Ignore errors (VPN/VM adapters might not support it)
+        }
+    }
+    Write-Verbose "IPv6 DNS safety sweep completed"
+}
+catch {
+    Write-Verbose "IPv6 DNS safety sweep failed: $_"
+}
+
+# Summary
 if ($dnsRestoredCount -gt 0) {
     Write-Host "  [OK] $dnsRestoredCount DNS adapter(s) restored" -ForegroundColor Green
 }
