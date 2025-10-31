@@ -62,9 +62,8 @@ catch {
     Write-Verbose "Console-Encoding konnte nicht gesetzt werden: $_"
 }
 
-if (-not (Test-Path $ReportPath)) {
-    $null = New-Item -Path $ReportPath -ItemType Directory -Force
-}
+# NOTE: ReportPath folder is only created if -ExportReport is used
+# Transcript logs go to $LogPath, not $ReportPath
 
 # Script-scope variables for transcript
 $script:transcriptPath = ""
@@ -1122,6 +1121,11 @@ if ($failed -eq 0 -and $errors -eq 0) {
 Write-Host ""
 
 if ($ExportReport) {
+    # Create Verification folder only when actually exporting
+    if (-not (Test-Path $ReportPath)) {
+        $null = New-Item -Path $ReportPath -ItemType Directory -Force
+    }
+    
     $timestamp = Get-Date -Format 'yyyyMMdd-HHmmss'
     $csvPath = Join-Path $ReportPath "Verification-$timestamp.csv"
     $script:results | Export-Csv -Path $csvPath -NoTypeInformation

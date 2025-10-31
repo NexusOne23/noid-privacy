@@ -366,7 +366,13 @@ if ($backup.Settings.HostsFile) {
     
     if ($PSCmdlet.ShouldProcess($hostsPath, "Restore Hosts file")) {
         try {
-            $currentHostsBackup = Join-Path $LogPath "hosts.backup-before-restore-$timestamp"
+            # CRITICAL FIX: hosts backup belongs in Backups folder, not Logs!
+            # REASON: Backups = data backups, Logs = script logs (transcript)
+            $backupPath = "$env:ProgramData\SecurityBaseline\Backups"
+            if (-not (Test-Path $backupPath)) {
+                $null = New-Item -Path $backupPath -ItemType Directory -Force
+            }
+            $currentHostsBackup = Join-Path $backupPath "hosts.backup-before-restore-$timestamp"
             Copy-Item -Path $hostsPath -Destination $currentHostsBackup -Force -ErrorAction SilentlyContinue
             
             $backup.Settings.HostsFile | Out-File -FilePath $hostsPath -Encoding ASCII -Force
