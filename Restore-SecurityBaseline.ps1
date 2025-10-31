@@ -474,6 +474,28 @@ else {
     
     if ($tasksCount -gt 0) {
         Write-Host "  [i] $tasksCount Scheduled Tasks in backup" -ForegroundColor Cyan
+        
+        # PERFORMANCE FIX v2: Bulk load ALL tasks ONCE then lookup in hashtable
+        # ROOT CAUSE: Calling Get-ScheduledTask 200x is slow (0.5-1s per call = 100-200s total)
+        # SOLUTION: Load all tasks once (2-3s), store in hashtable, then O(1) lookup per task
+        Write-Host "  [i] Loading all scheduled tasks (one-time operation)..." -ForegroundColor Gray
+        try {
+            $allTasks = Get-ScheduledTask -ErrorAction Stop
+            $taskMap = @{}
+            foreach ($t in $allTasks) {
+                # Key: TaskPath + TaskName (lowercase for case-insensitive matching)
+                $key = ($t.TaskPath + $t.TaskName).ToLower()
+                $taskMap[$key] = $t
+            }
+            Write-Host "  [OK] Loaded $($allTasks.Count) tasks into cache" -ForegroundColor Green
+        }
+        catch {
+            Write-Host "  [!] Could not load scheduled tasks - skipping restore" -ForegroundColor Yellow
+            Write-Host "  [i] Error: $_" -ForegroundColor Gray
+            $restoreStats.Skipped++
+            $taskMap = @{}
+        }
+        
         $restoredTasks = 0
         $changedTasks = 0
         $taskIndex = 0
@@ -487,15 +509,14 @@ else {
                 Write-Host "  [>] Processing task $taskIndex/$tasksCount..." -ForegroundColor Cyan
             }
             
-            # PERFORMANCE FIX: Fast path - try direct Get-ScheduledTask first (90% of cases)
-            # Job overhead is 400-800ms per task - only use as fallback for problem cases
-            try {
-                # Fast path: direct call, usually <100ms
-                $currentTask = Get-ScheduledTask -TaskPath $taskConfig.TaskPath -TaskName $taskConfig.TaskName -ErrorAction Stop
+            # Fast lookup in hashtable (O(1) instead of API call)
+            $key = ($taskConfig.TaskPath + $taskConfig.TaskName).ToLower()
+            if ($taskMap.ContainsKey($key)) {
+                $currentTask = $taskMap[$key]
             }
-            catch {
-                # Slow fallback: only for problem tasks (deleted, User-tasks, OEM stuff)
-                # Timeout reduced to 2s instead of 5s for faster failures
+            else {
+                # Only use slow Job fallback for truly missing/problematic tasks
+                # This should be rare (deleted tasks, User-tasks that disappeared, etc.)
                 try {
                     $job = Start-Job -ScriptBlock {
                         param($path, $name)
