@@ -84,12 +84,13 @@
 | Pre-Boot Authentication | Stolen laptop = useless brick |
 
 ### Credential Protection
-✅ **7 Credential Theft Protections**
+✅ **8 Credential Theft Protections**
 
 | Technology | Blocks |
 |------------|--------|
 | LSA Protection (PPL) | Mimikatz credential dumping |
 | Credential Guard (VBS) | Pass-the-hash attacks |
+| WDigest Disabled | Plaintext passwords in RAM |
 | Restricted Admin RDP | RDP credential theft |
 | NTLM Restrictions | Forced Kerberos usage |
 | Cached Credentials Limit (2) | Offline password attacks |

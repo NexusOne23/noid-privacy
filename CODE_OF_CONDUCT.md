@@ -97,5 +97,5 @@ If you have questions or concerns about this Code of Conduct, please contact the
 ---
 
 **Version**: 1.0  
-**Last Updated**: October 27, 2025  
+**Last Updated**: October 31, 2025  
 **Effective Date**: October 27, 2025
