@@ -457,42 +457,23 @@ if (-not $scheduleService -or $scheduleService.Status -ne 'Running') {
     $restoreStats.Skipped++
 }
 else {
-    # CRITICAL ROOT CAUSE FIX: Even accessing .Count can hang!
-    # SOLUTION: Wrap COUNT access in try-catch with timeout
-    # If backup.Settings.ScheduledTasks is corrupted/lazy-loaded, this will hang
+    # CRITICAL FIX v2: Direct array enumeration instead of Job
+    # ROOT CAUSE: Job-based counting works but Receive-Job hangs on PowerShell 5.1.26100.7019 (Insider)
+    # PROBLEM: Serialization/Deserialization of large objects blocks indefinitely
+    # SOLUTION: Force array enumeration directly - triggers lazy-loading immediately or fails fast
     try {
-        Write-Host "  [DEBUG] Starting Count enumeration job (5 sec timeout)..." -ForegroundColor Gray
-        # Use Start-Job for timeout on COUNT access
-        $countJob = Start-Job -ScriptBlock {
-            param($tasks)
-            if ($tasks) { @($tasks).Count } else { 0 }
-        } -ArgumentList $backup.Settings.ScheduledTasks
-        
-        Write-Host "  [DEBUG] Waiting for Count job to complete..." -ForegroundColor Gray
-        $countJob | Wait-Job -Timeout 5 | Out-Null
-        Write-Host "  [DEBUG] Wait-Job completed, checking state: $($countJob.State)" -ForegroundColor Gray
-        
-        if ($countJob.State -eq 'Completed') {
-            Write-Host "  [DEBUG] Receiving job result..." -ForegroundColor Gray
-            $tasksCount = Receive-Job $countJob
-            Write-Host "  [DEBUG] Receive-Job completed, Count=$tasksCount" -ForegroundColor Gray
-            Remove-Job $countJob -Force -ErrorAction SilentlyContinue
-            Write-Host "  [DEBUG] Job removed" -ForegroundColor Gray
-        }
-        else {
-            Stop-Job $countJob -ErrorAction SilentlyContinue
-            Remove-Job $countJob -Force -ErrorAction SilentlyContinue
-            Write-Host "  [!] Scheduled Tasks enumeration TIMEOUT (5 sec) - skipping restore" -ForegroundColor Yellow
-            Write-Host "  [i] Reason: Backup collection access hangs (corrupted backup or lazy-loading)" -ForegroundColor Gray
-            $restoreStats.Skipped++
-            $tasksCount = 0
-        }
+        Write-Host "  [DEBUG] Enumerating tasks array (direct, no job)..." -ForegroundColor Gray
+        # Force arrayization - this triggers enumeration HERE, not in background job
+        $tasksArray = @($backup.Settings.ScheduledTasks)
+        $tasksCount = $tasksArray.Count
+        Write-Host "  [DEBUG] Enumeration completed: $tasksCount tasks" -ForegroundColor Gray
     }
     catch {
-        Write-Host "  [!] Scheduled Tasks enumeration ERROR - skipping restore" -ForegroundColor Yellow
+        Write-Host "  [!] Could not enumerate Scheduled Tasks from backup - skipping" -ForegroundColor Yellow
         Write-Host "  [i] Error: $_" -ForegroundColor Gray
         $restoreStats.Skipped++
         $tasksCount = 0
+        $tasksArray = @()
     }
     
     Write-Host "  [DEBUG] Checking if tasksCount > 0: $tasksCount" -ForegroundColor Gray
@@ -502,7 +483,7 @@ else {
         $changedTasks = 0
         
         Write-Host "  [DEBUG] Starting foreach loop..." -ForegroundColor Gray
-        foreach ($taskConfig in $backup.Settings.ScheduledTasks) {
+        foreach ($taskConfig in $tasksArray) {
             Write-Host "  [DEBUG] Processing task: $($taskConfig.TaskName)" -ForegroundColor Gray
             try {
                 # Use timeout for Get-ScheduledTask (5 seconds max)
