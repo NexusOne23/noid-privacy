@@ -11,8 +11,8 @@
 - [Security Features](#-security-features) - 550+ Settings
 - [Privacy Features](#-privacy-features) - 700+ Settings  
 - [Network Security](#-network-security) - DNS, Firewall, SMB
-- [AI & Tracking Lockdown](#-ai--tracking-lockdown) - 8 AI Features Disabled
-- [Telemetry Control](#-telemetry-control) - 25 Services, 180 Keys, 60 Tasks
+- [AI & Tracking Lockdown](#-ai--tracking-lockdown) - 9 AI Features Disabled
+- [Telemetry Control](#-telemetry-control) - 25 Services, 375 Keys, 30 Tasks
 - [Application Control](#-application-control) - 50+ Apps Removed
 - [Windows Update](#-windows-update) - Secure Auto-Update Configuration
 - [System Hardening](#-system-hardening) - 15+ Additional Protections
@@ -626,7 +626,7 @@ Solitaire, Candy Crush, Bubble Witch
 ## ⚡ Performance Optimization
 
 ### Background Task Control
-✅ **50+ Tasks Disabled**
+✅ **30 Tasks Disabled**
 
 **Module:** `SecurityBaseline-Performance.ps1` → `Optimize-ScheduledTasks`
 
@@ -999,7 +999,7 @@ Solitaire, Candy Crush, Bubble Witch
 → Defender (11 layers) + ASR (19 rules) + BitLocker + Exploit Protection (13 mitigations) + System Hardening (15 protections)
 
 **Want Maximum Privacy?**
-→ Telemetry OFF (25 services + 60 tasks + 180 keys) + App Permissions (37 categories) + AI Lockdown (8 features) + 79,776 domains blocked
+→ Telemetry OFF (25 services + 30 tasks + 375 keys) + App Permissions (37 categories) + AI Lockdown (9 features) + 79,776 domains blocked
 
 **Want Ransomware Protection?**
 → ASR Rules + Controlled Folder Access + AutoPlay OFF + Network Protection
@@ -1011,7 +1011,7 @@ Solitaire, Candy Crush, Bubble Witch
 → Remote Access OFF + Admin Shares OFF + Print Spooler hardened + IE11 disabled + AutoPlay OFF
 
 **Want Performance?**
-→ 50+ tasks disabled + Event log optimization + Visual effects optimized + Bloatware removed
+→ 30 tasks disabled + Event log optimization + Visual effects optimized + Bloatware removed
 
 **Want Control?**
 → Custom Mode = Pick specific modules
