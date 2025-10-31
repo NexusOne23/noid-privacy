@@ -94,8 +94,21 @@ function Backup-SpecificRegistryKeys {
                     $skippedProtected++
                     continue
                 }
+                catch [System.Security.SecurityException] {
+                    # Also a protected key (SecurityException instead of UnauthorizedAccessException)
+                    Write-Verbose "[Backup SKIP] Protected key (Security Exception): $($change.Path)"
+                    $skippedProtected++
+                    continue
+                }
                 catch {
-                    Write-Warning "[Backup ERROR] Cannot read key $($change.Path): $_"
+                    # Check if it's an Access Denied error (fallback for different Exception types)
+                    if ($_.Exception.Message -match 'unzulässig|denied|access') {
+                        Write-Verbose "[Backup SKIP] Protected key (Access pattern in message): $($change.Path)"
+                        $skippedProtected++
+                        continue
+                    }
+                    # Real error - log it
+                    Write-Verbose "[Backup ERROR] Cannot read key $($change.Path): $_"
                     $errorCount++
                     continue
                 }
