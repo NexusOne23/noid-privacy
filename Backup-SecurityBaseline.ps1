@@ -329,8 +329,10 @@ $dnsBackup = foreach ($adapter in $adapters) {
             Write-Host "  [OK] $($adapterMsg) $($allAddrs -join ', ')" -ForegroundColor Gray
             
             # Output to pipeline (captured by $dnsBackup)
+            # CRITICAL: InterfaceGuid is stable across reboots (IfIndex can change!)
             @{
                 AdapterName = $adapter.Name
+                InterfaceGuid = $adapter.InterfaceGuid
                 InterfaceIndex = $adapter.ifIndex
                 DNS_IPv4 = $ipv4Addrs
                 DNS_IPv6 = $ipv6Addrs
