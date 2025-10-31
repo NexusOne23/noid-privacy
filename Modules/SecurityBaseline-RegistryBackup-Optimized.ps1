@@ -313,5 +313,6 @@ function Validate-RegistryRestore {
     }
 }
 
-# Export functions
-Export-ModuleMember -Function Backup-SpecificRegistryKeys, Restore-SpecificRegistryKeys, Validate-RegistryRestore
+# Export-ModuleMember is NOT needed when dot-sourcing (. .\file.ps1)
+# All functions are automatically available in the calling scope
+# Export-ModuleMember only works in .psm1 modules loaded via Import-Module
