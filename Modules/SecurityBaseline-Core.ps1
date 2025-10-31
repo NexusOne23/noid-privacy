@@ -1868,6 +1868,20 @@ function Enable-CloudflareDNSoverHTTPS {
         Write-Warning (Get-LocalizedString 'CoreDNSGlobalError' -FormatArgs $result)
     }
     
+    # CRITICAL: Also set registry-level EnableAutoDoh for Verify compatibility
+    # Auditor recommendation: Verify checks registry EnableAutoDoh = 2
+    $dnsRegPath = "HKLM:\SYSTEM\CurrentControlSet\Services\Dnscache\Parameters"
+    try {
+        if (-not (Test-Path $dnsRegPath)) {
+            New-Item -Path $dnsRegPath -Force -ErrorAction Stop | Out-Null
+        }
+        Set-ItemProperty -Path $dnsRegPath -Name "EnableAutoDoh" -Value 2 -Type DWord -Force -ErrorAction Stop
+        Write-Verbose "Registry: EnableAutoDoh = 2 set"
+    }
+    catch {
+        Write-Warning "Could not set EnableAutoDoh registry: $_"
+    }
+    
     # Set DNS servers on all adapters (EXCEPT VPN!)
     Write-Info (Get-LocalizedString 'CoreDNSAdapters')
     
