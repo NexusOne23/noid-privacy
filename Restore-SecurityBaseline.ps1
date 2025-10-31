@@ -476,9 +476,16 @@ else {
         Write-Host "  [i] $tasksCount Scheduled Tasks in backup" -ForegroundColor Cyan
         $restoredTasks = 0
         $changedTasks = 0
+        $taskIndex = 0
         
         foreach ($taskConfig in $tasksArray) {
+            $taskIndex++
             $currentTask = $null
+            
+            # Progress output every 10 tasks (so user knows it's working)
+            if ($taskIndex % 10 -eq 0 -or $taskIndex -eq $tasksCount) {
+                Write-Host "  [>] Processing task $taskIndex/$tasksCount..." -ForegroundColor Cyan
+            }
             
             # PERFORMANCE FIX: Fast path - try direct Get-ScheduledTask first (90% of cases)
             # Job overhead is 400-800ms per task - only use as fallback for problem cases
@@ -531,8 +538,16 @@ else {
             }
             $restoredTasks++
         }
-    
-        Write-Host "  [OK] $restoredTasks Scheduled Tasks checked, $changedTasks changed" -ForegroundColor Green
+        
+        # Summary with color-coded stats
+        Write-Host "  [OK] $restoredTasks Scheduled Tasks checked" -ForegroundColor Green
+        if ($changedTasks -gt 0) {
+            Write-Host "      $changedTasks Tasks state restored" -ForegroundColor Green
+        }
+        $skippedTasks = $tasksCount - $restoredTasks
+        if ($skippedTasks -gt 0) {
+            Write-Host "      $skippedTasks Tasks not found (skipped)" -ForegroundColor Yellow
+        }
     }
     else {
         Write-Host "  [!] Keine Scheduled Tasks im Backup" -ForegroundColor Yellow
