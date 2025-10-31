@@ -135,23 +135,41 @@ catch {
 }
 
 # Load Registry Changes Definition (v2.0 - 375 specific keys)
+# IMPORTANT: Temporarily bypass execution policy for unsigned modules
+$savedExecutionPolicy = Get-ExecutionPolicy -Scope Process
 try {
+    Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force -ErrorAction SilentlyContinue
     . "$scriptDir\Modules\RegistryChanges-Definition.ps1"
     Write-Verbose "Loaded $($script:RegistryChanges.Count) registry change definitions"
 }
 catch {
     Write-Error "CRITICAL: Could not load Registry Changes Definition: $_"
+    Write-Error "File: $scriptDir\Modules\RegistryChanges-Definition.ps1"
     exit 1
+}
+finally {
+    # Restore original execution policy
+    if ($savedExecutionPolicy) {
+        Set-ExecutionPolicy -ExecutionPolicy $savedExecutionPolicy -Scope Process -Force -ErrorAction SilentlyContinue
+    }
 }
 
 # Load Optimized Registry Backup Functions (v2.0)
 try {
+    Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process -Force -ErrorAction SilentlyContinue
     . "$scriptDir\Modules\SecurityBaseline-RegistryBackup-Optimized.ps1"
     Write-Verbose "Loaded optimized registry backup functions"
 }
 catch {
     Write-Error "CRITICAL: Could not load Registry Backup functions: $_"
+    Write-Error "File: $scriptDir\Modules\SecurityBaseline-RegistryBackup-Optimized.ps1"
     exit 1
+}
+finally {
+    # Restore original execution policy
+    if ($savedExecutionPolicy) {
+        Set-ExecutionPolicy -ExecutionPolicy $savedExecutionPolicy -Scope Process -Force -ErrorAction SilentlyContinue
+    }
 }
 
 # Ensure language is set (use from interactive session, environment variable, or default to English)
