@@ -1,10 +1,10 @@
-# Parsed 375 entries, 375 valid
+# Parsed 374 entries, 374 valid
 <#
 .SYNOPSIS
     Registry Changes Definition
     
 .DESCRIPTION
-    Contains all 375 registry changes that the Security Baseline applies.
+    Contains all 374 registry changes that the Security Baseline applies.
     Used by Backup and Restore scripts for specific (fast) backup/restore.
     
     This file was AUTO-GENERATED from registry-changes-complete.txt
@@ -12,7 +12,7 @@
     
 .NOTES
     Generated: 2025-10-31 06:33:04
-    Total Entries: 375
+    Total Entries: 374
     Source: registry-changes-complete.txt
 #>
 

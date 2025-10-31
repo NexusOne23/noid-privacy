@@ -894,13 +894,13 @@ Write-Host ""
 Write-Host "[6/14] $(Get-LocalizedString 'RestoreRegistry')" -ForegroundColor Yellow
 
 # NEW v2.0: Specific registry restore (10-15x faster!)
-# Only restores the 375 registry keys that Apply actually modifies
+# Only restores the 374 registry keys that Apply actually modifies
 # Previous version: Snapshot restore (10-30 minutes, 50,000+ keys compared)
-# New version: Specific restore (1-2 minutes, 375 keys restored)
+# New version: Specific restore (1-2 minutes, 374 keys restored)
 
 if ($backup.Settings.RegistryBackup) {
     Write-Host ""
-    Write-Host "[i] Performing specific registry restore (375 keys)..." -ForegroundColor Cyan
+    Write-Host "[i] Performing specific registry restore (374 keys)..." -ForegroundColor Cyan
     $startTime = Get-Date
     
     # Initialize failed keys array (used by Restore-SpecificRegistryKeys for error tracking)

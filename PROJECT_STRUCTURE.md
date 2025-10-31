@@ -242,7 +242,7 @@ noid-privacy/
 - 3-8 MB backup files
 
 **New System (v2.0 - Specific Keys)**:
-- Backs up only 375 keys that Apply actually modifies
+- Backs up only 374 keys that Apply actually modifies
 - 30 seconds backup time (**20-30x faster**)
 - 1-2 minutes restore time (**10-15x faster**)
 - 50-150 KB backup files (**50x smaller**)
@@ -251,7 +251,7 @@ noid-privacy/
 ---
 
 #### RegistryChanges-Definition.ps1
-**Purpose**: Data-only module containing all 375 registry changes
+**Purpose**: Data-only module containing all 374 registry changes
 
 **Structure**:
 ```powershell
@@ -290,7 +290,7 @@ $script:RegistryChanges = @(
 **Purpose**: Fast backup/restore functions for specific registry keys
 
 **Exports** (3 functions):
-- `Backup-SpecificRegistryKeys` - Iterates 375 keys, reads current values
+- `Backup-SpecificRegistryKeys` - Iterates 374 keys, reads current values
 - `Restore-SpecificRegistryKeys` - Compares current vs backup, restores changes
 - `Validate-RegistryRestore` - Post-restore verification
 
@@ -305,7 +305,7 @@ $script:RegistryChanges = @(
 
 **Performance**:
 ```
-Backup:  30 seconds for 375 keys
+Backup:  30 seconds for 374 keys
 Restore: 1-2 minutes with validation
 Success Rate: 99%+ (1-2 protected keys may fail)
 ```
@@ -577,7 +577,7 @@ Success Rate: 99%+ (1-2 protected keys may fail)
 | File | Purpose | Size |
 |------|---------|------|
 | README.md | Project overview, quick start | ~15 KB |
-| REGISTRY_KEYS.md | Complete registry keys reference (375 keys) | ~53 KB |
+| REGISTRY_KEYS.md | Complete registry keys reference (374 keys) | ~53 KB |
 | CHANGELOG.md | Version history | ~12 KB |
 | LICENSE | MIT License | ~1 KB |
 | CONTRIBUTING.md | Contribution guidelines | ~18 KB |

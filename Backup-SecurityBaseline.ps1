@@ -572,11 +572,11 @@ Write-Host ""
 Write-Host "[8/13] $(Get-LocalizedString 'BackupRegistry')" -ForegroundColor Yellow
 
 # NEW v2.0: Specific registry backup (20-30x faster!)
-# Only backs up the 375 registry keys that Apply actually modifies
+# Only backs up the 374 registry keys that Apply actually modifies
 # Previous version: Complete snapshots (5-15 minutes, 50,000+ keys, 5MB)
-# New version: Specific backup (30 seconds, 375 keys, 100KB)
+# New version: Specific backup (30 seconds, 374 keys, 100KB)
 
-Write-Host "[i] Creating specific registry backup (375 keys)..." -ForegroundColor Cyan
+Write-Host "[i] Creating specific registry backup (374 keys)..." -ForegroundColor Cyan
 $startTime = Get-Date
 
 try {
