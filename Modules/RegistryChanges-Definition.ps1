@@ -1725,17 +1725,9 @@ $script:RegistryChanges = @(
     @{
         Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Edge'
         Name = 'ExtensionInstallSources'
-        Type = 'N/A'
-        ApplyValue = (Deleted)
-        Description = ''
-        File = 'SecurityBaseline-Edge.ps1'
-    },
-    @{
-        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Edge'
-        Name = 'ExtensionInstallSources'
         Type = 'MultiString'
-        ApplyValue = $extensionSources
-        Description = ''
+        ApplyValue = 'https://microsoftedge.microsoft.com/addons/*'
+        Description = 'Extensions only from Microsoft Store'
         File = 'SecurityBaseline-Edge.ps1'
     },
     @{
@@ -3020,7 +3012,3 @@ $script:RegistryChanges = @(
     }
 
 )
-
-# Export for use in other scripts
-Export-ModuleMember -Variable RegistryChanges
-
