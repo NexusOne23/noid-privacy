@@ -312,17 +312,28 @@ $adapters = Get-NetAdapter | Where-Object { $_.Status -eq 'Up' }
 # [OK] BEST PRACTICE: Capture foreach output directly (O(n) instead of O(n^2))
 $dnsBackup = foreach ($adapter in $adapters) {
     try {
-        $dnsServers = Get-DnsClientServerAddress -InterfaceIndex $adapter.ifIndex -AddressFamily IPv4 -ErrorAction SilentlyContinue
+        # Get IPv4 DNS servers
+        $dnsIPv4 = Get-DnsClientServerAddress -InterfaceIndex $adapter.ifIndex -AddressFamily IPv4 -ErrorAction SilentlyContinue
         
-        if ($dnsServers -and $dnsServers.ServerAddresses) {
+        # Get IPv6 DNS servers
+        $dnsIPv6 = Get-DnsClientServerAddress -InterfaceIndex $adapter.ifIndex -AddressFamily IPv6 -ErrorAction SilentlyContinue
+        
+        # Only backup if at least one address family has DNS configured
+        if (($dnsIPv4 -and $dnsIPv4.ServerAddresses) -or ($dnsIPv6 -and $dnsIPv6.ServerAddresses)) {
             $adapterMsg = Get-LocalizedString 'BackupDNSAdapter' $adapter.Name
-            Write-Host "  [OK] $($adapterMsg) $($dnsServers.ServerAddresses -join ', ')" -ForegroundColor Gray
+            
+            $ipv4Addrs = if ($dnsIPv4 -and $dnsIPv4.ServerAddresses) { @($dnsIPv4.ServerAddresses) } else { @() }
+            $ipv6Addrs = if ($dnsIPv6 -and $dnsIPv6.ServerAddresses) { @($dnsIPv6.ServerAddresses) } else { @() }
+            
+            $allAddrs = @($ipv4Addrs) + @($ipv6Addrs)
+            Write-Host "  [OK] $($adapterMsg) $($allAddrs -join ', ')" -ForegroundColor Gray
             
             # Output to pipeline (captured by $dnsBackup)
             @{
                 AdapterName = $adapter.Name
                 InterfaceIndex = $adapter.ifIndex
-                DNS_IPv4 = @($dnsServers.ServerAddresses)
+                DNS_IPv4 = $ipv4Addrs
+                DNS_IPv6 = $ipv6Addrs
             }
         }
     }

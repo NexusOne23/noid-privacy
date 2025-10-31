@@ -356,34 +356,64 @@ foreach ($dnsConfig in $backup.Settings.DNS) {
     try {
         $adapterName = $dnsConfig.AdapterName
         $interfaceIndex = $dnsConfig.InterfaceIndex
-        $dnsServers = $dnsConfig.DNS_IPv4
+        
+        # Get IPv4 and IPv6 DNS servers (with backward compatibility for old backups)
+        $dnsIPv4 = if ($dnsConfig.PSObject.Properties.Name -contains 'DNS_IPv4') { $dnsConfig.DNS_IPv4 } else { @() }
+        $dnsIPv6 = if ($dnsConfig.PSObject.Properties.Name -contains 'DNS_IPv6') { $dnsConfig.DNS_IPv6 } else { @() }
+        
+        # Backward compatibility: old backups only had DNS_IPv4
+        if (-not $dnsIPv4 -and $dnsConfig.DNS_IPv4) {
+            $dnsIPv4 = $dnsConfig.DNS_IPv4
+        }
+        
+        $allAddrs = @($dnsIPv4) + @($dnsIPv6) | Where-Object { $_ }
+        $ipv4Count = if ($dnsIPv4) { @($dnsIPv4).Count } else { 0 }
+        $ipv6Count = if ($dnsIPv6) { @($dnsIPv6).Count } else { 0 }
         
         # Use InterfaceIndex (stable) instead of InterfaceAlias (can change)
         # Fallback to InterfaceAlias if InterfaceIndex not available (old backups)
-        if ($PSCmdlet.ShouldProcess($adapterName, "Restore DNS: $($dnsServers -join ', ')")) {
-            $dnsCount = if ($dnsServers) { @($dnsServers).Count } else { 0 }
-            if ($dnsCount -eq 0 -or $null -eq $dnsServers[0]) {
+        if ($PSCmdlet.ShouldProcess($adapterName, "Restore DNS: $($allAddrs -join ', ')")) {
+            
+            # Restore IPv4 DNS
+            if ($ipv4Count -gt 0 -and $null -ne $dnsIPv4[0]) {
                 if ($interfaceIndex) {
-                    Set-DnsClientServerAddress -InterfaceIndex $interfaceIndex -ResetServerAddresses -ErrorAction Stop
+                    Set-DnsClientServerAddress -InterfaceIndex $interfaceIndex -ServerAddresses $dnsIPv4 -ErrorAction Stop
                 }
                 else {
                     # Fallback for old backups without InterfaceIndex
-                    Set-DnsClientServerAddress -InterfaceAlias $adapterName -ResetServerAddresses -ErrorAction Stop
+                    Set-DnsClientServerAddress -InterfaceAlias $adapterName -ServerAddresses $dnsIPv4 -ErrorAction Stop
                 }
-                $autoMsg = Get-LocalizedString 'RestoreDNSAuto' $adapterName
-                Write-Host "  [OK] $autoMsg" -ForegroundColor Green
+                Write-Verbose "Restored IPv4 DNS: $($dnsIPv4 -join ', ')"
             }
-            else {
+            elseif ($ipv4Count -eq 0) {
+                # Reset to automatic if no IPv4 DNS configured
                 if ($interfaceIndex) {
-                    Set-DnsClientServerAddress -InterfaceIndex $interfaceIndex -ServerAddresses $dnsServers -ErrorAction Stop
+                    Set-DnsClientServerAddress -InterfaceIndex $interfaceIndex -ResetServerAddresses -ErrorAction SilentlyContinue
+                }
+                Write-Verbose "Reset IPv4 DNS to automatic"
+            }
+            
+            # Restore IPv6 DNS (separate call required)
+            if ($ipv6Count -gt 0 -and $null -ne $dnsIPv6[0]) {
+                # For IPv6, we need to use the NetIPInterface cmdlet or Set-DnsClientServerAddress with proper IPv6 addresses
+                if ($interfaceIndex) {
+                    # PowerShell automatically detects IPv6 by address format
+                    $currentIPv4 = Get-DnsClientServerAddress -InterfaceIndex $interfaceIndex -AddressFamily IPv4 -ErrorAction SilentlyContinue
+                    $combinedServers = @($currentIPv4.ServerAddresses) + @($dnsIPv6) | Where-Object { $_ }
+                    Set-DnsClientServerAddress -InterfaceIndex $interfaceIndex -ServerAddresses $combinedServers -ErrorAction Stop
                 }
                 else {
-                    # Fallback for old backups without InterfaceIndex
-                    Set-DnsClientServerAddress -InterfaceAlias $adapterName -ServerAddresses $dnsServers -ErrorAction Stop
+                    # Fallback for old backups
+                    $currentIPv4 = Get-DnsClientServerAddress -InterfaceAlias $adapterName -AddressFamily IPv4 -ErrorAction SilentlyContinue
+                    $combinedServers = @($currentIPv4.ServerAddresses) + @($dnsIPv6) | Where-Object { $_ }
+                    Set-DnsClientServerAddress -InterfaceAlias $adapterName -ServerAddresses $combinedServers -ErrorAction Stop
                 }
-                $dnsOkMsg = Get-LocalizedString 'RestoreDNSOK' $adapterName
-                Write-Host "  [OK] $dnsOkMsg $($dnsServers -join ', ')" -ForegroundColor Green
+                Write-Verbose "Restored IPv6 DNS: $($dnsIPv6 -join ', ')"
             }
+            
+            $dnsOkMsg = Get-LocalizedString 'RestoreDNSOK' $adapterName
+            Write-Host "  [OK] $dnsOkMsg $($allAddrs -join ', ')" -ForegroundColor Green
+            
             $dnsRestoredCount++
             $restoreStats.Success++
         }
