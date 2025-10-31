@@ -79,8 +79,19 @@ function Backup-SpecificRegistryKeys {
             }
         }
         catch {
-            Write-Verbose "[Backup] Error reading $($change.Path)\$($change.Name): $_"
-            $errorCount++
+            # Check if it's an Access Denied error (protected key)
+            if ($_.Exception.Message -match "unzulässig|Access.*denied|unauthorized") {
+                # Protected key (TrustedInstaller, SYSTEM) - don't count as error
+                # We can't back it up, so we won't try to restore it either
+                # This is NORMAL and expected for certain protected system keys
+                Write-Verbose "[Backup] SKIP protected key: $($change.Path)\$($change.Name)"
+                # Don't increment errorCount - this is not an error!
+            }
+            else {
+                # Real error - log it
+                Write-Verbose "[Backup] Error reading $($change.Path)\$($change.Name): $_"
+                $errorCount++
+            }
         }
         
         # Add to backup (even if key doesn't exist - we need to know this for restore!)
