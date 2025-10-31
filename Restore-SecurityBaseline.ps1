@@ -828,6 +828,9 @@ if ($backup.Settings.RegistryBackup) {
     Write-Host "[i] Performing specific registry restore (375 keys)..." -ForegroundColor Cyan
     $startTime = Get-Date
     
+    # Initialize failed keys array (used by Restore-SpecificRegistryKeys for error tracking)
+    $script:FailedRegistryKeys = @()
+    
     try {
         $result = Restore-SpecificRegistryKeys -BackupData $backup.Settings.RegistryBackup
         
