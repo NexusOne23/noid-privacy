@@ -282,7 +282,7 @@ $script:RegistryChanges = @(
 - Backup-SecurityBaseline.ps1 (loads at startup)
 - Backup-SpecificRegistryKeys function
 
-**Source**: `registry-changes-complete.txt` (human-readable, 127 KB)
+**Documentation**: See [REGISTRY_KEYS.md](REGISTRY_KEYS.md) for complete list
 
 ---
 
@@ -572,53 +572,19 @@ Success Rate: 99%+ (1-2 protected keys may fail)
 
 ---
 
-### registry-changes-complete.txt
-**Purpose**: Human-readable documentation of all 375 registry changes
-
-**Format**: Text file with detailed breakdown by module  
-**Size**: 127 KB  
-**Lines**: 2,669
-
-**Contains**:
-- All 375 registry operations
-- Organized by source file (14 modules)
-- Shows: Path, Name, Value, Type, Description
-- Line numbers from source files
-- Operation counts per module
-
-**Usage**:
-- **Source for code generation** (RegistryChanges-Definition.ps1)
-- **Documentation** - what each key does
-- **Code review** - verify all changes
-- **NOT read at runtime** - only for reference
-
-**Example Entry**:
-```
-[1] Zeile 27: Set-RegistryValue
-    Registry-Pfad: HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI
-    Name:          DisableAIDataAnalysis
-    Wert:          1
-    Typ:           DWord
-    Beschreibung:  Windows Recall deaktivieren (KEINE Screenshots!)
-```
-
-**Generated**: 2025-10-31 05:49:48  
-**Last Updated**: Same as module changes
-
----
-
 ## 📚 Documentation Files
 
 | File | Purpose | Size |
 |------|---------|------|
 | README.md | Project overview, quick start | ~15 KB |
+| REGISTRY_KEYS.md | Complete registry keys reference (375 keys) | ~53 KB |
 | CHANGELOG.md | Version history | ~12 KB |
 | LICENSE | MIT License | ~1 KB |
 | CONTRIBUTING.md | Contribution guidelines | ~18 KB |
 | SECURITY.md | Security policy | ~8 KB |
 | CODE_OF_CONDUCT.md | Community guidelines | ~5 KB |
 | INSTALLATION.md | Installation guide | ~15 KB |
-| PROJECT_STRUCTURE.md | This file | ~12 KB |
+| PROJECT_STRUCTURE.md | This file | ~15 KB |
 | .gitignore | Git ignore rules | ~1 KB |
 
 ---
