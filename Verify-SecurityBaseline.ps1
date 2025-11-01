@@ -1144,4 +1144,96 @@ if ($script:transcriptStarted) {
     }
 }
 
+# ===========================
+# APT PROTECTION (PHASE 1) - 10 SETTINGS
+# ===========================
+
+Write-Host "`n=== APT PROTECTION (PHASE 1) - 10 SETTINGS ===" -ForegroundColor Yellow
+
+$ldapPath = "HKLM:\SYSTEM\CurrentControlSet\Services\LDAP"
+
+Test-BaselineCheck -Category "APT-Protection" -Name "LDAP Client Signing = Require (2)" -Impact "Critical" `
+    -Test { 
+        $v = Get-ItemProperty $ldapPath -Name LDAPClientIntegrity -ErrorAction SilentlyContinue
+        if ($v) { $v.LDAPClientIntegrity } else { 0 }
+    } `
+    -Expected 2
+
+Test-BaselineCheck -Category "APT-Protection" -Name "LDAP Channel Binding = Always (2)" -Impact "Critical" `
+    -Test { 
+        $v = Get-ItemProperty $ldapPath -Name LdapEnforceChannelBinding -ErrorAction SilentlyContinue
+        if ($v) { $v.LdapEnforceChannelBinding } else { 0 }
+    } `
+    -Expected 2
+
+$internetZonePath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\3"
+
+Test-BaselineCheck -Category "APT-Protection" -Name "Internet Zone: Block Launching Apps (3)" -Impact "Critical" `
+    -Test { 
+        $v = Get-ItemProperty $internetZonePath -Name "1806" -ErrorAction SilentlyContinue
+        if ($v) { $v.'1806' } else { 0 }
+    } `
+    -Expected 3
+
+Test-BaselineCheck -Category "APT-Protection" -Name "Internet Zone: Block Auto Downloads (3)" -Impact "High" `
+    -Test { 
+        $v = Get-ItemProperty $internetZonePath -Name "1803" -ErrorAction SilentlyContinue
+        if ($v) { $v.'1803' } else { 0 }
+    } `
+    -Expected 3
+
+$intranetZonePath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\1"
+
+Test-BaselineCheck -Category "APT-Protection" -Name "Intranet Zone: Block Launching Apps (3)" -Impact "High" `
+    -Test { 
+        $v = Get-ItemProperty $intranetZonePath -Name "1806" -ErrorAction SilentlyContinue
+        if ($v) { $v.'1806' } else { 0 }
+    } `
+    -Expected 3
+
+$efsServicePath = "HKLM:\SYSTEM\CurrentControlSet\Services\EFS"
+
+Test-BaselineCheck -Category "APT-Protection" -Name "EFS Service Disabled (4)" -Impact "High" `
+    -Test { 
+        $v = Get-ItemProperty $efsServicePath -Name Start -ErrorAction SilentlyContinue
+        if ($v) { $v.Start } else { 0 }
+    } `
+    -Expected 4
+
+$efsDriverPath = "HKLM:\SYSTEM\CurrentControlSet\Control\EFS"
+
+Test-BaselineCheck -Category "APT-Protection" -Name "EFS Driver Disabled (1)" -Impact "High" `
+    -Test { 
+        $v = Get-ItemProperty $efsDriverPath -Name Disabled -ErrorAction SilentlyContinue
+        if ($v) { $v.Disabled } else { 0 }
+    } `
+    -Expected 1
+
+$srpPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Safer\CodeIdentifiers"
+
+Test-BaselineCheck -Category "APT-Protection" -Name "SRP Enabled (DefaultLevel = 0x40000)" -Impact "Critical" `
+    -Test { 
+        $v = Get-ItemProperty $srpPath -Name DefaultLevel -ErrorAction SilentlyContinue
+        if ($v) { $v.DefaultLevel } else { 0 }
+    } `
+    -Expected 0x00040000
+
+Test-BaselineCheck -Category "APT-Protection" -Name "SRP Transparent Enforcement = ON (1)" -Impact "Medium" `
+    -Test { 
+        $v = Get-ItemProperty $srpPath -Name TransparentEnabled -ErrorAction SilentlyContinue
+        if ($v) { $v.TransparentEnabled } else { 0 }
+    } `
+    -Expected 1
+
+$srpRulesPath = "$srpPath\0\Paths"
+
+Test-BaselineCheck -Category "APT-Protection" -Name "SRP Deny Rules Configured (5+)" -Impact "Critical" `
+    -Test { 
+        if (Test-Path $srpRulesPath) {
+            $rules = Get-ChildItem $srpRulesPath -ErrorAction SilentlyContinue
+            if ($rules) { $rules.Count } else { 0 }
+        } else { 0 }
+    } `
+    -Expected 5
+
 Write-Host ""
