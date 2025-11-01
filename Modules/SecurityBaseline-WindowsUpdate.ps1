@@ -3,6 +3,9 @@
 # Windows Update GUI Settings (NO Policies, only set Defaults!)
 # ============================================================================
 
+#Requires -Version 5.1
+#Requires -RunAsAdministrator
+
 Set-StrictMode -Version Latest
 
 function Set-WindowsUpdateDefaults {

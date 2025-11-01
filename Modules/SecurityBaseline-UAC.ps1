@@ -3,6 +3,9 @@
 # User Account Control Enhanced Settings - Windows 11 25H2
 # ============================================================================
 
+#Requires -Version 5.1
+#Requires -RunAsAdministrator
+
 # Best Practice 25H2: Enable Strict Mode
 Set-StrictMode -Version Latest
 

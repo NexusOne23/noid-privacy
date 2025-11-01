@@ -2,6 +2,9 @@
 # SecurityBaseline-Bloatware.ps1 - Remove Pre-Installed Bloatware
 # =======================================================================================
 
+#Requires -Version 5.1
+#Requires -RunAsAdministrator
+
 # Best Practice 25H2: Enable Strict Mode
 Set-StrictMode -Version Latest
 

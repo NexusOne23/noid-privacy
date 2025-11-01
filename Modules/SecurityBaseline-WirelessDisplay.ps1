@@ -3,6 +3,9 @@
 # Wireless Display / Miracast Disablement (4 Levels)
 # ============================================================================
 
+#Requires -Version 5.1
+#Requires -RunAsAdministrator
+
 # Best Practice 25H2: Enable Strict Mode
 Set-StrictMode -Version Latest
 

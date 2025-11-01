@@ -2,6 +2,12 @@
 # SecurityBaseline-Performance.ps1 - Performance & Stille Optimierung
 # =======================================================================================
 
+#Requires -Version 5.1
+#Requires -RunAsAdministrator
+
+# Enable Strict Mode
+Set-StrictMode -Version Latest
+
 <#
 .SYNOPSIS
     Optimiert Windows 11 fuer Performance und reduziert Hintergrund-Aktivitaeten

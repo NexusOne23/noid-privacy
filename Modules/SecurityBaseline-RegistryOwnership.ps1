@@ -3,6 +3,12 @@
 # TrustedInstaller Registry Ownership Management (Best Practice 2025)
 # =======================================================================================
 
+#Requires -Version 5.1
+#Requires -RunAsAdministrator
+
+# Enable Strict Mode
+Set-StrictMode -Version Latest
+
 <#
 .SYNOPSIS
     Enables setting of TrustedInstaller-protected Registry keys
