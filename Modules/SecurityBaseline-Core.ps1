@@ -542,21 +542,28 @@ function Disable-InternetPrintingClient {
         Write-Info "Checking Internet Printing Client feature status..."
         $feature = Get-WindowsOptionalFeature -Online -FeatureName Printing-InternetPrinting-Client -ErrorAction Stop
         
-        # CRITICAL: Use PSObject.Properties pattern to avoid PropertyNotFoundException
-        $props = $feature.PSObject.Properties.Name
-        
-        if ($feature -and ('State' -in $props)) {
-            if ($feature.State -eq 'Enabled') {
-                Write-Info "Disabling Internet Printing Client (IPP protocol)..."
-                Disable-WindowsOptionalFeature -Online -FeatureName Printing-InternetPrinting-Client -NoRestart -ErrorAction Stop | Out-Null
-                Write-Success "Internet Printing Client disabled (no reboot required)"
-                Write-Info "HTTP/HTTPS printer protocol (IPP) blocked"
-            } 
-            elseif ($feature.State -eq 'Disabled') {
-                Write-Info "Internet Printing Client already disabled"
+        # CRITICAL: Null-safe property access pattern
+        # Check if feature object exists AND has PSObject AND has Properties
+        if ($feature -and $feature.PSObject -and $feature.PSObject.Properties) {
+            # Extract property names safely
+            $props = @($feature.PSObject.Properties | ForEach-Object { $_.Name })
+            
+            if ('State' -in $props) {
+                if ($feature.State -eq 'Enabled') {
+                    Write-Info "Disabling Internet Printing Client (IPP protocol)..."
+                    Disable-WindowsOptionalFeature -Online -FeatureName Printing-InternetPrinting-Client -NoRestart -ErrorAction Stop | Out-Null
+                    Write-Success "Internet Printing Client disabled (no reboot required)"
+                    Write-Info "HTTP/HTTPS printer protocol (IPP) blocked"
+                } 
+                elseif ($feature.State -eq 'Disabled') {
+                    Write-Info "Internet Printing Client already disabled"
+                }
+                else {
+                    Write-Info "Internet Printing Client in unknown state: $($feature.State)"
+                }
             }
             else {
-                Write-Info "Internet Printing Client in unknown state: $($feature.State)"
+                Write-Info "Internet Printing Client feature object has no State property"
             }
         }
         else {
