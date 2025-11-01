@@ -5,7 +5,7 @@
 [![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-blue.svg)](https://github.com/PowerShell/PowerShell)
 [![Windows 11](https://img.shields.io/badge/Windows%2011-25H2-0078D4.svg)](https://www.microsoft.com/windows/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-1.7.13-blue.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.7.14-blue.svg)](CHANGELOG.md)
 
 ---
 
@@ -55,7 +55,7 @@
 ### 🔒 Privacy Protection - Minimized Telemetry
 
 **Your Privacy is Maximized:**
-- **Telemetry Minimized** → 25+ services + 30 tasks + 375 registry keys configured for minimum data collection
+- **Telemetry Minimized** → 25+ services + 30 tasks + 388 registry keys configured for minimum data collection
 - **AI Lockdown (9 features)** → Windows Recall DISABLED (no screenshots of passwords!), Copilot blocked (4 layers), Click to Do, Paint AI (3), Notepad AI, Settings Agent, Copilot Proactive
 - **App Permission Control** → 37 categories default-DENY (apps can't spy without explicit permission)
 - **Clean System** → 80+ bloatware app patterns checked (Xbox, 3D apps, Candy Crush, Teams Chat, Copilot, Widgets)
@@ -238,7 +238,7 @@ The project uses a modular architecture with 13 specialized modules:
 | **Advanced** | VBS, Credential Guard, LAPS, Auditing | Credential Guard, VBS, HVCI, LSA-PPL, BitLocker policies, Windows LAPS, TLS/SSL hardening |
 | **DNS** | DNS-over-HTTPS, DNSSEC, Blocklist | Cloudflare DoH (4 servers), DNSSEC validation, 79,776 blocked domains, Strict Inbound Firewall |
 | **Bloatware** | App removal, Consumer features | 80+ app patterns, Teams Chat/Copilot/Widgets disabled, Consumer Features blocked |
-| **Telemetry** | Privacy protection, App permissions | 25+ services, 375 registry keys (110 telemetry-specific), 37 app permission categories, Camera/Mic controls |
+| **Telemetry** | Privacy protection, App permissions | 25+ services, 388 registry keys (110 telemetry-specific), 37 app permission categories, Camera/Mic controls |
 | **Performance** | Scheduled tasks, Event logs | 30 tasks disabled, Event log optimization, Windows Search local-only, Prefetch/Superfetch tuning |
 | **AI** | Recall, Copilot, AI tracking | 9 AI features disabled: Recall, Copilot (4 layers), Click to Do, Paint AI (3), Notepad AI, Settings Agent, Copilot Proactive |
 | **Edge** | Microsoft Edge security baseline | SmartScreen enforced, Tracking Prevention, DoH automatic, Site Isolation, Extension policies |
