@@ -1193,8 +1193,8 @@ Write-Verbose "CreateRestorePoint: $script:createRestorePoint"
 Write-Verbose "===================="
 
 # CRITICAL FIX: SAFE EXIT if no modules selected (e.g. interactive VERIFY + EXIT)
-# ROOT CAUSE: After Verify → Exit, no config is set, but script continues to common part
-# PROBLEM: Common part assumes $SelectedModules always exists → crash at Line 1180
+# ROOT CAUSE: After Verify -> Exit, no config is set, but script continues to common part
+# PROBLEM: Common part assumes $SelectedModules always exists -> crash at Line 1180
 # CRITICAL FIX: SAFE-EXIT with StrictMode compatibility
 # ROOT CAUSE: Under Set-StrictMode accessing $SelectedModules.Count crashes if variable not set
 # SOLUTION: Use Test-HasSelectedModules helper (checks existence first then count)
@@ -1245,7 +1245,7 @@ catch {
 }
 
 # CRITICAL FIX B: Safety exit BEFORE transcript if no modules (second defensive barrier + StrictMode fix)
-# ROOT CAUSE: Interactive VERIFY → EXIT might slip through with invalid $SelectedModules
+# ROOT CAUSE: Interactive VERIFY -> EXIT might slip through with invalid $SelectedModules
 # PROBLEM: Even if type-check passed, $SelectedModules might be null/string/empty
 # SYMPTOM: Unwanted Audit transcript starts, then crashes at $SelectedModules.Count
 # SOLUTION: Use Test-HasSelectedModules helper (StrictMode-safe check)

@@ -27,7 +27,7 @@ function Enable-AdGuardDNS {
         Provider: AdGuard DNS (Cyprus, EU)
         IPv4: 94.140.14.14 (Primary), 94.140.15.15 (Secondary)
         IPv6: 2a10:50c0::ad1:ff (Primary), 2a10:50c0::ad2:ff (Secondary)
-        Privacy: ★★★★★ | Speed: ★★★★☆ | Location: EU (Cyprus)
+        Privacy: ***** | Speed: ****  | Location: EU (Cyprus)
     #>
     [CmdletBinding()]
     [OutputType([void])]
@@ -124,7 +124,7 @@ function Enable-NextDNS {
         Provider: NextDNS (Switzerland/Global)
         IPv4: 45.90.28.0 (Primary), 45.90.30.0 (Secondary)
         IPv6: 2a07:a8c0:: (Primary), 2a07:a8c1:: (Secondary)
-        Privacy: ★★★★★ | Speed: ★★★★☆ | Location: Global CDN
+        Privacy: ***** | Speed: ****  | Location: Global CDN
         
         NOTE: For custom filtering, users should sign up at nextdns.io
     #>
@@ -224,7 +224,7 @@ function Enable-Quad9DNS {
         Provider: Quad9 (Switzerland, Non-Profit)
         IPv4: 9.9.9.9 (Primary), 149.112.112.112 (Secondary)
         IPv6: 2620:fe::fe (Primary), 2620:fe::9 (Secondary)
-        Privacy: ★★★★★ | Speed: ★★★★☆ | Location: EU/Global
+        Privacy: ***** | Speed: ****  | Location: EU/Global
     #>
     [CmdletBinding()]
     [OutputType([void])]

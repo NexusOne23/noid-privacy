@@ -98,7 +98,7 @@ function Show-MainMenu {
     $menuEnforceDesc = Get-LocalizedString 'MainMenuEnforceDesc'
     if (-not $menuEnforceDesc) { $menuEnforceDesc = "Apply all settings" }
     Write-Host "         $menuEnforceDesc" -ForegroundColor Gray
-    Write-Host "         → DNS & OneDrive configuration follows" -ForegroundColor DarkCyan
+    Write-Host "         -> DNS & OneDrive configuration follows" -ForegroundColor DarkCyan
     Write-Host ""
     
     $menuCustom = Get-LocalizedString 'MainMenuCustom'
@@ -108,7 +108,7 @@ function Show-MainMenu {
     $menuCustomDesc = Get-LocalizedString 'MainMenuCustomDesc'
     if (-not $menuCustomDesc) { $menuCustomDesc = "Select modules" }
     Write-Host "         $menuCustomDesc" -ForegroundColor Gray
-    Write-Host "         → DNS & OneDrive configuration follows (if DNS selected)" -ForegroundColor DarkCyan
+    Write-Host "         -> DNS & OneDrive configuration follows (if DNS selected)" -ForegroundColor DarkCyan
     Write-Host ""
     
     $menuVerify = Get-LocalizedString 'MainMenuVerify'
@@ -199,7 +199,7 @@ function Get-UserChoice {
                 continue
             }
             
-            # Validierung erfolgreich - gebe ORIGINAL-Case zurÃ¼ck
+            # Validierung erfolgreich - gebe ORIGINAL-Case zurueck
             $matchIndex = [array]::IndexOf($validChoicesUpper, $choice)
             if ($matchIndex -ge 0) {
                 $choice = $ValidChoices[$matchIndex]
@@ -562,7 +562,7 @@ function Invoke-AuditMode {
             Mode = 'Audit'
             Modules = @('Core', 'ASR', 'Advanced', 'DNS', 'Bloatware', 'Telemetry', 'Performance', 'AI', 'WirelessDisplay', 'OneDrive', 'UAC', 'WindowsUpdate', 'Edge')
             CreateRestorePoint = $true
-            CreateBackup = $false  # Wird spÃ¤ter von Start-InteractiveMode Ã¼berschrieben
+            CreateBackup = $false  # Wird spaeter von Start-InteractiveMode ueberschrieben
         }
         Write-Verbose "Audit Mode Config created with Mode=$($auditConfig.Mode)"
         return $auditConfig
@@ -648,7 +648,7 @@ function Invoke-EnforceMode {
             Mode = 'Enforce'
             Modules = @('Core', 'ASR', 'Advanced', 'DNS', 'Bloatware', 'Telemetry', 'Performance', 'AI', 'WirelessDisplay', 'OneDrive', 'UAC', 'WindowsUpdate', 'Edge')
             CreateRestorePoint = $true
-            CreateBackup = $false  # Wird spÃ¤ter von Start-InteractiveMode Ã¼berschrieben
+            CreateBackup = $false  # Wird spaeter von Start-InteractiveMode ueberschrieben
         }
         Write-Verbose "Enforce Mode Config created with Mode=$($enforceConfig.Mode)"
         return $enforceConfig
@@ -758,7 +758,7 @@ function Invoke-CustomMode {
             Mode = $mode
             Modules = $enabledModules
             CreateRestorePoint = $true
-            CreateBackup = $false  # Wird spÃ¤ter von Start-InteractiveMode Ã¼berschrieben
+            CreateBackup = $false  # Wird spaeter von Start-InteractiveMode ueberschrieben
         }
         Write-Verbose "Custom Mode Config created with Mode=$($customConfig.Mode), Modules=$($customConfig.Modules -join ',')"
         return $customConfig

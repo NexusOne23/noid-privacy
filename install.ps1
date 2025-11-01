@@ -85,13 +85,13 @@ $extractPath = "$env:TEMP\noid-privacy"
 
 try {
     # Get latest release info from GitHub API
-    Write-Host "    → Fetching release information..." -ForegroundColor Gray
+    Write-Host "    -> Fetching release information..." -ForegroundColor Gray
     $latestRelease = Invoke-RestMethod -Uri "https://api.github.com/repos/NexusOne23/noid-privacy/releases/latest" -UseBasicParsing
     $version = $latestRelease.tag_name
     $zipUrl = $latestRelease.assets[0].browser_download_url
     
-    Write-Host "    → Latest version: $version" -ForegroundColor Gray
-    Write-Host "    → Downloading..." -ForegroundColor Gray
+    Write-Host "    -> Latest version: $version" -ForegroundColor Gray
+    Write-Host "    -> Downloading..." -ForegroundColor Gray
     
     # Download ZIP
     Invoke-WebRequest -Uri $zipUrl -OutFile $downloadPath -UseBasicParsing
