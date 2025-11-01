@@ -1010,6 +1010,49 @@ else {
     $restoreStats.Skipped++
 }
 
+# Find the renamed Guest account (with SID *-501)
+Write-Host ""
+$currentGuestAccount = Get-LocalUser -ErrorAction SilentlyContinue | Where-Object { $_.SID -like "*-501" }
+
+if ($currentGuestAccount) {
+    # Find original guest name from backup
+    $originalGuest = $backup.Settings.UserAccounts | Where-Object { $_.SID -like "*-501" }
+    
+    if ($originalGuest -and $originalGuest.Name -ne $currentGuestAccount.Name) {
+        if ($PSCmdlet.ShouldProcess($currentGuestAccount.Name, "Rename to: $($originalGuest.Name)")) {
+            try {
+                Rename-LocalUser -Name $currentGuestAccount.Name -NewName $originalGuest.Name -ErrorAction Stop
+                $guestRenameMsg = "Guest account renamed: $($currentGuestAccount.Name) -> $($originalGuest.Name)"
+                Write-Host "  [OK] $guestRenameMsg" -ForegroundColor Green
+                
+                # Restore enabled/disabled state
+                if ($originalGuest.Enabled) {
+                    Enable-LocalUser -Name $originalGuest.Name -ErrorAction SilentlyContinue
+                    Write-Host "  [OK] Guest account enabled (restored from backup)" -ForegroundColor Green
+                }
+                else {
+                    Disable-LocalUser -Name $originalGuest.Name -ErrorAction SilentlyContinue
+                    Write-Host "  [OK] Guest account disabled (restored from backup)" -ForegroundColor Green
+                }
+                
+                $restoreStats.Success++
+            }
+            catch {
+                Write-Host "  [X] Guest account rename error: $_" -ForegroundColor Red
+                $restoreStats.Failed++
+            }
+        }
+    }
+    else {
+        Write-Host "  [i] Guest account already has correct name" -ForegroundColor Gray
+        $restoreStats.Skipped++
+    }
+}
+else {
+    Write-Host "  [!] Guest account not found (SID *-501)" -ForegroundColor Yellow
+    $restoreStats.Skipped++
+}
+
 Write-Host ""
 #endregion
 
