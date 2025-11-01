@@ -744,7 +744,7 @@ foreach ($moduleName in $requiredModules) {
                 'Interactive' { $moduleLoaded = $null -ne (Get-Command 'Start-InteractiveMode' -ErrorAction SilentlyContinue) }
                 'Edge' { $moduleLoaded = $null -ne (Get-Command 'Set-EdgeSecurityBaseline' -ErrorAction SilentlyContinue) }
                 'WirelessDisplay' { $moduleLoaded = $null -ne (Get-Command 'Disable-WirelessDisplay' -ErrorAction SilentlyContinue) }
-                'OneDrive' { $moduleLoaded = $null -ne (Get-Command 'Set-OneDrivePrivacyHardening' -ErrorAction SilentlyContinue) }
+                'OneDrive' { $moduleLoaded = ($null -ne (Get-Command 'Set-OneDrivePrivacyHardening' -ErrorAction SilentlyContinue)) -and ($null -ne (Get-Command 'Remove-OneDriveCompletely' -ErrorAction SilentlyContinue)) }
                 default { $moduleLoaded = $true }  # Fallback: Assume loaded
             }
             
@@ -1377,7 +1377,23 @@ try {
         Disable-UnnecessaryServices
         Disable-AdministrativeShares
         Set-SecureAdministratorAccount
-        Enable-CloudflareDNSoverHTTPS
+        
+        # DNS Provider Selection (based on user choice)
+        if ($config.ContainsKey('DNSProvider')) {
+            switch ($config.DNSProvider) {
+                '1' { Enable-CloudflareDNSoverHTTPS }
+                '2' { Enable-AdGuardDNS }
+                '3' { Enable-NextDNS }
+                '4' { Enable-Quad9DNS }
+                '5' { Write-Host "  [SKIP] DNS configuration skipped (user choice)" -ForegroundColor Yellow }
+                default { Enable-CloudflareDNSoverHTTPS }  # Fallback to Cloudflare
+            }
+        }
+        else {
+            # No choice made (CLI mode or old flow) - use default Cloudflare
+            Enable-CloudflareDNSoverHTTPS
+        }
+        
         Disable-RemoteAccessCompletely
         
         # Disable Sudo for Windows (Microsoft Baseline 25H2)
@@ -1552,11 +1568,37 @@ try {
     if ('OneDrive' -in $SelectedModules) {
         $currentModule++
         Write-Host ""
-        Write-Host "[$currentModule/$moduleCount] OneDrive Privacy Hardening" -ForegroundColor Cyan
+        Write-Host "[$currentModule/$moduleCount] OneDrive Configuration" -ForegroundColor Cyan
         
-        Set-OneDrivePrivacyHardening
-        
-        Write-Host "[OK] OneDrive Privacy: Telemetrie minimiert + User hat Kontrolle!" -ForegroundColor Green
+        # OneDrive Action Selection (based on user choice)
+        if ($config.ContainsKey('OneDriveAction')) {
+            switch ($config.OneDriveAction) {
+                '1' { 
+                    # Privacy Hardening (default)
+                    Set-OneDrivePrivacyHardening
+                    Write-Host "[OK] OneDrive Privacy: Telemetry minimized + User has control!" -ForegroundColor Green
+                }
+                '2' { 
+                    # Complete Removal
+                    Remove-OneDriveCompletely
+                    Write-Host "[OK] OneDrive: Completely removed from system!" -ForegroundColor Green
+                }
+                '3' { 
+                    # Skip
+                    Write-Host "  [SKIP] OneDrive configuration skipped (user choice)" -ForegroundColor Yellow
+                }
+                default {
+                    # Fallback to Privacy Hardening
+                    Set-OneDrivePrivacyHardening
+                    Write-Host "[OK] OneDrive Privacy: Telemetry minimized + User has control!" -ForegroundColor Green
+                }
+            }
+        }
+        else {
+            # No choice made (CLI mode or old flow) - use default Privacy Hardening
+            Set-OneDrivePrivacyHardening
+            Write-Host "[OK] OneDrive Privacy: Telemetry minimized + User has control!" -ForegroundColor Green
+        }
     }
     
     # === UAC MODULE ===
