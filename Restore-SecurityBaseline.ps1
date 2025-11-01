@@ -570,6 +570,17 @@ if ($featuresCount -gt 0) {
     
     foreach ($featureConfig in $backup.Settings.WindowsFeatures) {
         try {
+            # CRITICAL: Skip Windows-Defender-Default-Definitions (system-managed, can hang)
+            # ROOT CAUSE: Enable-WindowsOptionalFeature hangs when Defender is active
+            # REASON: Feature communicates with Defender Real-Time Protection service
+            # SOLUTION: Skip this feature - it's managed by Windows automatically
+            if ($featureConfig.FeatureName -eq 'Windows-Defender-Default-Definitions') {
+                Write-Host "  [SKIP] $($featureConfig.FeatureName): System-managed feature (Defender signature database)" -ForegroundColor Yellow
+                $featuresSkipped++
+                $restoreStats.Skipped++
+                continue
+            }
+            
             # Get current state
             $currentFeature = Get-WindowsOptionalFeature -Online -FeatureName $featureConfig.FeatureName -ErrorAction SilentlyContinue
             
