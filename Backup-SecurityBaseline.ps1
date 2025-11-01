@@ -814,7 +814,13 @@ try {
             }
             
             # Backup IPv4 DoH encryption (Doh branch)
-            $ipv4Servers = @('1.1.1.1', '1.0.0.1')
+            # CRITICAL: Include ALL 4 DNS providers (not just Cloudflare!)
+            $ipv4Servers = @(
+                '1.1.1.1', '1.0.0.1',              # Cloudflare
+                '94.140.14.14', '94.140.15.15',    # AdGuard
+                '45.90.28.0', '45.90.30.0',        # NextDNS
+                '9.9.9.9', '149.112.112.112'       # Quad9
+            )
             foreach ($ip in $ipv4Servers) {
                 $regPath = "HKLM:\System\CurrentControlSet\Services\Dnscache\InterfaceSpecificParameters\$adapterGuid\DohInterfaceSettings\Doh\$ip"
                 if (Test-Path $regPath) {
@@ -835,7 +841,13 @@ try {
             }
             
             # Backup IPv6 DoH encryption (Doh6 branch)
-            $ipv6Servers = @('2606:4700:4700::1111', '2606:4700:4700::1001')
+            # CRITICAL: Include ALL 4 DNS providers (not just Cloudflare!)
+            $ipv6Servers = @(
+                '2606:4700:4700::1111', '2606:4700:4700::1001',  # Cloudflare
+                '2a10:50c0::ad1:ff', '2a10:50c0::ad2:ff',        # AdGuard
+                '2a07:a8c0::', '2a07:a8c1::',                    # NextDNS
+                '2620:fe::fe', '2620:fe::9'                       # Quad9
+            )
             foreach ($ip in $ipv6Servers) {
                 $regPath = "HKLM:\System\CurrentControlSet\Services\Dnscache\InterfaceSpecificParameters\$adapterGuid\DohInterfaceSettings\Doh6\$ip"
                 if (Test-Path $regPath) {
