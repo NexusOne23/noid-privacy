@@ -511,6 +511,62 @@ function Disable-EFSRPC {
 
 #endregion
 
+#region WEBCLIENT/WEBDAV BLOCKING (AUTH COERCION PROTECTION)
+
+function Disable-WebClient {
+    <#
+    .SYNOPSIS
+        Disables WebClient/WebDAV service to prevent auth coercion attacks
+    .DESCRIPTION
+        Disables the WebClient service which provides WebDAV functionality.
+        WebDAV can be abused for NTLM relay and auth coercion attacks.
+        
+        CRITICAL: Blocks WebDAV-based auth coercion (similar to PrinterBug, DFSCoerce, EfsRpc)
+        
+        Auth Coercion Protection
+    .NOTES
+        WebDAV (Web Distributed Authoring and Versioning) is rarely used by home users.
+        Most users access cloud storage via native apps or web browsers.
+        This does NOT affect OneDrive, Dropbox, or other modern cloud services.
+    .EXAMPLE
+        Disable-WebClient
+    #>
+    [CmdletBinding()]
+    [OutputType([void])]
+    param()
+    
+    Write-Section "WebClient/WebDAV Service Blocking (Auth Coercion Protection)"
+    
+    Write-Info "Disabling WebClient service to prevent auth coercion attacks..."
+    
+    try {
+        # Stop WebClient service
+        $service = Get-Service -Name WebClient -ErrorAction SilentlyContinue
+        
+        if ($service) {
+            if ($service.Status -eq 'Running') {
+                Stop-Service -Name WebClient -Force -ErrorAction Stop
+                Write-Verbose "WebClient service stopped"
+            }
+            
+            # Disable service
+            Set-Service -Name WebClient -StartupType Disabled -ErrorAction Stop
+            Write-Success "WebClient service disabled"
+        } else {
+            Write-Info "WebClient service not found (may not be installed)"
+        }
+    }
+    catch {
+        Write-Warning "Could not disable WebClient service: $_"
+    }
+    
+    Write-Info "WebDAV network redirector disabled"
+    Write-Info "Modern cloud services (OneDrive, Dropbox, etc.) NOT affected"
+    Write-Warning "NOTE: \\server\davwwwroot\ UNC paths will NOT work"
+}
+
+#endregion
+
 #region PRINT SPOOLER USER RIGHTS (MS BASELINE 25H2)
 
 function Add-PrintSpoolerUserRight {

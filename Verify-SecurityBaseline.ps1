@@ -1236,4 +1236,15 @@ Test-BaselineCheck -Category "APT-Protection" -Name "SRP Deny Rules Configured (
     } `
     -Expected 5
 
+Test-BaselineCheck -Category "APT-Protection" -Name "WebClient Service Disabled (4)" -Impact "High" `
+    -Test { 
+        try {
+            $service = Get-Service -Name WebClient -ErrorAction Stop
+            if ($service.StartType -eq 'Disabled') { 4 } else { $service.StartType.value__ }
+        } catch {
+            4  # Service not found = effectively disabled
+        }
+    } `
+    -Expected 4
+
 Write-Host ""

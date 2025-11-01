@@ -1383,6 +1383,9 @@ try {
         # EFS RPC Blocking (Auth Coercion Protection)
         Disable-EFSRPC
         
+        # WebClient/WebDAV Blocking (Auth Coercion Protection)
+        Disable-WebClient
+        
         # Print Spooler User Right (Baseline 25H2 - Windows Protected Print)
         Add-PrintSpoolerUserRight
         
