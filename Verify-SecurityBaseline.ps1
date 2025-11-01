@@ -929,6 +929,13 @@ Test-BaselineCheck -Category "CredentialGuard" -Name "HVCI (Memory Integrity) En
     } `
     -Expected 1
 
+Test-BaselineCheck -Category "CredentialGuard" -Name "Vulnerable Driver Blocklist Enabled" -Impact "High" `
+    -Test { 
+        $v = Get-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Control\CI\Config" -Name VulnerableDriverBlocklistEnable -ErrorAction SilentlyContinue
+        if ($v) { $v.VulnerableDriverBlocklistEnable } else { 0 }
+    } `
+    -Expected 1
+
 # ===========================
 # WINDOWS LAPS (LOCAL ADMIN PASSWORD SOLUTION) - 3 SETTINGS
 # ===========================

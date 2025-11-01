@@ -1563,6 +1563,14 @@ $script:RegistryChanges = @(
         File = 'SecurityBaseline-Core.ps1'
     },
     @{
+        Path = 'HKLM:\SYSTEM\CurrentControlSet\Control\CI\Config'
+        Name = 'VulnerableDriverBlocklistEnable'
+        Type = 'DWord'
+        ApplyValue = 1
+        Description = 'Enable Vulnerable Driver Blocklist (BYOVD protection)'
+        File = 'SecurityBaseline-Core.ps1'
+    },
+    @{
         Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\System'
         Name = 'EnableCdp'
         Type = 'DWord'

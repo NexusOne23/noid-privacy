@@ -1309,6 +1309,7 @@ try {
         Set-PrintSpoolerUserRights
         Disable-InternetPrintingClient
         Disable-MSDTProtocolHandler
+        Enable-VulnerableDriverBlocklist
         
         # 3. Microsoft Defender Baseline
         Set-DefenderBaselineSettings

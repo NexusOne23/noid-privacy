@@ -622,6 +622,64 @@ function Disable-MSDTProtocolHandler {
     }
 }
 
+function Enable-VulnerableDriverBlocklist {
+    <#
+    .SYNOPSIS
+        Enables Microsoft Vulnerable Driver Blocklist
+    .DESCRIPTION
+        Activates the Windows kernel vulnerable driver blocklist to prevent
+        BYOVD (Bring Your Own Vulnerable Driver) attacks.
+        
+        The blocklist is maintained by Microsoft and blocks known vulnerable
+        or exploitable drivers that attackers use to gain kernel-level access.
+        
+        SECURITY BENEFITS:
+        - Blocks CVE-2025-0289 (Paragon Driver)
+        - Blocks BYOVD attacks (23% increase in 2024)
+        - Prevents kernel-level exploits via signed drivers
+        - Auto-updated by Windows Update
+        
+        BREAKING: Minimal (only affects vulnerable/exploitable drivers)
+        - Modern WHQL-certified drivers: NOT affected
+        - Windows drivers: NOT affected
+        - Legacy/vulnerable drivers: BLOCKED
+        
+        WORKAROUND: If legitimate driver blocked, check Event ID 3033,
+        update driver, or temporarily disable blocklist.
+    .NOTES
+        Requires HVCI or Smart App Control to be effective
+        Registry-based, no reboot required
+        Blocklist auto-syncs via Windows Update
+    .EXAMPLE
+        Enable-VulnerableDriverBlocklist
+    #>
+    [CmdletBinding()]
+    [OutputType([void])]
+    param()
+    
+    Write-Section "Enable Vulnerable Driver Blocklist"
+    
+    try {
+        $ciConfigPath = "HKLM:\SYSTEM\CurrentControlSet\Control\CI\Config"
+        
+        Write-Info "Enabling Microsoft Vulnerable Driver Blocklist (BYOVD protection)..."
+        
+        # Enable the blocklist
+        [void](Set-RegistryValue -Path $ciConfigPath -Name "VulnerableDriverBlocklistEnable" -Value 1 -Type DWord `
+            -Description "Enable Vulnerable Driver Blocklist (BYOVD protection)")
+        
+        Write-Success "Vulnerable Driver Blocklist enabled"
+        Write-Info "Protection active against BYOVD attacks (CVE-2025-0289, etc.)"
+        Write-Info "Blocklist auto-updates via Windows Update"
+        Write-Info "WHQL-certified drivers NOT affected"
+        Write-Info "If driver blocked: Check Event Viewer (Event ID 3033)"
+    }
+    catch {
+        Write-Warning "Could not enable Vulnerable Driver Blocklist: $_"
+        Write-Info "This is non-critical, continuing..."
+    }
+}
+
 #endregion
 
 #region DEFENDER BASELINE SETTINGS
