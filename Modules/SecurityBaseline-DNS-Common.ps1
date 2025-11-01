@@ -114,9 +114,27 @@ function Get-NoID-NetworkAdapters {
     param()
     
     # Patterns for VPN adapters
+    # COMPREHENSIVE LIST: Generic protocols + Consumer VPNs + Enterprise VPNs
     $vpnPatterns = @(
+        # Generic VPN protocols
         '*VPN*', '*OpenVPN*', '*WireGuard*', '*TAP*',
-        '*L2TP*', '*IKEv2*', '*RAS*', '*PPTP*'
+        '*L2TP*', '*IKEv2*', '*RAS*', '*PPTP*',
+        
+        # Consumer VPN vendors
+        '*NordVPN*', '*NordLynx*',     # NordVPN (NordLynx = WireGuard-based, no "VPN" in name!)
+        '*ExpressVPN*',                 # ExpressVPN
+        '*ProtonVPN*',                  # ProtonVPN
+        '*Mullvad*',                    # Mullvad VPN
+        
+        # Enterprise VPN vendors
+        '*Cisco*',                      # Cisco AnyConnect
+        '*Pulse*',                      # Pulse Secure
+        '*FortiClient*',                # FortiClient VPN
+        '*Palo Alto*', '*PANGP*',       # Palo Alto GlobalProtect (PANGP adapter - NO "VPN" in name!)
+        '*F5*',                         # F5 BIG-IP Edge Client
+        '*Checkpoint*', '*Check Point*', # Check Point VPN
+        '*Sonicwall*',                  # SonicWall VPN
+        '*Juniper*'                     # Juniper Networks (NO "VPN" in name!)
     )
     
     # Patterns for virtualization adapters
