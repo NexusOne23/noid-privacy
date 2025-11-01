@@ -487,8 +487,47 @@ Write-Host "    $(Get-LocalizedString 'BackupServicesNote')" -ForegroundColor Gr
 Write-Host ""
 #endregion
 
+#region Windows Optional Features Backup
+Write-Host "[5/14] Backing up Windows Optional Features..." -ForegroundColor Yellow
+
+$windowsFeaturesBackup = @()
+try {
+    Write-Host "  [i] Reading Windows Optional Features..." -ForegroundColor Gray
+    
+    # Get all Windows Optional Features (not just enabled ones)
+    $features = Get-WindowsOptionalFeature -Online -ErrorAction SilentlyContinue
+    
+    if ($features) {
+        # [OK] BEST PRACTICE: Capture foreach output directly
+        $windowsFeaturesBackup = foreach ($feature in $features) {
+            # Output to pipeline (captured by $windowsFeaturesBackup)
+            @{
+                FeatureName = $feature.FeatureName
+                State = $feature.State.ToString()
+                Description = if ($feature.Description) { $feature.Description } else { $null }
+            }
+        }
+        
+        $backup.Settings.WindowsFeatures = $windowsFeaturesBackup
+        $featuresCount = if ($windowsFeaturesBackup) { @($windowsFeaturesBackup).Count } else { 0 }
+        Write-Host "  [OK] $featuresCount Windows Features saved" -ForegroundColor Green
+        Write-Host "      (Includes state: Enabled/Disabled/DisabledWithPayloadRemoved)" -ForegroundColor Gray
+    }
+    else {
+        Write-Warning "No Windows Features found"
+        $backup.Settings.WindowsFeatures = @()
+    }
+}
+catch {
+    Write-Warning "Could not backup Windows Features: $_"
+    $backup.Settings.WindowsFeatures = @()
+}
+
+Write-Host ""
+#endregion
+
 #region Scheduled Tasks Backup (ALL TASKS!)
-Write-Host "[5/13] $(Get-LocalizedString 'BackupScheduledTasks')" -ForegroundColor Yellow
+Write-Host "[6/14] $(Get-LocalizedString 'BackupScheduledTasks')" -ForegroundColor Yellow
 
 # BACKUP ALL SCHEDULED TASKS (not just the ones we change!)
 $allTasks = Get-ScheduledTask -ErrorAction SilentlyContinue
@@ -517,7 +556,7 @@ Write-Host ""
 #endregion
 
 #region Firewall Rules Backup (ALL RULES!)
-Write-Host "[6/13] $(Get-LocalizedString 'BackupFirewall')" -ForegroundColor Yellow
+Write-Host "[7/14] $(Get-LocalizedString 'BackupFirewall')" -ForegroundColor Yellow
 
 # BACKUP ALL FIREWALL RULES (not just custom!)
 $allFirewallRules = Get-NetFirewallRule -ErrorAction SilentlyContinue
@@ -549,7 +588,7 @@ Write-Host ""
 #endregion
 
 #region User Accounts Backup
-Write-Host "[7/13] $(Get-LocalizedString 'BackupUsers')" -ForegroundColor Yellow
+Write-Host "[8/14] $(Get-LocalizedString 'BackupUsers')" -ForegroundColor Yellow
 
 $localUsers = Get-LocalUser -ErrorAction SilentlyContinue
 
@@ -574,7 +613,7 @@ Write-Host ""
 #endregion
 
 #region Registry Keys Backup (v2.0 - OPTIMIZED)
-Write-Host "[8/13] $(Get-LocalizedString 'BackupRegistry')" -ForegroundColor Yellow
+Write-Host "[9/14] $(Get-LocalizedString 'BackupRegistry')" -ForegroundColor Yellow
 
 # NEW v2.0: Specific registry backup (20-30x faster!)
 # Only backs up the 375 registry keys that Apply actually modifies
@@ -604,7 +643,7 @@ Write-Host ""
 #endregion
 
 #region ASR Rules Backup (Attack Surface Reduction)
-Write-Host "[9/13] $(Get-LocalizedString 'BackupASRTitle')" -ForegroundColor Yellow
+Write-Host "[10/14] $(Get-LocalizedString 'BackupASRTitle')" -ForegroundColor Yellow
 
 $asrBackup = @{
     Rules = @()
@@ -642,7 +681,7 @@ Write-Host ""
 #endregion
 
 #region Exploit Protection Backup (Set-ProcessMitigation)
-Write-Host "[10/13] $(Get-LocalizedString 'BackupExploitTitle')" -ForegroundColor Yellow
+Write-Host "[11/14] $(Get-LocalizedString 'BackupExploitTitle')" -ForegroundColor Yellow
 
 $exploitProtectionBackup = @{
     SystemMitigations = @()
@@ -689,7 +728,7 @@ Write-Host ""
 #endregion
 
 #region DoH Configuration Backup (DNS over HTTPS)
-Write-Host "[11/13] $(Get-LocalizedString 'BackupDohTitle')" -ForegroundColor Yellow
+Write-Host "[12/14] $(Get-LocalizedString 'BackupDohTitle')" -ForegroundColor Yellow
 
 $dohBackup = @{
     Servers = @()
@@ -753,7 +792,7 @@ Write-Host ""
 #endregion
 
 #region DoH Encryption Preferences Backup (Adapter-specific DohFlags)
-Write-Host "[12/13] $(Get-LocalizedString 'BackupDohEncryptionTitle')" -ForegroundColor Yellow
+Write-Host "[13/14] $(Get-LocalizedString 'BackupDohEncryptionTitle')" -ForegroundColor Yellow
 
 $dohEncryptionBackup = @{
     Adapters = @()
@@ -845,7 +884,7 @@ Write-Host ""
 #endregion
 
 #region Firewall Profile Settings Backup
-Write-Host "[13/13] $(Get-LocalizedString 'BackupFirewallProfilesTitle')" -ForegroundColor Yellow
+Write-Host "[14/14] $(Get-LocalizedString 'BackupFirewallProfilesTitle')" -ForegroundColor Yellow
 
 $firewallProfileBackup = @{
     Profiles = @()

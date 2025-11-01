@@ -557,8 +557,92 @@ if ($servicesFailedCount -gt 0) {
 Write-Host ""
 #endregion
 
+#region Restore Windows Optional Features
+Write-Host "[4/15] Restoring Windows Optional Features..." -ForegroundColor Yellow
+
+$featuresCount = if ($backup.Settings.WindowsFeatures) { @($backup.Settings.WindowsFeatures).Count } else { 0 }
+if ($featuresCount -gt 0) {
+    Write-Host "  [i] Found $featuresCount Windows Features in backup" -ForegroundColor Cyan
+    
+    $featuresRestored = 0
+    $featuresSkipped = 0
+    $featuresFailed = 0
+    
+    foreach ($featureConfig in $backup.Settings.WindowsFeatures) {
+        try {
+            # Get current state
+            $currentFeature = Get-WindowsOptionalFeature -Online -FeatureName $featureConfig.FeatureName -ErrorAction SilentlyContinue
+            
+            if ($currentFeature) {
+                $currentState = $currentFeature.State.ToString()
+                $backupState = $featureConfig.State
+                
+                # Only restore if state changed
+                if ($currentState -ne $backupState) {
+                    if ($PSCmdlet.ShouldProcess($featureConfig.FeatureName, "Change state: $currentState -> $backupState")) {
+                        if ($backupState -eq 'Enabled') {
+                            Write-Host "    [i] Enabling: $($featureConfig.FeatureName)..." -ForegroundColor Gray
+                            Enable-WindowsOptionalFeature -Online -FeatureName $featureConfig.FeatureName -NoRestart -ErrorAction Stop | Out-Null
+                            Write-Host "    [OK] Enabled: $($featureConfig.FeatureName)" -ForegroundColor Green
+                            $featuresRestored++
+                            $restoreStats.Success++
+                        }
+                        elseif ($backupState -eq 'Disabled') {
+                            Write-Host "    [i] Disabling: $($featureConfig.FeatureName)..." -ForegroundColor Gray
+                            Disable-WindowsOptionalFeature -Online -FeatureName $featureConfig.FeatureName -NoRestart -ErrorAction Stop | Out-Null
+                            Write-Host "    [OK] Disabled: $($featureConfig.FeatureName)" -ForegroundColor Green
+                            $featuresRestored++
+                            $restoreStats.Success++
+                        }
+                        else {
+                            # DisabledWithPayloadRemoved or other states - skip
+                            Write-Verbose "    [SKIP] $($featureConfig.FeatureName): State '$backupState' cannot be automatically restored"
+                            $featuresSkipped++
+                            $restoreStats.Skipped++
+                        }
+                    }
+                }
+                else {
+                    Write-Verbose "  [SKIP] $($featureConfig.FeatureName): Already in correct state ($currentState)"
+                    $featuresSkipped++
+                    $restoreStats.Skipped++
+                }
+            }
+            else {
+                Write-Verbose "  [!] Feature not found: $($featureConfig.FeatureName)"
+                $featuresSkipped++
+                $restoreStats.Skipped++
+            }
+        }
+        catch {
+            Write-Host "    [X] Failed to restore $($featureConfig.FeatureName): $_" -ForegroundColor Red
+            $featuresFailed++
+            $restoreStats.Failed++
+        }
+    }
+    
+    # Summary
+    Write-Host ""
+    if ($featuresRestored -gt 0) {
+        Write-Host "  [OK] $featuresRestored Windows Feature(s) restored" -ForegroundColor Green
+    }
+    if ($featuresSkipped -gt 0) {
+        Write-Host "  [i] $featuresSkipped Feature(s) skipped (already correct state)" -ForegroundColor Gray
+    }
+    if ($featuresFailed -gt 0) {
+        Write-Host "  [X] $featuresFailed Feature(s) failed to restore" -ForegroundColor Red
+    }
+}
+else {
+    Write-Host "  [i] No Windows Features in backup" -ForegroundColor Gray
+    $restoreStats.Skipped++
+}
+
+Write-Host ""
+#endregion
+
 #region Restore Scheduled Tasks
-Write-Host "[4/14] Restore Scheduled Tasks..." -ForegroundColor Yellow
+Write-Host "[5/15] Restore Scheduled Tasks..." -ForegroundColor Yellow
 
 # CRITICAL: Check if Task Scheduler service is available
 # ROOT CAUSE: Schedule service is protected (TrustedInstaller/SYSTEM)
@@ -821,7 +905,7 @@ Write-Host ""
 #endregion
 
 #region Restore Registry Keys (v2.0 - OPTIMIZED)
-Write-Host "[6/14] $(Get-LocalizedString 'RestoreRegistry')" -ForegroundColor Yellow
+Write-Host "[7/15] $(Get-LocalizedString 'RestoreRegistry')" -ForegroundColor Yellow
 
 # NEW v2.0: Specific registry restore (10-15x faster!)
 # Only restores the 383 registry keys that Apply actually modifies
@@ -874,7 +958,7 @@ Write-Host ""
 #endregion
 
 #region Restore User Accounts
-Write-Host "[7/14] $(Get-LocalizedString 'RestoreUsers')" -ForegroundColor Yellow
+Write-Host "[8/15] $(Get-LocalizedString 'RestoreUsers')" -ForegroundColor Yellow
 
 # Find the renamed Administrator account (with SID *-500)
 $currentAdminAccount = Get-LocalUser -ErrorAction SilentlyContinue | Where-Object { $_.SID -like "*-500" }
@@ -1057,7 +1141,7 @@ Write-Host ""
 #endregion
 
 #region Restore Apps
-Write-Host "[8/14] $(Get-LocalizedString 'RestoreApps')" -ForegroundColor Yellow
+Write-Host "[9/15] $(Get-LocalizedString 'RestoreApps')" -ForegroundColor Yellow
 
 $currentApps = Get-AppxPackage -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Name
 $missingApps = $backup.Settings.InstalledApps | Where-Object { $currentApps -notcontains $_.Name }
@@ -1066,6 +1150,24 @@ $missingAppsCount = if ($missingApps) { @($missingApps).Count } else { 0 }
 if ($missingAppsCount -gt 0) {
     $missingMsg = (Get-LocalizedString 'RestoreAppsMissing')
     Write-Host "  [!] $missingAppsCount $missingMsg" -ForegroundColor Yellow
+    Write-Host ""
+    
+    # CRITICAL WARNING: Explain why apps were removed and cannot be auto-restored
+    Write-Host "  ============================================================================" -ForegroundColor Red
+    Write-Host "  WARNING: Apps were PERMANENTLY REMOVED by Security Baseline" -ForegroundColor Red
+    Write-Host "  ============================================================================" -ForegroundColor Red
+    Write-Host "  Reason: Bloatware Apps removed for privacy/security" -ForegroundColor Yellow
+    Write-Host "  Impact: These apps CANNOT be automatically reinstalled" -ForegroundColor Yellow
+    Write-Host "  Why: App packages (.appx files) were deleted from system" -ForegroundColor Yellow
+    Write-Host ""
+    Write-Host "  You removed these apps INTENTIONALLY during Apply." -ForegroundColor Cyan
+    Write-Host "  Most users DO NOT want these apps back (Bloatware!)." -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "  If you REALLY need an app:" -ForegroundColor White
+    Write-Host "    1. Check the list below" -ForegroundColor Gray
+    Write-Host "    2. Search in Microsoft Store manually" -ForegroundColor Gray
+    Write-Host "    3. Or use: Get-WindowsCapability -Online | Add-WindowsCapability" -ForegroundColor Gray
+    Write-Host "  ============================================================================" -ForegroundColor Red
     Write-Host ""
     
     $provPkgCount = if ($backup.Settings.ProvisionedPackages) { @($backup.Settings.ProvisionedPackages).Count } else { 0 }
@@ -1195,7 +1297,7 @@ Write-Host ""
 
 #region Restore ASR Rules
 Write-Host ""
-Write-Host "[9/14] Restore ASR Rules..." -ForegroundColor Yellow
+Write-Host "[10/15] Restore ASR Rules..." -ForegroundColor Yellow
 
 if ($backup.Settings.ASRRules -and $backup.Settings.ASRRules.Enabled) {
     try {
@@ -1233,7 +1335,7 @@ else {
 
 #region Restore Exploit Protection
 Write-Host ""
-Write-Host "[10/14] Restore Exploit Protection..." -ForegroundColor Yellow
+Write-Host "[11/15] Restore Exploit Protection..." -ForegroundColor Yellow
 
 if ($backup.Settings.ExploitProtection -and $backup.Settings.ExploitProtection.Enabled) {
     try {
@@ -1354,7 +1456,7 @@ else {
 
 #region Restore DoH Configuration
 Write-Host ""
-Write-Host "[11/14] Restore DoH Configuration..." -ForegroundColor Yellow
+Write-Host "[12/15] Restore DoH Configuration..." -ForegroundColor Yellow
 
 if ($backup.Settings.DoH -and $backup.Settings.DoH.Enabled) {
     try {
@@ -1451,7 +1553,7 @@ else {
 
 #region Restore DoH Encryption Preferences (Adapter-specific DohFlags)
 Write-Host ""
-Write-Host "[12/14] Restore DoH Encryption Preferences (Adapter-specific)..." -ForegroundColor Yellow
+Write-Host "[13/15] Restore DoH Encryption Preferences (Adapter-specific)..." -ForegroundColor Yellow
 
 if ($backup.Settings.DohEncryption -and $backup.Settings.DohEncryption.Enabled) {
     try {
@@ -1543,7 +1645,7 @@ else {
 
 #region Restore Firewall Profile Settings
 Write-Host ""
-Write-Host "[13/14] Restore Firewall Profile Settings..." -ForegroundColor Yellow
+Write-Host "[14/15] Restore Firewall Profile Settings..." -ForegroundColor Yellow
 
 if ($backup.Settings.FirewallProfiles -and $backup.Settings.FirewallProfiles.Enabled) {
     try {
@@ -1592,7 +1694,7 @@ else {
 
 #region Restore Device-Level App Permissions
 Write-Host ""
-Write-Host "[14/14] Restore Device-Level App Permissions..." -ForegroundColor Yellow
+Write-Host "[15/15] Restore Device-Level App Permissions..." -ForegroundColor Yellow
 
 # CRITICAL FIX: Check property existence BEFORE access (StrictMode compatibility)
 # ROOT CAUSE: Direct property access crashes under StrictMode if property doesn't exist
