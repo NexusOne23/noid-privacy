@@ -3,6 +3,9 @@
 # Windows AI Features Lockdown (Copilot, Recall, Click to Do, etc.)
 # ============================================================================
 
+#Requires -Version 5.1
+#Requires -RunAsAdministrator
+
 Set-StrictMode -Version Latest
 
 function Disable-WindowsRecall {

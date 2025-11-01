@@ -2,6 +2,9 @@
 # SecurityBaseline-OneDrive.ps1 - OneDrive Privacy Hardening
 # =======================================================================================
 
+#Requires -Version 5.1
+#Requires -RunAsAdministrator
+
 # Best Practice 25H2: Enable Strict Mode
 Set-StrictMode -Version Latest
 

@@ -2,6 +2,8 @@
 # SecurityBaseline-Localization.ps1 - Multi-Language Support (EN/DE)
 # =======================================================================================
 
+#Requires -Version 5.1
+
 # Enable Strict Mode
 Set-StrictMode -Version Latest
 

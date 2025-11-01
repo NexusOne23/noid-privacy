@@ -2,6 +2,9 @@
 # SecurityBaseline-Telemetry.ps1 - Complete Telemetry Deactivation (Best Practice 2025)
 # =======================================================================================
 
+#Requires -Version 5.1
+#Requires -RunAsAdministrator
+
 <#
 .SYNOPSIS
     Deaktiviert Windows-Telemetrie vollstaendig ohne Funktionalitaet zu brechen
