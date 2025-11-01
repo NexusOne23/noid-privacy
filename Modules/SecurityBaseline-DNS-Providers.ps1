@@ -92,10 +92,22 @@ function Enable-CloudflareDNS {
             $ipv6Enabled = $ipv6Binding.Enabled
             
             if ($ipv6Enabled) {
-                # IPv6 first, then IPv4 (Windows prefers first server for DoH validation)
-                $totalServers = $ipv6Servers.Count + $ipv4Servers.Count
+                # CRITICAL FIX: IPv6 FIRST for DoH validation, then back to IPv4-first
+                # Windows needs IPv6 at front to validate IPv6 DoH servers
+                Write-Verbose "Setting IPv6 first (temporarily for DoH validation)..."
                 Set-DnsClientServerAddress -InterfaceAlias $adapter.Name `
                     -ServerAddresses ($ipv6Servers + $ipv4Servers) -ErrorAction Stop
+                
+                # Wait for Windows to validate IPv6 DoH
+                Write-Verbose "Waiting 5 seconds for IPv6 DoH validation..."
+                Start-Sleep -Seconds 5
+                
+                # Reset to IPv4-first (faster for most users)
+                Write-Verbose "Resetting DNS order (IPv4 first for speed)..."
+                Set-DnsClientServerAddress -InterfaceAlias $adapter.Name `
+                    -ServerAddresses ($ipv4Servers + $ipv6Servers) -ErrorAction Stop
+                
+                $totalServers = $ipv6Servers.Count + $ipv4Servers.Count
                 Write-Info "  -> $($adapter.Name): IPv6 + IPv4 ($totalServers servers)"
             }
             else {
@@ -104,9 +116,87 @@ function Enable-CloudflareDNS {
                     -ServerAddresses $ipv4Servers -ErrorAction Stop
                 Write-Info "  -> $($adapter.Name): IPv4 only ($($ipv4Servers.Count) servers)"
             }
+            
+            # CRITICAL: Set DoH Encryption Preference (DohFlags Registry)
+            # Without this, Windows GUI shows "Unencrypted" even though DoH works!
+            try {
+                $adapterGuid = $adapter.InterfaceGuid
+                Write-Verbose "Setting DohFlags for adapter GUID: $adapterGuid"
+                
+                # IPv4 Servers → Doh branch
+                foreach ($ip in $ipv4Servers) {
+                    try {
+                        $regPath = "HKLM:\System\CurrentControlSet\Services\Dnscache\InterfaceSpecificParameters\$adapterGuid\DohInterfaceSettings\Doh\$ip"
+                        if (-not (Test-Path $regPath)) {
+                            New-Item -Path $regPath -Force -ErrorAction Stop | Out-Null
+                        }
+                        New-ItemProperty -Path $regPath -Name 'DohFlags' -Value 1 -PropertyType QWord -Force -ErrorAction Stop | Out-Null
+                        Write-Verbose "  DohFlags set: $ip (Encrypted Only)"
+                    }
+                    catch {
+                        Write-Verbose "  Failed to set DohFlags for $ip : $_"
+                    }
+                }
+                
+                # IPv6 Servers → Doh6 branch (DIFFERENT from IPv4!)
+                if ($ipv6Enabled) {
+                    foreach ($ip in $ipv6Servers) {
+                        try {
+                            # CRITICAL: IPv6 uses Doh6 branch, not Doh!
+                            $basePath = "HKLM:\System\CurrentControlSet\Services\Dnscache\InterfaceSpecificParameters\$adapterGuid\DohInterfaceSettings\Doh6"
+                            $ipPath = "$basePath\$ip"
+                            
+                            # Create Doh6 parent if not exists
+                            if (-not (Test-Path $basePath)) {
+                                New-Item -Path $basePath -Force -ErrorAction Stop | Out-Null
+                            }
+                            
+                            # Create IP subkey
+                            if (-not (Test-Path $ipPath)) {
+                                New-Item -Path $ipPath -Force -ErrorAction Stop | Out-Null
+                            }
+                            
+                            # Set DohFlags
+                            New-ItemProperty -Path $ipPath -Name 'DohFlags' -Value 1 -PropertyType QWord -Force -ErrorAction Stop | Out-Null
+                            Write-Verbose "  DohFlags set: $ip (Encrypted Only, Doh6)"
+                        }
+                        catch {
+                            Write-Verbose "  Failed to set DohFlags for $ip : $_"
+                        }
+                    }
+                }
+            }
+            catch {
+                Write-Verbose "Could not set DoH encryption preference (non-critical): $_"
+            }
         }
         catch {
             Write-Warning "Failed to configure adapter $($adapter.Name): $_"
+        }
+    }
+    
+    # Clear DNS cache (with timeout - prevents hang)
+    $job = $null
+    try {
+        Write-Info "Flushing DNS cache..."
+        $job = Start-Job -ScriptBlock { ipconfig /flushdns 2>&1 }
+        $null = Wait-Job $job -Timeout 10
+        
+        if ($job.State -eq 'Completed') {
+            $null = Receive-Job $job -ErrorAction SilentlyContinue
+            Write-Verbose "DNS cache flushed successfully"
+        }
+        elseif ($job.State -eq 'Running') {
+            Stop-Job $job -ErrorAction SilentlyContinue
+            Write-Verbose "DNS cache flush timeout (non-critical)"
+        }
+    }
+    catch {
+        Write-Verbose "Could not flush DNS cache: $_"
+    }
+    finally {
+        if ($job) {
+            Remove-Job $job -Force -ErrorAction SilentlyContinue
         }
     }
     
@@ -114,6 +204,27 @@ function Enable-CloudflareDNS {
     Write-Info "IPv4: 1.1.1.1, 1.0.0.1"
     Write-Info "IPv6: 2606:4700:4700::1111, 2606:4700:4700::1001"
     Write-Info "All DNS queries are encrypted via HTTPS"
+    
+    # VALIDATION: Check if DoH is really configured
+    try {
+        $dohServers = Get-DnsClientDohServerAddress -ErrorAction SilentlyContinue
+        if ($dohServers) {
+            $cloudflareDoH = $dohServers | Where-Object { $_.ServerAddress -match "1\.1\.1\.1|1\.0\.0\.1|2606:4700:4700" }
+            if ($cloudflareDoH) {
+                $dohCount = @($cloudflareDoH).Count
+                Write-Verbose "DoH validation: $dohCount Cloudflare servers registered"
+                foreach ($server in $cloudflareDoH) {
+                    Write-Verbose "  Server: $($server.ServerAddress), Template: $($server.DohTemplate)"
+                    if ($server.AllowFallbackToUdp -eq $false) {
+                        Write-Verbose "  No fallback to unencrypted (Maximum Security!)"
+                    }
+                }
+            }
+        }
+    }
+    catch {
+        Write-Verbose "DoH validation skipped (non-critical): $_"
+    }
 }
 
 #endregion
@@ -181,10 +292,21 @@ function Enable-AdGuardDNS {
             $ipv6Enabled = $ipv6Binding.Enabled
             
             if ($ipv6Enabled) {
-                # IPv6 first, then IPv4
-                $totalServers = $ipv6Servers.Count + $ipv4Servers.Count
+                # CRITICAL FIX: IPv6 FIRST for DoH validation, then back to IPv4-first
+                Write-Verbose "Setting IPv6 first (temporarily for DoH validation)..."
                 Set-DnsClientServerAddress -InterfaceAlias $adapter.Name `
                     -ServerAddresses ($ipv6Servers + $ipv4Servers) -ErrorAction Stop
+                
+                # Wait for Windows to validate IPv6 DoH
+                Write-Verbose "Waiting 5 seconds for IPv6 DoH validation..."
+                Start-Sleep -Seconds 5
+                
+                # Reset to IPv4-first (faster for most users)
+                Write-Verbose "Resetting DNS order (IPv4 first for speed)..."
+                Set-DnsClientServerAddress -InterfaceAlias $adapter.Name `
+                    -ServerAddresses ($ipv4Servers + $ipv6Servers) -ErrorAction Stop
+                
+                $totalServers = $ipv6Servers.Count + $ipv4Servers.Count
                 Write-Info "  -> $($adapter.Name): IPv6 + IPv4 ($totalServers servers)"
             }
             else {
@@ -193,9 +315,82 @@ function Enable-AdGuardDNS {
                     -ServerAddresses $ipv4Servers -ErrorAction Stop
                 Write-Info "  -> $($adapter.Name): IPv4 only ($($ipv4Servers.Count) servers)"
             }
+            
+            # CRITICAL: Set DoH Encryption Preference (DohFlags Registry)
+            try {
+                $adapterGuid = $adapter.InterfaceGuid
+                Write-Verbose "Setting DohFlags for adapter GUID: $adapterGuid"
+                
+                # IPv4 Servers → Doh branch
+                foreach ($ip in $ipv4Servers) {
+                    try {
+                        $regPath = "HKLM:\System\CurrentControlSet\Services\Dnscache\InterfaceSpecificParameters\$adapterGuid\DohInterfaceSettings\Doh\$ip"
+                        if (-not (Test-Path $regPath)) {
+                            New-Item -Path $regPath -Force -ErrorAction Stop | Out-Null
+                        }
+                        New-ItemProperty -Path $regPath -Name 'DohFlags' -Value 1 -PropertyType QWord -Force -ErrorAction Stop | Out-Null
+                        Write-Verbose "  DohFlags set: $ip (Encrypted Only)"
+                    }
+                    catch {
+                        Write-Verbose "  Failed to set DohFlags for $ip : $_"
+                    }
+                }
+                
+                # IPv6 Servers → Doh6 branch
+                if ($ipv6Enabled) {
+                    foreach ($ip in $ipv6Servers) {
+                        try {
+                            $basePath = "HKLM:\System\CurrentControlSet\Services\Dnscache\InterfaceSpecificParameters\$adapterGuid\DohInterfaceSettings\Doh6"
+                            $ipPath = "$basePath\$ip"
+                            
+                            if (-not (Test-Path $basePath)) {
+                                New-Item -Path $basePath -Force -ErrorAction Stop | Out-Null
+                            }
+                            
+                            if (-not (Test-Path $ipPath)) {
+                                New-Item -Path $ipPath -Force -ErrorAction Stop | Out-Null
+                            }
+                            
+                            New-ItemProperty -Path $ipPath -Name 'DohFlags' -Value 1 -PropertyType QWord -Force -ErrorAction Stop | Out-Null
+                            Write-Verbose "  DohFlags set: $ip (Encrypted Only, Doh6)"
+                        }
+                        catch {
+                            Write-Verbose "  Failed to set DohFlags for $ip : $_"
+                        }
+                    }
+                }
+            }
+            catch {
+                Write-Verbose "Could not set DoH encryption preference (non-critical): $_"
+            }
         }
         catch {
             Write-Warning "Failed to configure adapter $($adapter.Name): $_"
+        }
+    }
+    
+    # Clear DNS cache (with timeout)
+    $job = $null
+    try {
+        Write-Info "Flushing DNS cache..."
+        $job = Start-Job -ScriptBlock { ipconfig /flushdns 2>&1 }
+        $null = Wait-Job $job -Timeout 10
+        
+        if ($job.State -eq 'Completed') {
+            $null = Receive-Job $job -ErrorAction SilentlyContinue
+            Write-Verbose "DNS cache flushed successfully"
+        }
+        elseif ($job.State -eq 'Running') {
+            Stop-Job $job -ErrorAction SilentlyContinue
+            Write-Verbose "DNS cache flush timeout (non-critical)"
+        }
+    }
+    catch {
+        Write-Verbose "Could not flush DNS cache: $_"
+    }
+    finally {
+        if ($job) {
+            Remove-Job $job -Force -ErrorAction SilentlyContinue
         }
     }
     
@@ -204,6 +399,21 @@ function Enable-AdGuardDNS {
     Write-Info "IPv6: 2a10:50c0::ad1:ff, 2a10:50c0::ad2:ff"
     Write-Info "All DNS queries are encrypted via HTTPS"
     Write-Info "Built-in ad and tracker blocking active"
+    
+    # VALIDATION: Check if DoH is configured
+    try {
+        $dohServers = Get-DnsClientDohServerAddress -ErrorAction SilentlyContinue
+        if ($dohServers) {
+            $adguardDoH = $dohServers | Where-Object { $_.ServerAddress -match "94\.140\.14|94\.140\.15|2a10:50c0" }
+            if ($adguardDoH) {
+                $dohCount = @($adguardDoH).Count
+                Write-Verbose "DoH validation: $dohCount AdGuard servers registered"
+            }
+        }
+    }
+    catch {
+        Write-Verbose "DoH validation skipped (non-critical): $_"
+    }
 }
 
 #endregion
@@ -294,10 +504,21 @@ function Enable-NextDNS {
             $ipv6Enabled = $ipv6Binding.Enabled
             
             if ($ipv6Enabled) {
-                # IPv6 first, then IPv4
-                $totalServers = $ipv6Servers.Count + $ipv4Servers.Count
+                # CRITICAL FIX: IPv6 FIRST for DoH validation, then back to IPv4-first
+                Write-Verbose "Setting IPv6 first (temporarily for DoH validation)..."
                 Set-DnsClientServerAddress -InterfaceAlias $adapter.Name `
                     -ServerAddresses ($ipv6Servers + $ipv4Servers) -ErrorAction Stop
+                
+                # Wait for Windows to validate IPv6 DoH
+                Write-Verbose "Waiting 5 seconds for IPv6 DoH validation..."
+                Start-Sleep -Seconds 5
+                
+                # Reset to IPv4-first (faster for most users)
+                Write-Verbose "Resetting DNS order (IPv4 first for speed)..."
+                Set-DnsClientServerAddress -InterfaceAlias $adapter.Name `
+                    -ServerAddresses ($ipv4Servers + $ipv6Servers) -ErrorAction Stop
+                
+                $totalServers = $ipv6Servers.Count + $ipv4Servers.Count
                 Write-Info "  -> $($adapter.Name): IPv6 + IPv4 ($totalServers servers)"
             }
             else {
@@ -306,9 +527,82 @@ function Enable-NextDNS {
                     -ServerAddresses $ipv4Servers -ErrorAction Stop
                 Write-Info "  -> $($adapter.Name): IPv4 only ($($ipv4Servers.Count) servers)"
             }
+            
+            # CRITICAL: Set DoH Encryption Preference (DohFlags Registry)
+            try {
+                $adapterGuid = $adapter.InterfaceGuid
+                Write-Verbose "Setting DohFlags for adapter GUID: $adapterGuid"
+                
+                # IPv4 Servers → Doh branch
+                foreach ($ip in $ipv4Servers) {
+                    try {
+                        $regPath = "HKLM:\System\CurrentControlSet\Services\Dnscache\InterfaceSpecificParameters\$adapterGuid\DohInterfaceSettings\Doh\$ip"
+                        if (-not (Test-Path $regPath)) {
+                            New-Item -Path $regPath -Force -ErrorAction Stop | Out-Null
+                        }
+                        New-ItemProperty -Path $regPath -Name 'DohFlags' -Value 1 -PropertyType QWord -Force -ErrorAction Stop | Out-Null
+                        Write-Verbose "  DohFlags set: $ip (Encrypted Only)"
+                    }
+                    catch {
+                        Write-Verbose "  Failed to set DohFlags for $ip : $_"
+                    }
+                }
+                
+                # IPv6 Servers → Doh6 branch
+                if ($ipv6Enabled) {
+                    foreach ($ip in $ipv6Servers) {
+                        try {
+                            $basePath = "HKLM:\System\CurrentControlSet\Services\Dnscache\InterfaceSpecificParameters\$adapterGuid\DohInterfaceSettings\Doh6"
+                            $ipPath = "$basePath\$ip"
+                            
+                            if (-not (Test-Path $basePath)) {
+                                New-Item -Path $basePath -Force -ErrorAction Stop | Out-Null
+                            }
+                            
+                            if (-not (Test-Path $ipPath)) {
+                                New-Item -Path $ipPath -Force -ErrorAction Stop | Out-Null
+                            }
+                            
+                            New-ItemProperty -Path $ipPath -Name 'DohFlags' -Value 1 -PropertyType QWord -Force -ErrorAction Stop | Out-Null
+                            Write-Verbose "  DohFlags set: $ip (Encrypted Only, Doh6)"
+                        }
+                        catch {
+                            Write-Verbose "  Failed to set DohFlags for $ip : $_"
+                        }
+                    }
+                }
+            }
+            catch {
+                Write-Verbose "Could not set DoH encryption preference (non-critical): $_"
+            }
         }
         catch {
             Write-Warning "Failed to configure adapter $($adapter.Name): $_"
+        }
+    }
+    
+    # Clear DNS cache (with timeout)
+    $job = $null
+    try {
+        Write-Info "Flushing DNS cache..."
+        $job = Start-Job -ScriptBlock { ipconfig /flushdns 2>&1 }
+        $null = Wait-Job $job -Timeout 10
+        
+        if ($job.State -eq 'Completed') {
+            $null = Receive-Job $job -ErrorAction SilentlyContinue
+            Write-Verbose "DNS cache flushed successfully"
+        }
+        elseif ($job.State -eq 'Running') {
+            Stop-Job $job -ErrorAction SilentlyContinue
+            Write-Verbose "DNS cache flush timeout (non-critical)"
+        }
+    }
+    catch {
+        Write-Verbose "Could not flush DNS cache: $_"
+    }
+    finally {
+        if ($job) {
+            Remove-Job $job -Force -ErrorAction SilentlyContinue
         }
     }
     
@@ -316,6 +610,21 @@ function Enable-NextDNS {
     Write-Info "IPv4: 45.90.28.0, 45.90.30.0"
     Write-Info "IPv6: 2a07:a8c0::, 2a07:a8c1::"
     Write-Info "All DNS queries are encrypted via HTTPS"
+    
+    # VALIDATION: Check if DoH is configured
+    try {
+        $dohServers = Get-DnsClientDohServerAddress -ErrorAction SilentlyContinue
+        if ($dohServers) {
+            $nextdnsDoH = $dohServers | Where-Object { $_.ServerAddress -match "45\.90\.28|45\.90\.30|2a07:a8c" }
+            if ($nextdnsDoH) {
+                $dohCount = @($nextdnsDoH).Count
+                Write-Verbose "DoH validation: $dohCount NextDNS servers registered"
+            }
+        }
+    }
+    catch {
+        Write-Verbose "DoH validation skipped (non-critical): $_"
+    }
 }
 
 #endregion
@@ -383,10 +692,21 @@ function Enable-Quad9DNS {
             $ipv6Enabled = $ipv6Binding.Enabled
             
             if ($ipv6Enabled) {
-                # IPv6 first, then IPv4
-                $totalServers = $ipv6Servers.Count + $ipv4Servers.Count
+                # CRITICAL FIX: IPv6 FIRST for DoH validation, then back to IPv4-first
+                Write-Verbose "Setting IPv6 first (temporarily for DoH validation)..."
                 Set-DnsClientServerAddress -InterfaceAlias $adapter.Name `
                     -ServerAddresses ($ipv6Servers + $ipv4Servers) -ErrorAction Stop
+                
+                # Wait for Windows to validate IPv6 DoH
+                Write-Verbose "Waiting 5 seconds for IPv6 DoH validation..."
+                Start-Sleep -Seconds 5
+                
+                # Reset to IPv4-first (faster for most users)
+                Write-Verbose "Resetting DNS order (IPv4 first for speed)..."
+                Set-DnsClientServerAddress -InterfaceAlias $adapter.Name `
+                    -ServerAddresses ($ipv4Servers + $ipv6Servers) -ErrorAction Stop
+                
+                $totalServers = $ipv6Servers.Count + $ipv4Servers.Count
                 Write-Info "  -> $($adapter.Name): IPv6 + IPv4 ($totalServers servers)"
             }
             else {
@@ -395,9 +715,82 @@ function Enable-Quad9DNS {
                     -ServerAddresses $ipv4Servers -ErrorAction Stop
                 Write-Info "  -> $($adapter.Name): IPv4 only ($($ipv4Servers.Count) servers)"
             }
+            
+            # CRITICAL: Set DoH Encryption Preference (DohFlags Registry)
+            try {
+                $adapterGuid = $adapter.InterfaceGuid
+                Write-Verbose "Setting DohFlags for adapter GUID: $adapterGuid"
+                
+                # IPv4 Servers → Doh branch
+                foreach ($ip in $ipv4Servers) {
+                    try {
+                        $regPath = "HKLM:\System\CurrentControlSet\Services\Dnscache\InterfaceSpecificParameters\$adapterGuid\DohInterfaceSettings\Doh\$ip"
+                        if (-not (Test-Path $regPath)) {
+                            New-Item -Path $regPath -Force -ErrorAction Stop | Out-Null
+                        }
+                        New-ItemProperty -Path $regPath -Name 'DohFlags' -Value 1 -PropertyType QWord -Force -ErrorAction Stop | Out-Null
+                        Write-Verbose "  DohFlags set: $ip (Encrypted Only)"
+                    }
+                    catch {
+                        Write-Verbose "  Failed to set DohFlags for $ip : $_"
+                    }
+                }
+                
+                # IPv6 Servers → Doh6 branch
+                if ($ipv6Enabled) {
+                    foreach ($ip in $ipv6Servers) {
+                        try {
+                            $basePath = "HKLM:\System\CurrentControlSet\Services\Dnscache\InterfaceSpecificParameters\$adapterGuid\DohInterfaceSettings\Doh6"
+                            $ipPath = "$basePath\$ip"
+                            
+                            if (-not (Test-Path $basePath)) {
+                                New-Item -Path $basePath -Force -ErrorAction Stop | Out-Null
+                            }
+                            
+                            if (-not (Test-Path $ipPath)) {
+                                New-Item -Path $ipPath -Force -ErrorAction Stop | Out-Null
+                            }
+                            
+                            New-ItemProperty -Path $ipPath -Name 'DohFlags' -Value 1 -PropertyType QWord -Force -ErrorAction Stop | Out-Null
+                            Write-Verbose "  DohFlags set: $ip (Encrypted Only, Doh6)"
+                        }
+                        catch {
+                            Write-Verbose "  Failed to set DohFlags for $ip : $_"
+                        }
+                    }
+                }
+            }
+            catch {
+                Write-Verbose "Could not set DoH encryption preference (non-critical): $_"
+            }
         }
         catch {
             Write-Warning "Failed to configure adapter $($adapter.Name): $_"
+        }
+    }
+    
+    # Clear DNS cache (with timeout)
+    $job = $null
+    try {
+        Write-Info "Flushing DNS cache..."
+        $job = Start-Job -ScriptBlock { ipconfig /flushdns 2>&1 }
+        $null = Wait-Job $job -Timeout 10
+        
+        if ($job.State -eq 'Completed') {
+            $null = Receive-Job $job -ErrorAction SilentlyContinue
+            Write-Verbose "DNS cache flushed successfully"
+        }
+        elseif ($job.State -eq 'Running') {
+            Stop-Job $job -ErrorAction SilentlyContinue
+            Write-Verbose "DNS cache flush timeout (non-critical)"
+        }
+    }
+    catch {
+        Write-Verbose "Could not flush DNS cache: $_"
+    }
+    finally {
+        if ($job) {
+            Remove-Job $job -Force -ErrorAction SilentlyContinue
         }
     }
     
@@ -406,6 +799,21 @@ function Enable-Quad9DNS {
     Write-Info "IPv6: 2620:fe::fe, 2620:fe::9"
     Write-Info "All DNS queries are encrypted via HTTPS"
     Write-Info "Threat intelligence and malware blocking active"
+    
+    # VALIDATION: Check if DoH is configured
+    try {
+        $dohServers = Get-DnsClientDohServerAddress -ErrorAction SilentlyContinue
+        if ($dohServers) {
+            $quad9DoH = $dohServers | Where-Object { $_.ServerAddress -match "9\.9\.9\.9|149\.112\.112|2620:fe" }
+            if ($quad9DoH) {
+                $dohCount = @($quad9DoH).Count
+                Write-Verbose "DoH validation: $dohCount Quad9 servers registered"
+            }
+        }
+    }
+    catch {
+        Write-Verbose "DoH validation skipped (non-critical): $_"
+    }
 }
 
 #endregion
