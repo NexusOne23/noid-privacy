@@ -3059,6 +3059,22 @@ $script:RegistryChanges = @(
         File = 'SecurityBaseline-Core.ps1'
     },
     @{
+        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\Safer\CodeIdentifiers'
+        Name = 'DefaultLevel'
+        Type = 'DWord'
+        ApplyValue = 0x00040000
+        Description = 'SRP: Unrestricted mode (allow all except explicit deny)'
+        File = 'SecurityBaseline-Core.ps1'
+    },
+    @{
+        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\Safer\CodeIdentifiers'
+        Name = 'TransparentEnabled'
+        Type = 'DWord'
+        ApplyValue = 1
+        Description = 'SRP: Enable transparent enforcement'
+        File = 'SecurityBaseline-Core.ps1'
+    },
+    @{
         Path = 'HKLM:\SOFTWARE\Microsoft\WlanSvc\AnqpCache'
         Name = 'OsuRegistrationStatus'
         Type = 'DWord'

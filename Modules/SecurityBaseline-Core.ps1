@@ -292,6 +292,113 @@ function Set-ExplorerZoneHardening {
     Write-Info "Users must save files locally before opening (CVE-2025-9491 protection)"
 }
 
+function Set-FileExecutionRestrictions {
+    <#
+    .SYNOPSIS
+        Blocks dangerous file types from untrusted paths using Software Restriction Policies
+    .DESCRIPTION
+        Implements SRP (Software Restriction Policies) to block execution of:
+        - .lnk files from Downloads/Temp/Network paths
+        - .scf files (Shell Command Files)
+        - .url files (Internet Shortcuts with NTLM leak)
+        
+        Works on ALL Windows editions (Home/Pro/Enterprise) via Registry.
+        
+        CRITICAL: Protection against CVE-2025-9491 (PlugX .lnk exploits)
+        and related file-type attacks.
+    .NOTES
+        Requires: Restart or 'gpupdate /force' for activation
+        SRP is legacy but universally supported
+    .EXAMPLE
+        Set-FileExecutionRestrictions
+    #>
+    [CmdletBinding()]
+    [OutputType([void])]
+    param()
+    
+    Write-Section "File Execution Restrictions (SRP)"
+    
+    Write-Info "Configuring Software Restriction Policies for dangerous file types..."
+    
+    # Base path for SRP
+    $srpBasePath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Safer\CodeIdentifiers"
+    
+    # Ensure base path exists
+    if (-not (Test-Path $srpBasePath)) {
+        New-Item $srpBasePath -Force -ErrorAction Stop | Out-Null
+        Write-Verbose "Created SRP base path"
+    }
+    
+    # 1. Set default security level (Unrestricted = allow all except explicit deny)
+    [void](Set-RegistryValue -Path $srpBasePath -Name "DefaultLevel" -Value 0x00040000 -Type DWord `
+        -Description "SRP: Unrestricted mode (allow all except explicit deny)")
+    
+    # 2. Enable transparent enforcement
+    [void](Set-RegistryValue -Path $srpBasePath -Name "TransparentEnabled" -Value 1 -Type DWord `
+        -Description "SRP: Enable transparent enforcement")
+    
+    # Path for path-based rules (Level 0 = Disallowed)
+    $pathRulesBasePath = "$srpBasePath\0\Paths"
+    
+    if (-not (Test-Path $pathRulesBasePath)) {
+        New-Item $pathRulesBasePath -Force -ErrorAction Stop | Out-Null
+        Write-Verbose "Created SRP path rules base"
+    }
+    
+    # Define dangerous file patterns to block
+    $dangerousPatterns = @(
+        @{
+            Path = "%USERPROFILE%\Downloads\*.lnk"
+            Description = "Block .lnk from Downloads (CVE-2025-9491 PlugX protection)"
+        },
+        @{
+            Path = "%TEMP%\*.lnk"
+            Description = "Block .lnk from Temp folder"
+        },
+        @{
+            Path = "\\*\*.lnk"
+            Description = "Block .lnk from network shares"
+        },
+        @{
+            Path = "%USERPROFILE%\Downloads\*.scf"
+            Description = "Block .scf from Downloads (Shell Command File poisoning)"
+        },
+        @{
+            Path = "%USERPROFILE%\Downloads\*.url"
+            Description = "Block .url from Downloads (NTLM credential leak)"
+        }
+    )
+    
+    Write-Info "Creating SRP deny rules for dangerous file types..."
+    
+    $ruleCount = 0
+    foreach ($pattern in $dangerousPatterns) {
+        # Generate unique GUID for each rule
+        $ruleGuid = [guid]::NewGuid().ToString("B").ToUpper()
+        $rulePath = "$pathRulesBasePath\$ruleGuid"
+        
+        # Create rule entry
+        if (-not (Test-Path $rulePath)) {
+            New-Item $rulePath -Force -ErrorAction Stop | Out-Null
+        }
+        
+        # Set rule properties
+        [void](Set-RegistryValue -Path $rulePath -Name "ItemData" -Value $pattern.Path -Type String `
+            -Description $pattern.Description)
+        
+        [void](Set-RegistryValue -Path $rulePath -Name "SaferFlags" -Value 0 -Type DWord `
+            -Description "SRP: Disallowed")
+        
+        $ruleCount++
+        Write-Verbose "Created SRP rule: $($pattern.Path)"
+    }
+    
+    Write-Success "File execution restrictions configured ($ruleCount rules)"
+    Write-Info "Protected file types: .lnk, .scf, .url from untrusted paths"
+    Write-Warning "ACTIVATION: Restart required (or run: gpupdate /force)"
+    Write-Info "Workaround for legitimate files: Move to C:\Temp or Desktop first"
+}
+
 function Set-PrintSpoolerUserRights {
     <#
     .SYNOPSIS

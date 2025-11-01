@@ -1305,6 +1305,7 @@ try {
         Set-ProcessAuditingWithCommandLine
         Disable-IE11COMAutomation
         Set-ExplorerZoneHardening
+        Set-FileExecutionRestrictions
         Set-PrintSpoolerUserRights
         
         # 3. Microsoft Defender Baseline
