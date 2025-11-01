@@ -470,6 +470,269 @@ function Set-RegistryValueWithOwnership {
     return $true
 }
 
+function Remove-RegistryValueWithOwnership {
+    <#
+    .SYNOPSIS
+        Removes Registry value even with TrustedInstaller protection
+    .DESCRIPTION
+        Temporarily takes ownership, removes value, restores ownership.
+        Based on Set-RegistryValueWithOwnership but for deletion
+    .PARAMETER Path
+        Registry path
+    .PARAMETER Name
+        Value name to remove
+    .PARAMETER Description
+        Description for logging
+    .OUTPUTS
+        [bool] $true on success, $false on error
+    .EXAMPLE
+        Remove-RegistryValueWithOwnership -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "AllowTelemetry"
+    #>
+    [CmdletBinding()]
+    [OutputType([bool])]
+    param(
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [string]$Path,
+        
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [string]$Name,
+        
+        [Parameter()]
+        [string]$Description
+    )
+    
+    # IMPORTANT: Convert PowerShell path to Registry path
+    $registryPath = $Path -replace '^HKLM:\\', 'HKEY_LOCAL_MACHINE\' `
+                         -replace '^HKCU:\\', 'HKEY_CURRENT_USER\' `
+                         -replace '^HKCR:\\', 'HKEY_CLASSES_ROOT\' `
+                         -replace '^HKU:\\', 'HKEY_USERS\' `
+                         -replace '^HKCC:\\', 'HKEY_CURRENT_CONFIG\'
+    
+    Write-Verbose "Registry-Path: $registryPath"
+    Write-Verbose "Removing: $Name"
+    if ($Description) {
+        Write-Verbose "Description: $Description"
+    }
+    
+    # ===== BACKUP: Speichere Original-ACL =====
+    $originalACL = $null
+    $originalOwner = $null
+    
+    # Determine Registry Hive
+    $hive = $null
+    $subKeyPath = ''
+    
+    if ($registryPath -match '^HKEY_LOCAL_MACHINE\\(.*)') {
+        $hive = [Microsoft.Win32.Registry]::LocalMachine
+        $subKeyPath = $matches[1]
+    }
+    elseif ($registryPath -match '^HKEY_CURRENT_USER\\(.*)') {
+        $hive = [Microsoft.Win32.Registry]::CurrentUser
+        $subKeyPath = $matches[1]
+    }
+    elseif ($registryPath -match '^HKEY_USERS\\(.*)') {
+        $hive = [Microsoft.Win32.Registry]::Users
+        $subKeyPath = $matches[1]
+    }
+    elseif ($registryPath -match '^HKEY_CLASSES_ROOT\\(.*)') {
+        $hive = [Microsoft.Win32.Registry]::ClassesRoot
+        $subKeyPath = $matches[1]
+    }
+    elseif ($registryPath -match '^HKEY_CURRENT_CONFIG\\(.*)') {
+        $hive = [Microsoft.Win32.Registry]::CurrentConfig
+        $subKeyPath = $matches[1]
+    }
+    else {
+        Write-Error-Custom "Unsupported registry hive: $registryPath"
+        return $false
+    }
+    
+    try {
+        # Hole aktuelle ACL
+        $key = $hive.OpenSubKey(
+            $subKeyPath,
+            [Microsoft.Win32.RegistryKeyPermissionCheck]::ReadSubTree,
+            [System.Security.AccessControl.RegistryRights]::ReadPermissions
+        )
+        
+        if ($null -eq $key) {
+            Write-Verbose "Registry-Key nicht gefunden: $Path"
+            return $true  # Already doesn't exist
+        }
+        
+        $originalACL = $key.GetAccessControl([System.Security.AccessControl.AccessControlSections]::All)
+        $originalOwner = $originalACL.Owner
+        $key.Close()
+        
+        Write-Verbose "Original Owner: $originalOwner"
+    }
+    catch {
+        Write-Verbose "Error reading original ACL: $_"
+        return $false
+    }
+    
+    # ===== STEP 1: TAKE OWNERSHIP =====
+    try {
+        Write-Verbose "STEP 1: Take Ownership to BUILTIN\Administrators"
+        
+        $takeOwnershipEnabled = Enable-Privilege -Privilege 'SeTakeOwnershipPrivilege'
+        
+        if (-not $takeOwnershipEnabled) {
+            Write-Verbose "SeTakeOwnershipPrivilege could not be enabled"
+            return $false
+        }
+        
+        $key = $hive.OpenSubKey(
+            $subKeyPath,
+            [Microsoft.Win32.RegistryKeyPermissionCheck]::ReadWriteSubTree,
+            [System.Security.AccessControl.RegistryRights]::ReadPermissions -bor
+            [System.Security.AccessControl.RegistryRights]::TakeOwnership
+        )
+        
+        if ($null -eq $key) {
+            Write-Verbose "Could not open key for TakeOwnership: $Path"
+            return $false
+        }
+        
+        $acl = $key.GetAccessControl()
+        $adminsSid = New-Object System.Security.Principal.SecurityIdentifier("S-1-5-32-544")
+        $administratorsGroup = $adminsSid.Translate([System.Security.Principal.NTAccount])
+        $acl.SetOwner($administratorsGroup)
+        $key.SetAccessControl($acl)
+        $key.Close()
+        
+        Write-Verbose "     Ownership changed to: BUILTIN\Administrators"
+    }
+    catch {
+        Write-Verbose "Take Ownership failed: $_"
+        return $false
+    }
+    
+    # ===== STEP 2: GRANT FULL CONTROL =====
+    try {
+        Write-Verbose "STEP 2: Grant Full Control to Administrators"
+        
+        $key = $hive.OpenSubKey(
+            $subKeyPath,
+            [Microsoft.Win32.RegistryKeyPermissionCheck]::ReadWriteSubTree,
+            [System.Security.AccessControl.RegistryRights]::ChangePermissions
+        )
+        
+        $acl = $key.GetAccessControl()
+        $adminsSid = New-Object System.Security.Principal.SecurityIdentifier("S-1-5-32-544")
+        $administratorsGroup = $adminsSid.Translate([System.Security.Principal.NTAccount])
+        $fullControlRule = New-Object System.Security.AccessControl.RegistryAccessRule(
+            $administratorsGroup,
+            [System.Security.AccessControl.RegistryRights]::FullControl,
+            [System.Security.AccessControl.InheritanceFlags]::ContainerInherit,
+            [System.Security.AccessControl.PropagationFlags]::None,
+            [System.Security.AccessControl.AccessControlType]::Allow
+        )
+        
+        $acl.AddAccessRule($fullControlRule)
+        $key.SetAccessControl($acl)
+        $key.Close()
+        
+        Write-Verbose "  -> Full Control granted"
+    }
+    catch {
+        Write-Verbose "Error granting access: $_"
+        
+        # Try restore
+        try {
+            $null = Enable-Privilege -Privilege 'SeRestorePrivilege'
+            $key = $hive.OpenSubKey(
+                $subKeyPath,
+                [Microsoft.Win32.RegistryKeyPermissionCheck]::ReadWriteSubTree,
+                [System.Security.AccessControl.RegistryRights]::ChangePermissions -bor
+                [System.Security.AccessControl.RegistryRights]::TakeOwnership
+            )
+            $key.SetAccessControl($originalACL)
+            $key.Close()
+        }
+        catch {
+            Write-Warning-Custom "Could not restore original ACL: $_"
+        }
+        
+        return $false
+    }
+    
+    # ===== STEP 3: REMOVE VALUE =====
+    try {
+        Write-Verbose "STEP 3: Remove Registry value"
+        
+        # Check if value exists
+        $regItem = Get-ItemProperty -Path $Path -ErrorAction SilentlyContinue
+        $valueExists = $regItem -and ($regItem.PSObject.Properties.Name -contains $Name)
+        
+        if ($valueExists) {
+            Remove-ItemProperty -Path $Path -Name $Name -Force -ErrorAction Stop
+            Write-Verbose "  -> Value successfully removed: $Name"
+        }
+        else {
+            Write-Verbose "  -> Value does not exist: $Name (nothing to remove)"
+        }
+    }
+    catch {
+        Write-Verbose "Error removing value: $_"
+        
+        # Try restore ACL
+        try {
+            $null = Enable-Privilege -Privilege 'SeRestorePrivilege'
+            $key = $hive.OpenSubKey(
+                $subKeyPath,
+                [Microsoft.Win32.RegistryKeyPermissionCheck]::ReadWriteSubTree,
+                [System.Security.AccessControl.RegistryRights]::ChangePermissions -bor
+                [System.Security.AccessControl.RegistryRights]::TakeOwnership
+            )
+            $key.SetAccessControl($originalACL)
+            $key.Close()
+        }
+        catch {
+            Write-Warning-Custom "Could not restore original ACL: $_"
+        }
+        
+        return $false
+    }
+    
+    # ===== STEP 4: RESTORE ORIGINAL ACL =====
+    try {
+        Write-Verbose "STEP 4: Restore Original Owner and Permissions"
+        
+        $privilegeEnabled = Enable-Privilege -Privilege 'SeRestorePrivilege'
+        
+        if (-not $privilegeEnabled) {
+            Write-Verbose "     WARNING: SeRestorePrivilege could not be enabled"
+        }
+        
+        $key = $hive.OpenSubKey(
+            $subKeyPath,
+            [Microsoft.Win32.RegistryKeyPermissionCheck]::ReadWriteSubTree,
+            [System.Security.AccessControl.RegistryRights]::ChangePermissions -bor
+            [System.Security.AccessControl.RegistryRights]::TakeOwnership
+        )
+        
+        $key.SetAccessControl($originalACL)
+        $key.Close()
+        
+        Write-Verbose "  -> Original owner restored: $originalOwner"
+    }
+    catch {
+        Write-Verbose "Original ACL restore failed (NOT CRITICAL): $_"
+        Write-Verbose "Key owner remains: BUILTIN\Administrators"
+    }
+    
+    # ===== SUCCESS =====
+    if ($Description) {
+        Write-Verbose "[OK] $Description"
+    }
+    Write-Verbose "[OK] Registry value successfully removed (with ownership management)"
+    
+    return $true
+}
+
 function Set-RegistryValueSmart {
     <#
     .SYNOPSIS
@@ -586,6 +849,112 @@ function Set-RegistryValueSmart {
         else {
             # Other error - only Verbose, no Error (caller decides if Warning)
             Write-Verbose "Error setting $Path\$Name : $errorMsg"
+            return $false
+        }
+    }
+}
+
+function Remove-RegistryValueSmart {
+    <#
+    .SYNOPSIS
+        Intelligent Registry Remove function with automatic ownership detection
+    .DESCRIPTION
+        Tries normal Remove-ItemProperty first.
+        On Access Denied -> returns $false so caller can use ownership management.
+        Best Practice 2025: Try normal first, escalate only if needed
+    .PARAMETER Path
+        Registry path
+    .PARAMETER Name
+        Value name to remove
+    .PARAMETER Description
+        Description for logging
+    .OUTPUTS
+        [bool] $true on success, $false on access denied or if value doesn't exist
+    .EXAMPLE
+        Remove-RegistryValueSmart -Path $path -Name $name
+    #>
+    [CmdletBinding()]
+    [OutputType([bool])]
+    param(
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [string]$Path,
+        
+        [Parameter(Mandatory = $true)]
+        [ValidateNotNullOrEmpty()]
+        [string]$Name,
+        
+        [Parameter()]
+        [string]$Description
+    )
+    
+    # STEP 1: Check if key and value exist
+    if (-not (Test-Path -Path $Path -ErrorAction SilentlyContinue)) {
+        Write-Verbose "Path does not exist: $Path (nothing to remove)"
+        return $true  # Success - already doesn't exist
+    }
+    
+    # Check if value exists (SAFE method - no error records!)
+    $item = Get-ItemProperty -Path $Path -ErrorAction SilentlyContinue
+    $valueExists = $item -and ($item.PSObject.Properties.Name -contains $Name)
+    
+    if (-not $valueExists) {
+        Write-Verbose "Value does not exist: $Path\$Name (nothing to remove)"
+        return $true  # Success - already doesn't exist
+    }
+    
+    # STEP 2: Try normal Remove-ItemProperty
+    Write-Verbose "Trying normal Remove-ItemProperty..."
+    
+    # CRITICAL FIX: ErrorActionPreference = 'SilentlyContinue'
+    # Suppresses error in transcript but Try-Catch still works!
+    $oldPref = $ErrorActionPreference
+    $ErrorActionPreference = 'SilentlyContinue'
+    
+    # Track errors BEFORE the remove
+    $errorBefore = $Error.Count
+    
+    # Try to remove
+    Remove-ItemProperty -Path $Path -Name $Name -Force
+    
+    # Reset ErrorActionPreference immediately
+    $ErrorActionPreference = $oldPref
+    
+    # Check if error occurred
+    $errorAfter = $Error.Count
+    if ($errorAfter -eq $errorBefore) {
+        # No error = success!
+        if ($Description) {
+            Write-Verbose "     $Description : $Name removed"
+        }
+        return $true
+    }
+    else {
+        # Error occurred - check if Access Denied
+        $lastError = $Error[0]
+        $errorMsg = $lastError.Exception.Message
+        $isAccessDenied = $false
+        
+        # German + English error messages
+        if ($errorMsg -match "Access.*denied|Zugriff.*verweigert|unzulaessig|angeforderte.*Registrierungszugriff") {
+            $isAccessDenied = $true
+        }
+        
+        # HResult Check (0x80070005 = Access Denied)
+        if ($lastError.Exception.HResult -eq 0x80070005 -or $lastError.Exception.HResult -eq -2147024891) {
+            $isAccessDenied = $true
+        }
+        
+        if ($isAccessDenied) {
+            # Access Denied - caller must use ownership management!
+            # IMPORTANT: Remove error from $Error array (will be handled by caller!)
+            $Error.RemoveAt(0)
+            Write-Verbose "Access Denied at $Path\$Name (caller must use ownership)"
+            return $false
+        }
+        else {
+            # Other error - only Verbose
+            Write-Verbose "Error removing $Path\$Name : $errorMsg"
             return $false
         }
     }

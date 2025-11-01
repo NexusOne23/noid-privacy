@@ -359,8 +359,28 @@ function Restore-SpecificRegistryKeys {
                                 Write-Verbose "[Delete OK] $($entry.Path)\$($entry.Name)"
                             }
                             else {
-                                $stats.Unchanged++
-                                Write-Verbose "[Delete SKIP] $($entry.Path)\$($entry.Name) (protected)"
+                                # Access Denied - try with ownership management!
+                                Write-Verbose "[Delete RETRY] $($entry.Path)\$($entry.Name) with ownership management..."
+                                
+                                if (Get-Command Remove-RegistryValueWithOwnership -ErrorAction SilentlyContinue) {
+                                    $ownershipResult = Remove-RegistryValueWithOwnership `
+                                        -Path $entry.Path `
+                                        -Name $entry.Name `
+                                        -Description "Delete: $($entry.Description)"
+                                    
+                                    if ($ownershipResult) {
+                                        $stats.Deleted++
+                                        Write-Verbose "[Delete OK] $($entry.Path)\$($entry.Name) (with ownership)"
+                                    }
+                                    else {
+                                        $stats.Failed++
+                                        Write-Verbose "[Delete FAILED] $($entry.Path)\$($entry.Name) (ownership failed)"
+                                    }
+                                }
+                                else {
+                                    $stats.Failed++
+                                    Write-Verbose "[Delete FAILED] $($entry.Path)\$($entry.Name) (no ownership function)"
+                                }
                             }
                         }
                         else {
