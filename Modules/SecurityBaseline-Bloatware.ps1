@@ -98,6 +98,7 @@ function Remove-BloatwareApps {
         "*Microsoft.Wallet*"
         "*Microsoft.WindowsFeedbackHub*"
         "*Microsoft.YourPhone*" # Phone Link (can be reinstalled)
+        "*Microsoft.MicrosoftSolitaireCollection*" # Solitaire & Casual Games
         "*Microsoft.ZuneMusic*"
         "*Microsoft.ZuneVideo*"
         "*Microsoft.MixedReality.Portal*"
