@@ -3,13 +3,13 @@
     Registry Backup/Restore Helper Functions (OPTIMIERT)
     
 .DESCRIPTION
-    Funktionen für schnelles, spezifisches Backup und Restore der 375 Registry-Keys.
+    Funktionen fuer schnelles, spezifisches Backup und Restore der 375 Registry-Keys.
     Diese Funktionen ersetzen das langsame Snapshot-System.
     
     VORTEILE:
     - 20-30x schneller als komplette Snapshots
     - 50x kleinere Backup-Dateien
-    - Präzise Kontrolle über jede Änderung
+    - Praezise Kontrolle ueber jede Aenderung
     - TrustedInstaller-Handling integriert
     
 .NOTES
@@ -32,7 +32,7 @@ function Backup-SpecificRegistryKeys {
         Sichert nur die spezifischen Registry-Keys aus $script:RegistryChanges
         
     .PARAMETER RegistryChanges
-        Array mit Registry-Änderungs-Definitionen
+        Array mit Registry-Aenderungs-Definitionen
         
     .EXAMPLE
         $backup = Backup-SpecificRegistryKeys -RegistryChanges $script:RegistryChanges
@@ -208,7 +208,7 @@ function Restore-SpecificRegistryKeys {
         Array mit Backup-Daten von Backup-SpecificRegistryKeys
         
     .PARAMETER UseOwnership
-        Nutze Ownership-Management für geschützte Keys (TrustedInstaller)
+        Nutze Ownership-Management fuer geschuetzte Keys (TrustedInstaller)
         
     .EXAMPLE
         $stats = Restore-SpecificRegistryKeys -BackupData $backup -UseOwnership $true

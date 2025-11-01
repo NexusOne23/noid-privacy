@@ -564,7 +564,7 @@ function Set-RegistryValueSmart {
         $isAccessDenied = $false
         
         # German + English error messages
-        if ($errorMsg -match "Access.*denied|Zugriff.*verweigert|unzulässig|angeforderte.*Registrierungszugriff") {
+        if ($errorMsg -match "Access.*denied|Zugriff.*verweigert|unzulaessig|angeforderte.*Registrierungszugriff") {
             $isAccessDenied = $true
         }
         
