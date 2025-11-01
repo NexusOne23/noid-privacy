@@ -252,6 +252,46 @@ function Disable-IE11COMAutomation {
     Write-Success (Get-LocalizedString 'CoreIE11Disabled')
 }
 
+function Set-ExplorerZoneHardening {
+    <#
+    .SYNOPSIS
+        Hardens Windows Explorer Internet/Intranet Zone execution policies
+    .DESCRIPTION
+        Blocks launching applications and opening files from Internet/Intranet zones.
+        Critical protection against .lnk, .scf, .url attacks (CVE-2025-9491, PlugX).
+        Forces users to save files locally first before execution.
+    .EXAMPLE
+        Set-ExplorerZoneHardening
+    #>
+    [CmdletBinding()]
+    [OutputType([void])]
+    param()
+    
+    Write-Section "Explorer Internet Zone Hardening"
+    
+    Write-Info "Blocking execution from Internet/Intranet zones (.lnk/.scf/.url protection)..."
+    
+    # Internet Zone (Zone 3) - UNTRUSTED
+    $internetZonePath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\3"
+    
+    # Block: Launching applications and unsafe files
+    [void](Set-RegistryValue -Path $internetZonePath -Name "1806" -Value 3 -Type DWord `
+        -Description "Internet Zone: Disable launching applications")
+    
+    # Block: File downloads (require prompt)
+    [void](Set-RegistryValue -Path $internetZonePath -Name "1803" -Value 3 -Type DWord `
+        -Description "Internet Zone: Disable automatic file downloads")
+    
+    # Intranet Zone (Zone 1) - ALSO HARDEN (compromised internal servers)
+    $intranetZonePath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\1"
+    
+    [void](Set-RegistryValue -Path $intranetZonePath -Name "1806" -Value 3 -Type DWord `
+        -Description "Intranet Zone: Disable launching applications")
+    
+    Write-Success "Explorer Zone Hardening enabled"
+    Write-Info "Users must save files locally before opening (CVE-2025-9491 protection)"
+}
+
 function Set-PrintSpoolerUserRights {
     <#
     .SYNOPSIS
@@ -1492,8 +1532,12 @@ function Disable-AdministrativeShares {
     
     # Network security: LDAP client signing requirements
     $ldapPath = "HKLM:\SYSTEM\CurrentControlSet\Services\LDAP"
-    [void](Set-RegistryValue -Path $ldapPath -Name "LDAPClientIntegrity" -Value 1 -Type DWord `
-        -Description "LDAP Client Signing: Negotiate signing")
+    [void](Set-RegistryValue -Path $ldapPath -Name "LDAPClientIntegrity" -Value 2 -Type DWord `
+        -Description "LDAP Client Signing: Require signing (maximum security)")
+    
+    # LDAP Channel Binding (NEW: Protection against LDAP relay attacks)
+    [void](Set-RegistryValue -Path $ldapPath -Name "LdapEnforceChannelBinding" -Value 2 -Type DWord `
+        -Description "LDAP Channel Binding: Always enforce (CVE-2025-59214 protection)")
     
     # Network security: Minimum session security for NTLM SSP (client)
     $ntlmPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Lsa\MSV1_0"

@@ -1304,6 +1304,7 @@ try {
         Set-NetBIOSDisabled
         Set-ProcessAuditingWithCommandLine
         Disable-IE11COMAutomation
+        Set-ExplorerZoneHardening
         Set-PrintSpoolerUserRights
         
         # 3. Microsoft Defender Baseline
@@ -1377,6 +1378,9 @@ try {
         
         # WDigest Credential Protection
         Disable-WDigest
+        
+        # EFS RPC Blocking (Auth Coercion Protection)
+        Disable-EFSRPC
         
         # Print Spooler User Right (Baseline 25H2 - Windows Protected Print)
         Add-PrintSpoolerUserRight

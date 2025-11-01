@@ -427,6 +427,22 @@ $script:RegistryChanges = @(
         File = 'SecurityBaseline-Advanced.ps1'
     },
     @{
+        Path = 'HKLM:\SYSTEM\CurrentControlSet\Services\EFS'
+        Name = 'Start'
+        Type = 'DWord'
+        ApplyValue = 4
+        Description = 'EFS Service disabled (NTLM relay protection)'
+        File = 'SecurityBaseline-Advanced.ps1'
+    },
+    @{
+        Path = 'HKLM:\SYSTEM\CurrentControlSet\Control\EFS'
+        Name = 'Disabled'
+        Type = 'DWord'
+        ApplyValue = 1
+        Description = 'EFS Driver disabled'
+        File = 'SecurityBaseline-Advanced.ps1'
+    },
+    @{
         Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent'
         Name = 'DisableWindowsConsumerFeatures'
         Type = 'DWord'
@@ -1230,8 +1246,16 @@ $script:RegistryChanges = @(
         Path = 'HKLM:\SYSTEM\CurrentControlSet\Services\LDAP'
         Name = 'LDAPClientIntegrity'
         Type = 'DWord'
-        ApplyValue = 1
-        Description = 'LDAP Client Signing: Negotiate signing'
+        ApplyValue = 2
+        Description = 'LDAP Client Signing: Require signing (maximum security)'
+        File = 'SecurityBaseline-Core.ps1'
+    },
+    @{
+        Path = 'HKLM:\SYSTEM\CurrentControlSet\Services\LDAP'
+        Name = 'LdapEnforceChannelBinding'
+        Type = 'DWord'
+        ApplyValue = 2
+        Description = 'LDAP Channel Binding: Always enforce (CVE-2025-59214 protection)'
         File = 'SecurityBaseline-Core.ps1'
     },
     @{
@@ -3009,6 +3033,30 @@ $script:RegistryChanges = @(
         ApplyValue = 1
         Description = 'Prevent Wireless Media Streaming'
         File = 'SecurityBaseline-WirelessDisplay.ps1'
+    },
+    @{
+        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\3'
+        Name = '1806'
+        Type = 'DWord'
+        ApplyValue = 3
+        Description = 'Internet Zone: Disable launching applications'
+        File = 'SecurityBaseline-Core.ps1'
+    },
+    @{
+        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\3'
+        Name = '1803'
+        Type = 'DWord'
+        ApplyValue = 3
+        Description = 'Internet Zone: Disable automatic file downloads'
+        File = 'SecurityBaseline-Core.ps1'
+    },
+    @{
+        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\1'
+        Name = '1806'
+        Type = 'DWord'
+        ApplyValue = 3
+        Description = 'Intranet Zone: Disable launching applications'
+        File = 'SecurityBaseline-Core.ps1'
     },
     @{
         Path = 'HKLM:\SOFTWARE\Microsoft\WlanSvc\AnqpCache'

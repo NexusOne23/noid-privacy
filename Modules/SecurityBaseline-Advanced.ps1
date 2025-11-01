@@ -467,6 +467,50 @@ function Disable-WDigest {
 
 #endregion
 
+#region EFSRPC BLOCKING (AUTH COERCION PROTECTION)
+
+function Disable-EFSRPC {
+    <#
+    .SYNOPSIS
+        Disables EFS RPC to prevent auth coercion attacks
+    .DESCRIPTION
+        Blocks the Encrypting File System RPC interface which can be abused
+        for NTLM relay and auth coercion attacks (similar to PrinterBug, DFSCoerce).
+        
+        CRITICAL: Blocks EfsRpcOpenFileRaw and related RPC calls
+        
+        CVE-2025-59287, CVE-2025-33073 - NTLM Relay Protection
+    .NOTES
+        EFS (Encrypting File System) is legacy. Modern systems use BitLocker.
+        This does NOT affect BitLocker.
+    .EXAMPLE
+        Disable-EFSRPC
+    #>
+    [CmdletBinding()]
+    [OutputType([void])]
+    param()
+    
+    Write-Section "EFS RPC Blocking (Auth Coercion Protection)"
+    
+    Write-Info "Disabling EFS RPC to prevent NTLM relay attacks..."
+    
+    # Block EFS RPC Interface
+    $efsPath = "HKLM:\SYSTEM\CurrentControlSet\Services\EFS"
+    Set-RegistryValue -Path $efsPath -Name "Start" -Value 4 -Type DWord `
+        -Description "EFS Service disabled (NTLM relay protection)"
+    
+    # Additional: Disable EFS Driver
+    $efsDriverPath = "HKLM:\SYSTEM\CurrentControlSet\Control\EFS"
+    Set-RegistryValue -Path $efsDriverPath -Name "Disabled" -Value 1 -Type DWord `
+        -Description "EFS Driver disabled"
+    
+    Write-Success "EFS RPC disabled (auth coercion protection)"
+    Write-Info "BitLocker is NOT affected (different system)"
+    Write-Warning "NOTE: Legacy EFS encryption will not work (BitLocker recommended)"
+}
+
+#endregion
+
 #region PRINT SPOOLER USER RIGHTS (MS BASELINE 25H2)
 
 function Add-PrintSpoolerUserRight {
