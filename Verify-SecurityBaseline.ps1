@@ -1095,62 +1095,6 @@ if ($bl -and $bl.ProtectionStatus -eq 'On') {
     Write-Host "  [!] BitLocker noch nicht aktiv (Neustart oder manuelle Aktivierung noetig)" -ForegroundColor Yellow
 }
 
-# Summary
-Write-Host "`n================================================================" -ForegroundColor Cyan
-$passedResults = $script:results | Where-Object Status -eq "PASS"
-$failedResults = $script:results | Where-Object Status -eq "FAIL"
-$errorResults = $script:results | Where-Object Status -eq "ERROR"
-$passed = if ($passedResults) { @($passedResults).Count } else { 0 }
-$failed = if ($failedResults) { @($failedResults).Count } else { 0 }
-$errors = if ($errorResults) { @($errorResults).Count } else { 0 }
-$total = if ($script:results) { @($script:results).Count } else { 0 }
-
-Write-Host "QUICK CHECK SUMMARY:" -ForegroundColor Cyan
-Write-Host "  PASS:  $passed" -ForegroundColor Green
-Write-Host "  FAIL:  $failed" -ForegroundColor Red
-Write-Host "  ERROR: $errors" -ForegroundColor Yellow
-Write-Host "  TOTAL: $total" -ForegroundColor Cyan
-Write-Host ""
-
-if ($failed -eq 0 -and $errors -eq 0) {
-    Write-Host "  [OK] All quick checks PASSED!" -ForegroundColor Green
-} elseif ($failed -le 3) {
-    Write-Host "  [!] Some checks failed (probably needs reboot)" -ForegroundColor Yellow
-} else {
-    Write-Host "  [X] Multiple checks failed - review output above for details" -ForegroundColor Red
-}
-
-Write-Host ""
-
-if ($ExportReport) {
-    # Create Verification folder only when actually exporting
-    if (-not (Test-Path $ReportPath)) {
-        $null = New-Item -Path $ReportPath -ItemType Directory -Force
-    }
-    
-    $timestamp = Get-Date -Format 'yyyyMMdd-HHmmss'
-    $csvPath = Join-Path $ReportPath "Verification-$timestamp.csv"
-    $script:results | Export-Csv -Path $csvPath -NoTypeInformation
-    Write-Host "`n   Report exported: $csvPath" -ForegroundColor Cyan
-}
-
-# Stop Transcript
-if ($script:transcriptStarted) {
-    Write-Host ""
-    Write-Host "================================================================" -ForegroundColor Gray
-    Write-Host "LOGS & DETAILS" -ForegroundColor White
-    Write-Host "================================================================" -ForegroundColor Gray
-    Write-Host "Transcript Log: $script:transcriptPath" -ForegroundColor Cyan
-    Write-Host ""
-    
-    try {
-        Stop-Transcript -ErrorAction Stop
-    }
-    catch {
-        Write-Verbose "Could not stop transcript: $_"
-    }
-}
-
 # ===========================
 # APT PROTECTION (PHASE 1) - 10 SETTINGS
 # ===========================
@@ -1254,4 +1198,58 @@ Test-BaselineCheck -Category "APT-Protection" -Name "WebClient Service Disabled 
     } `
     -Expected 4
 
+# Summary
+Write-Host "`n================================================================" -ForegroundColor Cyan
+$passedResults = $script:results | Where-Object Status -eq "PASS"
+$failedResults = $script:results | Where-Object Status -eq "FAIL"
+$errorResults = $script:results | Where-Object Status -eq "ERROR"
+$passed = if ($passedResults) { @($passedResults).Count } else { 0 }
+$failed = if ($failedResults) { @($failedResults).Count } else { 0 }
+$errors = if ($errorResults) { @($errorResults).Count } else { 0 }
+$total = if ($script:results) { @($script:results).Count } else { 0 }
+
+Write-Host "QUICK CHECK SUMMARY:" -ForegroundColor Cyan
+Write-Host "  PASS:  $passed" -ForegroundColor Green
+Write-Host "  FAIL:  $failed" -ForegroundColor Red
+Write-Host "  ERROR: $errors" -ForegroundColor Yellow
+Write-Host "  TOTAL: $total" -ForegroundColor Cyan
 Write-Host ""
+
+if ($failed -eq 0 -and $errors -eq 0) {
+    Write-Host "  [OK] All quick checks PASSED!" -ForegroundColor Green
+} elseif ($failed -le 3) {
+    Write-Host "  [!] Some checks failed (probably needs reboot)" -ForegroundColor Yellow
+} else {
+    Write-Host "  [X] Multiple checks failed - review output above for details" -ForegroundColor Red
+}
+
+Write-Host ""
+
+if ($ExportReport) {
+    # Create Verification folder only when actually exporting
+    if (-not (Test-Path $ReportPath)) {
+        $null = New-Item -Path $ReportPath -ItemType Directory -Force
+    }
+    
+    $timestamp = Get-Date -Format 'yyyyMMdd-HHmmss'
+    $csvPath = Join-Path $ReportPath "Verification-$timestamp.csv"
+    $script:results | Export-Csv -Path $csvPath -NoTypeInformation
+    Write-Host "`n   Report exported: $csvPath" -ForegroundColor Cyan
+}
+
+# Stop Transcript
+if ($script:transcriptStarted) {
+    Write-Host ""
+    Write-Host "================================================================" -ForegroundColor Gray
+    Write-Host "LOGS & DETAILS" -ForegroundColor White
+    Write-Host "================================================================" -ForegroundColor Gray
+    Write-Host "Transcript Log: $script:transcriptPath" -ForegroundColor Cyan
+    Write-Host ""
+    
+    try {
+        Stop-Transcript -ErrorAction Stop
+    }
+    catch {
+        Write-Verbose "Could not stop transcript: $_"
+    }
+}

@@ -964,8 +964,15 @@ if ($currentAdminAccount) {
                                     Write-Host "      $i Sekunden verbleiben..." -ForegroundColor DarkGray
                                     Start-Sleep -Seconds 5
                                 }
-                                Set-Clipboard -Value "" -ErrorAction SilentlyContinue
-                                Write-Host "  [OK] Zwischenablage geleert (Sicherheit)" -ForegroundColor Green
+                                try {
+                                    # CRITICAL: Set-Clipboard requires non-empty string (not "" or $null)
+                                    # Using single space to effectively clear clipboard without error
+                                    Set-Clipboard -Value " " -ErrorAction Stop
+                                    Write-Host "  [OK] Zwischenablage geleert (Sicherheit)" -ForegroundColor Green
+                                } catch {
+                                    Write-Verbose "Could not clear clipboard: $_"
+                                    # Non-critical - clipboard clear is just a security nicety
+                                }
                             }
                         }
                         catch {
