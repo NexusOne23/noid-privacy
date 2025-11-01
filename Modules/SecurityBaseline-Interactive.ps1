@@ -98,6 +98,7 @@ function Show-MainMenu {
     $menuEnforceDesc = Get-LocalizedString 'MainMenuEnforceDesc'
     if (-not $menuEnforceDesc) { $menuEnforceDesc = "Apply all settings" }
     Write-Host "         $menuEnforceDesc" -ForegroundColor Gray
+    Write-Host "         → DNS & OneDrive configuration follows" -ForegroundColor DarkCyan
     Write-Host ""
     
     $menuCustom = Get-LocalizedString 'MainMenuCustom'
@@ -107,6 +108,7 @@ function Show-MainMenu {
     $menuCustomDesc = Get-LocalizedString 'MainMenuCustomDesc'
     if (-not $menuCustomDesc) { $menuCustomDesc = "Select modules" }
     Write-Host "         $menuCustomDesc" -ForegroundColor Gray
+    Write-Host "         → DNS & OneDrive configuration follows (if DNS selected)" -ForegroundColor DarkCyan
     Write-Host ""
     
     $menuVerify = Get-LocalizedString 'MainMenuVerify'
@@ -1336,6 +1338,133 @@ function Show-BackupPrompt {
             return @{Action='Exit'; Success=$false}
         }
     }
+}
+
+function Show-DNSProviderMenu {
+    <#
+    .SYNOPSIS
+        Shows DNS provider selection menu
+    .DESCRIPTION
+        Allows user to choose between Cloudflare, AdGuard, NextDNS, Quad9, or keep existing DNS
+    .OUTPUTS
+        String: '1' (Cloudflare), '2' (AdGuard), '3' (NextDNS), '4' (Quad9), '5' (Keep existing)
+    #>
+    [CmdletBinding()]
+    param()
+    
+    Write-Host "`n═══════════════════════════════════════════════════════════" -ForegroundColor Cyan
+    Write-Host "  DNS PROVIDER SELECTION (DNS over HTTPS)" -ForegroundColor Cyan
+    Write-Host "═══════════════════════════════════════════════════════════" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "Choose your DNS-over-HTTPS provider:" -ForegroundColor White
+    Write-Host ""
+    
+    Write-Host "  [1] Cloudflare (1.1.1.1)" -ForegroundColor Yellow
+    Write-Host "      Speed: ★★★★★ | Privacy: ★★★☆☆ | Location: USA" -ForegroundColor Gray
+    Write-Host "      Fastest DNS, used by millions worldwide" -ForegroundColor Gray
+    Write-Host ""
+    
+    Write-Host "  [2] AdGuard DNS (94.140.14.14)" -ForegroundColor Yellow
+    Write-Host "      Speed: ★★★★☆ | Privacy: ★★★★★ | Location: EU (Cyprus)" -ForegroundColor Gray
+    Write-Host "      Privacy-focused, built-in ad/tracker blocking" -ForegroundColor Gray
+    Write-Host ""
+    
+    Write-Host "  [3] NextDNS (45.90.28.0)" -ForegroundColor Yellow
+    Write-Host "      Speed: ★★★★☆ | Privacy: ★★★★★ | Location: Switzerland/Global" -ForegroundColor Gray
+    Write-Host "      Customizable filtering, analytics dashboard" -ForegroundColor Gray
+    Write-Host ""
+    
+    Write-Host "  [4] Quad9 (9.9.9.9)" -ForegroundColor Yellow
+    Write-Host "      Speed: ★★★★☆ | Privacy: ★★★★★ | Location: Switzerland" -ForegroundColor Gray
+    Write-Host "      Non-profit, GDPR-compliant, threat intelligence" -ForegroundColor Gray
+    Write-Host ""
+    
+    Write-Host "  [5] Keep Existing DNS" -ForegroundColor Yellow
+    Write-Host "      No changes to your current DNS configuration" -ForegroundColor Gray
+    Write-Host ""
+    
+    Write-Host "  [Recommendation for EU users: AdGuard or Quad9]" -ForegroundColor Cyan
+    Write-Host ""
+    
+    do {
+        $choice = Read-Host "Your choice (1-5)"
+    } while ($choice -notin @('1','2','3','4','5'))
+    
+    return $choice
+}
+
+function Show-OneDriveMenu {
+    <#
+    .SYNOPSIS
+        Shows OneDrive handling menu
+    .DESCRIPTION
+        Allows user to choose between privacy hardening, complete removal, or skip
+    .OUTPUTS
+        String: '1' (Hardening), '2' (Remove), '3' (Skip)
+    #>
+    [CmdletBinding()]
+    param()
+    
+    Write-Host "`n═══════════════════════════════════════════════════════════" -ForegroundColor Cyan
+    Write-Host "  ONEDRIVE HANDLING" -ForegroundColor Cyan
+    Write-Host "═══════════════════════════════════════════════════════════" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "How should OneDrive be configured?" -ForegroundColor White
+    Write-Host ""
+    
+    Write-Host "  [1] Privacy Hardening (Recommended)" -ForegroundColor Yellow
+    Write-Host "      - Blocks telemetry and automatic uploads" -ForegroundColor Gray
+    Write-Host "      - OneDrive stays functional for manual use" -ForegroundColor Gray
+    Write-Host "      - You keep full control over what gets synced" -ForegroundColor Gray
+    Write-Host ""
+    
+    Write-Host "  [2] Complete Removal (Advanced)" -ForegroundColor Yellow
+    Write-Host "      - Uninstalls OneDrive completely" -ForegroundColor Gray
+    Write-Host "      - ⚠️  CANNOT be restored from backup!" -ForegroundColor Red
+    Write-Host "      - Your OneDrive folder and files stay safe" -ForegroundColor Green
+    Write-Host "      - Can be reinstalled manually if needed" -ForegroundColor Gray
+    Write-Host ""
+    
+    Write-Host "  [3] Skip (No changes)" -ForegroundColor Yellow
+    Write-Host "      - OneDrive stays as-is" -ForegroundColor Gray
+    Write-Host ""
+    
+    do {
+        $choice = Read-Host "Your choice (1-3)"
+    } while ($choice -notin @('1','2','3'))
+    
+    # Extra confirmation for removal
+    if ($choice -eq '2') {
+        Write-Host ""
+        Write-Host "═══════════════════════════════════════════════════════════" -ForegroundColor Red
+        Write-Host "  ⚠️  FINAL CONFIRMATION - ONEDRIVE REMOVAL" -ForegroundColor Red
+        Write-Host "═══════════════════════════════════════════════════════════" -ForegroundColor Red
+        Write-Host ""
+        Write-Warning "OneDrive will be COMPLETELY REMOVED from your system!"
+        Write-Host ""
+        Write-Host "What happens:" -ForegroundColor Cyan
+        Write-Host "  ✓ OneDrive app will be uninstalled" -ForegroundColor Green
+        Write-Host "  ✓ Your OneDrive FOLDER and FILES will NOT be deleted" -ForegroundColor Green
+        Write-Host "  ✓ Your data stays safe on your hard drive" -ForegroundColor Green
+        Write-Host ""
+        Write-Host "  ✗ Cannot be restored from backup" -ForegroundColor Red
+        Write-Host "  ✗ Must be reinstalled manually if needed" -ForegroundColor Red
+        Write-Host ""
+        Write-Host "To reinstall later: Download from microsoft.com/onedrive" -ForegroundColor Cyan
+        Write-Host ""
+        $confirm = Read-Host "Type 'REMOVE' to confirm removal (or press ENTER to cancel)"
+        
+        if ($confirm -ne 'REMOVE') {
+            Write-Host ""
+            Write-Host "  [!] Cancelled. Using Privacy Hardening instead." -ForegroundColor Yellow
+            return '1'
+        }
+        
+        Write-Host ""
+        Write-Host "  [✓] Confirmed. OneDrive will be removed." -ForegroundColor Green
+    }
+    
+    return $choice
 }
 
 # Note: Export-ModuleMember is NOT needed for dot-sourced scripts
