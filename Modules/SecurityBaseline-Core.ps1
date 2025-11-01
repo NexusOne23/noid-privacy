@@ -2101,464 +2101,65 @@ function Set-SecureAdministratorAccount {
     }
 }
 
+# ===========================================================================
+# IMPORTANT: Cloudflare DNS function moved to SecurityBaseline-DNS-Providers.ps1
+# This wrapper maintains backward compatibility with existing code
+# ===========================================================================
+
 function Enable-CloudflareDNSoverHTTPS {
     <#
     .SYNOPSIS
-        Configures Cloudflare DNS over HTTPS (DoH)
+        [DEPRECATED] Wrapper for Enable-CloudflareDNS
     .DESCRIPTION
-        Enables Windows 11 native DoH and sets DNS to Cloudflare 1.1.1.1.
-        Best Practice 25H2: CmdletBinding, Try-Catch for DNS-Ops, Restart-Service Error-Handling.
+        This function has been moved to SecurityBaseline-DNS-Providers.ps1
+        as part of the unified DNS architecture (v1.8.0+).
         
-        [!] IMPORTANT - NO DNS FALLBACK FOR SECURITY REASONS!
+        This wrapper maintains backward compatibility with existing code.
+        Please use Enable-CloudflareDNS instead (same functionality).
         
-        DESIGN DECISION: This function deliberately implements NO automatic
-        fallback to old DNS servers if Cloudflare is unreachable.
-        
-        REASONS (Security & Privacy First):
-        1. PRIVACY: ISP DNS servers track user behavior (which domains are visited)
-        2. SECURITY: Insecure DNS servers (no DoH) are vulnerable to DNS spoofing
-        3. TRANSPARENCY: User should consciously notice when Cloudflare is down
-        4. NO SILENT FAILURES: Better to have no internet than insecure/tracked
-        
-        IF Cloudflare is down:
-        - Internet will NOT work -> User notices immediately
-        - User can manually change DNS (e.g. to Quad9 or Google)
-        - Better: Conscious decision instead of automatic fallback to insecure
-        
-        ALTERNATIVE for Corporate/VPN:
-        - Corporate networks should use their own DNS servers
-        - VPN adapters are automatically skipped (keep their DNS)
+        The new architecture provides:
+        - Clean provider switching (no stale DoH entries)
+        - Unified adapter selection (VPN/VM skip)
+        - Consistent IPv6 handling
+        - Enforced DoH via Registry (EnableAutoDoh=2)
     .EXAMPLE
         Enable-CloudflareDNSoverHTTPS
+        # Internally calls: Enable-CloudflareDNS
     #>
     [CmdletBinding()]
     [OutputType([void])]
     param()
     
-    Write-Section (Get-LocalizedString 'CoreDNSTitle')
-    
-    Write-Warning-Custom (Get-LocalizedString 'CoreDNSWarning')
-    Write-Info (Get-LocalizedString 'CoreDNSCorporate')
-    Write-Info (Get-LocalizedString 'CoreDNSAlternatives')
-    Write-Host ""
-    Write-Info (Get-LocalizedString 'CoreDNSSwitching')
-    
-    # CRITICAL FIX v1.7.11: MS-DOCUMENTED METHOD!
-    # Source: Microsoft Learn + netsh dnsclient documentation
-    # 
-    # OLD (didn't work correctly):
-    # - Add-DnsClientDohServerAddress (only basic mapping)
-    # - DohFlags Registry hacks (not supported!)
-    # - IPv6 DoH was never validated
-    # 
-    # NEW (MS-documented):
-    # - netsh dnsclient add encryption (official!)
-    # - netsh dnsclient set global doh=yes (global enable!)
-    # - IPv6 temporarily first for validation
-    # - Works for IPv4 AND IPv6!
-    
-    Write-Info (Get-LocalizedString 'CoreDNSStep1')
-    
-    # A. Register DoH server mapping (IPv4 + IPv6)
-    # IMPORTANT: Remove old entries first (idempotent!)
-    Write-Verbose "Removing old DoH entries (if present)..."
-    
-    $serversToRemove = @("1.1.1.1", "1.0.0.1", "2606:4700:4700::1111", "2606:4700:4700::1001")
-    foreach ($server in $serversToRemove) {
-        try {
-            $null = netsh dnsclient delete encryption server=$server 2>&1
-            Write-Verbose "  Old DoH entry removed: $server"
-        }
-        catch {
-            Write-Verbose "  No old entry: $server (OK)"
-        }
+    # Check if new DNS provider function is available
+    if (Get-Command 'Enable-CloudflareDNS' -ErrorAction SilentlyContinue) {
+        # Call new unified DNS provider function
+        Enable-CloudflareDNS
     }
-    
-    # IPv4 Primary (1.1.1.1)
-    Write-Verbose "Registering DoH for 1.1.1.1..."
-    $result = netsh dnsclient add encryption server=1.1.1.1 dohtemplate=https://cloudflare-dns.com/dns-query autoupgrade=yes udpfallback=no 2>&1
-    if ($LASTEXITCODE -eq 0) {
-        Write-Verbose "  DoH registered: 1.1.1.1"
-    } else {
-        Write-Warning "DoH for 1.1.1.1 could not be registered: $result"
-    }
-    
-    # IPv4 Secondary (1.0.0.1)
-    Write-Verbose "Registering DoH for 1.0.0.1..."
-    $result = netsh dnsclient add encryption server=1.0.0.1 dohtemplate=https://cloudflare-dns.com/dns-query autoupgrade=yes udpfallback=no 2>&1
-    if ($LASTEXITCODE -eq 0) {
-        Write-Verbose "  DoH registered: 1.0.0.1"
-    } else {
-        Write-Verbose "  1.0.0.1 already registered (OK): $result"
-    }
-    
-    # IPv6 Primary (2606:4700:4700::1111)
-    Write-Verbose "Registering DoH for 2606:4700:4700::1111..."
-    $result = netsh dnsclient add encryption server=2606:4700:4700::1111 dohtemplate=https://cloudflare-dns.com/dns-query autoupgrade=yes udpfallback=no 2>&1
-    if ($LASTEXITCODE -eq 0) {
-        Write-Verbose "  DoH registered: 2606:4700:4700::1111"
-    } else {
-        Write-Verbose "  IPv6 Primary already registered (OK): $result"
-    }
-    
-    # IPv6 Secondary (2606:4700:4700::1001)
-    Write-Verbose "Registering DoH for 2606:4700:4700::1001..."
-    $result = netsh dnsclient add encryption server=2606:4700:4700::1001 dohtemplate=https://cloudflare-dns.com/dns-query autoupgrade=yes udpfallback=no 2>&1
-    if ($LASTEXITCODE -eq 0) {
-        Write-Verbose "  DoH registered: 2606:4700:4700::1001"
-    } else {
-        Write-Verbose "  IPv6 Secondary already registered (OK): $result"
-    }
-    
-    Write-Success (Get-LocalizedString 'CoreDNSRegistered')
-    
-    # B. Enable global DoH
-    # CRITICAL: doh=yes (not auto) for Verify compatibility
-    # yes = DoH globally enabled (Verify checks for "DoH : yes" in netsh output)
-    # auto = stricter but Verify would fail
-    Write-Info (Get-LocalizedString 'CoreDNSStep2')
-    $result = netsh dnsclient set global doh=yes 2>&1
-    if ($LASTEXITCODE -eq 0) {
-        Write-Success (Get-LocalizedString 'CoreDNSGlobalActivated')
-    } else {
-        Write-Warning (Get-LocalizedString 'CoreDNSGlobalError' -FormatArgs $result)
-    }
-    
-    # CRITICAL: Also set registry-level EnableAutoDoh for Verify compatibility
-    # Auditor recommendation: Verify checks registry EnableAutoDoh = 2
-    $dnsRegPath = "HKLM:\SYSTEM\CurrentControlSet\Services\Dnscache\Parameters"
-    try {
-        if (-not (Test-Path $dnsRegPath)) {
-            New-Item -Path $dnsRegPath -Force -ErrorAction Stop | Out-Null
-        }
-        Set-ItemProperty -Path $dnsRegPath -Name "EnableAutoDoh" -Value 2 -Type DWord -Force -ErrorAction Stop
-        Write-Verbose "Registry: EnableAutoDoh = 2 set"
-    }
-    catch {
-        Write-Warning "Could not set EnableAutoDoh registry: $_"
-    }
-    
-    # Set DNS servers on all adapters (EXCEPT VPN!)
-    Write-Info (Get-LocalizedString 'CoreDNSAdapters')
-    
-    try {
-        # Get all active adapters
-        $allAdapters = Get-NetAdapter -ErrorAction Stop | Where-Object { $_.Status -eq "Up" }
+    else {
+        Write-Warning "Enable-CloudflareDNS function not found!"
+        Write-Warning "Please ensure SecurityBaseline-DNS-Common.ps1 and SecurityBaseline-DNS-Providers.ps1 are loaded."
+        Write-Info "Loading DNS modules..."
         
-        # IMPORTANT: VPN adapters MUST be excluded!
-        # VPN uses its own DNS servers - overwriting would break VPN tunnel!
+        # Try to load DNS modules
+        $modulesPath = Split-Path -Parent $PSScriptRoot
+        . "$modulesPath\SecurityBaseline-DNS-Common.ps1"
+        . "$modulesPath\SecurityBaseline-DNS-Providers.ps1"
         
-        # Best Practice 25H2: Multi-Layer VPN Detection
-        # Source: deploymentresearch.com + Microsoft Docs
-        
-        # VPN Patterns (Description + Name)
-        $vpnPatterns = @(
-            "*VPN*", "*Tunnel*", "*TAP*", "*WireGuard*", "*OpenVPN*", 
-            "*NordVPN*", "*ExpressVPN*", "*ProtonVPN*", "*Mullvad*",
-            "*Cisco*", "*Pulse*", "*FortiClient*", "*Palo Alto*", "*F5*",
-            "*Virtual*Adapter*", "*PPP*", "*PPTP*", "*L2TP*", "*IKEv2*",
-            "*pangp*", "*juniper*", "*checkpoint*", "*sonicwall*"
-        )
-        
-        # Virtualization Patterns (EXCLUDE from VPN check)
-        $virtualPatterns = @(
-            "*Hyper-V*", "*VMware*", "*VirtualBox*", "*Docker*", "*WSL*"
-        )
-        
-        $adapters = @()
-        $skippedVPN = @()
-        
-        # Best Practice: Check for native Windows VPN connections
-        try {
-            $nativeVPN = Get-VpnConnection -ErrorAction SilentlyContinue | Where-Object { $_.ConnectionStatus -eq "Connected" }
-            if ($nativeVPN) {
-                Write-Verbose "Native Windows VPN aktiv: $($nativeVPN.Name)"
-            }
-        }
-        catch {
-            Write-Verbose "Get-VpnConnection nicht verfuegbar (PS < 3.0?)"
-        }
-        
-        foreach ($adapter in $allAdapters) {
-            $isVPN = $false
-            $isVirtualization = $false
-            $skipReason = ""
-            
-            # Check 0: Virtualisierungs-Adapter (Hyper-V, VMware, VirtualBox) skip -> NOT VPN!
-            foreach ($pattern in $virtualPatterns) {
-                if ($adapter.InterfaceDescription -like $pattern -or $adapter.Name -like $pattern) {
-                    $isVirtualization = $true
-                    Write-Verbose "Virtualization adapter detected (OK): $($adapter.Name)"
-                    break
-                }
-            }
-            
-            if (-not $isVirtualization) {
-                # Check 1: InterfaceDescription + Name enthalten VPN-Keywords
-                foreach ($pattern in $vpnPatterns) {
-                    if ($adapter.InterfaceDescription -like $pattern -or $adapter.Name -like $pattern) {
-                        $isVPN = $true
-                        $skipReason = "Pattern Match: $pattern"
-                        break
-                    }
-                }
-                
-                # Check 2: InterfaceType (Best Practice from Microsoft)
-                # 6 = Ethernet, 71 = IEEE 802.11 wireless, 131 = Tunnel (VPN!)
-                if ($adapter.InterfaceType -eq 131) {
-                    $isVPN = $true
-                    $skipReason = "InterfaceType = 131 (Tunnel)"
-                }
-                
-                # Check 3: MediaType = "Tunnel" (fallback for older PS versions)
-                if ($adapter.MediaType -eq "Tunnel") {
-                    $isVPN = $true
-                    $skipReason = "MediaType = Tunnel"
-                }
-                
-                # Check 4: Check ComponentID (deeper level)
-                # TAP adapters have typical ComponentIDs
-                try {
-                    if ($adapter.ComponentID -match "tap") {
-                        $isVPN = $true
-                        $skipReason = "ComponentID contains TAP"
-                    }
-                }
-                catch {
-                    # ComponentID not available (not critical)
-                }
-            }
-            
-            if ($isVPN) {
-                $skippedVPN += $adapter.Name
-                Write-Warning (Get-LocalizedString 'CoreDNSVPNSkipped' -FormatArgs $adapter.Name, $skipReason)
-            }
-            elseif ($isVirtualization) {
-                # CRITICAL FIX: Skip virtualization adapters (VMware, Hyper-V, VirtualBox) too!
-                # REASON: VMs have their own DNS servers (often host IP or VM-internal DNS)
-                # DoH would break internal VM DNS resolution!
-                Write-Verbose "Virtualization adapter skipped: '$($adapter.Name)' (VM adapters need local DNS)"
-            }
-            else {
-                $adapters += $adapter
-            }
-        }
-        
-        if ($skippedVPN.Count -gt 0) {
-            Write-Info (Get-LocalizedString 'CoreDNSVPNKeepDNS' -FormatArgs ($skippedVPN -join ', '))
-            Write-Info (Get-LocalizedString 'CoreDNSVPNNote')
-        }
-        
-        if ($adapters.Count -eq 0) {
-            Write-Warning (Get-LocalizedString 'CoreDNSNoAdapters')
-            Write-Warning (Get-LocalizedString 'CoreDNSSkipped')
-            return
-        }
-        
-        Write-Info (Get-LocalizedString 'CoreDNSConfiguring' -FormatArgs $adapters.Count)
-        
-        $adapterCount = 0
-        foreach ($adapter in $adapters) {
-            try {
-                Write-Info (Get-LocalizedString 'CoreDNSStep3' -FormatArgs $adapter.Name)
-                
-                # CRITICAL FIX v1.7.11: Set IPv4 + IPv6 TOGETHER!
-                # IMPORTANT: IPv6 temporarily FIRST for validation, then back
-                
-                # Check if IPv6 is active
-                $ipv6Binding = Get-NetAdapterBinding -InterfaceAlias $adapter.Name -ComponentID ms_tcpip6 -ErrorAction SilentlyContinue
-                $ipv6Enabled = ($ipv6Binding -and $ipv6Binding.Enabled)
-                
-                if ($ipv6Enabled) {
-                    Write-Verbose "IPv6 is active - moving IPv6 to front for DoH validation..."
-                    
-                    # IPv6 FIRST (temporarily for validation)
-                    Set-DnsClientServerAddress -InterfaceAlias $adapter.Name `
-                        -ServerAddresses @("2606:4700:4700::1111", "2606:4700:4700::1001", "1.1.1.1", "1.0.0.1") `
-                        -ErrorAction Stop
-                    
-                    Write-Verbose "IPv6 DNS moved to front (temporarily)"
-                } else {
-                    Write-Verbose "IPv6 is NOT active - IPv4 only..."
-                    
-                    # IPv4 only
-                    Set-DnsClientServerAddress -InterfaceAlias $adapter.Name `
-                        -ServerAddresses @("1.1.1.1", "1.0.0.1") `
-                        -ErrorAction Stop
-                }
-                
-                # CRITICAL FIX v1.7.11: Wait for IPv6 DoH validation
-                # Windows needs time to validate IPv6 DoH
-                if ($ipv6Enabled) {
-                    Write-Info (Get-LocalizedString 'CoreDNSIPv6Wait')
-                    Start-Sleep -Seconds 5
-                    
-                    # Reset order (IPv4 first - faster)
-                    Write-Verbose "Resetting DNS order (IPv4 first)..."
-                    Set-DnsClientServerAddress -InterfaceAlias $adapter.Name `
-                        -ServerAddresses @("1.1.1.1", "1.0.0.1", "2606:4700:4700::1111", "2606:4700:4700::1001") `
-                        -ErrorAction Stop
-                    
-                    Write-Verbose "DNS order: IPv4 first (optimal)"
-                    Write-Success (Get-LocalizedString 'CoreDNSAdapterIPv6' -FormatArgs $adapter.Name)
-                } else {
-                    Write-Success (Get-LocalizedString 'CoreDNSAdapterIPv4' -FormatArgs $adapter.Name)
-                }
-                
-                # CRITICAL FIX v1.7.11: Set DoH Encryption Preference (GUI Toggle)
-                # Without this, Windows GUI shows "Unencrypted" even though DoH works
-                # IMPORTANT: IPv4 uses "Doh" branch, IPv6 uses "Doh6" branch!
-                # Source: https://cleanbrowsing.org/help/docs/configure-encrypted-dns-on-windows-11-with-powershell-doh/
-                try {
-                    $adapterGuid = $adapter.InterfaceGuid
-                    Write-Verbose "Setting DoH encryption preference for adapter GUID: $adapterGuid"
-                    
-                    # IPv4 Servers -> Doh branch
-                    $ipv4Servers = @('1.1.1.1', '1.0.0.1')
-                    foreach ($ip in $ipv4Servers) {
-                        try {
-                            $regPath = 'HKLM:\System\CurrentControlSet\Services\Dnscache\InterfaceSpecificParameters\' + $adapterGuid + '\DohInterfaceSettings\Doh\' + $ip
-                            if (-not (Test-Path $regPath)) {
-                                New-Item -Path $regPath -Force -ErrorAction Stop | Out-Null
-                            }
-                            New-ItemProperty -Path $regPath -Name 'DohFlags' -Value 1 -PropertyType QWord -Force -ErrorAction Stop | Out-Null
-                            Write-Verbose "  DoH encryption set: $ip (Encrypted Only)"
-                        }
-                        catch {
-                            Write-Verbose "  Failed to set DoH for $ip : $_"
-                        }
-                    }
-                    
-                    # IPv6 Servers -> Doh6 branch (CRITICAL - different from IPv4!)
-                    if ($ipv6Enabled) {
-                        $ipv6Servers = @('2606:4700:4700::1111', '2606:4700:4700::1001')
-                        foreach ($ip in $ipv6Servers) {
-                            try {
-                                # CRITICAL: IPv6 uses Doh6 branch (not Doh)!
-                                # PowerShell 5.1 workaround: Create path step-by-step
-                                $basePath = 'HKLM:\System\CurrentControlSet\Services\Dnscache\InterfaceSpecificParameters\' + $adapterGuid + '\DohInterfaceSettings\Doh6'
-                                $ipPath = $basePath + '\' + $ip
-                                
-                                # Create Doh6 parent first (if not exists)
-                                if (-not (Test-Path $basePath)) {
-                                    New-Item -Path $basePath -Force -ErrorAction Stop | Out-Null
-                                }
-                                
-                                # Create IP subkey (PowerShell 5.1 handles colons in -Path parameter)
-                                if (-not (Test-Path $ipPath)) {
-                                    New-Item -Path $ipPath -Force -ErrorAction Stop | Out-Null
-                                }
-                                
-                                # Set DohFlags
-                                New-ItemProperty -Path $ipPath -Name 'DohFlags' -Value 1 -PropertyType QWord -Force -ErrorAction Stop | Out-Null
-                                Write-Verbose "  DoH encryption set: $ip (Encrypted Only, Doh6)"
-                            }
-                            catch {
-                                Write-Verbose "  Failed to set DoH for $ip : $_"
-                            }
-                        }
-                    }
-                }
-                catch {
-                    Write-Verbose "Could not set DoH encryption preference (non-critical): $_"
-                }
-                
-                $adapterCount++
-            }
-            catch {
-                Write-Verbose "Fehler beim Setzen von DNS auf Adapter '$($adapter.Name)': $_"
-            }
-        }
-        
-        Write-Success (Get-LocalizedString 'CoreDNSAdapterResult' -FormatArgs $adapterCount)
-    }
-    catch {
-        Write-Error-Custom (Get-LocalizedString 'CoreDNSNetworkError' -FormatArgs $_)
-    }
-    
-    # Clear DNS cache (with timeout - prevents hang)
-    $job = $null
-    try {
-        Write-Info (Get-LocalizedString 'CoreDNSCacheFlushing')
-        $job = Start-Job -ScriptBlock { ipconfig /flushdns 2>&1 }
-        $null = Wait-Job $job -Timeout 10
-        
-        if ($job.State -eq 'Completed') {
-            $null = Receive-Job $job -ErrorAction SilentlyContinue
-            Write-Success (Get-LocalizedString 'CoreDNSCacheFlushed')
-        }
-        elseif ($job.State -eq 'Running') {
-            Stop-Job $job -ErrorAction SilentlyContinue
-            Write-Warning-Custom (Get-LocalizedString 'CoreDNSCacheTimeout')
-            Write-Info (Get-LocalizedString 'CoreDNSCacheReboot')
-        }
-    }
-    catch {
-        Write-Verbose "Could not flush DNS cache: $_"
-    }
-    finally {
-        # Garantierter Job-Cleanup
-        if ($job) {
-            Remove-Job $job -Force -ErrorAction SilentlyContinue
-        }
-    }
-    
-    # IMPORTANT: Do NOT restart Dnscache service!
-    # Best Practice 25H2: Service is protected and leads to script hang
-    # DoH will automatically activate on next DNS request
-    Write-Info (Get-LocalizedString 'CoreDNSActivation')
-    Write-Verbose "DNS Client Service will NOT be restarted (protected service)"
-    
-    # VALIDATION: Check if DoH is really configured
-    Write-Host ""
-    Write-Info (Get-LocalizedString 'CoreDNSValidating')
-    try {
-        $dohServers = Get-DnsClientDohServerAddress -ErrorAction SilentlyContinue
-        if ($dohServers) {
-            $cloudflareDoH = $dohServers | Where-Object { $_.ServerAddress -match "1\.1\.1\.1|1\.0\.0\.1|2606:4700:4700" }
-            if ($cloudflareDoH) {
-                $dohCount = @($cloudflareDoH).Count
-                Write-Success (Get-LocalizedString 'CoreDNSValidated' -FormatArgs $dohCount)
-                foreach ($server in $cloudflareDoH) {
-                    $serverAddr = $server.ServerAddress
-                    $serverTemplate = $server.DohTemplate
-                    Write-Verbose "     ServerAddress: $serverAddr, Template: $serverTemplate"
-                    if ($server.AllowFallbackToUdp -eq $false) {
-                        Write-Verbose "     No fallback to unencrypted (Maximum Security!)"
-                    }
-                    else {
-                        Write-Warning "     Fallback to unencrypted POSSIBLE (not ideal!)"
-                    }
-                }
-            }
-            else {
-                Write-Warning (Get-LocalizedString 'CoreDNSValidationFailed')
-                Write-Warning (Get-LocalizedString 'CoreDNSUnencrypted')
-            }
+        # Try again
+        if (Get-Command 'Enable-CloudflareDNS' -ErrorAction SilentlyContinue) {
+            Enable-CloudflareDNS
         }
         else {
-            Write-Warning (Get-LocalizedString 'CoreDNSValidationNoData')
-            Write-Info (Get-LocalizedString 'CoreDNSValidationReasons')
-            Write-Info (Get-LocalizedString 'CoreDNSValidationOldWindows')
-            Write-Info (Get-LocalizedString 'CoreDNSValidationNotActive')
+            Write-Error "Failed to load DNS modules. Cannot configure Cloudflare DNS."
         }
     }
-    catch {
-        Write-Verbose "DoH validation failed (non-critical): $_"
-    }
-    
-    Write-Host ""
-    Write-Success (Get-LocalizedString 'CoreDNSActivated')
-    Write-Info (Get-LocalizedString 'CoreDNSIPv4Info')
-    Write-Info (Get-LocalizedString 'CoreDNSIPv6Info')
-    Write-Host ""
-    Write-Warning-Custom (Get-LocalizedString 'CoreDNSRebootWarning')
-    Write-Info (Get-LocalizedString 'CoreDNSTest')
-    Write-Host ""
-    Write-Host "[i] $(Get-LocalizedString 'CoreDNSVPNNotModified')" -ForegroundColor Cyan
-    Write-Info (Get-LocalizedString 'CoreDNSVPNKeep')
-    Write-Info (Get-LocalizedString 'CoreDNSVPNCorrect')
 }
+
+# ===========================================================================
+# LEGACY CODE REMOVED - Function now uses unified DNS architecture
+# Old implementation (457 lines) replaced with wrapper (23 lines)
+# ===========================================================================
+
 
 function Disable-RemoteAccessCompletely {
     <#

@@ -55,14 +55,8 @@ function Enable-CloudflareDNS {
     # CRITICAL: Clean ALL previous DNS state
     Reset-NoID-DnsState -KeepAdapterDns
     
-    # Enable DoH globally
-    try {
-        netsh dnsclient set global doh=yes 2>$null | Out-Null
-        Write-Verbose "DoH globally enabled"
-    }
-    catch {
-        Write-Verbose "Failed to enable global DoH: $_"
-    }
+    # Enforce DoH on OS level (Registry + netsh)
+    Set-NoID-GlobalDoH -Mode 2
     
     # DoH configuration
     $dohTemplate = 'https://cloudflare-dns.com/dns-query'
@@ -148,14 +142,8 @@ function Enable-AdGuardDNS {
     # CRITICAL: Clean ALL previous DNS state
     Reset-NoID-DnsState -KeepAdapterDns
     
-    # Enable DoH globally
-    try {
-        netsh dnsclient set global doh=yes 2>$null | Out-Null
-        Write-Verbose "DoH globally enabled"
-    }
-    catch {
-        Write-Verbose "Failed to enable global DoH: $_"
-    }
+    # Enforce DoH on OS level (Registry + netsh)
+    Set-NoID-GlobalDoH -Mode 2
     
     # DoH configuration
     $dohTemplate = 'https://dns.adguard-dns.com/dns-query'
@@ -259,14 +247,8 @@ function Enable-NextDNS {
     # CRITICAL: Clean ALL previous DNS state
     Reset-NoID-DnsState -KeepAdapterDns
     
-    # Enable DoH globally
-    try {
-        netsh dnsclient set global doh=yes 2>$null | Out-Null
-        Write-Verbose "DoH globally enabled"
-    }
-    catch {
-        Write-Verbose "Failed to enable global DoH: $_"
-    }
+    # Enforce DoH on OS level (Registry + netsh)
+    Set-NoID-GlobalDoH -Mode 2
     
     # DoH configuration
     $dohTemplate = if ($ProfileId) {
@@ -358,14 +340,8 @@ function Enable-Quad9DNS {
     # CRITICAL: Clean ALL previous DNS state
     Reset-NoID-DnsState -KeepAdapterDns
     
-    # Enable DoH globally
-    try {
-        netsh dnsclient set global doh=yes 2>$null | Out-Null
-        Write-Verbose "DoH globally enabled"
-    }
-    catch {
-        Write-Verbose "Failed to enable global DoH: $_"
-    }
+    # Enforce DoH on OS level (Registry + netsh)
+    Set-NoID-GlobalDoH -Mode 2
     
     # DoH configuration
     $dohTemplate = 'https://dns.quad9.net/dns-query'

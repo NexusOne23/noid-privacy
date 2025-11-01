@@ -150,5 +150,59 @@ function Get-NoID-NetworkAdapters {
     return $realAdapters
 }
 
+function Set-NoID-GlobalDoH {
+    <#
+    .SYNOPSIS
+        Sets Windows DNS client to enforced DoH mode
+    .DESCRIPTION
+        Configures both Registry and netsh to enforce DNS-over-HTTPS.
+        
+        EnableAutoDoh Registry values:
+        0 = Disabled (no DoH)
+        1 = Allow auto-upgrade (opportunistic)
+        2 = Enforce (strict - what we want!)
+        
+        CRITICAL: This ensures Windows ALWAYS uses encrypted DNS.
+        Auditors and compliance tools check this Registry key.
+    .PARAMETER Mode
+        DoH enforcement level (0=disabled, 1=allow, 2=enforce)
+        Default: 2 (enforce)
+    #>
+    [CmdletBinding()]
+    [OutputType([void])]
+    param(
+        [Parameter(Mandatory = $false)]
+        [ValidateSet(0, 1, 2)]
+        [int]$Mode = 2
+    )
+    
+    Write-Verbose "Setting global DoH mode: $Mode (2=enforce)"
+    
+    # 1. Registry: EnableAutoDoh = 2 (enforce)
+    $dnsRegPath = 'HKLM:\SYSTEM\CurrentControlSet\Services\Dnscache\Parameters'
+    if (-not (Test-Path $dnsRegPath)) {
+        New-Item -Path $dnsRegPath -Force -ErrorAction SilentlyContinue | Out-Null
+    }
+    
+    try {
+        Set-ItemProperty -Path $dnsRegPath -Name 'EnableAutoDoh' `
+            -Value $Mode -Type DWord -Force -ErrorAction Stop
+        Write-Verbose "  Registry: EnableAutoDoh = $Mode"
+    }
+    catch {
+        Write-Verbose "  Failed to set EnableAutoDoh registry: $_"
+    }
+    
+    # 2. netsh: Activate DoH globally
+    $dohState = if ($Mode -eq 0) { 'no' } else { 'yes' }
+    try {
+        netsh dnsclient set global doh=$dohState 2>$null | Out-Null
+        Write-Verbose "  netsh: DoH = $dohState"
+    }
+    catch {
+        Write-Verbose "  Failed to set global DoH via netsh: $_"
+    }
+}
+
 # Export functions
-Export-ModuleMember -Function Reset-NoID-DnsState, Get-NoID-NetworkAdapters
+Export-ModuleMember -Function Reset-NoID-DnsState, Get-NoID-NetworkAdapters, Set-NoID-GlobalDoH
