@@ -563,6 +563,65 @@ function Disable-InternetPrintingClient {
     }
 }
 
+function Disable-MSDTProtocolHandler {
+    <#
+    .SYNOPSIS
+        Disables MSDT Protocol Handler (Follina CVE-2022-30190 mitigation)
+    .DESCRIPTION
+        Disables the ms-msdt:// protocol handler by removing the URL Protocol
+        registry value. This prevents the "Follina" vulnerability exploitation
+        via Office documents.
+        
+        CVE-2022-30190 (Follina): Remote Code Execution via MSDT
+        - Exploited via malicious Office documents
+        - ms-msdt:// protocol can execute code without user interaction
+        - Microsoft's official workaround until patch was available
+        
+        BREAKING: None (MSDT troubleshooters rarely used by normal users)
+        Alternative: Windows Settings troubleshooters still work
+    .NOTES
+        Registry-based workaround, no reboot required
+        Official Microsoft mitigation for CVE-2022-30190
+    .EXAMPLE
+        Disable-MSDTProtocolHandler
+    #>
+    [CmdletBinding()]
+    [OutputType([void])]
+    param()
+    
+    Write-Section "Disable MSDT Protocol Handler (Follina Mitigation)"
+    
+    try {
+        # HKEY_CLASSES_ROOT is a merged view of HKLM\Software\Classes and HKCU\Software\Classes
+        # We modify HKLM to affect all users
+        $msdtPath = "HKLM:\SOFTWARE\Classes\ms-msdt"
+        
+        if (Test-Path $msdtPath) {
+            Write-Info "Disabling ms-msdt:// protocol handler (CVE-2022-30190)..."
+            
+            # Backup current value
+            $urlProtocol = Get-ItemProperty -Path $msdtPath -Name "URL Protocol" -ErrorAction SilentlyContinue
+            
+            if ($urlProtocol) {
+                # Remove the URL Protocol value to disable the handler
+                Remove-ItemProperty -Path $msdtPath -Name "URL Protocol" -ErrorAction Stop
+                Write-Success "MSDT protocol handler disabled (Follina mitigation active)"
+                Write-Info "CVE-2022-30190: ms-msdt:// protocol blocked"
+            } else {
+                Write-Info "MSDT protocol handler already disabled or not configured"
+            }
+        } else {
+            Write-Info "MSDT protocol handler not found (may not be installed)"
+        }
+        
+        Write-Info "Windows Settings troubleshooters NOT affected"
+    }
+    catch {
+        Write-Warning "Could not disable MSDT protocol handler: $_"
+        Write-Info "This is non-critical, continuing..."
+    }
+}
+
 #endregion
 
 #region DEFENDER BASELINE SETTINGS

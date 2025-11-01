@@ -1308,6 +1308,7 @@ try {
         Set-FileExecutionRestrictions
         Set-PrintSpoolerUserRights
         Disable-InternetPrintingClient
+        Disable-MSDTProtocolHandler
         
         # 3. Microsoft Defender Baseline
         Set-DefenderBaselineSettings
