@@ -1386,34 +1386,10 @@ if ($backup.Settings.DoH -and $backup.Settings.DoH.Enabled) {
         }
         
         if ($restoredCount -gt 0) {
-            # CRITICAL: Restore EnableAutoDoh from backup (if available)
-            # If not in backup: use default (0 = disabled, 1 = allowed, 2 = forced)
-            $dnsRegPath = "HKLM:\SYSTEM\CurrentControlSet\Services\Dnscache\Parameters"
-            try {
-                if (-not (Test-Path $dnsRegPath)) {
-                    New-Item -Path $dnsRegPath -Force -ErrorAction Stop | Out-Null
-                }
-                
-                # Use backed-up value if available, otherwise restore to disabled (0)
-                $enableAutoDohValue = if ($backup.Settings.DoH.PSObject.Properties.Name -contains 'EnableAutoDoh' -and 
-                                         $null -ne $backup.Settings.DoH.EnableAutoDoh) {
-                    $backup.Settings.DoH.EnableAutoDoh
-                } else {
-                    0  # Default: disabled (original state before Enforce)
-                }
-                
-                Set-ItemProperty -Path $dnsRegPath -Name "EnableAutoDoh" -Value $enableAutoDohValue -Type DWord -ErrorAction Stop
-                Write-Verbose "Registry: EnableAutoDoh = $enableAutoDohValue restored (from backup)"
-            }
-            catch {
-                Write-Verbose "Could not restore EnableAutoDoh registry: $_"
-            }
-            
-            # Set netsh global doh based on backup state
-            # If backup had EnableAutoDoh = 2, use doh=yes, otherwise doh=no
-            $dohState = if ($enableAutoDohValue -eq 2) { "yes" } else { "no" }
-            $null = netsh dnsclient set global doh=$dohState 2>&1
-            Write-Host "  [OK] $restoredCount DoH Server wiederhergestellt (netsh doh=$dohState, registry=$enableAutoDohValue)" -ForegroundColor Green
+            # NOTE: EnableAutoDoh and netsh global DoH already set to STRICT mode above
+            # (Lines 1335-1358: Registry = 2, netsh = yes)
+            # We do NOT restore from backup values - security always wins!
+            Write-Host "  [OK] $restoredCount DoH Server wiederhergestellt (strict mode: registry=2, netsh=yes)" -ForegroundColor Green
             $restoreStats.Success++
         }
         else {
