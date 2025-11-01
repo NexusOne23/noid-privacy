@@ -1720,13 +1720,21 @@ finally {
     if ($realErrors.Count -gt 0) {
         $completionLog = Join-Path $LogPath "LastRun-Status.txt"
         try {
-            # Kategorisiere Warnings
+            # Kategorisiere Warnings (erweiterte Patterns fuer bessere Erkennung)
             $harmlessWarnings = @($Error | Where-Object {
                 $msg = $_.Exception.Message
+                # Deutsch
                 ($msg -like "*wurden keine*gefunden*") -or
+                ($msg -like "*nicht gefunden*") -or
+                ($msg -like "*bereits vorhanden*") -or
+                ($msg -like "*existiert nicht*") -or
+                # Englisch
                 ($msg -like "*Cannot find*") -or
+                ($msg -like "*not found*") -or
                 ($msg -like "*not installed*") -or
-                ($msg -like "*bereits vorhanden*")
+                ($msg -like "*does not exist*") -or
+                ($msg -like "*already exists*") -or
+                ($msg -like "*No matching*")
             })
             
             $serviceWarnings = @($harmlessWarnings | Where-Object { $_.Exception.Message -like "*Service*" -or $_.Exception.Message -like "*Dienst*" })
@@ -1784,7 +1792,7 @@ Selected Modules: $($SelectedModules -join ', ')
 ERROR SUMMARY
 ========================================
 Critical Errors: $($realErrors.Count)
-Filtered Harmless Warnings: $($Error.Count - $realErrors.Count)
+Filtered Harmless Warnings: $($harmlessWarnings.Count)
 
 ========================================
 TOP CRITICAL ERRORS (First 10)
@@ -1827,13 +1835,21 @@ Run script again after resolving errors - it is idempotent (safe to re-run).
         # SUCCESS: No real errors - write SUCCESS status
         $completionLog = Join-Path $LogPath "LastRun-Status.txt"
         try {
-            # Categorize warnings also on SUCCESS
+            # Categorize warnings also on SUCCESS (erweiterte Patterns)
             $harmlessWarnings = @($Error | Where-Object {
                 $msg = $_.Exception.Message
+                # Deutsch
                 ($msg -like "*wurden keine*gefunden*") -or
+                ($msg -like "*nicht gefunden*") -or
+                ($msg -like "*bereits vorhanden*") -or
+                ($msg -like "*existiert nicht*") -or
+                # Englisch
                 ($msg -like "*Cannot find*") -or
+                ($msg -like "*not found*") -or
                 ($msg -like "*not installed*") -or
-                ($msg -like "*bereits vorhanden*")
+                ($msg -like "*does not exist*") -or
+                ($msg -like "*already exists*") -or
+                ($msg -like "*No matching*")
             })
             
             $serviceWarnings = @($harmlessWarnings | Where-Object { $_.Exception.Message -like "*Service*" -or $_.Exception.Message -like "*Dienst*" })
@@ -1884,7 +1900,7 @@ SUCCESS SUMMARY
 [OK] All changes applied successfully!
 [OK] No real errors occurred
 
-Non-Fatal Warnings: $($Error.Count) (harmless, filtered out)
+Non-Fatal Warnings: $($harmlessWarnings.Count) (harmless, filtered out)
 
 ========================================
 WARNINGS BREAKDOWN (Non-Critical)
