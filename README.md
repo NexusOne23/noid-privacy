@@ -1,4 +1,4 @@
-# 🛡️ NoID Privacy
+# 🛡️ NoID Privacy – Windows 11 Security & Privacy Hardening Toolkit
 
 > **Enterprise-Grade Security & Privacy Hardening Tool for Windows 11 25H2**
 >
