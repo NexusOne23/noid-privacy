@@ -252,24 +252,25 @@ For domain environments:
 
 ### What DNS provider is used?
 
-**Cloudflare DNS-over-HTTPS (DoH)**
+**You can choose from 4 enterprise-grade DNS-over-HTTPS (DoH) providers:**
 
-**IPv4:**
-- Primary: 1.1.1.1
-- Secondary: 1.0.0.1
+| Provider | Best For | Servers (IPv4) |
+|----------|----------|----------------|
+| **Cloudflare** (Default) | Speed + Global Coverage | 1.1.1.1, 1.0.0.1 |
+| **AdGuard DNS** | Privacy + Built-in Blocking | 94.140.14.14, 94.140.15.15 |
+| **NextDNS** | Customization + Analytics | 45.90.28.0, 45.90.30.0 |
+| **Quad9** | Security + Threat Intel | 9.9.9.9, 149.112.112.112 |
 
-**IPv6:**
-- Primary: 2606:4700:4700::1111
-- Secondary: 2606:4700:4700::1001
+**All Providers Include:**
+- ✅ **100% Encrypted:** DNS-over-HTTPS (DoH) with no fallback to plain DNS
+- ✅ **Strict Enforcement:** `autoupgrade=yes`, `udpfallback=no`
+- ✅ **Dual-Stack:** IPv6 + IPv4 support
+- ✅ **DNSSEC:** Validated DNS responses (prevents spoofing)
+- ✅ **Privacy:** No user tracking, better than ISP DNS
 
-**Protocol:** DNS-over-HTTPS (encrypted, no fallback to unencrypted DNS)
+**Default:** Cloudflare (fastest, global CDN, 1.1.1.1)
 
-**Why Cloudflare?**
-- ✅ Privacy-first (no user tracking)
-- ✅ Fast (one of the fastest DNS resolvers globally)
-- ✅ Supports DNSSEC (validated by Cloudflare resolver)
-- ✅ Free and open
-- ✅ Better privacy than ISP DNS
+**→ See [FEATURES.md](FEATURES.md#-network-security) for detailed provider comparison**
 
 ### How many domains are blocked?
 
@@ -317,16 +318,25 @@ For domain environments:
 
 ### Can I use my own DNS provider?
 
-**Yes!** Edit the DNS module before running:
-- File: `Modules/SecurityBaseline-DNS.ps1`
-- Change Cloudflare IPs to your preferred DNS
-- Examples: Quad9 (9.9.9.9), Google (8.8.8.8), NextDNS
+**Yes - 4 providers are built-in!**
+
+**Option 1: Use Built-in Providers (Recommended)**
+- Edit `Modules/SecurityBaseline-DNS.ps1` and call your preferred provider:
+  - `Enable-CloudflareDNS` - Fast, global CDN (default)
+  - `Enable-AdGuardDNS` - Privacy + ad blocking
+  - `Enable-NextDNS` - Customization (optional profile ID)
+  - `Enable-Quad9DNS` - Security + threat intel
+
+**Option 2: Custom Provider**
+- Edit `Modules/SecurityBaseline-DNS-Providers.ps1`
+- Add your own function following the existing patterns
+- Must support DoH with strict enforcement (`autoupgrade=yes`, `udpfallback=no`)
 
 ### Does DNS-over-HTTPS slow down browsing?
 
 **No, usually faster:**
 - Initial DoH connection: ~50ms overhead (one-time)
-- After that: Same speed or faster (Cloudflare's CDN)
+- After that: Same speed or faster (depends on provider's CDN)
 - Encryption overhead: Negligible (<1ms per query)
 - **Benefit:** ISP can't see or hijack your DNS queries
 

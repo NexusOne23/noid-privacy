@@ -25,6 +25,8 @@ noid-privacy/
 │   ├── SecurityBaseline-Telemetry.ps1
 │   ├── SecurityBaseline-ASR.ps1
 │   ├── SecurityBaseline-Advanced.ps1
+│   ├── SecurityBaseline-DNS-Common.ps1               # NEW v1.7.15 - DNS helper functions
+│   ├── SecurityBaseline-DNS-Providers.ps1            # NEW v1.7.15 - Multi-provider DoH (Cloudflare/AdGuard/NextDNS/Quad9)
 │   ├── SecurityBaseline-DNS.ps1
 │   ├── SecurityBaseline-Bloatware.ps1
 │   ├── SecurityBaseline-Performance.ps1
@@ -340,7 +342,7 @@ Success Rate: 99%+ (1-2 protected keys may fail)
 - `Disable-AnonymousSIDEnumeration` - Prevent SID enumeration
 - `Set-MarkOfTheWeb` - MOTW enforcement
 - `Set-PrintSpoolerUserRights` - PrintNightmare mitigation
-- `Enable-CloudflareDNSoverHTTPS` - DoH 1.1.1.2
+- `Enable-CloudflareDNSoverHTTPS` - Backward compatibility wrapper (calls Enable-CloudflareDNS)
 - `Set-FirewallPolicies` - Strict inbound blocking
 - And more...
 
@@ -400,8 +402,41 @@ Success Rate: 99%+ (1-2 protected keys may fail)
 
 ---
 
+#### SecurityBaseline-DNS-Common.ps1
+**Purpose**: Shared DNS helper functions
+
+**Exports** (2 functions):
+- `Get-NoID-NetworkAdapters` - Filter real network adapters (excludes VPN/Virtual)
+- `Reset-NoID-DnsState` - Clean previous DNS configuration
+- `Set-NoID-GlobalDoH` - Configure global DoH policy (`EnableAutoDoh=2`)
+
+**Lines of Code**: ~212  
+**Dependencies**: None (pure helper module)
+
+---
+
+#### SecurityBaseline-DNS-Providers.ps1
+**Purpose**: Multi-provider DNS-over-HTTPS implementations
+
+**Exports** (4 functions):
+- `Enable-CloudflareDNS` - Cloudflare DoH (1.1.1.1) - Speed + Global Coverage
+- `Enable-AdGuardDNS` - AdGuard DoH - Privacy + EU Compliance + Built-in blocking
+- `Enable-NextDNS` - NextDNS DoH - Customization + Analytics (optional profile ID)
+- `Enable-Quad9DNS` - Quad9 DoH (9.9.9.9) - Security + Threat Intelligence
+
+**All Providers Include:**
+- 100% Strict Enforcement (`autoupgrade=yes`, `udpfallback=no`)
+- Dual-stack IPv6 + IPv4 support
+- Per-adapter configuration
+- VPN/Virtual adapter exclusion
+
+**Lines of Code**: ~415  
+**Dependencies**: DNS-Common
+
+---
+
 #### SecurityBaseline-DNS.ps1
-**Purpose**: DNS security
+**Purpose**: DNS security orchestration (DNSSEC, Blocklist, Firewall)
 
 **Exports** (3 functions):
 - `Enable-DNSSEC` - Opportunistic mode
@@ -409,7 +444,7 @@ Success Rate: 99%+ (1-2 protected keys may fail)
 - `Set-StrictInboundFirewall` - Discovery blocking
 
 **Lines of Code**: ~306  
-**Dependencies**: Common, Core, WindowsUpdate
+**Dependencies**: Common, Core, WindowsUpdate, DNS-Common, DNS-Providers
 
 ---
 
