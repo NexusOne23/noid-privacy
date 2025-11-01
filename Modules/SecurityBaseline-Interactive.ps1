@@ -1352,9 +1352,9 @@ function Show-DNSProviderMenu {
     [CmdletBinding()]
     param()
     
-    Write-Host "`n═══════════════════════════════════════════════════════════" -ForegroundColor Cyan
+    Write-Host "`n===========================================================" -ForegroundColor Cyan
     Write-Host "  DNS PROVIDER SELECTION (DNS over HTTPS)" -ForegroundColor Cyan
-    Write-Host "═══════════════════════════════════════════════════════════" -ForegroundColor Cyan
+    Write-Host "===========================================================" -ForegroundColor Cyan
     Write-Host ""
     Write-Host "Choose your DNS-over-HTTPS provider:" -ForegroundColor White
     Write-Host ""
@@ -1405,9 +1405,9 @@ function Show-OneDriveMenu {
     [CmdletBinding()]
     param()
     
-    Write-Host "`n═══════════════════════════════════════════════════════════" -ForegroundColor Cyan
+    Write-Host "`n===========================================================" -ForegroundColor Cyan
     Write-Host "  ONEDRIVE HANDLING" -ForegroundColor Cyan
-    Write-Host "═══════════════════════════════════════════════════════════" -ForegroundColor Cyan
+    Write-Host "===========================================================" -ForegroundColor Cyan
     Write-Host ""
     Write-Host "How should OneDrive be configured?" -ForegroundColor White
     Write-Host ""
@@ -1436,9 +1436,9 @@ function Show-OneDriveMenu {
     # Extra confirmation for removal
     if ($choice -eq '2') {
         Write-Host ""
-        Write-Host "═══════════════════════════════════════════════════════════" -ForegroundColor Red
-        Write-Host "  ⚠️  FINAL CONFIRMATION - ONEDRIVE REMOVAL" -ForegroundColor Red
-        Write-Host "═══════════════════════════════════════════════════════════" -ForegroundColor Red
+        Write-Host "===========================================================" -ForegroundColor Red
+        Write-Host "  WARNING: FINAL CONFIRMATION - ONEDRIVE REMOVAL" -ForegroundColor Red
+        Write-Host "===========================================================" -ForegroundColor Red
         Write-Host ""
         Write-Warning "OneDrive will be COMPLETELY REMOVED from your system!"
         Write-Host ""

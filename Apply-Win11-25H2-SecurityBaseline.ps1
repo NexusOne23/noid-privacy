@@ -1091,9 +1091,9 @@ if ($Interactive) {
                     Write-Verbose "OneDrive action selected: $oneDriveChoice"
                     
                     Write-Host ""
-                    Write-Host "═══════════════════════════════════════════════════════════" -ForegroundColor Green
+                    Write-Host "===========================================================" -ForegroundColor Green
                     Write-Host "  CONFIGURATION COMPLETE - READY TO START" -ForegroundColor Green
-                    Write-Host "═══════════════════════════════════════════════════════════" -ForegroundColor Green
+                    Write-Host "===========================================================" -ForegroundColor Green
                     Write-Host ""
                 }
                 # NO second Read-Host here - Backup script already asked!

@@ -29,9 +29,9 @@ Clear-Host
 
 # Banner
 Write-Host ""
-Write-Host "═══════════════════════════════════════════════════════════" -ForegroundColor Cyan
-Write-Host "  🛡️  NoID Privacy - Installer" -ForegroundColor Cyan
-Write-Host "═══════════════════════════════════════════════════════════" -ForegroundColor Cyan
+Write-Host "===========================================================" -ForegroundColor Cyan
+Write-Host "  NoID Privacy - Installer" -ForegroundColor Cyan
+Write-Host "===========================================================" -ForegroundColor Cyan
 Write-Host ""
 Write-Host "  Windows 11 Security & Privacy Hardening Toolkit" -ForegroundColor White
 Write-Host "  Enterprise-Grade Protection for Everyone" -ForegroundColor Gray
@@ -41,9 +41,9 @@ Write-Host ""
 Write-Host "[1/5] Checking Administrator privileges..." -ForegroundColor Yellow
 if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
     Write-Host ""
-    Write-Host "═══════════════════════════════════════════════════════════" -ForegroundColor Red
-    Write-Host "  ⚠️  ERROR: ADMINISTRATOR PRIVILEGES REQUIRED" -ForegroundColor Red
-    Write-Host "═══════════════════════════════════════════════════════════" -ForegroundColor Red
+    Write-Host "===========================================================" -ForegroundColor Red
+    Write-Host "  WARNING: ADMINISTRATOR PRIVILEGES REQUIRED" -ForegroundColor Red
+    Write-Host "===========================================================" -ForegroundColor Red
     Write-Host ""
     Write-Host "This installer requires Administrator privileges." -ForegroundColor White
     Write-Host ""
@@ -63,9 +63,9 @@ Write-Host "[2/5] Checking Windows version..." -ForegroundColor Yellow
 $build = [System.Environment]::OSVersion.Version.Build
 if ($build -lt 22000) {
     Write-Host ""
-    Write-Host "═══════════════════════════════════════════════════════════" -ForegroundColor Red
-    Write-Host "  ⚠️  ERROR: WINDOWS 11 REQUIRED" -ForegroundColor Red
-    Write-Host "═══════════════════════════════════════════════════════════" -ForegroundColor Red
+    Write-Host "===========================================================" -ForegroundColor Red
+    Write-Host "  WARNING: WINDOWS 11 REQUIRED" -ForegroundColor Red
+    Write-Host "===========================================================" -ForegroundColor Red
     Write-Host ""
     Write-Host "This tool requires Windows 11 (Build 22000+)" -ForegroundColor White
     Write-Host "Your version: Build $build" -ForegroundColor Yellow
@@ -101,9 +101,9 @@ try {
 }
 catch {
     Write-Host ""
-    Write-Host "═══════════════════════════════════════════════════════════" -ForegroundColor Red
-    Write-Host "  ⚠️  ERROR: DOWNLOAD FAILED" -ForegroundColor Red
-    Write-Host "═══════════════════════════════════════════════════════════" -ForegroundColor Red
+    Write-Host "===========================================================" -ForegroundColor Red
+    Write-Host "  WARNING: DOWNLOAD FAILED" -ForegroundColor Red
+    Write-Host "===========================================================" -ForegroundColor Red
     Write-Host ""
     Write-Host "Could not download the latest release." -ForegroundColor White
     Write-Host "Error: $_" -ForegroundColor Yellow
@@ -144,9 +144,9 @@ try {
 }
 catch {
     Write-Host ""
-    Write-Host "═══════════════════════════════════════════════════════════" -ForegroundColor Red
-    Write-Host "  ⚠️  ERROR: EXTRACTION FAILED" -ForegroundColor Red
-    Write-Host "═══════════════════════════════════════════════════════════" -ForegroundColor Red
+    Write-Host "===========================================================" -ForegroundColor Red
+    Write-Host "  WARNING: EXTRACTION FAILED" -ForegroundColor Red
+    Write-Host "===========================================================" -ForegroundColor Red
     Write-Host ""
     Write-Host "Could not extract the package." -ForegroundColor White
     Write-Host "Error: $_" -ForegroundColor Yellow
@@ -161,9 +161,9 @@ Write-Host "[5/5] Launching NoID Privacy..." -ForegroundColor Yellow
 Write-Host ""
 Start-Sleep -Seconds 1
 
-Write-Host "═══════════════════════════════════════════════════════════" -ForegroundColor Green
-Write-Host "  ✓ INSTALLATION COMPLETE" -ForegroundColor Green
-Write-Host "═══════════════════════════════════════════════════════════" -ForegroundColor Green
+Write-Host "===========================================================" -ForegroundColor Green
+Write-Host "  INSTALLATION COMPLETE" -ForegroundColor Green
+Write-Host "===========================================================" -ForegroundColor Green
 Write-Host ""
 Write-Host "Starting Interactive Mode..." -ForegroundColor Cyan
 Write-Host ""
@@ -175,9 +175,9 @@ try {
 }
 catch {
     Write-Host ""
-    Write-Host "═══════════════════════════════════════════════════════════" -ForegroundColor Red
-    Write-Host "  ⚠️  ERROR: EXECUTION FAILED" -ForegroundColor Red
-    Write-Host "═══════════════════════════════════════════════════════════" -ForegroundColor Red
+    Write-Host "===========================================================" -ForegroundColor Red
+    Write-Host "  WARNING: EXECUTION FAILED" -ForegroundColor Red
+    Write-Host "===========================================================" -ForegroundColor Red
     Write-Host ""
     Write-Host "Could not execute NoID Privacy." -ForegroundColor White
     Write-Host "Error: $_" -ForegroundColor Yellow
@@ -195,7 +195,7 @@ catch {
 # Remove-Item $extractPath -Recurse -Force -ErrorAction SilentlyContinue
 
 Write-Host ""
-Write-Host "═══════════════════════════════════════════════════════════" -ForegroundColor Cyan
-Write-Host "  Thank you for using NoID Privacy! 🛡️" -ForegroundColor Cyan
-Write-Host "═══════════════════════════════════════════════════════════" -ForegroundColor Cyan
+Write-Host "===========================================================" -ForegroundColor Cyan
+Write-Host "  Thank you for using NoID Privacy!" -ForegroundColor Cyan
+Write-Host "===========================================================" -ForegroundColor Cyan
 Write-Host ""

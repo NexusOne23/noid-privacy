@@ -237,9 +237,9 @@ function Remove-OneDriveCompletely {
     
     # 5. Final verification
     Write-Host ""
-    Write-Host "═══════════════════════════════════════════════════════════" -ForegroundColor Green
+    Write-Host "===========================================================" -ForegroundColor Green
     Write-Host "  ONEDRIVE REMOVAL COMPLETE" -ForegroundColor Green
-    Write-Host "═══════════════════════════════════════════════════════════" -ForegroundColor Green
+    Write-Host "===========================================================" -ForegroundColor Green
     Write-Host ""
     Write-Info "Status:"
     Write-Host "  ✓ OneDrive application removed" -ForegroundColor Green
