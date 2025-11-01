@@ -45,6 +45,13 @@
 
 ## 🚀 Quick Start
 
+### One-Liner Install (Easiest)
+```powershell
+# Open PowerShell as Administrator and paste:
+irm https://raw.githubusercontent.com/NexusOne23/noid-privacy/main/install.ps1 | iex
+```
+
+### Manual Install (Git Required)
 ```powershell
 # 1. Download
 git clone https://github.com/NexusOne23/noid-privacy.git
