@@ -620,10 +620,12 @@ function Disable-MSDTProtocolHandler {
         if (Test-Path $msdtPath) {
             Write-Info "Disabling ms-msdt:// protocol handler (CVE-2022-30190)..."
             
-            # Backup current value
-            $urlProtocol = Get-ItemProperty -Path $msdtPath -Name "URL Protocol" -ErrorAction SilentlyContinue
+            # CRITICAL: Check property existence BEFORE accessing (prevents PropertyNotFoundException)
+            # Get-ItemProperty with -Name creates error records even with -ErrorAction SilentlyContinue
+            $msdtItem = Get-ItemProperty -Path $msdtPath -ErrorAction SilentlyContinue
+            $hasUrlProtocol = $msdtItem -and ($msdtItem.PSObject.Properties.Name -contains "URL Protocol")
             
-            if ($urlProtocol) {
+            if ($hasUrlProtocol) {
                 # Remove the URL Protocol value to disable the handler
                 Remove-ItemProperty -Path $msdtPath -Name "URL Protocol" -ErrorAction Stop
                 Write-Success "MSDT protocol handler disabled (Follina mitigation active)"

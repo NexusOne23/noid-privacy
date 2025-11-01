@@ -407,10 +407,12 @@ function Enable-SmartAppControl {
     
     # CHECK: Current Smart App Control status
     $sacPath = "HKLM:\SOFTWARE\Microsoft\Windows Defender\SmartAppControl"
-    $sacStatus = Get-ItemProperty -Path $sacPath -Name "Enabled" -ErrorAction SilentlyContinue
+    # CRITICAL: Check property existence to prevent PropertyNotFoundException
+    $sacItem = Get-ItemProperty -Path $sacPath -ErrorAction SilentlyContinue
+    $hasSacEnabled = $sacItem -and ($sacItem.PSObject.Properties.Name -contains "Enabled")
     
-    if ($sacStatus) {
-        $statusText = switch ($sacStatus.Enabled) {
+    if ($hasSacEnabled) {
+        $statusText = switch ($sacItem.Enabled) {
             0 { "Off (Disabled)" }
             1 { "Evaluation Mode (Learning)" }
             2 { "On (Enforcing)" }

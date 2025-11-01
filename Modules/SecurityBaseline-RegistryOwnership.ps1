@@ -379,8 +379,10 @@ function Set-RegistryValueWithOwnership {
     try {
         Write-Verbose "STEP 3: Set Registry value"
         
-        # Check if value exists
-        $valueExists = Get-ItemProperty -Path $Path -Name $Name -ErrorAction SilentlyContinue
+        # CRITICAL: Check property existence to prevent PropertyNotFoundException
+        # Get-ItemProperty with -Name creates error records even with -ErrorAction SilentlyContinue
+        $regItem = Get-ItemProperty -Path $Path -ErrorAction SilentlyContinue
+        $valueExists = $regItem -and ($regItem.PSObject.Properties.Name -contains $Name)
         
         if ($valueExists) {
             # Value exists - Set-ItemProperty (NO -PropertyType parameter in PS 5.1!)

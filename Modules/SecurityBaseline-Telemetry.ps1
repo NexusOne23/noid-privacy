@@ -874,8 +874,11 @@ function Disable-CameraAndMicrophone {
     # Verification: Check if values were really set
     Start-Sleep -Milliseconds 500  # Kurze Pause damit Registry committed
     
-    $camValue = Get-ItemProperty -Path $cameraPathHKCU -Name "Value" -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Value
-    $micValue = Get-ItemProperty -Path $microphonePathHKCU -Name "Value" -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Value
+    # CRITICAL: Check property existence to prevent PropertyNotFoundException
+    $camItem = Get-ItemProperty -Path $cameraPathHKCU -ErrorAction SilentlyContinue
+    $micItem = Get-ItemProperty -Path $microphonePathHKCU -ErrorAction SilentlyContinue
+    $camValue = if ($camItem -and ($camItem.PSObject.Properties.Name -contains "Value")) { $camItem.Value } else { $null }
+    $micValue = if ($micItem -and ($micItem.PSObject.Properties.Name -contains "Value")) { $micItem.Value } else { $null }
     
     if ($camValue -eq "Deny") {
         Write-Success "Kamera: ALLE Standard-Apps deaktiviert (User muss pro App zustimmen)"
