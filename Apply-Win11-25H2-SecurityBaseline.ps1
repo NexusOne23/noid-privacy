@@ -18,16 +18,16 @@
     [OK] Best Practices: AutoPlay, SmartScreen, Exploit Protection extended
     
     COMPLIANCE:
-    - Microsoft Baseline 25H2: 100% (375 registry keys)
+    - Microsoft Baseline 25H2: 100% (388 registry keys)
     - CIS Benchmark Level 2: 95%
     - Security Settings: 400+ (217 reg keys + 25+ services + 19 ASR + 13 mitigations + more)
     - Privacy Settings: 300+ (158 reg keys + 37 permissions + 30 tasks + 9 AI + 80+ apps + more)
     
 .NOTES
-    Version:        1.7.13
+    Version:        1.7.14
     Baseline:       Microsoft Security Baseline 25H2 (September 30, 2025)
     Author:         NoID Privacy Project
-    Last Updated:   October 31, 2025
+    Last Updated:   November 1, 2025
     Requires:       Windows 11 25H2/24H2/23H2, PowerShell 5.1+, Admin Rights
     
     Changelog 1.7.9 (26. Oktober 2025):

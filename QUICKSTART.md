@@ -195,5 +195,5 @@ Your Windows 11 is now hardened to enterprise security standards!
 
 ---
 
-**Last Updated**: October 31, 2025  
-**Version**: 1.7.13
+**Last Updated**: November 1, 2025  
+**Version**: 1.7.14
