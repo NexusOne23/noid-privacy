@@ -402,5 +402,5 @@ function Enable-Quad9DNS {
 
 #endregion
 
-# Export all functions
-Export-ModuleMember -Function Enable-CloudflareDNS, Enable-AdGuardDNS, Enable-NextDNS, Enable-Quad9DNS
+# NOTE: No Export-ModuleMember needed - this file is dot-sourced, not imported as module
+# All functions are automatically available in the calling scope

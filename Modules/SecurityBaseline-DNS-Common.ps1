@@ -204,5 +204,5 @@ function Set-NoID-GlobalDoH {
     }
 }
 
-# Export functions
-Export-ModuleMember -Function Reset-NoID-DnsState, Get-NoID-NetworkAdapters, Set-NoID-GlobalDoH
+# NOTE: No Export-ModuleMember needed - this file is dot-sourced, not imported as module
+# All functions are automatically available in the calling scope
