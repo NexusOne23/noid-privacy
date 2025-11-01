@@ -407,7 +407,7 @@ This project uses GitHub Actions for automated quality checks and releases:
 - Automatic GitHub Release creation
 - Changelog generation from commits
 - Release archive with SHA256 checksums
-- Usage: `git tag v1.7.13 && git push --tags`
+- Usage: `git tag v1.7.14 && git push --tags`
 
 **Code Signing** (Prepared for SignPath Foundation)
 - Status: Pending approval (Application submitted Oct 30, 2025)
@@ -525,11 +525,20 @@ The authors are not responsible for any damage or data loss caused by this scrip
 
 ## 📈 Project Status
 
-**Current Version:** 1.7.13  
-**Last Updated:** October 31, 2025  
+**Current Version:** 1.7.14  
+**Last Updated:** November 1, 2025  
 **Status:** Production-Ready ✅
 
-### Recent Updates (v1.7.13)
+### Recent Updates (v1.7.14)
+- ✅ **Phase 1 - APT Protection** - 5 features (SMB Signing, LDAP Hardening, Explorer Zone, SRP, EFS RPC Disable)
+- ✅ **Phase 2 - Network Security** - 2 features (LocalAccountTokenFilterPolicy, WebClient/WebDAV Disable)
+- ✅ **Phase 3 - Print & Protocol** - 3 features (Point-and-Print, Nearby Sharing, Internet Printing Client)
+- ✅ **CISA KEV Protection** - 2 features (MSDT Follina, Vulnerable Driver Blocklist)
+- ✅ **Bug Fixes** - 4 fixes (Internet Printing Client PropertyNotFoundException, Verify Phase 1 count, Clipboard clear, Misleading restore message)
+- ✅ **Registry Keys** - Now 388 keys (was 375, +13 new keys)
+- ✅ **Verification** - 124 checks total (was 113, +11 Phase 1 checks)
+
+### Previous Updates (v1.7.13)
 - ✅ **DoH Verification Fixed** - Boolean conversion (Out-String) and correct command (show global)
 - ✅ **DNS Restore Fixed** - PowerShell 5.1 compatibility (removed -AddressFamily parameter)
 - ✅ **DNS Restore Fixed** - Array coercion for .Count property (PropertyNotFoundException)
