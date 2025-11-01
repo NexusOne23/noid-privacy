@@ -93,15 +93,16 @@ function Enable-CloudflareDNS {
             
             if ($ipv6Enabled) {
                 # IPv6 first, then IPv4 (Windows prefers first server for DoH validation)
+                $totalServers = $ipv6Servers.Count + $ipv4Servers.Count
                 Set-DnsClientServerAddress -InterfaceAlias $adapter.Name `
                     -ServerAddresses ($ipv6Servers + $ipv4Servers) -ErrorAction Stop
-                Write-Verbose "  $($adapter.Name): IPv6 + IPv4 configured"
+                Write-Info "  -> $($adapter.Name): IPv6 + IPv4 ($totalServers servers)"
             }
             else {
                 # IPv4 only
                 Set-DnsClientServerAddress -InterfaceAlias $adapter.Name `
                     -ServerAddresses $ipv4Servers -ErrorAction Stop
-                Write-Verbose "  $($adapter.Name): IPv4 only configured"
+                Write-Info "  -> $($adapter.Name): IPv4 only ($($ipv4Servers.Count) servers)"
             }
         }
         catch {
@@ -181,15 +182,16 @@ function Enable-AdGuardDNS {
             
             if ($ipv6Enabled) {
                 # IPv6 first, then IPv4
+                $totalServers = $ipv6Servers.Count + $ipv4Servers.Count
                 Set-DnsClientServerAddress -InterfaceAlias $adapter.Name `
                     -ServerAddresses ($ipv6Servers + $ipv4Servers) -ErrorAction Stop
-                Write-Verbose "  $($adapter.Name): IPv6 + IPv4 configured"
+                Write-Info "  -> $($adapter.Name): IPv6 + IPv4 ($totalServers servers)"
             }
             else {
                 # IPv4 only
                 Set-DnsClientServerAddress -InterfaceAlias $adapter.Name `
                     -ServerAddresses $ipv4Servers -ErrorAction Stop
-                Write-Verbose "  $($adapter.Name): IPv4 only configured"
+                Write-Info "  -> $($adapter.Name): IPv4 only ($($ipv4Servers.Count) servers)"
             }
         }
         catch {
@@ -293,15 +295,16 @@ function Enable-NextDNS {
             
             if ($ipv6Enabled) {
                 # IPv6 first, then IPv4
+                $totalServers = $ipv6Servers.Count + $ipv4Servers.Count
                 Set-DnsClientServerAddress -InterfaceAlias $adapter.Name `
                     -ServerAddresses ($ipv6Servers + $ipv4Servers) -ErrorAction Stop
-                Write-Verbose "  $($adapter.Name): IPv6 + IPv4 configured"
+                Write-Info "  -> $($adapter.Name): IPv6 + IPv4 ($totalServers servers)"
             }
             else {
                 # IPv4 only
                 Set-DnsClientServerAddress -InterfaceAlias $adapter.Name `
                     -ServerAddresses $ipv4Servers -ErrorAction Stop
-                Write-Verbose "  $($adapter.Name): IPv4 only configured"
+                Write-Info "  -> $($adapter.Name): IPv4 only ($($ipv4Servers.Count) servers)"
             }
         }
         catch {
@@ -381,15 +384,16 @@ function Enable-Quad9DNS {
             
             if ($ipv6Enabled) {
                 # IPv6 first, then IPv4
+                $totalServers = $ipv6Servers.Count + $ipv4Servers.Count
                 Set-DnsClientServerAddress -InterfaceAlias $adapter.Name `
                     -ServerAddresses ($ipv6Servers + $ipv4Servers) -ErrorAction Stop
-                Write-Verbose "  $($adapter.Name): IPv6 + IPv4 configured"
+                Write-Info "  -> $($adapter.Name): IPv6 + IPv4 ($totalServers servers)"
             }
             else {
                 # IPv4 only
                 Set-DnsClientServerAddress -InterfaceAlias $adapter.Name `
                     -ServerAddresses $ipv4Servers -ErrorAction Stop
-                Write-Verbose "  $($adapter.Name): IPv4 only configured"
+                Write-Info "  -> $($adapter.Name): IPv4 only ($($ipv4Servers.Count) servers)"
             }
         }
         catch {
