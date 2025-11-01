@@ -2142,8 +2142,10 @@ function Enable-CloudflareDNSoverHTTPS {
         Write-Warning "Please ensure SecurityBaseline-DNS-Common.ps1 and SecurityBaseline-DNS-Providers.ps1 are loaded."
         Write-Info "Loading DNS modules..."
         
-        # Try to load DNS modules
-        $modulesPath = Split-Path -Parent $PSScriptRoot
+        # Try to load DNS modules from same directory
+        # CRITICAL FIX: Modules are in SAME directory as Core, not parent!
+        # Core.ps1 is in Modules\, DNS files are also in Modules\
+        $modulesPath = $PSScriptRoot
         . "$modulesPath\SecurityBaseline-DNS-Common.ps1"
         . "$modulesPath\SecurityBaseline-DNS-Providers.ps1"
         
