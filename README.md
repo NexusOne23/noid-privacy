@@ -7,8 +7,6 @@
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Version](https://img.shields.io/badge/version-1.7.14-blue.svg)](CHANGELOG.md)
 
-> 🇩🇪 **Deutsche Nutzer:** Vollständige deutsche Lokalisierung im Script enthalten (EN/DE Runtime-Switch) · UI & Menüs komplett auf Deutsch verfügbar
-
 ---
 
 ## 🎯 In 30 Seconds
@@ -19,8 +17,29 @@
 
 **388 Registry Keys · 19 ASR Rules · 124 Verification Checks · Complete Backup/Restore**
 
+---
+
+### 🎯 At a Glance
+
+<div align="center">
+
+| 🛡️ **SECURITY** | 🔒 **PRIVACY** | ⚡ **PERFORMANCE** | 🔄 **REVERSIBLE** |
+|:---:|:---:|:---:|:---:|
+| **100% locally-implementable<br>MS Baseline (213/365)** | **95% Telemetry Reduced** | **30 Tasks Disabled** | **Complete Backup** |
+| 19 ASR Rules (Enforce) | 9 AI Features Locked | Event Logs Optimized | 494 Settings Restored |
+| 13 Exploit Mitigations | 37 App Permissions | No Bloatware | **0 Errors** |
+| Credential Guard + VBS | 79,776 Domains Blocked | Faster Boot | Safe to Experiment |
+
+**→ [3-Minute Setup](#-quick-start)** · **[See All 400+ Settings](FEATURES.md)** · **[Compare with Others](#-why-noid-privacy)**
+
+</div>
+
+---
+
 ![NoID Privacy - Enforce Mode](docs/screenshots/enforce-mode.png)
 *Screenshot: Interactive 'Enforce' run on Windows 11 25H2 – 400+ settings hardened in ~3 minutes*
+
+> 🇩🇪 **Deutsche Nutzer:** Runtime-Switch EN/DE – alle Menüs und UI-Texte auf Deutsch verfügbar (kein Extra-Download nötig)
 
 ---
 
@@ -138,7 +157,7 @@ This project minimizes telemetry via Registry, Services, Firewall, and DNS block
 | **MS Baseline 25H2** | ✅ 100% of locally-implementable (213/365) | ⚠️ ~70% | ❌ ~20% | ⚠️ ~40% | ⚠️ ~30% |
 | **Full Backup/Restore** | ✅ All (Registry, Services, Tasks, Firewall, DNS) | ❌ Registry only | ❌ None | ❌ None | ⚠️ Profiles only |
 | **Verification** | ✅ 124 checks | ⚠️ Limited | ❌ None | ❌ None | ❌ None |
-| **CISA KEV Coverage** | ✅ 85% (17/20 CVEs) | ⚠️ ~50% | ❌ ~10% | ⚠️ ~30% | ❌ Minimal |
+| **CISA KEV Coverage** | ✅ 85% (17/20 config-mitigable, not patch-only) | ⚠️ ~50% | ❌ ~10% | ⚠️ ~30% | ❌ Minimal |
 | **Privacy/AI Lockdown** | ✅ 9 AI features + 37 app permissions | ✅ Yes | ✅ Yes | ✅ Yes | ✅ Yes |
 | **Requires Intune/AD** | ❌ No | ❌ No | ❌ No | ❌ No | ❌ No |
 
