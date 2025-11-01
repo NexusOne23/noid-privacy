@@ -1,8 +1,6 @@
 # 🛡️ NoID Privacy – Windows 11 Security & Privacy Hardening Toolkit
 
-> **Enterprise-Grade Security & Privacy Hardening Tool for Windows 11 25H2**
->
-> *No Intune, No Active Directory, Complete Backup Included – For Everyone*
+> **Enterprise Windows Hardening for Everyone – No Intune, No AD, Complete Backup Included**
 
 [![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-blue.svg)](https://github.com/PowerShell/PowerShell)
 [![Windows 11](https://img.shields.io/badge/Windows%2011-25H2-0078D4.svg)](https://www.microsoft.com/windows/)
