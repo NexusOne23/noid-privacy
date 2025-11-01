@@ -7,6 +7,8 @@
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Version](https://img.shields.io/badge/version-1.7.14-blue.svg)](CHANGELOG.md)
 
+> 🇩🇪 **Deutsche Nutzer:** Vollständige deutsche Lokalisierung im Script enthalten (EN/DE Runtime-Switch) · UI & Menüs komplett auf Deutsch verfügbar
+
 ---
 
 ## 🎯 In 30 Seconds
@@ -18,7 +20,7 @@
 **388 Registry Keys · 19 ASR Rules · 124 Verification Checks · Complete Backup/Restore**
 
 ![NoID Privacy - Enforce Mode](docs/screenshots/enforce-mode.png)
-*One-Click Enterprise Security: 400+ Settings Hardened in 3 Minutes*
+*Screenshot: Interactive 'Enforce' run on Windows 11 25H2 – 400+ settings hardened in ~3 minutes*
 
 ---
 
@@ -133,7 +135,7 @@ This project minimizes telemetry via Registry, Services, Firewall, and DNS block
 
 | Feature | NoID Privacy | simeononsecurity | W4RH4WK Debloat | ChrisTitus winutil | O&O ShutUp10++ |
 |---------|--------------|------------------|-----------------|---------------------|----------------|
-| **MS Baseline 25H2** | ✅ 100% (388 keys) | ⚠️ ~70% | ❌ ~20% | ⚠️ ~40% | ⚠️ ~30% |
+| **MS Baseline 25H2** | ✅ 100% of locally-implementable (213/365) | ⚠️ ~70% | ❌ ~20% | ⚠️ ~40% | ⚠️ ~30% |
 | **Full Backup/Restore** | ✅ All (Registry, Services, Tasks, Firewall, DNS) | ❌ Registry only | ❌ None | ❌ None | ⚠️ Profiles only |
 | **Verification** | ✅ 124 checks | ⚠️ Limited | ❌ None | ❌ None | ❌ None |
 | **CISA KEV Coverage** | ✅ 85% (17/20 CVEs) | ⚠️ ~50% | ❌ ~10% | ⚠️ ~30% | ❌ Minimal |
@@ -141,6 +143,12 @@ This project minimizes telemetry via Registry, Services, Firewall, and DNS block
 | **Requires Intune/AD** | ❌ No | ❌ No | ❌ No | ❌ No | ❌ No |
 
 **→ Only tool combining enterprise-grade baseline compliance with complete backup/restore for standalone systems.**
+
+**About CISA KEV Coverage (85%):**  
+We count KEV items that can be mitigated through hardening (ASR rules, protocol disablement, driver blocklist, service hardening) – not patch-based CVEs that require Windows Updates. Our 17/20 coverage focuses on configuration-based protections that this tool can actually implement.
+
+**❌ Not for you?**  
+This tool targets **Windows 11 25H2 standalone systems**. Not ideal for: Enterprise with Intune/AD (use Group Policy instead), Windows 10/older, legacy software requiring unsafe protocols, strict MDM reporting. → [Full details below](#-perfect-for)
 
 ---
 
