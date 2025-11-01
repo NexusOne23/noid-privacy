@@ -17,11 +17,12 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       
-    - name: Install PSScriptAnalyzer
+    - name: Install PSScriptAnalyzer and Pester
       shell: pwsh
       run: |
         Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
         Install-Module -Name PSScriptAnalyzer -Force -Scope CurrentUser
+        Install-Module -Name Pester -MinimumVersion 5.0 -Force -Scope CurrentUser -SkipPublisherCheck
         
     - name: Run PSScriptAnalyzer
       shell: pwsh
@@ -100,3 +101,41 @@ jobs:
         }
         
         Write-Host "`n✅ All files have valid PowerShell syntax!" -ForegroundColor Green
+        
+    - name: Run Pester Tests
+      shell: pwsh
+      run: |
+        # Check if Tests directory exists
+        if (Test-Path ".\Tests") {
+          Write-Host "Running Pester Tests..." -ForegroundColor Cyan
+          
+          # Import Pester
+          Import-Module Pester -MinimumVersion 5.0
+          
+          # Configure Pester
+          $config = New-PesterConfiguration
+          $config.Run.Path = ".\Tests"
+          $config.Run.PassThru = $true
+          $config.Output.Verbosity = 'Detailed'
+          $config.CodeCoverage.Enabled = $false  # Enable later when we have more tests
+          
+          # Run tests
+          $result = Invoke-Pester -Configuration $config
+          
+          # Display results
+          Write-Host "`n=== Test Results ===" -ForegroundColor Cyan
+          Write-Host "Total:  $($result.TotalCount)" -ForegroundColor White
+          Write-Host "Passed: $($result.PassedCount)" -ForegroundColor Green
+          Write-Host "Failed: $($result.FailedCount)" -ForegroundColor $(if($result.FailedCount -gt 0){'Red'}else{'Green'})
+          Write-Host "Skipped: $($result.SkippedCount)" -ForegroundColor Yellow
+          
+          # Fail if tests failed
+          if ($result.FailedCount -gt 0) {
+            Write-Error "Pester tests failed: $($result.FailedCount) test(s) failed"
+            exit 1
+          }
+          
+          Write-Host "`n✅ All tests passed!" -ForegroundColor Green
+        } else {
+          Write-Host "⚠️ Tests directory not found - skipping tests" -ForegroundColor Yellow
+        }

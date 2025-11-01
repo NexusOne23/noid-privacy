@@ -82,11 +82,13 @@ jobs:
         # Create release directory
         mkdir -p release/noid-privacy-${{ steps.get_version.outputs.version }}
         
-        # Copy all files except .git
+        # Copy all files except .git, .github, release, Tests, and Audit
         rsync -av --progress . release/noid-privacy-${{ steps.get_version.outputs.version }}/ \
           --exclude .git \
           --exclude .github \
-          --exclude release
+          --exclude release \
+          --exclude Tests \
+          --exclude Audit
         
         # Create ZIP archive
         cd release
