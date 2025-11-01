@@ -5,6 +5,80 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.15] - 2025-11-01
+
+### Added
+- **Multi-Provider DNS-over-HTTPS** - Choose from 4 enterprise-grade DNS providers
+  - Cloudflare (Default): Speed + Global Coverage (1.1.1.1)
+  - AdGuard DNS: Privacy + EU Compliance + Built-in ad/tracker blocking
+  - NextDNS: Customization + Analytics + Custom filtering profiles
+  - Quad9: Security + Threat Intelligence + Non-profit (9.9.9.9)
+  - All providers support IPv6 + IPv4 dual-stack
+  - Per-adapter configuration (excludes VPN/Virtual adapters)
+
+- **100% Strict DoH Enforcement** - No fallback to unencrypted DNS
+  - `autoupgrade=yes` - Always attempt DoH upgrade
+  - `udpfallback=no` - Never fall back to plain DNS
+  - `EnableAutoDoh=2` - Windows-wide DoH policy enforcement
+  - Provider cleanup before configuration (prevents conflicts)
+
+- **OneDrive Dual-Option Configuration** - Choose your privacy level
+  - Option 1 (Default): Privacy Hardening - Functionality preserved
+    - Tutorial/Feedback disabled (no tracking)
+    - Pre-login network blocked (no silent connections)
+    - Known Folder Move blocked (no auto-upload)
+    - User controls what gets uploaded
+  - Option 2 (Optional): Complete Removal - Uninstall OneDrive
+    - Application uninstalled
+    - Registry entries cleaned
+    - Explorer integration removed
+    - User files preserved (never deleted)
+
+### Changed
+- **DNS Module Architecture** - Refactored into 3 modules for flexibility
+  - `SecurityBaseline-DNS-Common.ps1` - Shared helper functions (adapter selection, cleanup)
+  - `SecurityBaseline-DNS-Providers.ps1` - All 4 provider implementations
+  - `SecurityBaseline-DNS.ps1` - Main DNS orchestration (DNSSEC, Blocklist, Firewall)
+- **Cloudflare DNS Function** - Refactored from Core to DNS-Providers module
+  - Old `Enable-CloudflareDNSoverHTTPS` now a wrapper calling new `Enable-CloudflareDNS`
+  - Maintains backward compatibility
+  - Eliminates dual implementation paths
+
+### Fixed
+- **PowerShell Array Unwrapping** - Fixed `.Count` property errors in DNS adapter detection
+  - `Get-NoID-NetworkAdapters` now uses `Write-Output -NoEnumerate` to always return array
+  - All provider functions wrap calls with `@(...)` for additional safety
+  - Robust null/empty checks added
+- **PropertyNotFoundException Errors** - Fixed PSObject property access bugs in 4 modules
+  - SecurityBaseline-Core.ps1 (MSDT protocol handler)
+  - SecurityBaseline-ASR.ps1 (Smart App Control status)
+  - SecurityBaseline-RegistryOwnership.ps1 (Registry value existence)
+  - SecurityBaseline-Telemetry.ps1 (Camera/Microphone verification)
+  - Now use `PSObject.Properties.Name` check before accessing properties
+- **DNS Adapter Output** - Made adapter configuration visible in console output
+  - Changed from `Write-Verbose` to `Write-Info` for all 4 providers
+  - Users now see which adapters were configured (e.g., "Ethernet: IPv6 + IPv4 (6 servers)")
+
+### Documentation
+- **FEATURES.md** - Comprehensive DNS provider comparison table added
+  - Detailed explanation of each provider's strengths
+  - Architecture: Defense in Depth (Hosts → DoH → DNSSEC → Threat Intel)
+  - OneDrive dual-option rationale and Microsoft Security Baseline compliance
+- **README.md** - Updated DNS section with multi-provider support
+  - Provider comparison table
+  - 100% strict enforcement highlighted
+  - Link to detailed FEATURES.md documentation
+- **Module Table** - Updated DNS and OneDrive entries in README module list
+
+### Security Improvements
+- **DNS Privacy** - Users can now choose provider based on their threat model:
+  - Speed-focused: Cloudflare (fastest, global CDN)
+  - Privacy-focused: AdGuard (EU, GDPR, built-in blocking)
+  - Customization-focused: NextDNS (custom profiles, analytics)
+  - Security-focused: Quad9 (threat intel, non-profit, malware blocking)
+- **No Fallback** - `udpfallback=no` ensures ISP never sees DNS queries (even on DoH failure)
+- **Adapter Isolation** - VPN and virtual adapters excluded from DNS configuration (prevents conflicts)
+
 ## [1.7.14] - 2025-11-01
 
 ### Added

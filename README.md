@@ -124,40 +124,42 @@ This project minimizes telemetry via Registry, Services, Firewall, and DNS block
 
 ### 🌐 DNS Security & Privacy
 
-**Cloudflare DNS-over-HTTPS** → Encrypted DNS queries (1.1.1.1 / 1.0.0.1)  
+**Multi-Provider DNS-over-HTTPS** → Choose from 4 providers (Cloudflare, AdGuard, NextDNS, Quad9)  
+**100% Strict DoH Enforcement** → No fallback to unencrypted DNS (`autoupgrade=yes`, `udpfallback=no`)  
 **Steven Black Hosts** → 79,776 malicious/tracking domains blocked (cache-optimized)
 
 <details>
 <summary><b>📋 DNS Details (click to expand)</b></summary>
 
-**Cloudflare DNS-over-HTTPS (DoH)**
-- ✅ Encrypted DNS queries (1.1.1.1 / 1.0.0.1)
-- ✅ Privacy-first DNS provider (no user tracking)
-- ✅ DNSSEC validation (by Cloudflare resolver)
-- ✅ Faster response times than ISP DNS
-- ✅ Blocks DNS-based tracking and censorship
+**Choose Your DNS-over-HTTPS Provider:**
+
+| Provider | Best For | Unique Features |
+|----------|----------|----------------|
+| **Cloudflare** (Default) | Speed + Global Coverage | 1.1.1.1, Fastest, WARP integration |
+| **AdGuard** | Privacy + EU Compliance | Built-in ad/tracker blocking, GDPR |
+| **NextDNS** | Customization + Analytics | Custom profiles, detailed analytics |
+| **Quad9** | Security + Threat Intel | Malware blocking, Non-profit, GDPR |
+
+**All Providers Include:**
+- ✅ **100% Strict Enforcement:** No fallback to unencrypted DNS
+- ✅ **Dual-Stack:** IPv6 + IPv4 (IPv6 preferred when available)
+- ✅ **Per-Adapter:** Only real network adapters (VPN/Virtual excluded)
+- ✅ **Global Policy:** `EnableAutoDoh=2` (Windows-wide enforcement)
+- ✅ **DNSSEC Validation:** Prevents DNS spoofing/poisoning
 
 **Steven Black Unified Hosts File (Optimized)**
-- ✅ **79,776 malicious/tracking domains blocked** (full list!)
-- ✅ **Compressed to 8,864 lines** (9 domains per line)
-- ✅ Optimized for Windows DNS Cache performance
-- ✅ Blocks ads, malware, trackers, telemetry at DNS level
-- ✅ **Zero performance impact** - cache-friendly design
-- ✅ Updated regularly from Steven Black repository
+- ✅ **79,776 malicious/tracking domains blocked** at DNS level (before queries even reach DNS!)
+- ✅ **Compressed to 8,864 lines** (9 domains per line - Windows DNS Cache optimized)
+- ✅ **Zero performance impact** - in-memory lookup
+- ✅ **Updated regularly** from Steven Black repository
 
-**Why Compression?**
-- Windows DNS Cache: Performance issues with large hosts files (best practice: keep under ~20k entries)
-- Original 80k+ lines would cause cache overflow
-- Our format: **MAX 9 domains per line** (community best practice)
-- Result: Full protection + Fast DNS resolution
+**Defense in Depth Architecture:**
+1. **Hosts file** (79K+) → Blocks before DNS query
+2. **DoH Provider** → Encrypts queries (ISP can't see)
+3. **DNSSEC** → Validates responses (prevents spoofing)
+4. **Threat Intel** (Quad9) or **Ad Blocking** (AdGuard) → Extra protection
 
-**Benefits:**
-- 🚫 79,776 ads & trackers blocked before they load
-- 🔒 DNS queries encrypted (ISP can't see)
-- ⚡ Faster browsing (Cloudflare's CDN)
-- 🛡️ Malware domains blocked at DNS level
-- 🔐 No DNS hijacking by ISP
-- 💪 Full Steven Black list WITHOUT performance hit
+**→ [See Full DNS Provider Comparison](FEATURES.md#-network-security)**
 
 </details>
 
@@ -307,13 +309,13 @@ The project uses a modular architecture with **13 specialized modules**: Core, A
 | **Core** | Security baseline, Defender, Firewall, Services | 25 services disabled, 13 firewall rules, 13 exploit mitigations, Admin/Guest account hardening |
 | **ASR** | Attack Surface Reduction rules | 19 ASR rules (Enforce mode), Smart App Control |
 | **Advanced** | VBS, Credential Guard, LAPS, Auditing | Credential Guard, VBS, HVCI, LSA-PPL, BitLocker policies, Windows LAPS, TLS/SSL hardening |
-| **DNS** | DNS-over-HTTPS, DNSSEC, Blocklist | Cloudflare DoH (4 servers), DNSSEC validation, 79,776 blocked domains, Strict Inbound Firewall |
+| **DNS** | Multi-Provider DoH, DNSSEC, Blocklist | 4 providers (Cloudflare/AdGuard/NextDNS/Quad9), 100% strict enforcement, DNSSEC validation, 79,776 blocked domains, Strict Inbound Firewall |
 | **Bloatware** | App removal, Consumer features | 80+ app patterns, Teams Chat/Copilot/Widgets disabled, Consumer Features blocked |
 | **Telemetry** | Privacy protection, App permissions | 25+ services, 388 registry keys (110 telemetry-specific), 37 app permission categories, Camera/Mic controls |
 | **Performance** | Scheduled tasks, Event logs | 30 tasks disabled, Event log optimization, Windows Search local-only, Prefetch/Superfetch tuning |
 | **AI** | Recall, Copilot, AI tracking | 9 AI features disabled: Recall, Copilot (4 layers), Click to Do, Paint AI (3), Notepad AI, Settings Agent, Copilot Proactive |
 | **Edge** | Microsoft Edge security baseline | SmartScreen enforced, Tracking Prevention, DoH automatic, Site Isolation, Extension policies |
-| **OneDrive** | OneDrive privacy hardening | Tutorial/Feedback disabled, Network silent, KFM blocked, User-controlled uploads |
+| **OneDrive** | Privacy hardening OR complete removal | Default: Privacy hardening (Tutorial/Feedback/KFM blocked, user-controlled uploads). Optional: Complete removal (uninstall + registry cleanup) |
 | **UAC** | User Account Control enhancement | Maximum security (always notify), Enhanced Privilege Protection Mode (future-ready) |
 | **WindowsUpdate** | Update optimization | Hybrid mode (user preferences + policies), HTTP-only (no P2P), Preview Builds blocked |
 | **WirelessDisplay** | Miracast disablement | 4-layer blocking (Services, Registry, Firewall, Apps) |

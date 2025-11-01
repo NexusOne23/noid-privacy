@@ -201,45 +201,134 @@ All apps CANNOT access (unless you allow):
 
 **You control EVERYTHING apps can access!**
 
-### OneDrive Privacy
-✅ **Privacy-First Cloud Sync**
+### OneDrive Configuration
+✅ **Two Options: Privacy Hardening (Default) or Complete Removal**
 
-- Tutorial: OFF (no first-run tracking)
-- Feedback: OFF (no bug report data leaks)
-- Pre-Login Network: BLOCKED (no silent connections)
-- Known Folder Move: BLOCKED (no auto-upload)
-- **OneDrive still works - YOU control uploads!**
+**Module:** `SecurityBaseline-OneDrive.ps1`
+
+#### **Why We Don't Remove OneDrive by Default**
+
+**Design Philosophy:**
+- ✅ **Microsoft Security Baseline Compliance:** OneDrive is integral to Microsoft's security architecture
+- ✅ **Microsoft Account Integration:** Modern Windows features rely on OneDrive (Settings Sync, BitLocker Recovery Key backup)
+- ✅ **Enterprise Compatibility:** Many organizations use OneDrive for Business
+- ✅ **User Choice:** Privacy can be achieved through hardening without breaking functionality
+
+**However:** We provide BOTH options - you decide what's right for you!
+
+#### **Option 1: Privacy Hardening (Default)**
+
+**Function:** `Enable-OneDrivePrivacy` (runs by default when OneDrive module selected)
+
+**What Gets Hardened:**
+- ✅ **Tutorial Disabled:** No first-run tracking dialogs
+- ✅ **Feedback Disabled:** No bug report/diagnostic data sent to Microsoft
+- ✅ **Pre-Login Network Blocked:** OneDrive doesn't connect before user sign-in (no silent tracking)
+- ✅ **Known Folder Move (KFM) Blocked:** Desktop/Documents/Pictures WON'T auto-upload
+- ✅ **Optional Diagnostic Data Disabled:** Minimal telemetry only (via Telemetry module)
+
+**What Still Works:**
+- ✅ **OneDrive Sync:** Normal file sync works perfectly
+- ✅ **Manual Uploads:** YOU control what goes to the cloud
+- ✅ **Settings Sync:** Your Windows settings sync across devices (if using Microsoft Account)
+- ✅ **BitLocker Keys:** Recovery keys can be saved to your Microsoft Account
+- ✅ **Office Integration:** Seamless saving to OneDrive from Office apps
+
+**Result:** Privacy-first OneDrive - functionality preserved, tracking eliminated, YOU control uploads!
+
+#### **Option 2: Complete Removal (Optional)**
+
+**Function:** `Remove-OneDriveCompletely` (must be called explicitly in script)
+
+**What Gets Removed:**
+- ❌ **OneDrive Application:** Completely uninstalled
+- ❌ **Registry Entries:** All OneDrive configuration removed
+- ❌ **Explorer Integration:** OneDrive removed from File Explorer sidebar
+- ❌ **Startup Entries:** Won't start on login
+
+**What's Preserved:**
+- ✅ **Your Files:** Local `C:\Users\<YourName>\OneDrive` folder is NEVER deleted
+- ✅ **Data Safety:** All your files remain accessible
+- ✅ **Reinstallation:** Can reinstall anytime from https://www.microsoft.com/onedrive/download
+
+**When to Use Complete Removal:**
+- You never use cloud storage
+- You prefer alternatives (Dropbox, Google Drive, Nextcloud)
+- Maximum system minimalism
+- Corporate environments with group policy restrictions
+
+**Default Choice:** Privacy hardening - gives you the best of both worlds!
 
 ---
 
 ## 🌐 Network Security
 
-### DNS Security - Triple Protection
-✅ **Encrypted + Validated + Blocked**
+### DNS Security - 100% Strict DoH Enforcement
+✅ **Choose Your Provider + Encrypted + Validated + Blocked**
 
-**Module:** `SecurityBaseline-DNS.ps1` + `SecurityBaseline-Core.ps1`
+**Modules:** `SecurityBaseline-DNS-Common.ps1`, `SecurityBaseline-DNS-Providers.ps1`, `SecurityBaseline-DNS.ps1`
 
-**1. DNS-over-HTTPS (DoH)**
-- Provider: Cloudflare 1.1.1.1 / 1.0.0.1
-- Encryption: HTTPS (Port 443)
-- ISP Can't See: Your DNS queries
-- No Logging: Anonymous DNS
-- Speed: Faster than ISP DNS
+#### **Multi-Provider DNS-over-HTTPS (DoH)**
 
-**2. DNSSEC Validation (by Cloudflare)**
-- Prevents: DNS spoofing
-- Prevents: Cache poisoning
-- Prevents: DNS hijacking
-- Mode: Opportunistic (balanced)
+**Choose from 4 Enterprise-Grade Providers:**
 
-**3. Steven Black Unified Hosts**
-- **79,776 domains blocked** at DNS level
-- Malware + Ads + Tracking + Telemetry
-- Compressed format (9 per line)
-- Zero performance impact
-- Updated October 2025
+| Provider | Primary Use Case | Location | Unique Features |
+|----------|------------------|----------|----------------|
+| **Cloudflare** | Speed + Global Coverage | Global CDN | Fastest, 1.1.1.1, WARP integration |
+| **AdGuard** | Privacy + EU Compliance | EU (Cyprus) | Built-in ad/tracker blocking, GDPR |
+| **NextDNS** | Customization + Analytics | Global CDN | Custom profiles, detailed analytics |
+| **Quad9** | Security + Threat Intel | Global (Non-profit) | Malware blocking, GDPR, no logging |
 
-**Result: 79,776 threats blocked BEFORE they load!**
+**All Providers Include:**
+- ✅ **100% Strict Enforcement:** `autoupgrade=yes`, `udpfallback=no` (no fallback to unencrypted DNS!)
+- ✅ **Dual-Stack:** IPv6 + IPv4 (IPv6 preferred when available)
+- ✅ **Per-Adapter Configuration:** Real network adapters only (VPN/Virtual excluded)
+- ✅ **Global DoH Policy:** `EnableAutoDoh=2` (Windows-wide enforcement)
+- ✅ **ISP Can't See:** Your DNS queries are encrypted via HTTPS (Port 443)
+
+**Provider Details:**
+
+**Cloudflare (Default)**
+- Servers: `1.1.1.1`, `1.0.0.1` (IPv4) | `2606:4700:4700::1111`, `2606:4700:4700::1001` (IPv6)
+- Best For: Speed, global coverage, lowest latency
+- DoH Template: `https://cloudflare-dns.com/dns-query`
+
+**AdGuard DNS**
+- Servers: `94.140.14.14`, `94.140.15.15` (IPv4) | `2a10:50c0::ad1:ff`, `2a10:50c0::ad2:ff` (IPv6)
+- Best For: Privacy-focused users, EU compliance, built-in blocking
+- DoH Template: `https://dns.adguard-dns.com/dns-query`
+
+**NextDNS**
+- Servers: `45.90.28.0`, `45.90.30.0` (IPv4) | `2a07:a8c0::`, `2a07:a8c1::` (IPv6)
+- Best For: Power users wanting custom filtering and analytics
+- DoH Template: `https://dns.nextdns.io/{profile-id}` (generic or custom profile)
+- Sign up: https://nextdns.io for custom filtering
+
+**Quad9**
+- Servers: `9.9.9.9`, `149.112.112.112` (IPv4) | `2620:fe::fe`, `2620:fe::9` (IPv6)
+- Best For: Security-conscious users, threat intelligence, non-profit trust
+- DoH Template: `https://dns.quad9.net/dns-query`
+- Features: Threat intelligence blocking, operated by non-profit consortium
+
+#### **DNSSEC Validation**
+- ✅ **Opportunistic Mode:** Balanced security + compatibility
+- ✅ **Prevents:** DNS spoofing, cache poisoning, DNS hijacking
+- ✅ **Windows Native:** Built into Windows DNS client
+
+#### **Steven Black Unified Hosts**
+- ✅ **79,776 domains blocked** at DNS level (before queries even reach DNS!)
+- ✅ **Categories:** Malware + Ads + Tracking + Telemetry
+- ✅ **Optimized:** 9 domains per line (DNS cache friendly)
+- ✅ **Performance:** Zero impact (in-memory lookup)
+- ✅ **Updated:** October 2025
+
+**Architecture: Defense in Depth**
+1. **Hosts file** blocks known bad domains (79K+) → Never queries DNS
+2. **DoH Provider** encrypts queries → ISP can't see or manipulate
+3. **DNSSEC** validates responses → Prevents spoofing
+4. **Threat Intel** (Quad9) or **Ad Blocking** (AdGuard) → Extra protection
+
+**Result: Maximum privacy + Maximum security + YOU choose the provider!**
 
 ### SMB Hardening
 ✅ **Secure File Sharing**
