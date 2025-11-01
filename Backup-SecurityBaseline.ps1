@@ -500,11 +500,16 @@ try {
     if ($features) {
         # [OK] BEST PRACTICE: Capture foreach output directly
         $windowsFeaturesBackup = foreach ($feature in $features) {
+            # CRITICAL: Check property existence first (PSObject.Properties pattern)
+            # ROOT CAUSE: Some Windows Features don't have Description property
+            # SOLUTION: Check if property exists before accessing it
+            $props = $feature.PSObject.Properties.Name
+            
             # Output to pipeline (captured by $windowsFeaturesBackup)
             @{
                 FeatureName = $feature.FeatureName
                 State = $feature.State.ToString()
-                Description = if ($feature.Description) { $feature.Description } else { $null }
+                Description = if ('Description' -in $props -and $feature.Description) { $feature.Description } else { $null }
             }
         }
         
