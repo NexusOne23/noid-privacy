@@ -20,6 +20,9 @@
 #Requires -Version 5.1
 #Requires -RunAsAdministrator
 
+# Enable Strict Mode for better error detection
+Set-StrictMode -Version Latest
+
 function Backup-SpecificRegistryKeys {
     <#
     .SYNOPSIS

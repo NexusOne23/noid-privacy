@@ -1,3 +1,9 @@
+#Requires -Version 5.1
+#Requires -RunAsAdministrator
+
+# Enable Strict Mode for better error detection
+Set-StrictMode -Version Latest
+
 # Parsed 375 entries, 375 valid
 <#
 .SYNOPSIS
