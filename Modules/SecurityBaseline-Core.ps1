@@ -511,6 +511,58 @@ SeImpersonatePrivilege = *S-1-5-19,*S-1-5-20,*S-1-5-32-544,*S-1-5-99-0-0-0-0-0
     Write-Info "Point-and-Print secured (admin-only driver installation)"
 }
 
+function Disable-InternetPrintingClient {
+    <#
+    .SYNOPSIS
+        Disables Internet Printing Client (IPP) feature
+    .DESCRIPTION
+        Disables the Internet Printing Protocol (IPP) client feature.
+        IPP allows printing via HTTP/HTTPS but can be abused for:
+        - Auth coercion attacks (similar to WebDAV)
+        - NTLM relay via printer protocols
+        - Remote printer exploitation
+        
+        SECURITY: Blocks CVE-2021-36958 (PrintNightmare) IPP vector
+        
+        BREAKING: Only affects HTTP/HTTPS-based printers (rare)
+        Standard network printers (SMB), USB, and PDF printing still work
+    .NOTES
+        Windows Optional Feature removal, no reboot required (-NoRestart)
+    .EXAMPLE
+        Disable-InternetPrintingClient
+    #>
+    [CmdletBinding()]
+    [OutputType([void])]
+    param()
+    
+    Write-Section "Disable Internet Printing Client (IPP)"
+    
+    try {
+        # Check if feature exists
+        Write-Info "Checking Internet Printing Client feature status..."
+        $feature = Get-WindowsOptionalFeature -Online -FeatureName Printing-InternetPrinting-Client -ErrorAction Stop
+        
+        if ($feature.State -eq 'Enabled') {
+            Write-Info "Disabling Internet Printing Client (IPP protocol)..."
+            Disable-WindowsOptionalFeature -Online -FeatureName Printing-InternetPrinting-Client -NoRestart -ErrorAction Stop | Out-Null
+            Write-Success "Internet Printing Client disabled (no reboot required)"
+            Write-Info "HTTP/HTTPS printer protocol (IPP) blocked"
+        } 
+        elseif ($feature.State -eq 'Disabled') {
+            Write-Info "Internet Printing Client already disabled"
+        }
+        else {
+            Write-Info "Internet Printing Client not present on this system"
+        }
+        
+        Write-Info "Standard printing (SMB/USB/PDF) NOT affected"
+    }
+    catch {
+        Write-Warning "Could not disable Internet Printing Client: $_"
+        Write-Info "This is non-critical, continuing..."
+    }
+}
+
 #endregion
 
 #region DEFENDER BASELINE SETTINGS

@@ -1307,6 +1307,7 @@ try {
         Set-ExplorerZoneHardening
         Set-FileExecutionRestrictions
         Set-PrintSpoolerUserRights
+        Disable-InternetPrintingClient
         
         # 3. Microsoft Defender Baseline
         Set-DefenderBaselineSettings
