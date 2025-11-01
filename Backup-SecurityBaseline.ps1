@@ -134,6 +134,9 @@ catch {
     $Global:CurrentLanguage = 'en'
 }
 
+# Initialize script-scope variable (defensive programming)
+$script:RegistryChanges = @()
+
 # Load Registry Changes Definition (v2.0 - 375 specific keys)
 # IMPORTANT: Temporarily bypass execution policy for unsigned modules
 $savedExecutionPolicy = Get-ExecutionPolicy -Scope Process

@@ -23,6 +23,9 @@
 # Enable Strict Mode for better error detection
 Set-StrictMode -Version Latest
 
+# Initialize script-scope variables (defensive programming)
+$script:FailedRegistryKeys = @()
+
 function Backup-SpecificRegistryKeys {
     <#
     .SYNOPSIS
@@ -431,9 +434,6 @@ function Restore-SpecificRegistryKeys {
                 $failedKey = "$($entry.Path)\$($entry.Name)"
                 Write-Verbose "[Restore ERROR] $failedKey : $($_.Exception.GetType().Name) - $_"
                 # Also track failed keys for summary (user can see which keys failed)
-                if (-not $script:FailedRegistryKeys) {
-                    $script:FailedRegistryKeys = @()
-                }
                 $script:FailedRegistryKeys += @{
                     Path = $entry.Path
                     Name = $entry.Name
