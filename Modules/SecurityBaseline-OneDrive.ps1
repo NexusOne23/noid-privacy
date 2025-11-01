@@ -110,7 +110,7 @@ function Remove-OneDriveCompletely {
         CRITICAL WARNINGS:
         - Cannot be restored from backup (manual reinstall required)
         - OneDrive app will be completely removed
-        - Your OneDrive folder stays intact (C:\Users\<name>\OneDrive)
+        - Your OneDrive folder stays intact
         - All files in OneDrive folder remain accessible
         - To reinstall: Download from microsoft.com/onedrive
         
@@ -119,7 +119,7 @@ function Remove-OneDriveCompletely {
         - Only removes the OneDrive APP
         - Does NOT touch OneDrive folder
         - Does NOT delete any user files
-        - Folder stays at C:\Users\<username>\OneDrive
+        - Folder stays at user profile directory
         
     #>
     [CmdletBinding()]
@@ -131,12 +131,12 @@ function Remove-OneDriveCompletely {
     Write-Warning "OneDrive will be COMPLETELY REMOVED from this system!"
     Write-Host ""
     Write-Host "What happens:" -ForegroundColor Cyan
-    Write-Host "  ✓ OneDrive app will be uninstalled" -ForegroundColor Green
-    Write-Host "  ✓ Your OneDrive FOLDER and FILES stay safe" -ForegroundColor Green
-    Write-Host "  ✓ Files remain at: C:\Users\$env:USERNAME\OneDrive" -ForegroundColor Green
+    Write-Host "  [OK] OneDrive app will be uninstalled" -ForegroundColor Green
+    Write-Host "  [OK] Your OneDrive FOLDER and FILES stay safe" -ForegroundColor Green
+    Write-Host "  [OK] Files remain at: C:\Users\$env:USERNAME\OneDrive" -ForegroundColor Green
     Write-Host ""
-    Write-Host "  ✗ Cannot be restored from backup" -ForegroundColor Red
-    Write-Host "  ✗ Manual reinstall required if needed later" -ForegroundColor Red
+    Write-Host "  [X] Cannot be restored from backup" -ForegroundColor Red
+    Write-Host "  [X] Manual reinstall required if needed later" -ForegroundColor Red
     Write-Host ""
     
     # 1. Stop OneDrive processes
