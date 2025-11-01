@@ -415,6 +415,7 @@ $moduleDependencies = @{
     'ASR' = @('Common', 'Localization')              # Braucht Helper-Functions + Strings
     'Advanced' = @('Common', 'Localization')         # Braucht Helper-Functions + Strings
     'DNS' = @('Common', 'Localization')              # Braucht Helper-Functions + Strings
+    'DNS-Providers' = @('Common', 'Localization')    # NEW: Multi-Provider DNS-over-HTTPS (Cloudflare, AdGuard, NextDNS, Quad9)
     'Bloatware' = @('Common', 'Localization')        # Braucht Helper-Functions + Strings
     'Telemetry' = @('Common', 'Localization')        # Braucht Helper-Functions + Strings
     'Performance' = @('Common', 'Localization')      # Braucht Helper-Functions + Strings
@@ -437,15 +438,16 @@ $modulePriority = @{
     'ASR' = 6               # Attack Surface Reduction
     'Advanced' = 7          # VBS, BitLocker, LAPS
     'DNS' = 8               # DNS Security
-    'Bloatware' = 9         # App-Removal
-    'Telemetry' = 10        # Privacy
-    'Performance' = 11      # Optimierung
-    'UAC' = 12              # UAC Settings
-    'AI' = 13               # NEW: AI Lockdown (KRITISCH fuer Privacy!)
-    'WirelessDisplay' = 14  # NEW: Wireless Display / Miracast
-    'OneDrive' = 15         # NEW: OneDrive Privacy Hardening
-    'Edge' = 16             # Microsoft Edge Security Baseline
-    'Interactive' = 17      # Menue (braucht alle anderen)
+    'DNS-Providers' = 9     # NEW: Multi-Provider DNS (Cloudflare, AdGuard, NextDNS, Quad9)
+    'Bloatware' = 10        # App-Removal
+    'Telemetry' = 11        # Privacy
+    'Performance' = 12      # Optimierung
+    'UAC' = 13              # UAC Settings
+    'AI' = 14               # NEW: AI Lockdown (KRITISCH fuer Privacy!)
+    'WirelessDisplay' = 15  # NEW: Wireless Display / Miracast
+    'OneDrive' = 16         # NEW: OneDrive Privacy Hardening
+    'Edge' = 17             # Microsoft Edge Security Baseline
+    'Interactive' = 18      # Menue (braucht alle anderen)
 }
 
 function Get-ModuleLoadOrder {
@@ -732,6 +734,7 @@ foreach ($moduleName in $requiredModules) {
                 'ASR' { $moduleLoaded = $null -ne (Get-Command 'Set-AttackSurfaceReductionRules' -ErrorAction SilentlyContinue) }
                 'Advanced' { $moduleLoaded = $null -ne (Get-Command 'Enable-AdvancedAuditing' -ErrorAction SilentlyContinue) }
                 'DNS' { $moduleLoaded = $null -ne (Get-Command 'Enable-DNSSEC' -ErrorAction SilentlyContinue) }
+                'DNS-Providers' { $moduleLoaded = $null -ne (Get-Command 'Enable-AdGuardDNS' -ErrorAction SilentlyContinue) }
                 'Bloatware' { $moduleLoaded = $null -ne (Get-Command 'Remove-BloatwareApps' -ErrorAction SilentlyContinue) }
                 'Telemetry' { $moduleLoaded = $null -ne (Get-Command 'Disable-TelemetryServices' -ErrorAction SilentlyContinue) }
                 'Performance' { $moduleLoaded = $null -ne (Get-Command 'Optimize-ScheduledTasks' -ErrorAction SilentlyContinue) }
@@ -1047,6 +1050,52 @@ if ($Interactive) {
                 Write-Host "$(Get-LocalizedString 'BackupCanRestore')" -ForegroundColor Green
                 Write-Host "$(Get-LocalizedString 'BackupRunRestore')" -ForegroundColor Cyan
                 Write-Host ""
+                
+                # ===== DNS & ONEDRIVE SELECTION (after backup, before enforcement) =====
+                # Only show in Enforce/Custom mode (not Audit mode)
+                if ($Mode -ne 'Audit') {
+                    # DNS Provider Selection (only if DNS module is selected)
+                    $showDNSMenu = $false
+                    if ($Mode -eq 'Enforce') {
+                        $showDNSMenu = $true  # Always show in Enforce mode
+                    }
+                    elseif ($Mode -eq 'Custom' -and $SelectedModules -contains 'DNS') {
+                        $showDNSMenu = $true  # Show in Custom mode if DNS module selected
+                    }
+                    
+                    if ($showDNSMenu) {
+                        $dnsChoice = Show-DNSProviderMenu
+                        
+                        # Store DNS choice in config for later use
+                        if (-not $config.ContainsKey('DNSProvider')) {
+                            $config.Add('DNSProvider', $dnsChoice)
+                        }
+                        else {
+                            $config.DNSProvider = $dnsChoice
+                        }
+                        
+                        Write-Verbose "DNS Provider selected: $dnsChoice"
+                    }
+                    
+                    # OneDrive Handling Selection (always show in Enforce/Custom)
+                    $oneDriveChoice = Show-OneDriveMenu
+                    
+                    # Store OneDrive choice in config for later use
+                    if (-not $config.ContainsKey('OneDriveAction')) {
+                        $config.Add('OneDriveAction', $oneDriveChoice)
+                    }
+                    else {
+                        $config.OneDriveAction = $oneDriveChoice
+                    }
+                    
+                    Write-Verbose "OneDrive action selected: $oneDriveChoice"
+                    
+                    Write-Host ""
+                    Write-Host "═══════════════════════════════════════════════════════════" -ForegroundColor Green
+                    Write-Host "  CONFIGURATION COMPLETE - READY TO START" -ForegroundColor Green
+                    Write-Host "═══════════════════════════════════════════════════════════" -ForegroundColor Green
+                    Write-Host ""
+                }
                 # NO second Read-Host here - Backup script already asked!
             }
             else {
