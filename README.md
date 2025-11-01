@@ -117,6 +117,12 @@ This project minimizes telemetry via Registry, Services, Firewall, and DNS block
 
 ### 🌐 DNS Security & Privacy
 
+**Cloudflare DNS-over-HTTPS** → Encrypted DNS queries (1.1.1.1 / 1.0.0.1)  
+**Steven Black Hosts** → 79,776 malicious/tracking domains blocked (cache-optimized)
+
+<details>
+<summary><b>📋 DNS Details (click to expand)</b></summary>
+
 **Cloudflare DNS-over-HTTPS (DoH)**
 - ✅ Encrypted DNS queries (1.1.1.1 / 1.0.0.1)
 - ✅ Privacy-first DNS provider (no user tracking)
@@ -145,6 +151,8 @@ This project minimizes telemetry via Registry, Services, Firewall, and DNS block
 - 🛡️ Malware domains blocked at DNS level
 - 🔐 No DNS hijacking by ISP
 - 💪 Full Steven Black list WITHOUT performance hit
+
+</details>
 
 ---
 
@@ -282,7 +290,10 @@ shutdown /r /t 0
 
 ## 🔧 Module Architecture
 
-The project uses a modular architecture with 13 specialized modules:
+The project uses a modular architecture with **13 specialized modules**: Core, ASR, Advanced, DNS, Bloatware, Telemetry, Performance, AI, Edge, OneDrive, UAC, WindowsUpdate, WirelessDisplay
+
+<details>
+<summary><b>📋 Module Details (click to expand)</b></summary>
 
 | Module | Description | Key Features |
 |--------|-------------|-------------|
@@ -300,6 +311,8 @@ The project uses a modular architecture with 13 specialized modules:
 | **WindowsUpdate** | Update optimization | Hybrid mode (user preferences + policies), HTTP-only (no P2P), Preview Builds blocked |
 | **WirelessDisplay** | Miracast disablement | 4-layer blocking (Services, Registry, Firewall, Apps) |
 
+</details>
+
 ---
 
 ## 📊 Compliance Matrix
@@ -315,6 +328,11 @@ The project uses a modular architecture with 13 specialized modules:
 **Note:** Percentages are estimates for **standalone/workgroup workstations**. Domain-specific features (Group Policy, AD integration) are excluded. Exact compliance requires manual audit.
 
 ### Understanding "100% Microsoft Baseline Coverage"
+
+**100% = All 213 locally-implementable policies fully configured + 100+ additional hardening settings beyond baseline**
+
+<details>
+<summary><b>📋 Coverage Details (click to expand)</b></summary>
 
 **What does 100% mean?**
 - All **213 locally-implementable policies** from Microsoft Security Baseline 25H2 are fully configured
@@ -335,6 +353,8 @@ The project uses a modular architecture with 13 specialized modules:
 - The N/A policies require manual configuration via GUI tools or are deprecated/domain-only
 
 **Bottom line:** You get **every single implementable security policy** from the Microsoft baseline, plus extensive privacy hardening!
+
+</details>
 
 ---
 
@@ -591,21 +611,24 @@ The authors are not responsible for any damage or data loss caused by this scrip
 - ✅ **Registry Keys** - Now 388 keys (was 375, +13 new keys)
 - ✅ **Verification** - 124 checks total (was 113, +11 Phase 1 checks)
 
-### Previous Updates (v1.7.13)
+<details>
+<summary><b>Previous Updates (click to expand)</b></summary>
+
+### v1.7.13
 - ✅ **DoH Verification Fixed** - Boolean conversion (Out-String) and correct command (show global)
 - ✅ **DNS Restore Fixed** - PowerShell 5.1 compatibility (removed -AddressFamily parameter)
 - ✅ **DNS Restore Fixed** - Array coercion for .Count property (PropertyNotFoundException)
 - ✅ **Backup Fixed** - EnableAutoDoh PSObject.Properties pattern (robust property check)
 - ✅ **DNS Restore Simplified** - Combines IPv4+IPv6 in single call, removed safety sweep
 
-### Previous Updates (v1.7.12)
+### v1.7.12
 - ✅ **Access Denied Errors Fixed** - Device-Level Backup removed (TrustedInstaller-protected)
 - ✅ **Bloatware TerminatingError Fixed** - Removed problematic Solitaire patterns
 - ✅ **Step Counters Updated** - Changed from [X/14] to [X/13] (13 user-visible backup steps)
 - ✅ **Registry Parity** - 125 missing keys added (100% parity achieved)
 - ✅ **App List Localization** - Desktop export now fully localized (DE/EN)
 
-### Previous Updates (v1.7.11)
+### v1.7.11
 - ✅ **IPv6 DoH Encryption** - Full IPv6 DNS-over-HTTPS support (Doh6 registry branch)
 - ✅ **Notepad AI Copilot Disable** - Removes Copilot button from Windows Notepad
 - ✅ **Domain Count Fix** - Corrected calculation (79,776 domains instead of 8,064)
@@ -613,7 +636,9 @@ The authors are not responsible for any damage or data loss caused by this scrip
 - ✅ **Backup/Restore Enhancement** - DoH & Notepad AI settings now backed up
 - ✅ **FAQ Documentation** - Added Windows Update guide, fixed DNS info, corrected 26H2 year
 
-See [CHANGELOG.md](CHANGELOG.md) for full version history.
+</details>
+
+**→ See [CHANGELOG.md](CHANGELOG.md) for full version history**
 
 ---
 
