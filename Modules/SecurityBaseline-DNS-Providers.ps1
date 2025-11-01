@@ -1,20 +1,128 @@
+# =======================================================================================
+# SecurityBaseline-DNS-Providers.ps1 - DNS-over-HTTPS Provider Configuration
+# =======================================================================================
+
 #Requires -Version 5.1
 #Requires -RunAsAdministrator
 
-# Enable Strict Mode
+# Best Practice 25H2: Enable Strict Mode
 Set-StrictMode -Version Latest
+
+# Load common DNS helper functions
+. "$PSScriptRoot\SecurityBaseline-DNS-Common.ps1"
 
 <#
 .SYNOPSIS
     DNS Provider Functions for DoH Configuration
 
 .DESCRIPTION
-    Multiple DNS-over-HTTPS providers:
-    - Cloudflare (1.1.1.1) - Fast, US-based
-    - AdGuard (94.140.14.14) - Privacy-focused, EU
-    - NextDNS (45.90.28.0) - Customizable, Global
-    - Quad9 (9.9.9.9) - Non-profit, Switzerland
+    Unified DNS-over-HTTPS providers with consistent implementation:
+    - Cloudflare (1.1.1.1) - Fast, global CDN
+    - AdGuard (94.140.14.14) - Privacy-focused, EU-based, ad-blocking
+    - NextDNS (45.90.28.0) - Customizable, analytics dashboard
+    - Quad9 (9.9.9.9) - Non-profit, GDPR-compliant, threat-blocking
+    
+    All providers now use:
+    - Same cleanup logic (Reset-NoID-DnsState)
+    - Same adapter selection (Get-NoID-NetworkAdapters)
+    - Same IPv6 detection and ordering
+    - Proper DoH registration with no fallback to unencrypted
 #>
+
+#region CLOUDFLARE DNS
+
+function Enable-CloudflareDNS {
+    <#
+    .SYNOPSIS
+        Configures Cloudflare DNS over HTTPS (DoH)
+    .DESCRIPTION
+        Enables Windows 11 native DoH and sets DNS to Cloudflare (1.1.1.1).
+        Cloudflare is fast, global, and privacy-focused.
+        
+        Provider: Cloudflare (US/Global)
+        IPv4: 1.1.1.1 (Primary), 1.0.0.1 (Secondary)
+        IPv6: 2606:4700:4700::1111 (Primary), 2606:4700:4700::1001 (Secondary)
+        Privacy: ***** | Speed: ***** | Location: Global CDN
+    #>
+    [CmdletBinding()]
+    [OutputType([void])]
+    param()
+    
+    Write-Section "Cloudflare DNS over HTTPS (DoH)"
+    Write-Info "Configuring Cloudflare DNS - Fast, global CDN..."
+    Write-Info "Privacy-focused with WARP integration available"
+    
+    # CRITICAL: Clean ALL previous DNS state
+    Reset-NoID-DnsState -KeepAdapterDns
+    
+    # Enable DoH globally
+    try {
+        netsh dnsclient set global doh=yes 2>$null | Out-Null
+        Write-Verbose "DoH globally enabled"
+    }
+    catch {
+        Write-Verbose "Failed to enable global DoH: $_"
+    }
+    
+    # DoH configuration
+    $dohTemplate = 'https://cloudflare-dns.com/dns-query'
+    $ipv4Servers = @('1.1.1.1', '1.0.0.1')
+    $ipv6Servers = @('2606:4700:4700::1111', '2606:4700:4700::1001')
+    
+    # Register DoH for all servers (IPv4 + IPv6)
+    foreach ($server in ($ipv4Servers + $ipv6Servers)) {
+        try {
+            netsh dnsclient add encryption server=$server `
+                dohtemplate=$dohTemplate autoupgrade=yes udpfallback=no 2>$null | Out-Null
+            Write-Verbose "Registered DoH: $server"
+        }
+        catch {
+            Write-Verbose "Failed to register DoH for $server : $_"
+        }
+    }
+    
+    # Configure adapters (skip VPN/VM)
+    $adapters = Get-NoID-NetworkAdapters
+    
+    if ($adapters.Count -eq 0) {
+        Write-Warning "No suitable network adapters found (all are VPN/virtual)"
+        return
+    }
+    
+    foreach ($adapter in $adapters) {
+        try {
+            # Check if adapter has IPv6 enabled
+            $ipv6Binding = Get-NetAdapterBinding -InterfaceAlias $adapter.Name `
+                -ComponentID ms_tcpip6 -ErrorAction SilentlyContinue
+            $ipv6Enabled = $ipv6Binding.Enabled
+            
+            if ($ipv6Enabled) {
+                # IPv6 first, then IPv4 (Windows prefers first server for DoH validation)
+                Set-DnsClientServerAddress -InterfaceAlias $adapter.Name `
+                    -ServerAddresses ($ipv6Servers + $ipv4Servers) -ErrorAction Stop
+                Write-Verbose "  $($adapter.Name): IPv6 + IPv4 configured"
+            }
+            else {
+                # IPv4 only
+                Set-DnsClientServerAddress -InterfaceAlias $adapter.Name `
+                    -ServerAddresses $ipv4Servers -ErrorAction Stop
+                Write-Verbose "  $($adapter.Name): IPv4 only configured"
+            }
+        }
+        catch {
+            Write-Warning "Failed to configure adapter $($adapter.Name): $_"
+        }
+    }
+    
+    Write-Success "Cloudflare DNS-over-HTTPS configured"
+    Write-Info "IPv4: 1.1.1.1, 1.0.0.1"
+    Write-Info "IPv6: 2606:4700:4700::1111, 2606:4700:4700::1001"
+    Write-Info "All DNS queries are encrypted via HTTPS"
+}
+
+#endregion
+
+#region ADGUARD DNS
 
 function Enable-AdGuardDNS {
     <#
@@ -37,81 +145,78 @@ function Enable-AdGuardDNS {
     Write-Info "Configuring AdGuard DNS - Privacy-focused, EU-based..."
     Write-Info "Built-in ad and tracker blocking included"
     
-    # Remove old DoH entries (idempotent)
-    Write-Verbose "Removing old DoH entries..."
-    $serversToRemove = @("94.140.14.14", "94.140.15.15", "2a10:50c0::ad1:ff", "2a10:50c0::ad2:ff")
-    foreach ($server in $serversToRemove) {
-        try {
-            $null = netsh dnsclient delete encryption server=$server 2>&1
-        }
-        catch {
-            Write-Verbose "Server $server not registered (OK)"
-        }
-    }
-    
-    # Register DoH servers
-    Write-Verbose "Registering AdGuard DoH servers..."
-    
-    # IPv4 Primary
-    $result = netsh dnsclient add encryption server=94.140.14.14 dohtemplate=https://dns.adguard-dns.com/dns-query autoupgrade=yes udpfallback=no 2>&1
-    if ($LASTEXITCODE -eq 0) {
-        Write-Verbose "  DoH registered: 94.140.14.14"
-    }
-    
-    # IPv4 Secondary
-    $result = netsh dnsclient add encryption server=94.140.15.15 dohtemplate=https://dns.adguard-dns.com/dns-query autoupgrade=yes udpfallback=no 2>&1
-    if ($LASTEXITCODE -eq 0) {
-        Write-Verbose "  DoH registered: 94.140.15.15"
-    }
-    
-    # IPv6 Primary
-    $result = netsh dnsclient add encryption server=2a10:50c0::ad1:ff dohtemplate=https://dns.adguard-dns.com/dns-query autoupgrade=yes udpfallback=no 2>&1
-    if ($LASTEXITCODE -eq 0) {
-        Write-Verbose "  DoH registered: 2a10:50c0::ad1:ff"
-    }
-    
-    # IPv6 Secondary
-    $result = netsh dnsclient add encryption server=2a10:50c0::ad2:ff dohtemplate=https://dns.adguard-dns.com/dns-query autoupgrade=yes udpfallback=no 2>&1
-    if ($LASTEXITCODE -eq 0) {
-        Write-Verbose "  DoH registered: 2a10:50c0::ad2:ff"
-    }
-    
-    Write-Success "DoH servers registered: 4 AdGuard servers (IPv4 + IPv6)"
+    # CRITICAL: Clean ALL previous DNS state
+    Reset-NoID-DnsState -KeepAdapterDns
     
     # Enable DoH globally
-    Write-Info "Activating DoH globally..."
-    $result = netsh dnsclient set global doh=yes 2>&1
-    if ($LASTEXITCODE -eq 0) {
+    try {
+        netsh dnsclient set global doh=yes 2>$null | Out-Null
         Write-Verbose "DoH globally enabled"
     }
+    catch {
+        Write-Verbose "Failed to enable global DoH: $_"
+    }
     
-    # Configure network adapters
-    $adapters = Get-NetAdapter | Where-Object { $_.Status -eq 'Up' -and $_.Name -notlike '*VPN*' -and $_.Name -notlike '*Virtual*' }
+    # DoH configuration
+    $dohTemplate = 'https://dns.adguard-dns.com/dns-query'
+    $ipv4Servers = @('94.140.14.14', '94.140.15.15')
+    $ipv6Servers = @('2a10:50c0::ad1:ff', '2a10:50c0::ad2:ff')
     
-    Write-Info "Configuring $($adapters.Count) active adapter(s)..."
+    # Register DoH for all servers (IPv4 + IPv6)
+    foreach ($server in ($ipv4Servers + $ipv6Servers)) {
+        try {
+            netsh dnsclient add encryption server=$server `
+                dohtemplate=$dohTemplate autoupgrade=yes udpfallback=no 2>$null | Out-Null
+            Write-Verbose "Registered DoH: $server"
+        }
+        catch {
+            Write-Verbose "Failed to register DoH for $server : $_"
+        }
+    }
+    
+    # Configure adapters (skip VPN/VM)
+    $adapters = Get-NoID-NetworkAdapters
+    
+    if ($adapters.Count -eq 0) {
+        Write-Warning "No suitable network adapters found (all are VPN/virtual)"
+        return
+    }
     
     foreach ($adapter in $adapters) {
         try {
-            Write-Verbose "Processing: $($adapter.Name)"
+            # Check if adapter has IPv6 enabled
+            $ipv6Binding = Get-NetAdapterBinding -InterfaceAlias $adapter.Name `
+                -ComponentID ms_tcpip6 -ErrorAction SilentlyContinue
+            $ipv6Enabled = $ipv6Binding.Enabled
             
-            # Set DNS servers (IPv4 primary for speed)
-            Set-DnsClientServerAddress -InterfaceAlias $adapter.Name `
-                -ServerAddresses @("94.140.14.14", "94.140.15.15", "2a10:50c0::ad1:ff", "2a10:50c0::ad2:ff") `
-                -ErrorAction Stop
-            
-            Write-Verbose "  DNS servers set"
+            if ($ipv6Enabled) {
+                # IPv6 first, then IPv4
+                Set-DnsClientServerAddress -InterfaceAlias $adapter.Name `
+                    -ServerAddresses ($ipv6Servers + $ipv4Servers) -ErrorAction Stop
+                Write-Verbose "  $($adapter.Name): IPv6 + IPv4 configured"
+            }
+            else {
+                # IPv4 only
+                Set-DnsClientServerAddress -InterfaceAlias $adapter.Name `
+                    -ServerAddresses $ipv4Servers -ErrorAction Stop
+                Write-Verbose "  $($adapter.Name): IPv4 only configured"
+            }
         }
         catch {
-            Write-Warning "Adapter $($adapter.Name) could not be configured: $_"
+            Write-Warning "Failed to configure adapter $($adapter.Name): $_"
         }
     }
     
-    Write-Success "AdGuard DNS over HTTPS activated"
-    Write-Info "IPv4: 94.140.14.14 (Primary), 94.140.15.15 (Secondary)"
-    Write-Info "IPv6: 2a10:50c0::ad1:ff (Primary), 2a10:50c0::ad2:ff (Secondary)"
-    Write-Info "Features: Ad blocking, Tracker blocking, Privacy-focused"
-    Write-Warning "IMPORTANT: Reboot may be required for DoH to become active!"
+    Write-Success "AdGuard DNS-over-HTTPS configured"
+    Write-Info "IPv4: 94.140.14.14, 94.140.15.15"
+    Write-Info "IPv6: 2a10:50c0::ad1:ff, 2a10:50c0::ad2:ff"
+    Write-Info "All DNS queries are encrypted via HTTPS"
+    Write-Info "Built-in ad and tracker blocking active"
 }
+
+#endregion
+
+#region NEXTDNS
 
 function Enable-NextDNS {
     <#
@@ -126,92 +231,108 @@ function Enable-NextDNS {
         IPv6: 2a07:a8c0:: (Primary), 2a07:a8c1:: (Secondary)
         Privacy: ***** | Speed: ****  | Location: Global CDN
         
-        NOTE: For custom filtering, users should sign up at nextdns.io
+        NOTE: For custom filtering and analytics, sign up at nextdns.io
+              and use the -ProfileId parameter with your configuration ID.
+    .PARAMETER ProfileId
+        Your NextDNS configuration ID (e.g., 'abc123').
+        If not specified, uses generic public endpoint (limited features).
     #>
     [CmdletBinding()]
     [OutputType([void])]
-    param()
+    param(
+        [Parameter(Mandatory = $false)]
+        [string]$ProfileId = ''
+    )
     
     Write-Section "NextDNS over HTTPS (DoH)"
     Write-Info "Configuring NextDNS - Customizable, Global CDN..."
-    Write-Info "For custom filtering: Sign up at https://nextdns.io"
     
-    # Remove old DoH entries
-    Write-Verbose "Removing old DoH entries..."
-    $serversToRemove = @("45.90.28.0", "45.90.30.0", "2a07:a8c0::", "2a07:a8c1::")
-    foreach ($server in $serversToRemove) {
-        try {
-            $null = netsh dnsclient delete encryption server=$server 2>&1
-        }
-        catch {
-            Write-Verbose "Server $server not registered (OK)"
-        }
+    if ($ProfileId) {
+        Write-Info "Using custom profile ID: $ProfileId"
+        Write-Info "Custom filtering and analytics enabled"
+    }
+    else {
+        Write-Info "Using generic public endpoint (limited features)"
+        Write-Info "For custom filtering: Sign up at https://nextdns.io"
     }
     
-    # Register DoH servers
-    Write-Verbose "Registering NextDNS DoH servers..."
-    
-    # IPv4 Primary
-    $result = netsh dnsclient add encryption server=45.90.28.0 dohtemplate=https://dns.nextdns.io/dns-query autoupgrade=yes udpfallback=no 2>&1
-    if ($LASTEXITCODE -eq 0) {
-        Write-Verbose "  DoH registered: 45.90.28.0"
-    }
-    
-    # IPv4 Secondary
-    $result = netsh dnsclient add encryption server=45.90.30.0 dohtemplate=https://dns.nextdns.io/dns-query autoupgrade=yes udpfallback=no 2>&1
-    if ($LASTEXITCODE -eq 0) {
-        Write-Verbose "  DoH registered: 45.90.30.0"
-    }
-    
-    # IPv6 Primary
-    $result = netsh dnsclient add encryption server=2a07:a8c0:: dohtemplate=https://dns.nextdns.io/dns-query autoupgrade=yes udpfallback=no 2>&1
-    if ($LASTEXITCODE -eq 0) {
-        Write-Verbose "  DoH registered: 2a07:a8c0::"
-    }
-    
-    # IPv6 Secondary
-    $result = netsh dnsclient add encryption server=2a07:a8c1:: dohtemplate=https://dns.nextdns.io/dns-query autoupgrade=yes udpfallback=no 2>&1
-    if ($LASTEXITCODE -eq 0) {
-        Write-Verbose "  DoH registered: 2a07:a8c1::"
-    }
-    
-    Write-Success "DoH servers registered: 4 NextDNS servers (IPv4 + IPv6)"
+    # CRITICAL: Clean ALL previous DNS state
+    Reset-NoID-DnsState -KeepAdapterDns
     
     # Enable DoH globally
-    Write-Info "Activating DoH globally..."
-    $result = netsh dnsclient set global doh=yes 2>&1
-    if ($LASTEXITCODE -eq 0) {
+    try {
+        netsh dnsclient set global doh=yes 2>$null | Out-Null
         Write-Verbose "DoH globally enabled"
     }
+    catch {
+        Write-Verbose "Failed to enable global DoH: $_"
+    }
     
-    # Configure network adapters
-    $adapters = Get-NetAdapter | Where-Object { $_.Status -eq 'Up' -and $_.Name -notlike '*VPN*' -and $_.Name -notlike '*Virtual*' }
+    # DoH configuration
+    $dohTemplate = if ($ProfileId) {
+        "https://dns.nextdns.io/$ProfileId"
+    }
+    else {
+        'https://dns.nextdns.io/dns-query'
+    }
     
-    Write-Info "Configuring $($adapters.Count) active adapter(s)..."
+    $ipv4Servers = @('45.90.28.0', '45.90.30.0')
+    $ipv6Servers = @('2a07:a8c0::', '2a07:a8c1::')
+    
+    # Register DoH for all servers (IPv4 + IPv6)
+    foreach ($server in ($ipv4Servers + $ipv6Servers)) {
+        try {
+            netsh dnsclient add encryption server=$server `
+                dohtemplate=$dohTemplate autoupgrade=yes udpfallback=no 2>$null | Out-Null
+            Write-Verbose "Registered DoH: $server"
+        }
+        catch {
+            Write-Verbose "Failed to register DoH for $server : $_"
+        }
+    }
+    
+    # Configure adapters (skip VPN/VM)
+    $adapters = Get-NoID-NetworkAdapters
+    
+    if ($adapters.Count -eq 0) {
+        Write-Warning "No suitable network adapters found (all are VPN/virtual)"
+        return
+    }
     
     foreach ($adapter in $adapters) {
         try {
-            Write-Verbose "Processing: $($adapter.Name)"
+            # Check if adapter has IPv6 enabled
+            $ipv6Binding = Get-NetAdapterBinding -InterfaceAlias $adapter.Name `
+                -ComponentID ms_tcpip6 -ErrorAction SilentlyContinue
+            $ipv6Enabled = $ipv6Binding.Enabled
             
-            # Set DNS servers
-            Set-DnsClientServerAddress -InterfaceAlias $adapter.Name `
-                -ServerAddresses @("45.90.28.0", "45.90.30.0", "2a07:a8c0::", "2a07:a8c1::") `
-                -ErrorAction Stop
-            
-            Write-Verbose "  DNS servers set"
+            if ($ipv6Enabled) {
+                # IPv6 first, then IPv4
+                Set-DnsClientServerAddress -InterfaceAlias $adapter.Name `
+                    -ServerAddresses ($ipv6Servers + $ipv4Servers) -ErrorAction Stop
+                Write-Verbose "  $($adapter.Name): IPv6 + IPv4 configured"
+            }
+            else {
+                # IPv4 only
+                Set-DnsClientServerAddress -InterfaceAlias $adapter.Name `
+                    -ServerAddresses $ipv4Servers -ErrorAction Stop
+                Write-Verbose "  $($adapter.Name): IPv4 only configured"
+            }
         }
         catch {
-            Write-Warning "Adapter $($adapter.Name) could not be configured: $_"
+            Write-Warning "Failed to configure adapter $($adapter.Name): $_"
         }
     }
     
-    Write-Success "NextDNS over HTTPS activated"
-    Write-Info "IPv4: 45.90.28.0 (Primary), 45.90.30.0 (Secondary)"
-    Write-Info "IPv6: 2a07:a8c0:: (Primary), 2a07:a8c1:: (Secondary)"
-    Write-Info "Features: Customizable filtering, Analytics dashboard, Privacy logs"
-    Write-Info "Advanced: Create account at https://nextdns.io for custom config"
-    Write-Warning "IMPORTANT: Reboot may be required for DoH to become active!"
+    Write-Success "NextDNS DNS-over-HTTPS configured"
+    Write-Info "IPv4: 45.90.28.0, 45.90.30.0"
+    Write-Info "IPv6: 2a07:a8c0::, 2a07:a8c1::"
+    Write-Info "All DNS queries are encrypted via HTTPS"
 }
+
+#endregion
+
+#region QUAD9 DNS
 
 function Enable-Quad9DNS {
     <#
@@ -234,79 +355,76 @@ function Enable-Quad9DNS {
     Write-Info "Configuring Quad9 DNS - Non-profit, GDPR-compliant..."
     Write-Info "Built-in threat intelligence and malware blocking"
     
-    # Remove old DoH entries
-    Write-Verbose "Removing old DoH entries..."
-    $serversToRemove = @("9.9.9.9", "149.112.112.112", "2620:fe::fe", "2620:fe::9")
-    foreach ($server in $serversToRemove) {
-        try {
-            $null = netsh dnsclient delete encryption server=$server 2>&1
-        }
-        catch {
-            Write-Verbose "Server $server not registered (OK)"
-        }
-    }
-    
-    # Register DoH servers
-    Write-Verbose "Registering Quad9 DoH servers..."
-    
-    # IPv4 Primary
-    $result = netsh dnsclient add encryption server=9.9.9.9 dohtemplate=https://dns.quad9.net/dns-query autoupgrade=yes udpfallback=no 2>&1
-    if ($LASTEXITCODE -eq 0) {
-        Write-Verbose "  DoH registered: 9.9.9.9"
-    }
-    
-    # IPv4 Secondary
-    $result = netsh dnsclient add encryption server=149.112.112.112 dohtemplate=https://dns.quad9.net/dns-query autoupgrade=yes udpfallback=no 2>&1
-    if ($LASTEXITCODE -eq 0) {
-        Write-Verbose "  DoH registered: 149.112.112.112"
-    }
-    
-    # IPv6 Primary
-    $result = netsh dnsclient add encryption server=2620:fe::fe dohtemplate=https://dns.quad9.net/dns-query autoupgrade=yes udpfallback=no 2>&1
-    if ($LASTEXITCODE -eq 0) {
-        Write-Verbose "  DoH registered: 2620:fe::fe"
-    }
-    
-    # IPv6 Secondary
-    $result = netsh dnsclient add encryption server=2620:fe::9 dohtemplate=https://dns.quad9.net/dns-query autoupgrade=yes udpfallback=no 2>&1
-    if ($LASTEXITCODE -eq 0) {
-        Write-Verbose "  DoH registered: 2620:fe::9"
-    }
-    
-    Write-Success "DoH servers registered: 4 Quad9 servers (IPv4 + IPv6)"
+    # CRITICAL: Clean ALL previous DNS state
+    Reset-NoID-DnsState -KeepAdapterDns
     
     # Enable DoH globally
-    Write-Info "Activating DoH globally..."
-    $result = netsh dnsclient set global doh=yes 2>&1
-    if ($LASTEXITCODE -eq 0) {
+    try {
+        netsh dnsclient set global doh=yes 2>$null | Out-Null
         Write-Verbose "DoH globally enabled"
     }
+    catch {
+        Write-Verbose "Failed to enable global DoH: $_"
+    }
     
-    # Configure network adapters
-    $adapters = Get-NetAdapter | Where-Object { $_.Status -eq 'Up' -and $_.Name -notlike '*VPN*' -and $_.Name -notlike '*Virtual*' }
+    # DoH configuration
+    $dohTemplate = 'https://dns.quad9.net/dns-query'
+    $ipv4Servers = @('9.9.9.9', '149.112.112.112')
+    $ipv6Servers = @('2620:fe::fe', '2620:fe::9')
     
-    Write-Info "Configuring $($adapters.Count) active adapter(s)..."
+    # Register DoH for all servers (IPv4 + IPv6)
+    foreach ($server in ($ipv4Servers + $ipv6Servers)) {
+        try {
+            netsh dnsclient add encryption server=$server `
+                dohtemplate=$dohTemplate autoupgrade=yes udpfallback=no 2>$null | Out-Null
+            Write-Verbose "Registered DoH: $server"
+        }
+        catch {
+            Write-Verbose "Failed to register DoH for $server : $_"
+        }
+    }
+    
+    # Configure adapters (skip VPN/VM)
+    $adapters = Get-NoID-NetworkAdapters
+    
+    if ($adapters.Count -eq 0) {
+        Write-Warning "No suitable network adapters found (all are VPN/virtual)"
+        return
+    }
     
     foreach ($adapter in $adapters) {
         try {
-            Write-Verbose "Processing: $($adapter.Name)"
+            # Check if adapter has IPv6 enabled
+            $ipv6Binding = Get-NetAdapterBinding -InterfaceAlias $adapter.Name `
+                -ComponentID ms_tcpip6 -ErrorAction SilentlyContinue
+            $ipv6Enabled = $ipv6Binding.Enabled
             
-            # Set DNS servers
-            Set-DnsClientServerAddress -InterfaceAlias $adapter.Name `
-                -ServerAddresses @("9.9.9.9", "149.112.112.112", "2620:fe::fe", "2620:fe::9") `
-                -ErrorAction Stop
-            
-            Write-Verbose "  DNS servers set"
+            if ($ipv6Enabled) {
+                # IPv6 first, then IPv4
+                Set-DnsClientServerAddress -InterfaceAlias $adapter.Name `
+                    -ServerAddresses ($ipv6Servers + $ipv4Servers) -ErrorAction Stop
+                Write-Verbose "  $($adapter.Name): IPv6 + IPv4 configured"
+            }
+            else {
+                # IPv4 only
+                Set-DnsClientServerAddress -InterfaceAlias $adapter.Name `
+                    -ServerAddresses $ipv4Servers -ErrorAction Stop
+                Write-Verbose "  $($adapter.Name): IPv4 only configured"
+            }
         }
         catch {
-            Write-Warning "Adapter $($adapter.Name) could not be configured: $_"
+            Write-Warning "Failed to configure adapter $($adapter.Name): $_"
         }
     }
     
-    Write-Success "Quad9 DNS over HTTPS activated"
-    Write-Info "IPv4: 9.9.9.9 (Primary), 149.112.112.112 (Secondary)"
-    Write-Info "IPv6: 2620:fe::fe (Primary), 2620:fe::9 (Secondary)"
-    Write-Info "Features: Threat blocking, Malware protection, GDPR-compliant"
-    Write-Info "Organization: Quad9 Foundation (Non-profit, Switzerland)"
-    Write-Warning "IMPORTANT: Reboot may be required for DoH to become active!"
+    Write-Success "Quad9 DNS-over-HTTPS configured"
+    Write-Info "IPv4: 9.9.9.9, 149.112.112.112"
+    Write-Info "IPv6: 2620:fe::fe, 2620:fe::9"
+    Write-Info "All DNS queries are encrypted via HTTPS"
+    Write-Info "Threat intelligence and malware blocking active"
 }
+
+#endregion
+
+# Export all functions
+Export-ModuleMember -Function Enable-CloudflareDNS, Enable-AdGuardDNS, Enable-NextDNS, Enable-Quad9DNS

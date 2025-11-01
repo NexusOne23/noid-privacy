@@ -415,7 +415,8 @@ $moduleDependencies = @{
     'ASR' = @('Common', 'Localization')              # Braucht Helper-Functions + Strings
     'Advanced' = @('Common', 'Localization')         # Braucht Helper-Functions + Strings
     'DNS' = @('Common', 'Localization')              # Braucht Helper-Functions + Strings
-    'DNS-Providers' = @('Common', 'Localization')    # NEW: Multi-Provider DNS-over-HTTPS (Cloudflare, AdGuard, NextDNS, Quad9)
+    'DNS-Common' = @('Common', 'Localization')       # NEW: Shared DNS helper functions (cleanup, adapter selection)
+    'DNS-Providers' = @('Common', 'Localization', 'DNS-Common')  # NEW: Multi-Provider DNS-over-HTTPS (needs DNS-Common!)
     'Bloatware' = @('Common', 'Localization')        # Braucht Helper-Functions + Strings
     'Telemetry' = @('Common', 'Localization')        # Braucht Helper-Functions + Strings
     'Performance' = @('Common', 'Localization')      # Braucht Helper-Functions + Strings
@@ -438,16 +439,17 @@ $modulePriority = @{
     'ASR' = 6               # Attack Surface Reduction
     'Advanced' = 7          # VBS, BitLocker, LAPS
     'DNS' = 8               # DNS Security
-    'DNS-Providers' = 9     # NEW: Multi-Provider DNS (Cloudflare, AdGuard, NextDNS, Quad9)
-    'Bloatware' = 10        # App-Removal
-    'Telemetry' = 11        # Privacy
-    'Performance' = 12      # Optimierung
-    'UAC' = 13              # UAC Settings
-    'AI' = 14               # NEW: AI Lockdown (KRITISCH fuer Privacy!)
-    'WirelessDisplay' = 15  # NEW: Wireless Display / Miracast
-    'OneDrive' = 16         # NEW: OneDrive Privacy Hardening
-    'Edge' = 17             # Microsoft Edge Security Baseline
-    'Interactive' = 18      # Menue (braucht alle anderen)
+    'DNS-Common' = 9        # NEW: DNS Common helpers (MUST load before DNS-Providers!)
+    'DNS-Providers' = 10    # NEW: Multi-Provider DNS (Cloudflare, AdGuard, NextDNS, Quad9)
+    'Bloatware' = 11        # App-Removal
+    'Telemetry' = 12        # Privacy
+    'Performance' = 13      # Optimierung
+    'UAC' = 14              # UAC Settings
+    'AI' = 15               # NEW: AI Lockdown (KRITISCH fuer Privacy!)
+    'WirelessDisplay' = 16  # NEW: Wireless Display / Miracast
+    'OneDrive' = 17         # NEW: OneDrive Privacy Hardening
+    'Edge' = 18             # Microsoft Edge Security Baseline
+    'Interactive' = 19      # Menue (braucht alle anderen)
 }
 
 function Get-ModuleLoadOrder {
@@ -734,6 +736,7 @@ foreach ($moduleName in $requiredModules) {
                 'ASR' { $moduleLoaded = $null -ne (Get-Command 'Set-AttackSurfaceReductionRules' -ErrorAction SilentlyContinue) }
                 'Advanced' { $moduleLoaded = $null -ne (Get-Command 'Enable-AdvancedAuditing' -ErrorAction SilentlyContinue) }
                 'DNS' { $moduleLoaded = $null -ne (Get-Command 'Enable-DNSSEC' -ErrorAction SilentlyContinue) }
+                'DNS-Common' { $moduleLoaded = $null -ne (Get-Command 'Reset-NoID-DnsState' -ErrorAction SilentlyContinue) }
                 'DNS-Providers' { $moduleLoaded = $null -ne (Get-Command 'Enable-AdGuardDNS' -ErrorAction SilentlyContinue) }
                 'Bloatware' { $moduleLoaded = $null -ne (Get-Command 'Remove-BloatwareApps' -ErrorAction SilentlyContinue) }
                 'Telemetry' { $moduleLoaded = $null -ne (Get-Command 'Disable-TelemetryServices' -ErrorAction SilentlyContinue) }
@@ -1381,17 +1384,17 @@ try {
         # DNS Provider Selection (based on user choice)
         if ($config.ContainsKey('DNSProvider')) {
             switch ($config.DNSProvider) {
-                '1' { Enable-CloudflareDNSoverHTTPS }
+                '1' { Enable-CloudflareDNS }
                 '2' { Enable-AdGuardDNS }
                 '3' { Enable-NextDNS }
                 '4' { Enable-Quad9DNS }
                 '5' { Write-Host "  [SKIP] DNS configuration skipped (user choice)" -ForegroundColor Yellow }
-                default { Enable-CloudflareDNSoverHTTPS }  # Fallback to Cloudflare
+                default { Enable-CloudflareDNS }  # Fallback to Cloudflare
             }
         }
         else {
             # No choice made (CLI mode or old flow) - use default Cloudflare
-            Enable-CloudflareDNSoverHTTPS
+            Enable-CloudflareDNS
         }
         
         Disable-RemoteAccessCompletely

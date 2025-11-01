@@ -1,0 +1,154 @@
+# =======================================================================================
+# SecurityBaseline-DNS-Common.ps1 - Common DNS Helper Functions
+# =======================================================================================
+
+#Requires -Version 5.1
+#Requires -RunAsAdministrator
+
+# Best Practice 25H2: Enable Strict Mode
+Set-StrictMode -Version Latest
+
+function Reset-NoID-DnsState {
+    <#
+    .SYNOPSIS
+        Cleans up ALL DoH entries from ALL known providers
+    .DESCRIPTION
+        Deletes all DoH registrations (Cloudflare, AdGuard, NextDNS, Quad9)
+        and removes per-adapter DoH registry keys to ensure clean state.
+        
+        CRITICAL: This prevents stale DoH entries from previous providers
+        from interfering with new provider settings.
+    .PARAMETER KeepAdapterDns
+        If specified, keeps current DNS server addresses on adapters.
+        Otherwise resets adapters to automatic DHCP DNS.
+    #>
+    [CmdletBinding()]
+    param(
+        [switch]$KeepAdapterDns
+    )
+    
+    Write-Verbose "Cleaning up DNS state (all providers)..."
+    
+    # 1. Delete ALL known DoH server registrations
+    $allKnownIps = @(
+        # Cloudflare
+        '1.1.1.1', '1.0.0.1', '2606:4700:4700::1111', '2606:4700:4700::1001',
+        # AdGuard
+        '94.140.14.14', '94.140.15.15', '2a10:50c0::ad1:ff', '2a10:50c0::ad2:ff',
+        # NextDNS
+        '45.90.28.0', '45.90.30.0', '2a07:a8c0::', '2a07:a8c1::',
+        # Quad9
+        '9.9.9.9', '149.112.112.112', '2620:fe::fe', '2620:fe::9'
+    ) | Select-Object -Unique
+    
+    foreach ($ip in $allKnownIps) {
+        if ([string]::IsNullOrWhiteSpace($ip)) { continue }
+        try {
+            netsh dnsclient delete encryption server=$ip 2>$null | Out-Null
+            Write-Verbose "  Deleted DoH entry: $ip"
+        }
+        catch {
+            # Ignore - entry might not exist
+        }
+    }
+    
+    # 2. Clean per-adapter DoH registry keys (all GUIDs)
+    $basePath = 'HKLM:\SYSTEM\CurrentControlSet\Services\Dnscache\InterfaceSpecificParameters'
+    if (Test-Path $basePath) {
+        Get-ChildItem $basePath -ErrorAction SilentlyContinue | ForEach-Object {
+            $adapterPath = $_.PSPath
+            
+            # Remove Doh4 settings
+            if (Test-Path "$adapterPath\DohInterfaceSettings") {
+                Remove-Item "$adapterPath\DohInterfaceSettings" -Recurse -Force -ErrorAction SilentlyContinue
+                Write-Verbose "  Cleaned DoH4 registry: $($_.PSChildName)"
+            }
+            
+            # Remove Doh6 settings
+            if (Test-Path "$adapterPath\Doh6") {
+                Remove-Item "$adapterPath\Doh6" -Recurse -Force -ErrorAction SilentlyContinue
+                Write-Verbose "  Cleaned DoH6 registry: $($_.PSChildName)"
+            }
+        }
+    }
+    
+    # 3. Optional: Reset adapters to automatic DHCP DNS
+    if (-not $KeepAdapterDns) {
+        Write-Verbose "Resetting adapters to automatic DNS..."
+        Get-DnsClient -ErrorAction SilentlyContinue |
+            Where-Object { $_.InterfaceOperationalStatus -eq 'Up' } |
+            ForEach-Object {
+                try {
+                    Set-DnsClientServerAddress -InterfaceAlias $_.InterfaceAlias `
+                        -ResetServerAddresses -ErrorAction Stop
+                    Write-Verbose "  Reset: $($_.InterfaceAlias)"
+                }
+                catch {
+                    Write-Verbose "  Failed to reset: $($_.InterfaceAlias)"
+                }
+            }
+    }
+    
+    Write-Verbose "DNS state cleanup complete"
+}
+
+function Get-NoID-NetworkAdapters {
+    <#
+    .SYNOPSIS
+        Gets active network adapters excluding VPN and virtualization adapters
+    .DESCRIPTION
+        Returns only physical/real network adapters that should be configured
+        with DNS settings. Skips VPN, virtual, and container adapters.
+        
+        CRITICAL: This ensures DNS settings are only applied to real network
+        interfaces, not VPN tunnels or VM bridges.
+    .OUTPUTS
+        Array of NetAdapter objects (only real, active adapters)
+    #>
+    [CmdletBinding()]
+    [OutputType([Microsoft.Management.Infrastructure.CimInstance[]])]
+    param()
+    
+    # Patterns for VPN adapters
+    $vpnPatterns = @(
+        '*VPN*', '*OpenVPN*', '*WireGuard*', '*TAP*',
+        '*L2TP*', '*IKEv2*', '*RAS*', '*PPTP*'
+    )
+    
+    # Patterns for virtualization adapters
+    $virtPatterns = @(
+        '*Virtual*', '*Hyper-V*', '*VMware*', '*VirtualBox*',
+        '*Container*', '*WSL*', '*Docker*', '*vEthernet*'
+    )
+    
+    $allAdapters = Get-NetAdapter -ErrorAction SilentlyContinue |
+        Where-Object { $_.Status -eq 'Up' }
+    
+    $realAdapters = @()
+    
+    foreach ($adapter in $allAdapters) {
+        # Check if VPN
+        $isVPN = $vpnPatterns | Where-Object {
+            $adapter.InterfaceDescription -like $_ -or $adapter.Name -like $_
+        }
+        
+        # Check if virtualization
+        $isVirt = $virtPatterns | Where-Object {
+            $adapter.InterfaceDescription -like $_ -or $adapter.Name -like $_
+        }
+        
+        # Skip if VPN or virtual
+        if ($isVPN -or $isVirt) {
+            Write-Verbose "Skipping adapter: $($adapter.Name) ($($adapter.InterfaceDescription))"
+            continue
+        }
+        
+        Write-Verbose "Including adapter: $($adapter.Name) ($($adapter.InterfaceDescription))"
+        $realAdapters += $adapter
+    }
+    
+    return $realAdapters
+}
+
+# Export functions
+Export-ModuleMember -Function Reset-NoID-DnsState, Get-NoID-NetworkAdapters
