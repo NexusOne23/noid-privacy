@@ -3127,6 +3127,22 @@ $script:RegistryChanges = @(
         ApplyValue = 0
         Description = 'Disable Wi-Fi Direct OSU'
         File = 'SecurityBaseline-WirelessDisplay.ps1'
+    },
+    @{
+        Path = 'HKLM:\SYSTEM\CurrentControlSet\Services\DevicePickerUserSvc'
+        Name = 'Start'
+        Type = 'DWord'
+        ApplyValue = 4
+        Description = 'Disable DevicePickerUserSvc (Wireless Display User Service)'
+        File = 'SecurityBaseline-WirelessDisplay.ps1'
+    },
+    @{
+        Path = 'HKLM:\SYSTEM\CurrentControlSet\Services\DevicesFlowUserSvc'
+        Name = 'Start'
+        Type = 'DWord'
+        ApplyValue = 4
+        Description = 'Disable DevicesFlowUserSvc (Wireless Display User Service)'
+        File = 'SecurityBaseline-WirelessDisplay.ps1'
     }
 
 )

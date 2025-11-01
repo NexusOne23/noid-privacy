@@ -154,37 +154,12 @@ function Disable-WirelessDisplay {
     
     Write-Verbose "Miracast ports: Blocking completed"
     
-    # === LEVEL 4: REMOVE APPS ===
-    Write-Info "$(Get-LocalizedString 'WDLevel4Apps')"
-    
-    $wirelessApps = @(
-        "Microsoft.Windows.SecondaryTileExperience",
-        "*PPIProjection*",
-        "*Miracast*"
-    )
-    
-    foreach ($appPattern in $wirelessApps) {
-        try {
-            Get-AppxPackage -Name $appPattern -AllUsers -ErrorAction SilentlyContinue | 
-                Remove-AppxPackage -AllUsers -ErrorAction SilentlyContinue
-            
-            Get-AppxProvisionedPackage -Online -ErrorAction SilentlyContinue | 
-                Where-Object {$_.DisplayName -like $appPattern} | 
-                Remove-AppxProvisionedPackage -Online -ErrorAction SilentlyContinue
-            
-            Write-Verbose "App '$appPattern' removed"
-        }
-        catch {
-            Write-Verbose "App '$appPattern' not found"
-        }
-    }
-    
     Write-Success "$(Get-LocalizedString 'WDCompletelyDisabled')"
     Write-Success "$(Get-LocalizedString 'WDLevel1Done')"
     Write-Success "$(Get-LocalizedString 'WDLevel2Done')"
     Write-Success "$(Get-LocalizedString 'WDLevel3Done')"
-    Write-Success "$(Get-LocalizedString 'WDLevel4Done')"
     Write-Host ""
+    Write-Info "$(Get-LocalizedString 'WDAppsKept')"
     Write-Warning "$(Get-LocalizedString 'WDMiracastNotWorking')"
     Write-Info "$(Get-LocalizedString 'WDQuickSettingsNote')"
     Write-Info "$(Get-LocalizedString 'WDClickHarmless')"
