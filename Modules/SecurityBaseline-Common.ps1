@@ -2,6 +2,11 @@
 # SecurityBaseline-Common.ps1 - Common Helper Functions
 # =======================================================================================
 
+#Requires -Version 5.1
+
+# Enable Strict Mode
+Set-StrictMode -Version Latest
+
 <#
 .SYNOPSIS
     Common helper functions for all SecurityBaseline modules
@@ -9,9 +14,6 @@
     Centralizes code duplication of logging/output functions.
     Best Practice 25H2: DRY (Don't Repeat Yourself)
 #>
-
-# Best Practice 25H2: Enable Strict Mode
-Set-StrictMode -Version Latest
 
 function Write-Section {
     <#

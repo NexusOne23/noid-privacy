@@ -2,6 +2,9 @@
 # SecurityBaseline-DNS.ps1 - DNS Security & Cloudflare DoH
 # =======================================================================================
 
+#Requires -Version 5.1
+#Requires -RunAsAdministrator
+
 # Best Practice 25H2: Enable Strict Mode
 Set-StrictMode -Version Latest
 
