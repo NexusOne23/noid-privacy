@@ -1332,12 +1332,41 @@ if ($backup.Settings.DoH -and $backup.Settings.DoH.Enabled) {
             }
         }
         
+        # CRITICAL: Enforce DoH at OS level (Registry + netsh)
+        # This ensures Windows always prefers encrypted DNS
+        Write-Verbose "Setting DoH enforcement at OS level..."
+        try {
+            $dnsRegPath = 'HKLM:\SYSTEM\CurrentControlSet\Services\Dnscache\Parameters'
+            if (-not (Test-Path $dnsRegPath)) {
+                New-Item -Path $dnsRegPath -Force -ErrorAction SilentlyContinue | Out-Null
+            }
+            # EnableAutoDoh = 2 (enforce DoH, no fallback)
+            Set-ItemProperty -Path $dnsRegPath -Name 'EnableAutoDoh' -Value 2 -Type DWord -Force -ErrorAction SilentlyContinue
+            Write-Verbose "  Registry: EnableAutoDoh = 2 (enforce)"
+        }
+        catch {
+            Write-Verbose "  Failed to set EnableAutoDoh registry: $_"
+        }
+        
+        # Enable DoH globally via netsh
+        try {
+            netsh dnsclient set global doh=yes 2>$null | Out-Null
+            Write-Verbose "  netsh: DoH globally enabled"
+        }
+        catch {
+            Write-Verbose "  Failed to enable global DoH via netsh: $_"
+        }
+        
         # Restore backed up DoH servers using netsh
+        # CRITICAL: Always use STRICT mode (ignore backup settings for security)
+        # udpfallback=no: No fallback to unencrypted DNS
+        # autoupgrade=yes: Auto-upgrade to DoH when available
         $restoredCount = 0
         foreach ($server in $backup.Settings.DoH.Servers) {
             try {
-                $udpFallback = if ($server.AllowFallbackToUdp) { "yes" } else { "no" }
-                $autoUpgrade = if ($server.AutoUpgrade) { "yes" } else { "no" }
+                # STRICT MODE: Always enforce encrypted DNS (ignore backup values)
+                $udpFallback = "no"   # Never fallback to unencrypted
+                $autoUpgrade = "yes"  # Always auto-upgrade to DoH
                 
                 $result = netsh dnsclient add encryption server=$($server.ServerAddress) `
                     dohtemplate=$($server.DohTemplate) `
