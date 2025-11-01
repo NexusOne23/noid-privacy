@@ -74,7 +74,7 @@ cd noid-privacy
 - **Strict Firewall** → Nothing gets in without your permission (block all incoming + 13 legacy protocol blocks)
 - **Modern Network Only** → TLS 1.2/1.3, SMB encryption, no legacy protocols (LLMNR/NetBIOS/WPAD/mDNS disabled)
 
-**Bottom Line:** You're now as secure as Fortune 500 companies
+**Bottom line:** You get Fortune-500-style hardening on a standalone device
 
 ### 🔒 Privacy Protection - Minimized Telemetry
 
@@ -306,7 +306,7 @@ The project uses a modular architecture with 13 specialized modules:
 
 | Standard | Coverage | Details |
 |----------|----------|---------|
-| **Microsoft Baseline 25H2** | **100%** | All 213 implementable policies for standalone systems (365 total, 152 N/A: IE11 deprecated, secedit-only, domain-only) - **12 categories at perfect 100%** |
+| **Microsoft Baseline 25H2** | **100%** | All 213 locally applicable settings for standalone systems (365 total, 152 N/A: IE11 deprecated, secedit-only, domain-only) - **12 categories at perfect 100%** |
 | **CIS Benchmark Level 1** | ~85% | Majority of recommendations (standalone focus) |
 | **CIS Benchmark Level 2** | ~90% | Enhanced security with privacy extensions |
 | **DoD STIG** | ~75% | Core security controls (non-domain environment) |
