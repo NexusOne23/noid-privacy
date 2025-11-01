@@ -997,8 +997,8 @@ if ($currentAdminAccount) {
                 $restoreStats.Success++
                 
                 Write-Host "" 
-                Write-Host "  [!] $(Get-LocalizedString 'RestoreUsersPasswordTitle')" -ForegroundColor Yellow
-                Write-Host "      $(Get-LocalizedString 'RestoreUsersPasswordWarning')" -ForegroundColor Yellow
+                Write-Host "  [i] $(Get-LocalizedString 'RestoreUsersPasswordTitle')" -ForegroundColor Cyan
+                Write-Host "      $(Get-LocalizedString 'RestoreUsersPasswordWarning')" -ForegroundColor Cyan
                 Write-Host ""
                 $pwPrompt = Get-LocalizedString 'RestoreUsersPasswordPrompt' $originalAdmin.Name
                 Write-Host "  $pwPrompt " -NoNewline -ForegroundColor Cyan
@@ -1163,22 +1163,26 @@ if ($missingAppsCount -gt 0) {
     Write-Host "  [!] $missingAppsCount $missingMsg" -ForegroundColor Yellow
     Write-Host ""
     
-    # CRITICAL WARNING: Explain why apps were removed and cannot be auto-restored
-    Write-Host "  ============================================================================" -ForegroundColor Red
-    Write-Host "  WARNING: Apps were PERMANENTLY REMOVED by Security Baseline" -ForegroundColor Red
-    Write-Host "  ============================================================================" -ForegroundColor Red
-    Write-Host "  Reason: Bloatware Apps removed for privacy/security" -ForegroundColor Yellow
-    Write-Host "  Impact: These apps CANNOT be automatically reinstalled" -ForegroundColor Yellow
-    Write-Host "  Why: App packages (.appx files) were deleted from system" -ForegroundColor Yellow
+    # INFO: Explain why bloatware apps are intentionally not restored
+    Write-Host "  ============================================================================" -ForegroundColor Cyan
+    Write-Host "  BLOATWARE APPS - INTENTIONALLY NOT RESTORED" -ForegroundColor Cyan
+    Write-Host "  ============================================================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "  You removed these apps INTENTIONALLY during Apply." -ForegroundColor Cyan
-    Write-Host "  Most users DO NOT want these apps back (Bloatware!)." -ForegroundColor Cyan
+    Write-Host "  During Apply, you removed bloatware apps for privacy/security." -ForegroundColor White
+    Write-Host "  These apps are NOT restored because most users don't want them back." -ForegroundColor White
     Write-Host ""
-    Write-Host "  If you REALLY need an app:" -ForegroundColor White
-    Write-Host "    1. Check the list below" -ForegroundColor Gray
-    Write-Host "    2. Search in Microsoft Store manually" -ForegroundColor Gray
-    Write-Host "    3. Or use: Get-WindowsCapability -Online | Add-WindowsCapability" -ForegroundColor Gray
-    Write-Host "  ============================================================================" -ForegroundColor Red
+    Write-Host "  [i] This is BY DESIGN - not an error!" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "  Benefits:" -ForegroundColor Green
+    Write-Host "    + System privacy improved" -ForegroundColor Gray
+    Write-Host "    + Startup performance improved" -ForegroundColor Gray
+    Write-Host "    + Less background telemetry" -ForegroundColor Gray
+    Write-Host ""
+    Write-Host "  Need an app back? Easy!" -ForegroundColor White
+    Write-Host "    1. Open Microsoft Store" -ForegroundColor Gray
+    Write-Host "    2. Search for the app name" -ForegroundColor Gray
+    Write-Host "    3. Click 'Get' or 'Install'" -ForegroundColor Gray
+    Write-Host "  ============================================================================" -ForegroundColor Cyan
     Write-Host ""
     
     $provPkgCount = if ($backup.Settings.ProvisionedPackages) { @($backup.Settings.ProvisionedPackages).Count } else { 0 }
