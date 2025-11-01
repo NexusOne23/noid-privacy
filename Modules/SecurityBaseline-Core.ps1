@@ -537,34 +537,48 @@ function Disable-InternetPrintingClient {
     
     Write-Section "Disable Internet Printing Client (IPP)"
     
+    # STEP 1: Check if feature exists (SilentlyContinue - no crash if not found!)
+    Write-Info "Checking Internet Printing Client feature status..."
+    $feature = Get-WindowsOptionalFeature -Online -FeatureName Printing-InternetPrinting-Client -ErrorAction SilentlyContinue
+    
+    # STEP 2: If feature doesn't exist, exit gracefully
+    if (-not $feature) {
+        Write-Info "Internet Printing Client feature not available on this system"
+        Write-Info "Standard printing (SMB/USB/PDF) NOT affected"
+        return
+    }
+    
+    # STEP 3: Check if State property exists using Get-Member (bulletproof!)
+    $hasStateProperty = Get-Member -InputObject $feature -Name 'State' -MemberType Properties -ErrorAction SilentlyContinue
+    
+    if (-not $hasStateProperty) {
+        Write-Info "Internet Printing Client feature object has no State property"
+        Write-Info "Feature cannot be managed by this script"
+        Write-Info "Standard printing (SMB/USB/PDF) NOT affected"
+        return
+    }
+    
+    # STEP 4: NOW we can safely access State property
     try {
-        # Check if feature exists
-        Write-Info "Checking Internet Printing Client feature status..."
-        $feature = Get-WindowsOptionalFeature -Online -FeatureName Printing-InternetPrinting-Client -ErrorAction Stop
-        
-        # BOMBENSICHER: Try-catch für State property access
-        # Einfachste Lösung die GARANTIERT funktioniert
-        $state = try { $feature.State } catch { $null }
-        
-        if ($state -eq 'Enabled') {
+        if ($feature.State -eq 'Enabled') {
             Write-Info "Disabling Internet Printing Client (IPP protocol)..."
             Disable-WindowsOptionalFeature -Online -FeatureName Printing-InternetPrinting-Client -NoRestart -ErrorAction Stop | Out-Null
             Write-Success "Internet Printing Client disabled (no reboot required)"
             Write-Info "HTTP/HTTPS printer protocol (IPP) blocked"
         } 
-        elseif ($state -eq 'Disabled') {
+        elseif ($feature.State -eq 'Disabled') {
             Write-Info "Internet Printing Client already disabled"
         }
         else {
-            Write-Info "Internet Printing Client feature not available or in unknown state"
+            Write-Info "Internet Printing Client in unknown state: $($feature.State)"
         }
-        
-        Write-Info "Standard printing (SMB/USB/PDF) NOT affected"
     }
     catch {
-        Write-Warning "Could not check Internet Printing Client: $_"
-        Write-Info "Feature likely not available on this system - continuing..."
+        Write-Warning "Could not disable Internet Printing Client: $_"
+        Write-Info "This is non-critical, continuing..."
     }
+    
+    Write-Info "Standard printing (SMB/USB/PDF) NOT affected"
 }
 
 function Disable-MSDTProtocolHandler {
