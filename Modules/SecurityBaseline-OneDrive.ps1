@@ -79,9 +79,14 @@ function Set-OneDrivePrivacyHardening {
     Set-RegistryValue -Path $oneDrivePathHKLM -Name "KFMBlockOptIn" -Value 1 -Type DWord `
         -Description "$(Get-LocalizedString 'OneDriveBlockAutoUploadDefault')"
     
-    # 5. Do NOT block Personal OneDrive!
-    # DisablePersonalSync would break Home users - only for Enterprise!
-    # We keep Personal OneDrive active (no breaking change)
+    # 5. ALLOW Personal OneDrive (DEFAULT for Home users)
+    # DisablePersonalSync = 0 means: Personal Microsoft Account OneDrive is ALLOWED
+    # This is the correct default for 99% of users (Home/Pro with personal accounts)
+    # Enterprise users who want Business-only can set DisablePersonalSync = 1 manually
+    Set-RegistryValue -Path $oneDrivePathHKCU -Name "DisablePersonalSync" -Value 0 -Type DWord `
+        -Description "Personal OneDrive allowed (white cloud)"
+    Set-RegistryValue -Path $oneDrivePathHKLM -Name "DisablePersonalSync" -Value 0 -Type DWord `
+        -Description "Personal OneDrive allowed (default for new users)"
     
     Write-Success "$(Get-LocalizedString 'OneDriveHardeningDone')"
     Write-Host ""
