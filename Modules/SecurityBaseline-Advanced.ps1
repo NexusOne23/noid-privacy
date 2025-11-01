@@ -406,7 +406,7 @@ function Set-TLSHardening {
 
 # WINDOWS UPDATE POLICIES REMOVED!
 # 
-# Grund: User mÃ¶chte Windows Update selbst kontrollieren
+# Grund: User moechte Windows Update selbst kontrollieren
 #
 # What this means:
 # - Windows uses STANDARD behavior (Settings App control)

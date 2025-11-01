@@ -2413,7 +2413,7 @@ function Enable-CloudflareDNSoverHTTPS {
                     $adapterGuid = $adapter.InterfaceGuid
                     Write-Verbose "Setting DoH encryption preference for adapter GUID: $adapterGuid"
                     
-                    # IPv4 Servers → Doh branch
+                    # IPv4 Servers -> Doh branch
                     $ipv4Servers = @('1.1.1.1', '1.0.0.1')
                     foreach ($ip in $ipv4Servers) {
                         try {
@@ -2429,7 +2429,7 @@ function Enable-CloudflareDNSoverHTTPS {
                         }
                     }
                     
-                    # IPv6 Servers → Doh6 branch (CRITICAL - different from IPv4!)
+                    # IPv6 Servers -> Doh6 branch (CRITICAL - different from IPv4!)
                     if ($ipv6Enabled) {
                         $ipv6Servers = @('2606:4700:4700::1111', '2606:4700:4700::1001')
                         foreach ($ip in $ipv6Servers) {

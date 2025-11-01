@@ -1420,7 +1420,7 @@ function Show-OneDriveMenu {
     
     Write-Host "  [2] Complete Removal (Advanced)" -ForegroundColor Yellow
     Write-Host "      - Uninstalls OneDrive completely" -ForegroundColor Gray
-    Write-Host "      - ⚠️  CANNOT be restored from backup!" -ForegroundColor Red
+    Write-Host "      - WARNING: CANNOT be restored from backup!" -ForegroundColor Red
     Write-Host "      - Your OneDrive folder and files stay safe" -ForegroundColor Green
     Write-Host "      - Can be reinstalled manually if needed" -ForegroundColor Gray
     Write-Host ""

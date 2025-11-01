@@ -3,7 +3,7 @@
 
 <#
 .SYNOPSIS
-    Integration Tests for Apply → Verify workflow
+    Integration Tests for Apply -> Verify workflow
 
 .DESCRIPTION
     Tests the complete workflow:
@@ -22,7 +22,7 @@ BeforeAll {
     $verifyScript = Join-Path $projectRoot "Verify-SecurityBaseline.ps1"
 }
 
-Describe "Integration - Apply → Verify Workflow" {
+Describe "Integration - Apply -> Verify Workflow" {
     
     Context "Scripts Exist" {
         It "Apply script should exist" {

@@ -82,8 +82,8 @@ function Test-BaselineCheck {
     }
     
     $statusSymbol = switch ($result.Status) {
-        "PASS" { "[✓]" }
-        "FAIL" { "[✗]" }
+        "PASS" { "[OK]" }
+        "FAIL" { "[X]" }
         "ERROR" { "[!]" }
     }
     

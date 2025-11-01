@@ -456,7 +456,7 @@ if ($backup.Settings.HostsFile) {
             # ROOT CAUSE FIX: NO "backup-before-restore" needed!
             # REASON: Original hosts is ALREADY in backup JSON (HostsFile)
             # What we would backup here = Steven Black hosts (from Apply-Script)
-            # → Useless and confusing! Just restore original directly.
+            # -> Useless and confusing! Just restore original directly.
             
             $backup.Settings.HostsFile | Out-File -FilePath $hostsPath -Encoding ASCII -Force
             Write-Host "  [OK] $(Get-LocalizedString 'RestoreHostsOK')" -ForegroundColor Green
@@ -1203,7 +1203,7 @@ if ($backup.Settings.ExploitProtection -and $backup.Settings.ExploitProtection.E
             Write-Verbose "Restoring Exploit Protection mitigations (same as Apply)..."
             
             # STRATEGY: Mirror Apply behavior (idempotent)
-            # Backup had Exploit Protection enabled → restore to hardened state
+            # Backup had Exploit Protection enabled -> restore to hardened state
             # This is safer than trying to parse backup data and restore individual settings
             
             $mitigationsSet = 0

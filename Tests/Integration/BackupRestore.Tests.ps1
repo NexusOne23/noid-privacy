@@ -3,7 +3,7 @@
 
 <#
 .SYNOPSIS
-    Integration Tests for Backup → Restore workflow
+    Integration Tests for Backup -> Restore workflow
 
 .DESCRIPTION
     Tests the complete backup and restore workflow:
@@ -23,7 +23,7 @@ BeforeAll {
     $restoreScript = Join-Path $projectRoot "Restore-SecurityBaseline.ps1"
 }
 
-Describe "Integration - Backup → Restore Workflow" {
+Describe "Integration - Backup -> Restore Workflow" {
     
     Context "Scripts Exist" {
         It "Backup script should exist" {
