@@ -102,5 +102,7 @@ Windows 11 v25H2 Security Baseline/
 # Working Screenshots (not docs/screenshots/)
 Screenshots/
 
-# Internal Planning Documents
+# Internal Planning & Analysis Documents
 MASTERPLAN.md
+AUDIT_FINDINGS.md
+Audit/
