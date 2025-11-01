@@ -31,8 +31,12 @@ function Reset-NoID-DnsState {
     
     # 1. Delete ALL known DoH server registrations
     $allKnownIps = @(
-        # Cloudflare
+        # Cloudflare (Standard)
         '1.1.1.1', '1.0.0.1', '2606:4700:4700::1111', '2606:4700:4700::1001',
+        # Cloudflare (Family - Malware blocking)
+        '1.1.1.2', '1.0.0.2', '2606:4700:4700::1112', '2606:4700:4700::1002',
+        # Cloudflare (Family - Malware + Adult blocking)
+        '1.1.1.3', '1.0.0.3', '2606:4700:4700::1113', '2606:4700:4700::1003',
         # AdGuard
         '94.140.14.14', '94.140.15.15', '2a10:50c0::ad1:ff', '2a10:50c0::ad2:ff',
         # NextDNS
@@ -124,22 +128,79 @@ function Get-NoID-NetworkAdapters {
     $allAdapters = Get-NetAdapter -ErrorAction SilentlyContinue |
         Where-Object { $_.Status -eq 'Up' }
     
+    # Get active native Windows VPN connections (Level 5)
+    $activeVpnConnections = @()
+    try {
+        $vpnConns = Get-VpnConnection -ErrorAction SilentlyContinue
+        $activeVpnConnections = $vpnConns | Where-Object { $_.ConnectionStatus -eq 'Connected' }
+    }
+    catch {
+        Write-Verbose "Get-VpnConnection not available or failed: $_"
+    }
+    
     $realAdapters = @()
     
     foreach ($adapter in $allAdapters) {
-        # Check if VPN
+        $skipAdapter = $false
+        $skipReason = ""
+        
+        # LEVEL 1: Name/Description Pattern Matching
         $isVPN = $vpnPatterns | Where-Object {
             $adapter.InterfaceDescription -like $_ -or $adapter.Name -like $_
         }
         
-        # Check if virtualization
         $isVirt = $virtPatterns | Where-Object {
             $adapter.InterfaceDescription -like $_ -or $adapter.Name -like $_
         }
         
-        # Skip if VPN or virtual
-        if ($isVPN -or $isVirt) {
-            Write-Verbose "Skipping adapter: $($adapter.Name) ($($adapter.InterfaceDescription))"
+        if ($isVPN) {
+            $skipAdapter = $true
+            $skipReason = "VPN pattern match (Name/Description)"
+        }
+        elseif ($isVirt) {
+            $skipAdapter = $true
+            $skipReason = "Virtual adapter pattern match"
+        }
+        
+        # LEVEL 2: InterfaceType Check (131 = Tunnel)
+        if (-not $skipAdapter -and $adapter.InterfaceType -eq 131) {
+            $skipAdapter = $true
+            $skipReason = "InterfaceType = 131 (Tunnel)"
+        }
+        
+        # LEVEL 3: MediaType Check (contains "Tunnel")
+        if (-not $skipAdapter -and $adapter.MediaType -match "Tunnel") {
+            $skipAdapter = $true
+            $skipReason = "MediaType contains 'Tunnel'"
+        }
+        
+        # LEVEL 4: ComponentID Check (TAP adapter)
+        if (-not $skipAdapter) {
+            try {
+                $binding = Get-NetAdapterBinding -InterfaceAlias $adapter.Name -ErrorAction SilentlyContinue |
+                    Where-Object { $_.ComponentID -match "tap" }
+                if ($binding) {
+                    $skipAdapter = $true
+                    $skipReason = "ComponentID contains 'tap' (TAP adapter)"
+                }
+            }
+            catch {
+                Write-Verbose "ComponentID check failed for $($adapter.Name): $_"
+            }
+        }
+        
+        # LEVEL 5: Native Windows VPN Connection Check
+        if (-not $skipAdapter -and $activeVpnConnections) {
+            $matchingVpn = $activeVpnConnections | Where-Object { $_.Name -eq $adapter.InterfaceAlias }
+            if ($matchingVpn) {
+                $skipAdapter = $true
+                $skipReason = "Native Windows VPN active: $($matchingVpn.Name)"
+            }
+        }
+        
+        # Final decision
+        if ($skipAdapter) {
+            Write-Verbose "Skipping adapter: $($adapter.Name) - $skipReason"
             continue
         }
         
