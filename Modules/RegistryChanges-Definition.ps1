@@ -635,6 +635,30 @@ $script:RegistryChanges = @(
         File = 'SecurityBaseline-Core.ps1'
     },
     @{
+        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Printers\PointAndPrint'
+        Name = 'NoWarningNoElevationOnInstall'
+        Type = 'DWord'
+        ApplyValue = 0
+        Description = 'Point-and-Print: Require elevation for driver install'
+        File = 'SecurityBaseline-Core.ps1'
+    },
+    @{
+        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Printers\PointAndPrint'
+        Name = 'UpdatePromptSettings'
+        Type = 'DWord'
+        ApplyValue = 0
+        Description = 'Point-and-Print: Show warning for driver updates'
+        File = 'SecurityBaseline-Core.ps1'
+    },
+    @{
+        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Printers\PointAndPrint'
+        Name = 'RestrictDriverInstallationToAdministrators'
+        Type = 'DWord'
+        ApplyValue = 1
+        Description = 'Point-and-Print: Only admins can install drivers'
+        File = 'SecurityBaseline-Core.ps1'
+    },
+    @{
         Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\NIS'
         Name = 'ConvertWarnToBlock'
         Type = 'DWord'
@@ -1536,6 +1560,14 @@ $script:RegistryChanges = @(
         Type = 'DWord'
         ApplyValue = 1
         Description = 'LSA als PPL'
+        File = 'SecurityBaseline-Core.ps1'
+    },
+    @{
+        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\System'
+        Name = 'EnableCdp'
+        Type = 'DWord'
+        ApplyValue = 0
+        Description = 'Disable Nearby Sharing/CDP (privacy + security)'
         File = 'SecurityBaseline-Core.ps1'
     },
     @{

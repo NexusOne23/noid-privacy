@@ -493,7 +493,22 @@ SeImpersonatePrivilege = *S-1-5-19,*S-1-5-20,*S-1-5-32-544,*S-1-5-99-0-0-0-0-0
     [void](Set-RegistryValue -Path $spoolerPath -Name "RegisterSpoolerRemoteRpcEndPoint" -Value 2 -Type DWord `
         -Description "Remote RPC Endpoint deaktivieren")
     
+    # Point-and-Print Hardening (CVE-2021-34527 / CVE-2021-36958)
+    Write-Info "Hardening Point-and-Print (driver push protection)..."
+    
+    $pointAndPrintPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Printers\PointAndPrint"
+    
+    [void](Set-RegistryValue -Path $pointAndPrintPath -Name "NoWarningNoElevationOnInstall" -Value 0 -Type DWord `
+        -Description "Point-and-Print: Require elevation for driver install")
+    
+    [void](Set-RegistryValue -Path $pointAndPrintPath -Name "UpdatePromptSettings" -Value 0 -Type DWord `
+        -Description "Point-and-Print: Show warning for driver updates")
+    
+    [void](Set-RegistryValue -Path $pointAndPrintPath -Name "RestrictDriverInstallationToAdministrators" -Value 1 -Type DWord `
+        -Description "Point-and-Print: Only admins can install drivers")
+    
     Write-Success (Get-LocalizedString 'CorePrintNightmare')
+    Write-Info "Point-and-Print secured (admin-only driver installation)"
 }
 
 #endregion
@@ -2659,6 +2674,42 @@ function Enable-CredentialGuard {
     Write-Host "    - Incompatible CPU (Intel <8th Gen, AMD <Ryzen 2000)" -ForegroundColor White
     Write-Host "    - Incompatible Hypervisor (VMware, VirtualBox without nested VT)" -ForegroundColor White
     Write-Host ""
+}
+
+function Disable-NearbySharing {
+    <#
+    .SYNOPSIS
+        Disables Nearby Sharing / Cross Device Platform (CDP)
+    .DESCRIPTION
+        Disables Windows Nearby Sharing feature which allows file sharing
+        between nearby devices. This reduces attack surface and prevents
+        unintended data exposure.
+        
+        PRIVACY & SECURITY: Prevents:
+        - Bluetooth/Wi-Fi based file sharing without explicit consent
+        - Device discovery by nearby systems
+        - Potential data leaks in public spaces
+    .NOTES
+        Breaking: Nearby Sharing to other Windows devices will not work
+        Alternative: Use USB drives, network shares, or cloud services
+    .EXAMPLE
+        Disable-NearbySharing
+    #>
+    [CmdletBinding()]
+    [OutputType([void])]
+    param()
+    
+    Write-Section "Disable Nearby Sharing (CDP)"
+    
+    Write-Info "Disabling Cross Device Platform (Nearby Sharing)..."
+    
+    $cdpPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System"
+    
+    [void](Set-RegistryValue -Path $cdpPath -Name "EnableCdp" -Value 0 -Type DWord `
+        -Description "Disable Nearby Sharing/CDP (privacy + security)")
+    
+    Write-Success "Nearby Sharing disabled"
+    Write-Info "File sharing between devices: Use USB/Network/Cloud instead"
 }
 
 #endregion

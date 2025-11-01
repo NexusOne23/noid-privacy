@@ -1358,6 +1358,7 @@ try {
         Write-Host "[$currentModule/$moduleCount] $(Get-LocalizedString 'ProgressAdvanced')" -ForegroundColor Cyan
         
         Enable-CredentialGuard
+        Disable-NearbySharing
         Enable-BitLockerPolicies
         Test-BitLockerEncryptionMethod  # Prueft ob AES-128 aktiv ist und zeigt Upgrade-Anleitung
         Enable-WindowsLAPS
