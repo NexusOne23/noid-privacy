@@ -76,9 +76,10 @@ function Enable-CloudflareDNS {
     }
     
     # Configure adapters (skip VPN/VM)
-    $adapters = Get-NoID-NetworkAdapters
+    # CRITICAL: Force to array (prevents .Count errors with single adapter)
+    $adapters = @(Get-NoID-NetworkAdapters)
     
-    if ($adapters.Count -eq 0) {
+    if (-not $adapters -or $adapters.Count -eq 0) {
         Write-Warning "No suitable network adapters found (all are VPN/virtual)"
         return
     }
@@ -163,9 +164,10 @@ function Enable-AdGuardDNS {
     }
     
     # Configure adapters (skip VPN/VM)
-    $adapters = Get-NoID-NetworkAdapters
+    # CRITICAL: Force to array (prevents .Count errors with single adapter)
+    $adapters = @(Get-NoID-NetworkAdapters)
     
-    if ($adapters.Count -eq 0) {
+    if (-not $adapters -or $adapters.Count -eq 0) {
         Write-Warning "No suitable network adapters found (all are VPN/virtual)"
         return
     }
@@ -274,9 +276,10 @@ function Enable-NextDNS {
     }
     
     # Configure adapters (skip VPN/VM)
-    $adapters = Get-NoID-NetworkAdapters
+    # CRITICAL: Force to array (prevents .Count errors with single adapter)
+    $adapters = @(Get-NoID-NetworkAdapters)
     
-    if ($adapters.Count -eq 0) {
+    if (-not $adapters -or $adapters.Count -eq 0) {
         Write-Warning "No suitable network adapters found (all are VPN/virtual)"
         return
     }
@@ -361,9 +364,10 @@ function Enable-Quad9DNS {
     }
     
     # Configure adapters (skip VPN/VM)
-    $adapters = Get-NoID-NetworkAdapters
+    # CRITICAL: Force to array (prevents .Count errors with single adapter)
+    $adapters = @(Get-NoID-NetworkAdapters)
     
-    if ($adapters.Count -eq 0) {
+    if (-not $adapters -or $adapters.Count -eq 0) {
         Write-Warning "No suitable network adapters found (all are VPN/virtual)"
         return
     }

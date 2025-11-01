@@ -147,7 +147,10 @@ function Get-NoID-NetworkAdapters {
         $realAdapters += $adapter
     }
     
-    return $realAdapters
+    # CRITICAL: Force return as array (even with 1 element!)
+    # PowerShell "unwraps" single-element arrays on return
+    # Using Write-Output with -NoEnumerate ensures .Count always works
+    Write-Output -NoEnumerate $realAdapters
 }
 
 function Set-NoID-GlobalDoH {
