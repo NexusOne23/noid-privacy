@@ -325,7 +325,7 @@ function Show-ModuleSelection {
         @{
             Name = "Wireless Display / Miracast"
             Key = "WirelessDisplay"
-            Description = "[!] BREAKS CASTING! Disables Miracast/Cast (Services, Firewall, Registry, Apps). Error message appears ONLY when clicking Cast button (not at startup). Skip if you need casting."
+            Description = "[!] BREAKS CASTING! Disables Miracast/Cast (Services, Firewall, Registry, Apps).`n    Error message appears ONLY when clicking Cast button (not at startup). Skip if you need casting."
             Enabled = $true
             Mandatory = $false
         },
