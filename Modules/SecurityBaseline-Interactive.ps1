@@ -1360,22 +1360,22 @@ function Show-DNSProviderMenu {
     Write-Host ""
     
     Write-Host "  [1] Cloudflare (1.1.1.1)" -ForegroundColor Yellow
-    Write-Host "      Speed: ★★★★★ | Privacy: ★★★☆☆ | Location: USA" -ForegroundColor Gray
+    Write-Host "      Speed: ***** | Privacy: ***   | Location: USA" -ForegroundColor Gray
     Write-Host "      Fastest DNS, used by millions worldwide" -ForegroundColor Gray
     Write-Host ""
     
     Write-Host "  [2] AdGuard DNS (94.140.14.14)" -ForegroundColor Yellow
-    Write-Host "      Speed: ★★★★☆ | Privacy: ★★★★★ | Location: EU (Cyprus)" -ForegroundColor Gray
+    Write-Host "      Speed: ****  | Privacy: ***** | Location: EU (Cyprus)" -ForegroundColor Gray
     Write-Host "      Privacy-focused, built-in ad/tracker blocking" -ForegroundColor Gray
     Write-Host ""
     
     Write-Host "  [3] NextDNS (45.90.28.0)" -ForegroundColor Yellow
-    Write-Host "      Speed: ★★★★☆ | Privacy: ★★★★★ | Location: Switzerland/Global" -ForegroundColor Gray
+    Write-Host "      Speed: ****  | Privacy: ***** | Location: Switzerland/Global" -ForegroundColor Gray
     Write-Host "      Customizable filtering, analytics dashboard" -ForegroundColor Gray
     Write-Host ""
     
     Write-Host "  [4] Quad9 (9.9.9.9)" -ForegroundColor Yellow
-    Write-Host "      Speed: ★★★★☆ | Privacy: ★★★★★ | Location: Switzerland" -ForegroundColor Gray
+    Write-Host "      Speed: ****  | Privacy: ***** | Location: Switzerland" -ForegroundColor Gray
     Write-Host "      Non-profit, GDPR-compliant, threat intelligence" -ForegroundColor Gray
     Write-Host ""
     
@@ -1443,12 +1443,12 @@ function Show-OneDriveMenu {
         Write-Warning "OneDrive will be COMPLETELY REMOVED from your system!"
         Write-Host ""
         Write-Host "What happens:" -ForegroundColor Cyan
-        Write-Host "  ✓ OneDrive app will be uninstalled" -ForegroundColor Green
-        Write-Host "  ✓ Your OneDrive FOLDER and FILES will NOT be deleted" -ForegroundColor Green
-        Write-Host "  ✓ Your data stays safe on your hard drive" -ForegroundColor Green
+        Write-Host "  [OK] OneDrive app will be uninstalled" -ForegroundColor Green
+        Write-Host "  [OK] Your OneDrive FOLDER and FILES will NOT be deleted" -ForegroundColor Green
+        Write-Host "  [OK] Your data stays safe on your hard drive" -ForegroundColor Green
         Write-Host ""
-        Write-Host "  ✗ Cannot be restored from backup" -ForegroundColor Red
-        Write-Host "  ✗ Must be reinstalled manually if needed" -ForegroundColor Red
+        Write-Host "  [X] Cannot be restored from backup" -ForegroundColor Red
+        Write-Host "  [X] Must be reinstalled manually if needed" -ForegroundColor Red
         Write-Host ""
         Write-Host "To reinstall later: Download from microsoft.com/onedrive" -ForegroundColor Cyan
         Write-Host ""
@@ -1461,7 +1461,7 @@ function Show-OneDriveMenu {
         }
         
         Write-Host ""
-        Write-Host "  [✓] Confirmed. OneDrive will be removed." -ForegroundColor Green
+        Write-Host "  [OK] Confirmed. OneDrive will be removed." -ForegroundColor Green
     }
     
     return $choice

@@ -55,7 +55,7 @@ if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdenti
     Read-Host "Press ENTER to exit"
     exit 1
 }
-Write-Host "    ✓ Running as Administrator" -ForegroundColor Green
+Write-Host "    [OK] Running as Administrator" -ForegroundColor Green
 
 # Check Windows version
 Write-Host ""
@@ -75,7 +75,7 @@ if ($build -lt 22000) {
     Read-Host "Press ENTER to exit"
     exit 1
 }
-Write-Host "    ✓ Windows 11 detected (Build $build)" -ForegroundColor Green
+Write-Host "    [OK] Windows 11 detected (Build $build)" -ForegroundColor Green
 
 # Download latest release
 Write-Host ""
@@ -97,7 +97,7 @@ try {
     Invoke-WebRequest -Uri $zipUrl -OutFile $downloadPath -UseBasicParsing
     
     $sizeInMB = [Math]::Round((Get-Item $downloadPath).Length / 1MB, 2)
-    Write-Host "    ✓ Downloaded: $sizeInMB MB" -ForegroundColor Green
+    Write-Host "    [OK] Downloaded: $sizeInMB MB" -ForegroundColor Green
 }
 catch {
     Write-Host ""
@@ -128,7 +128,7 @@ try {
     
     # Extract
     Expand-Archive -Path $downloadPath -DestinationPath $extractPath -Force
-    Write-Host "    ✓ Extracted to: $extractPath" -ForegroundColor Green
+    Write-Host "    [OK] Extracted to: $extractPath" -ForegroundColor Green
     
     # Find the Apply script (might be in a subdirectory)
     $applyScript = Get-ChildItem -Path $extractPath -Recurse -Filter "Apply-Win11-25H2-SecurityBaseline.ps1" -ErrorAction Stop | Select-Object -First 1
@@ -140,7 +140,7 @@ try {
     # Change to script directory
     $scriptDirectory = $applyScript.Directory.FullName
     Set-Location $scriptDirectory
-    Write-Host "    ✓ Working directory: $scriptDirectory" -ForegroundColor Green
+    Write-Host "    [OK] Working directory: $scriptDirectory" -ForegroundColor Green
 }
 catch {
     Write-Host ""

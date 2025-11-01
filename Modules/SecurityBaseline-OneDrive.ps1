@@ -242,9 +242,9 @@ function Remove-OneDriveCompletely {
     Write-Host "===========================================================" -ForegroundColor Green
     Write-Host ""
     Write-Info "Status:"
-    Write-Host "  ✓ OneDrive application removed" -ForegroundColor Green
-    Write-Host "  ✓ Your OneDrive folder is SAFE: C:\Users\$env:USERNAME\OneDrive" -ForegroundColor Green
-    Write-Host "  ✓ All your files remain accessible" -ForegroundColor Green
+    Write-Host "  [OK] OneDrive application removed" -ForegroundColor Green
+    Write-Host "  [OK] Your OneDrive folder is SAFE: C:\Users\$env:USERNAME\OneDrive" -ForegroundColor Green
+    Write-Host "  [OK] All your files remain accessible" -ForegroundColor Green
     Write-Host ""
     Write-Info "To reinstall OneDrive later:"
     Write-Host "  1. Download from: https://www.microsoft.com/onedrive/download" -ForegroundColor Cyan
