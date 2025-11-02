@@ -45,11 +45,18 @@
 
 ## 🚀 Quick Start
 
-### One-Liner Install (Easiest)
+### One-Liner Install (Recommended - No Git Required!)
 ```powershell
-# Open PowerShell as Administrator and paste:
+# Open PowerShell as Administrator and paste this single line:
 irm https://raw.githubusercontent.com/NexusOne23/noid-privacy/main/install.ps1 | iex
 ```
+
+**What it does:**
+- ✅ Downloads latest release automatically
+- ✅ Extracts and unblocks all files (no Zone.Identifier issues!)
+- ✅ Starts interactive menu immediately
+- ✅ No manual unblocking needed
+- ✅ No Git installation required
 
 ### Manual Install (Git Required)
 ```powershell

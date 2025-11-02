@@ -4,7 +4,23 @@ Get NoID Privacy up and running in 5 minutes!
 
 ---
 
-## ⚡ Super Quick Start (3 Steps)
+## ⚡ Super Quick Start (1 Step!)
+
+### One-Liner Install (Recommended - No Git!)
+```powershell
+# Open PowerShell as Administrator (Win+X → "Terminal (Admin)")
+# Paste this single line:
+irm https://raw.githubusercontent.com/NexusOne23/noid-privacy/main/install.ps1 | iex
+```
+
+**Done!** The installer:
+- ✅ Downloads latest release
+- ✅ Unblocks all files automatically
+- ✅ Starts interactive menu
+
+---
+
+## 🔧 Alternative: Manual Install (If You Prefer Git)
 
 ### 1. Download
 ```powershell
@@ -14,17 +30,12 @@ git clone https://github.com/NexusOne23/noid-privacy.git
 cd noid-privacy
 ```
 
-### 2. Unblock Files
-```powershell
-Get-ChildItem -Recurse -Filter "*.ps1" | Unblock-File
-```
-
-### 3. Run
+### 2. Run
 ```powershell
 .\Apply-Win11-25H2-SecurityBaseline.ps1 -Interactive
 ```
 
-**Done!** Follow the on-screen menu.
+**Note:** Git clone doesn't require manual unblocking (no Zone.Identifier)
 
 ---
 

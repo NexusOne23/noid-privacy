@@ -141,6 +141,19 @@ try {
     $scriptDirectory = $applyScript.Directory.FullName
     Set-Location $scriptDirectory
     Write-Host "    [OK] Working directory: $scriptDirectory" -ForegroundColor Green
+    
+    # Unblock all PowerShell files (critical for ZIP downloads!)
+    Write-Host "    -> Unblocking PowerShell files..." -ForegroundColor Gray
+    Get-ChildItem -Path $scriptDirectory -Recurse -Include "*.ps1", "*.psm1", "*.psd1" -ErrorAction SilentlyContinue | 
+        ForEach-Object {
+            try {
+                Unblock-File -Path $_.FullName -ErrorAction SilentlyContinue
+            }
+            catch {
+                # Silently continue if unblock fails
+            }
+        }
+    Write-Host "    [OK] Files unblocked (Zone.Identifier removed)" -ForegroundColor Green
 }
 catch {
     Write-Host ""

@@ -95,7 +95,22 @@ Get-ComputerInfo | Select-Object HyperVisorPresent, HyperVRequirementVirtualizat
 
 ### Step 2: Download & Extract
 
-#### Option A: Git
+#### Option A: One-Liner Install (Recommended - Easiest!)
+```powershell
+# Paste this single line in PowerShell (Admin):
+irm https://raw.githubusercontent.com/NexusOne23/noid-privacy/main/install.ps1 | iex
+```
+
+**What it does:**
+- Downloads latest release from GitHub
+- Extracts all files
+- **Automatically unblocks all PowerShell files** (no Zone.Identifier issues!)
+- Starts interactive menu immediately
+- **No Git required!**
+
+➡️ **Skip to "Post-Installation"** if using this option!
+
+#### Option B: Git Clone
 ```powershell
 # Install Git (if not present)
 winget install --id Git.Git -e --source winget
@@ -105,12 +120,13 @@ git clone https://github.com/NexusOne23/noid-privacy.git
 cd noid-privacy
 ```
 
-#### Option B: Manual Download
-1. Visit: https://github.com/NexusOne23/noid-privacy
-2. Click "Code" → "Download ZIP"
+#### Option C: Manual Download (ZIP)
+1. Visit: https://github.com/NexusOne23/noid-privacy/releases
+2. Download latest release ZIP
 3. Extract to desired location (e.g., `C:\Tools\noid-privacy`)
 4. Open PowerShell as Administrator
 5. Navigate to extracted folder
+6. **IMPORTANT:** Run `Start-NoID-Privacy.bat` to unblock files!
 
 ### Step 3: Configure Execution Policy (If Needed)
 ```powershell
