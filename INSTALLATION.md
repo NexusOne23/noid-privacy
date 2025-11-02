@@ -373,5 +373,5 @@ After successful installation and reboot:
 
 ---
 
-**Last Updated**: October 31, 2025  
-**Version**: 1.7.13
+**Last Updated**: November 2, 2025  
+**Version**: 1.7.16
