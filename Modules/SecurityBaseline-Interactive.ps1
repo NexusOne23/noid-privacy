@@ -1003,6 +1003,187 @@ function Invoke-RebootPrompt {
     Write-Host ""
 }
 
+function Show-SafetyWarning {
+    <#
+    .SYNOPSIS
+        Shows critical safety warning before script execution
+    .DESCRIPTION
+        Displays mandatory safety warning requiring user acknowledgment.
+        User MUST confirm README read and system backup created.
+        ASCII-only for maximum compatibility (no emojis, escaped umlauts).
+    .OUTPUTS
+        Exits script if user declines
+    .EXAMPLE
+        Show-SafetyWarning
+    #>
+    [CmdletBinding()]
+    [OutputType([void])]
+    param()
+    
+    Write-Host ""
+    Write-Host "============================================================================" -ForegroundColor Red
+    Write-Host "                   !!! CRITICAL SAFETY WARNING !!!" -ForegroundColor Red  
+    Write-Host "============================================================================" -ForegroundColor Red
+    Write-Host ""
+    
+    if ($Global:CurrentLanguage -eq 'de') {
+        Write-Host "  DIESES SCRIPT FUEHRT UMFANGREICHE SYSTEM-HAERTUNGEN DURCH!" -ForegroundColor Yellow
+        Write-Host ""
+        Write-Host "  Bevor Sie fortfahren:" -ForegroundColor White
+        Write-Host ""
+        Write-Host "  1. Lesen Sie die README.md VOLLSTAENDIG" -ForegroundColor Cyan
+        Write-Host "      -> Verstehen Sie was das Script tut" -ForegroundColor Gray
+        Write-Host "      -> Pruefen Sie ob es zu Ihrem Anwendungsfall passt" -ForegroundColor Gray
+        Write-Host ""
+        Write-Host "  2. Erstellen Sie ein VOLLSTAENDIGES SYSTEM-BACKUP" -ForegroundColor Cyan
+        Write-Host "      -> Windows Systemabbild ODER VM-Snapshot" -ForegroundColor Gray
+        Write-Host "      -> Das Script-Backup allein reicht NICHT!" -ForegroundColor Gray
+        Write-Host "      -> Nur so koennen Sie 100% zurueck" -ForegroundColor Gray
+        Write-Host ""
+        Write-Host "  WARUM SO WICHTIG?" -ForegroundColor Yellow
+        Write-Host "  * Script haertet Windows sehr strikt (Sicherheit > Komfort)" -ForegroundColor White
+        Write-Host "  * Manche Funktionen werden stark eingeschraenkt" -ForegroundColor White
+        Write-Host "  * Je nach Anwendungsfall evtl. nicht passend" -ForegroundColor White
+        Write-Host "  * Windows wird NICHT kaputt gehen - aber Vorsicht ist besser!" -ForegroundColor White
+        Write-Host ""
+        Write-Host "  Hinweis:" -ForegroundColor Cyan
+        Write-Host "  - Script erstellt automatisch Backup aller Einstellungen" -ForegroundColor Gray
+        Write-Host "  - Restore-Funktion ist integriert" -ForegroundColor Gray
+        Write-Host "  - Trotzdem: Vollstaendiges System-Backup ist PFLICHT!" -ForegroundColor Gray
+        Write-Host ""
+    }
+    else {
+        Write-Host "  THIS SCRIPT PERFORMS EXTENSIVE SYSTEM HARDENING!" -ForegroundColor Yellow
+        Write-Host ""
+        Write-Host "  Before you proceed:" -ForegroundColor White
+        Write-Host ""
+        Write-Host "  1. Read the README.md COMPLETELY" -ForegroundColor Cyan
+        Write-Host "      -> Understand what this script does" -ForegroundColor Gray
+        Write-Host "      -> Check if it fits your use case" -ForegroundColor Gray
+        Write-Host ""
+        Write-Host "  2. Create a FULL SYSTEM BACKUP" -ForegroundColor Cyan
+        Write-Host "      -> Windows System Image OR VM Snapshot" -ForegroundColor Gray
+        Write-Host "      -> Script backup alone is NOT enough!" -ForegroundColor Gray
+        Write-Host "      -> Only way to guarantee 100% rollback" -ForegroundColor Gray
+        Write-Host ""
+        Write-Host "  WHY SO IMPORTANT?" -ForegroundColor Yellow
+        Write-Host "  * Script hardens Windows very strictly (Security > Comfort)" -ForegroundColor White
+        Write-Host "  * Some functions will be heavily restricted" -ForegroundColor White
+        Write-Host "  * Depending on use case, may not be suitable" -ForegroundColor White
+        Write-Host "  * Windows will NOT break - but better safe than sorry!" -ForegroundColor White
+        Write-Host ""
+        Write-Host "  Note:" -ForegroundColor Cyan
+        Write-Host "  - Script automatically creates backup of all settings" -ForegroundColor Gray
+        Write-Host "  - Restore function is integrated" -ForegroundColor Gray
+        Write-Host "  - Nevertheless: Full system backup is MANDATORY!" -ForegroundColor Gray
+        Write-Host ""
+    }
+    
+    Write-Host "============================================================================" -ForegroundColor Red
+    Write-Host "                           DISCLAIMER" -ForegroundColor Red
+    Write-Host "============================================================================" -ForegroundColor Red
+    Write-Host ""
+    
+    if ($Global:CurrentLanguage -eq 'de') {
+        Write-Host "  Die Autoren uebernehmen KEINE Haftung fuer:" -ForegroundColor Yellow
+        Write-Host "  * Datenverlust" -ForegroundColor White
+        Write-Host "  * Systemschaeden" -ForegroundColor White
+        Write-Host "  * Funktionsbeeintraechtigungen" -ForegroundColor White
+        Write-Host "  * Andere Probleme durch die Ausfuehrung dieses Scripts" -ForegroundColor White
+        Write-Host ""
+        Write-Host "  Sie verwenden dieses Script auf EIGENE GEFAHR!" -ForegroundColor Red
+    }
+    else {
+        Write-Host "  The authors are NOT responsible for:" -ForegroundColor Yellow
+        Write-Host "  * Data loss" -ForegroundColor White
+        Write-Host "  * System damage" -ForegroundColor White
+        Write-Host "  * Functional impairments" -ForegroundColor White
+        Write-Host "  * Any other issues caused by running this script" -ForegroundColor White
+        Write-Host ""
+        Write-Host "  You use this script at YOUR OWN RISK!" -ForegroundColor Red
+    }
+    
+    Write-Host ""
+    Write-Host "============================================================================" -ForegroundColor Red
+    Write-Host ""
+    
+    if ($Global:CurrentLanguage -eq 'de') {
+        Write-Host "  Haben Sie die README gelesen UND ein System-Backup erstellt?" -ForegroundColor Cyan
+        Write-Host "  [J] Ja, ich habe alles gelesen und ein Backup erstellt" -ForegroundColor Green
+        Write-Host "  [N] Nein, ich breche ab" -ForegroundColor Yellow
+    }
+    else {
+        Write-Host "  Have you read the README AND created a system backup?" -ForegroundColor Cyan
+        Write-Host "  [Y] Yes, I have read everything and created a backup" -ForegroundColor Green
+        Write-Host "  [N] No, I will cancel" -ForegroundColor Yellow
+    }
+    
+    Write-Host ""
+    
+    do {
+        if ($Global:CurrentLanguage -eq 'de') {
+            Write-Host "  Ihre Eingabe [J/N]: " -NoNewline -ForegroundColor Cyan
+        }
+        else {
+            Write-Host "  Your input [Y/N]: " -NoNewline -ForegroundColor Cyan
+        }
+        
+        $userAck = Read-Host
+        if ($userAck) {
+            $userAck = $userAck.Trim().ToUpper()
+        }
+        
+        # Support Y=J, J=Y
+        if ($userAck -eq 'Y') { $userAck = 'J' }
+        if ($userAck -eq 'S') { $userAck = 'N' }
+        
+        if ($userAck -notin @('J', 'N')) {
+            if ($Global:CurrentLanguage -eq 'de') {
+                Write-Host "  [ERROR] Ungueltige Eingabe! Bitte J oder N eingeben." -ForegroundColor Red
+            }
+            else {
+                Write-Host "  [ERROR] Invalid input! Please enter Y or N." -ForegroundColor Red
+            }
+            Write-Host ""
+        }
+    } while ($userAck -notin @('J', 'N'))
+    
+    if ($userAck -eq 'N') {
+        Write-Host ""
+        if ($Global:CurrentLanguage -eq 'de') {
+            Write-Host "  [i] Script abgebrochen - Gute Entscheidung!" -ForegroundColor Yellow
+            Write-Host "      Bitte lesen Sie die README und erstellen Sie ein Backup." -ForegroundColor Gray
+            Write-Host ""
+            Write-Host "  Dateien:" -ForegroundColor Cyan
+            Write-Host "  * README.md - Vollstaendige Dokumentation" -ForegroundColor White
+            Write-Host "  * CHANGELOG.md - Was macht das Script genau?" -ForegroundColor White
+            Write-Host "  * FAQ.md - Haeufige Fragen" -ForegroundColor White
+        }
+        else {
+            Write-Host "  [i] Script cancelled - Good decision!" -ForegroundColor Yellow
+            Write-Host "      Please read the README and create a backup." -ForegroundColor Gray
+            Write-Host ""
+            Write-Host "  Files:" -ForegroundColor Cyan
+            Write-Host "  * README.md - Complete documentation" -ForegroundColor White
+            Write-Host "  * CHANGELOG.md - What does the script do exactly?" -ForegroundColor White
+            Write-Host "  * FAQ.md - Frequently asked questions" -ForegroundColor White
+        }
+        Write-Host ""
+        exit 0
+    }
+    
+    Write-Host ""
+    if ($Global:CurrentLanguage -eq 'de') {
+        Write-Host "  [OK] Bestaetigt - Script wird fortgesetzt..." -ForegroundColor Green
+    }
+    else {
+        Write-Host "  [OK] Confirmed - Script will continue..." -ForegroundColor Green
+    }
+    Write-Host ""
+    Write-Host "============================================================================" -ForegroundColor Green
+    Write-Host ""
+}
+
 function Start-InteractiveMode {
     <#
     .SYNOPSIS
@@ -1039,6 +1220,9 @@ function Start-InteractiveMode {
     
     # VERSION BANNER was removed - now shown AFTER Start-Transcript in main script!
     # Reason: Interactive mode starts BEFORE transcript, so banner would not appear in log
+    
+    # === CRITICAL SAFETY WARNING (AFTER LANGUAGE SELECTION!) ===
+    Show-SafetyWarning
     
     # === NEW: BACKUP/RESTORE PROMPT (AFTER LANGUAGE, BEFORE MODULES!) ===
     $backupChoice = Show-BackupPrompt
