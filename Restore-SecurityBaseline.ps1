@@ -396,17 +396,23 @@ foreach ($adapter in $currentAdapters) {
             
             Write-Verbose "Restoring DNS for $($adapter.Name) (matched via $( if ($saved.InterfaceGuid -eq $adapter.InterfaceGuid) { 'GUID' } elseif ($saved.AdapterName -eq $adapter.Name) { 'Alias' } else { 'IfIndex' }))"
             
-            # CRITICAL: PowerShell 5.1 does NOT have -AddressFamily parameter!
-            # Must set IPv4 + IPv6 together in one call
+            # CRITICAL FIX: Set IPv4 and IPv6 separately!
+            # Set-DnsClientServerAddress has NO -AddressFamily parameter
+            # But it auto-detects IPv4 vs IPv6 based on address format
+            # Setting them together would mix/overwrite - must be TWO separate calls!
             
             if ($hasIPv4 -or $hasIPv6) {
-                # Combine IPv4 + IPv6 addresses
-                $allAddresses = @()
-                if ($hasIPv4) { $allAddresses += $dnsIPv4 }
-                if ($hasIPv6) { $allAddresses += $dnsIPv6 }
+                # Set IPv4 DNS servers (if any)
+                if ($hasIPv4) {
+                    Set-DnsClientServerAddress -InterfaceIndex $adapter.ifIndex -ServerAddresses $dnsIPv4 -ErrorAction Stop
+                    Write-Verbose "  IPv4 DNS restored: $($dnsIPv4 -join ', ')"
+                }
                 
-                Set-DnsClientServerAddress -InterfaceIndex $adapter.ifIndex -ServerAddresses $allAddresses -ErrorAction Stop
-                Write-Verbose "  DNS restored: $($allAddresses -join ', ')"
+                # Set IPv6 DNS servers (if any)
+                if ($hasIPv6) {
+                    Set-DnsClientServerAddress -InterfaceIndex $adapter.ifIndex -ServerAddresses $dnsIPv6 -ErrorAction Stop
+                    Write-Verbose "  IPv6 DNS restored: $($dnsIPv6 -join ', ')"
+                }
             }
             else {
                 # No DNS in backup - reset to auto
