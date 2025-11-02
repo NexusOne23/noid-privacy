@@ -16,9 +16,17 @@
 BeforeAll {
     # Import module under test
     $projectRoot = Split-Path -Parent (Split-Path -Parent $PSScriptRoot)
+    
+    # Load dependencies first (ASR module needs these)
+    $commonPath = Join-Path $projectRoot "Modules\SecurityBaseline-Common.ps1"
+    $localizationPath = Join-Path $projectRoot "Modules\SecurityBaseline-Localization.ps1"
     $modulePath = Join-Path $projectRoot "Modules\SecurityBaseline-ASR.ps1"
     
-    # Dot-source the module
+    # Dot-source dependencies
+    . $commonPath
+    . $localizationPath
+    
+    # Dot-source the module under test
     . $modulePath
 }
 
