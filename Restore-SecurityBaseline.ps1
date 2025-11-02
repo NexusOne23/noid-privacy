@@ -156,8 +156,11 @@ if (-not (Test-Path Variable:\Global:CurrentLanguage)) {
     }
     else {
         # Detect system language (German or English)
+        # Check both Culture and UICulture for best detection
         $systemLang = (Get-Culture).TwoLetterISOLanguageName
-        if ($systemLang -eq 'de') {
+        $uiLang = (Get-UICulture).TwoLetterISOLanguageName
+        
+        if ($systemLang -eq 'de' -or $uiLang -eq 'de') {
             $Global:CurrentLanguage = 'de'
         }
         else {
