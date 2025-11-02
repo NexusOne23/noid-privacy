@@ -990,45 +990,103 @@ else {
     Write-Host "[!] No registry backup found in backup file - skipping" -ForegroundColor Yellow
 }
 
-# Clean up PolicyManager mirror keys (Windows creates these AFTER Apply, they're not in backup)
-# These cause Settings UI to still show "Your organization manages..." even after restore
-Write-Host ""
-Write-Host "[i] Cleaning up PolicyManager telemetry cache..." -ForegroundColor Cyan
+# ====================================================================
+# RESTORE: PolicyManager / Telemetrie-Mirror bereinigen
+# ====================================================================
+# Windows legt nach dem Setzen von GPOs eigene Spiegel unter PolicyManager an,
+# z. B.:
+#   HKLM:\SOFTWARE\Microsoft\PolicyManager\current\device\System\AllowTelemetry
+#   HKLM:\SOFTWARE\Microsoft\PolicyManager\current\device\DataCollection\*
+# Die waren beim Backup NICHT da -> Restore kennt sie nicht -> UI zeigt weiter
+# "Ihre Organisation verhindert ...".
+# Darum hier: hart loeschen mit Pattern-Matching (Future-Proof!)
 
-$telemetryPolicyCache = @(
-    "HKLM:\SOFTWARE\Microsoft\PolicyManager\current\device\System\AllowTelemetry",
-    "HKLM:\SOFTWARE\Microsoft\PolicyManager\current\device\System\LimitDiagnosticData",
-    "HKLM:\SOFTWARE\Microsoft\PolicyManager\current\device\System\DisableEnterpriseAuthProxy",
-    "HKLM:\SOFTWARE\Microsoft\PolicyManager\current\device\System\Telemetry",
-    "HKLM:\SOFTWARE\Microsoft\PolicyManager\current\device\System\DisableTelemetryOptIn",
-    "HKLM:\SOFTWARE\Microsoft\PolicyManager\current\device\System\LimitEnhancedDiagnosticData",
-    "HKLM:\SOFTWARE\Microsoft\PolicyManager\current\device\DataCollection"
+Write-Host ""
+Write-Host "[i] Cleaning up PolicyManager telemetry cache (current + default)..." -ForegroundColor Cyan
+
+$pmBase = "HKLM:\SOFTWARE\Microsoft\PolicyManager"
+$pmTargets = @(
+    "current\device\System",
+    "current\device\DataCollection",
+    "default\device\System",
+    "default\device\DataCollection"
 )
 
-$cleanedCount = 0
-foreach ($path in $telemetryPolicyCache) {
-    if (Test-Path $path) {
-        try {
-            Remove-Item $path -Recurse -Force -ErrorAction Stop
-            $cleanedCount++
-            Write-Host "  [OK] Removed: $path" -ForegroundColor Gray
+# Alles was irgendwie nach Telemetrie/Diag/Datenerfassung aussieht, weg
+$telemetryNamePatterns = @(
+    "*Telemetry*",
+    "*DataCollection*",
+    "*Diagnostic*",
+    "*Diag*",
+    "*Feedback*"
+)
+
+$cleaned = 0
+
+foreach ($rel in $pmTargets) {
+    $fullPath = Join-Path $pmBase $rel
+
+    if (-not (Test-Path $fullPath)) {
+        continue
+    }
+
+    # 1) Komplette, passende Unterschluessel entfernen
+    $subKeys = Get-ChildItem -Path $fullPath -ErrorAction SilentlyContinue
+    foreach ($sk in $subKeys) {
+        foreach ($pat in $telemetryNamePatterns) {
+            if ($sk.PSChildName -like $pat) {
+                try {
+                    Remove-Item -Path $sk.PSPath -Recurse -Force -ErrorAction Stop
+                    $cleaned++
+                }
+                catch {
+                    Write-Host "  [!] Could not remove PolicyManager key: $($sk.PSPath) - $_" -ForegroundColor Yellow
+                }
+                break
+            }
         }
-        catch {
-            Write-Host "  [!] Could not remove: $path - $_" -ForegroundColor Yellow
+    }
+
+    # 2) Werte im Key selbst entfernen (PolicyManager schreibt oft nur "value")
+    $item = Get-ItemProperty -Path $fullPath -ErrorAction SilentlyContinue
+    if ($item) {
+        foreach ($prop in $item.PSObject.Properties) {
+            $propName = $prop.Name
+            if ($propName -eq "PSPath" -or $propName -eq "PSParentPath" -or $propName -eq "PSChildName" -or $propName -eq "PSDrive" -or $propName -eq "PSProvider") {
+                continue
+            }
+
+            $match = $false
+            foreach ($pat in $telemetryNamePatterns) {
+                if ($propName -like $pat) {
+                    $match = $true
+                    break
+                }
+            }
+
+            # Sehr haeufiger Fall: PolicyManager legt "value" an
+            if (-not $match -and $propName -eq "value") {
+                $match = $true
+            }
+
+            if ($match) {
+                try {
+                    Remove-ItemProperty -Path $fullPath -Name $propName -Force -ErrorAction Stop
+                    $cleaned++
+                }
+                catch {
+                    Write-Host "  [!] Could not remove PolicyManager value: $fullPath\$propName - $_" -ForegroundColor Yellow
+                }
+            }
         }
     }
 }
 
-if ($cleanedCount -gt 0) {
-    Write-Host "[OK] PolicyManager cache cleaned ($cleanedCount keys removed)" -ForegroundColor Green
-    Write-Host "[i] Settings UI should now show user-controlled state" -ForegroundColor Cyan
-}
-else {
-    Write-Host "[i] No PolicyManager cache keys found (clean state)" -ForegroundColor Gray
-}
+Write-Host "  [OK] Removed $cleaned PolicyManager telemetry entries" -ForegroundColor Green
 
-# Clean up policy keys that did not exist before Apply (Exists=false in backup)
-# If Apply created these keys and they weren't there before, restore should remove them
+# ====================================================================
+# RESTORE: Policies loeschen, die es vorher nicht gab
+# ====================================================================
 Write-Host ""
 Write-Host "[i] Checking for policy keys that should be removed..." -ForegroundColor Cyan
 
@@ -1037,18 +1095,18 @@ $policyKeysToCheck = @(
     "HKLM:\SOFTWARE\Policies\Microsoft\Windows\AdvertisingInfo",
     "HKLM:\SOFTWARE\Policies\Microsoft\Windows\AppPrivacy",
     "HKLM:\SOFTWARE\Policies\Microsoft\SQMClient\Windows",
-    "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System"
+    "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System",
+    "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection"
 )
 
 $removedPolicyKeys = 0
 if ($backup.Settings.RegistryBackup) {
     foreach ($keyPath in $policyKeysToCheck) {
-        # Check if ANY entry for this key path had Exists=$false in backup
         $entriesForKey = $backup.Settings.RegistryBackup | Where-Object { $_.Path -eq $keyPath }
-        
+
+        # Wenn im Backup IRGENDEIN Eintrag fuer diesen Key "Exists = false" hatte,
+        # dann hat Apply ihn erst angelegt -> wir koennen den ganzen Key killen
         if ($entriesForKey -and ($entriesForKey | Where-Object { $_.Exists -eq $false })) {
-            # At least one value in this key did not exist before Apply
-            # If the whole key was created by Apply, remove it entirely
             if (Test-Path $keyPath) {
                 try {
                     Remove-Item $keyPath -Recurse -Force -ErrorAction Stop
@@ -1063,12 +1121,7 @@ if ($backup.Settings.RegistryBackup) {
     }
 }
 
-if ($removedPolicyKeys -gt 0) {
-    Write-Host "[OK] Removed $removedPolicyKeys policy key(s) that were created by Apply" -ForegroundColor Green
-}
-else {
-    Write-Host "[i] No policy keys to remove (all existed before Apply)" -ForegroundColor Gray
-}
+Write-Host "  [OK] Removed $removedPolicyKeys policy keys that did not exist before Apply" -ForegroundColor Green
 
 Write-Host ""
 #endregion
@@ -1934,29 +1987,32 @@ catch {
     Write-Host "[!] DNS Cache error: $_" -ForegroundColor Yellow
 }
 
-# Group Policy Update (CRITICAL for "Ihre Organisation verhindert" message!)
+# ====================================================================
+# RESTORE: GP-Cache aktualisieren + Settings-App-Cache killen
+# ====================================================================
 Write-Host ""
-Write-Host "[15/15] Updating Group Policy Cache..." -ForegroundColor Cyan
-Write-Host "  [i] This updates Windows Settings to reflect restored registry..." -ForegroundColor Gray
+Write-Host "[15/15] Updating Group Policy cache..." -ForegroundColor Cyan
 try {
-    $job = Start-Job -ScriptBlock { gpupdate /force 2>&1 }
+    $job = Start-Job -ScriptBlock {
+        # Damit die Settings-App es SOFORT merkt:
+        gpupdate /force 2>&1
+        # Manchmal cached die Settings-App – deshalb hier noch Settings killen:
+        Get-Process SystemSettings -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
+    }
     $job | Wait-Job -Timeout 30 | Out-Null
-    
-    if ($job.State -eq 'Completed') {
-        $output = Receive-Job $job
-        Remove-Job $job -Force
-        Write-Host "[OK] Group Policy updated" -ForegroundColor Green
-        Write-Host "      Windows Settings now show correct status" -ForegroundColor Gray
+    if ($job.State -eq "Completed") {
+        Receive-Job $job | Out-Null
+        Remove-Job $job -Force -ErrorAction SilentlyContinue
+        Write-Host "[OK] Group Policy updated and Settings UI cache cleared" -ForegroundColor Green
     }
     else {
         Stop-Job $job -ErrorAction SilentlyContinue
         Remove-Job $job -Force -ErrorAction SilentlyContinue
-        Write-Host "[!] Group Policy update timeout (settings may update after reboot)" -ForegroundColor Yellow
+        Write-Host "[!] gpupdate /force did not finish in 30s - settings may update after reboot" -ForegroundColor Yellow
     }
 }
 catch {
-    Write-Host "[!] Group Policy update error: $_" -ForegroundColor Yellow
-    Write-Host "    Settings will update after reboot" -ForegroundColor Gray
+    Write-Host "[!] Could not refresh policy cache: $_" -ForegroundColor Yellow
 }
 
 # Abschluss
