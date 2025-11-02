@@ -1021,9 +1021,9 @@ function Show-SafetyWarning {
     param()
     
     Write-Host ""
-    Write-Host "============================================================================" -ForegroundColor Red
-    Write-Host "                   !!! CRITICAL SAFETY WARNING !!!" -ForegroundColor Red  
-    Write-Host "============================================================================" -ForegroundColor Red
+    Write-Host "============================================================================" -ForegroundColor Yellow
+    Write-Host "                   !!! CRITICAL SAFETY WARNING !!!" -ForegroundColor Yellow  
+    Write-Host "============================================================================" -ForegroundColor Yellow
     Write-Host ""
     
     if ($Global:CurrentLanguage -eq 'de') {
@@ -1037,8 +1037,8 @@ function Show-SafetyWarning {
         Write-Host ""
         Write-Host "  2. Erstellen Sie ein VOLLSTAENDIGES SYSTEM-BACKUP" -ForegroundColor Cyan
         Write-Host "      -> Windows Systemabbild ODER VM-Snapshot" -ForegroundColor Gray
-        Write-Host "      -> Das Script-Backup allein reicht NICHT!" -ForegroundColor Gray
-        Write-Host "      -> Nur so koennen Sie 100% zurueck" -ForegroundColor Gray
+        Write-Host "      -> Fuer maximale Sicherheit empfohlen!" -ForegroundColor Gray
+        Write-Host "      -> Garantiert 100% Wiederherstellung" -ForegroundColor Gray
         Write-Host ""
         Write-Host "  WARUM SO WICHTIG?" -ForegroundColor Yellow
         Write-Host "  * Script haertet Windows sehr strikt (Sicherheit > Komfort)" -ForegroundColor White
@@ -1049,7 +1049,7 @@ function Show-SafetyWarning {
         Write-Host "  Hinweis:" -ForegroundColor Cyan
         Write-Host "  - Script erstellt automatisch Backup aller Einstellungen" -ForegroundColor Gray
         Write-Host "  - Restore-Funktion ist integriert" -ForegroundColor Gray
-        Write-Host "  - Trotzdem: Vollstaendiges System-Backup ist PFLICHT!" -ForegroundColor Gray
+        Write-Host "  - Trotzdem: Vollstaendiges System-Backup dringend empfohlen!" -ForegroundColor Gray
         Write-Host ""
     }
     else {
@@ -1063,8 +1063,8 @@ function Show-SafetyWarning {
         Write-Host ""
         Write-Host "  2. Create a FULL SYSTEM BACKUP" -ForegroundColor Cyan
         Write-Host "      -> Windows System Image OR VM Snapshot" -ForegroundColor Gray
-        Write-Host "      -> Script backup alone is NOT enough!" -ForegroundColor Gray
-        Write-Host "      -> Only way to guarantee 100% rollback" -ForegroundColor Gray
+        Write-Host "      -> Recommended for maximum safety!" -ForegroundColor Gray
+        Write-Host "      -> Guarantees 100% recovery" -ForegroundColor Gray
         Write-Host ""
         Write-Host "  WHY SO IMPORTANT?" -ForegroundColor Yellow
         Write-Host "  * Script hardens Windows very strictly (Security > Comfort)" -ForegroundColor White
@@ -1075,13 +1075,13 @@ function Show-SafetyWarning {
         Write-Host "  Note:" -ForegroundColor Cyan
         Write-Host "  - Script automatically creates backup of all settings" -ForegroundColor Gray
         Write-Host "  - Restore function is integrated" -ForegroundColor Gray
-        Write-Host "  - Nevertheless: Full system backup is MANDATORY!" -ForegroundColor Gray
+        Write-Host "  - Nevertheless: Full system backup is strongly recommended!" -ForegroundColor Gray
         Write-Host ""
     }
     
-    Write-Host "============================================================================" -ForegroundColor Red
-    Write-Host "                           DISCLAIMER" -ForegroundColor Red
-    Write-Host "============================================================================" -ForegroundColor Red
+    Write-Host "============================================================================" -ForegroundColor Yellow
+    Write-Host "                           DISCLAIMER" -ForegroundColor Yellow
+    Write-Host "============================================================================" -ForegroundColor Yellow
     Write-Host ""
     
     if ($Global:CurrentLanguage -eq 'de') {
@@ -1091,7 +1091,7 @@ function Show-SafetyWarning {
         Write-Host "  * Funktionsbeeintraechtigungen" -ForegroundColor White
         Write-Host "  * Andere Probleme durch die Ausfuehrung dieses Scripts" -ForegroundColor White
         Write-Host ""
-        Write-Host "  Sie verwenden dieses Script auf EIGENE GEFAHR!" -ForegroundColor Red
+        Write-Host "  Sie verwenden dieses Script auf EIGENE GEFAHR!" -ForegroundColor Yellow
     }
     else {
         Write-Host "  The authors are NOT responsible for:" -ForegroundColor Yellow
@@ -1100,11 +1100,11 @@ function Show-SafetyWarning {
         Write-Host "  * Functional impairments" -ForegroundColor White
         Write-Host "  * Any other issues caused by running this script" -ForegroundColor White
         Write-Host ""
-        Write-Host "  You use this script at YOUR OWN RISK!" -ForegroundColor Red
+        Write-Host "  You use this script at YOUR OWN RISK!" -ForegroundColor Yellow
     }
     
     Write-Host ""
-    Write-Host "============================================================================" -ForegroundColor Red
+    Write-Host "============================================================================" -ForegroundColor Yellow
     Write-Host ""
     
     if ($Global:CurrentLanguage -eq 'de') {
