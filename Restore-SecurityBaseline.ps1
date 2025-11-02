@@ -396,28 +396,33 @@ foreach ($adapter in $currentAdapters) {
             
             Write-Verbose "Restoring DNS for $($adapter.Name) (matched via $( if ($saved.InterfaceGuid -eq $adapter.InterfaceGuid) { 'GUID' } elseif ($saved.AdapterName -eq $adapter.Name) { 'Alias' } else { 'IfIndex' }))"
             
-            # CRITICAL FIX: Set IPv4 and IPv6 separately!
-            # Set-DnsClientServerAddress has NO -AddressFamily parameter
-            # But it auto-detects IPv4 vs IPv6 based on address format
-            # Setting them together would mix/overwrite - must be TWO separate calls!
+            # CRITICAL: RESET-FIRST APPROACH (Option A - recommended)
+            # Problem: Backup hat nur IPv4, aber System hat alte Provider-IPv6
+            # → Wenn wir nur IPv4 setzen, bleibt alte IPv6 kleben!
+            # → Set-DnsClientServerAddress hat KEIN -AddressFamily Parameter zum selektiven Reset
+            # Solution: IMMER erst komplett resetten, dann aus Backup neu aufbauen
+            # → Im Restore darf man radikal sein - deterministisch ist besser als Reste!
             
-            if ($hasIPv4 -or $hasIPv6) {
-                # Set IPv4 DNS servers (if any)
-                if ($hasIPv4) {
-                    Set-DnsClientServerAddress -InterfaceIndex $adapter.ifIndex -ServerAddresses $dnsIPv4 -ErrorAction Stop
-                    Write-Verbose "  IPv4 DNS restored: $($dnsIPv4 -join ', ')"
-                }
-                
-                # Set IPv6 DNS servers (if any)
-                if ($hasIPv6) {
-                    Set-DnsClientServerAddress -InterfaceIndex $adapter.ifIndex -ServerAddresses $dnsIPv6 -ErrorAction Stop
-                    Write-Verbose "  IPv6 DNS restored: $($dnsIPv6 -join ', ')"
-                }
+            # STEP 1: Reset alles (IPv4 + IPv6)
+            Set-DnsClientServerAddress -InterfaceIndex $adapter.ifIndex -ResetServerAddresses -ErrorAction SilentlyContinue
+            Write-Verbose "  Reset: Alle DNS entfernt (IPv4+IPv6)"
+            
+            # STEP 2: Restore IPv4 from backup (if exists)
+            if ($hasIPv4) {
+                Set-DnsClientServerAddress -InterfaceIndex $adapter.ifIndex -ServerAddresses $dnsIPv4 -ErrorAction Stop
+                Write-Verbose "  IPv4 DNS restored: $($dnsIPv4 -join ', ')"
             }
             else {
-                # No DNS in backup - reset to auto
-                Set-DnsClientServerAddress -InterfaceIndex $adapter.ifIndex -ResetServerAddresses -ErrorAction SilentlyContinue
-                Write-Verbose "  DNS reset to Auto (backup had no DNS)"
+                Write-Verbose "  IPv4 DNS: Nicht im Backup → bleibt auf Auto/DHCP"
+            }
+            
+            # STEP 3: Restore IPv6 from backup (if exists)
+            if ($hasIPv6) {
+                Set-DnsClientServerAddress -InterfaceIndex $adapter.ifIndex -ServerAddresses $dnsIPv6 -ErrorAction Stop
+                Write-Verbose "  IPv6 DNS restored: $($dnsIPv6 -join ', ')"
+            }
+            else {
+                Write-Verbose "  IPv6 DNS: Nicht im Backup → bleibt auf Auto/DHCP"
             }
             
             Write-Host "  [OK] $($adapter.Name) restored" -ForegroundColor Green
