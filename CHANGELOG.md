@@ -75,6 +75,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Solution: Option 2 allows localhost connections (`AllowInboundRules=True`)
 
 ### Documentation
+- **SECURITY_MAPPING.md**: Fixed baseline coverage inconsistency (Audit Finding #1)
+  - Changed: "Baseline Coverage: ~95%" → "100% of locally-implementable policies (213/213 from 365 total)"
+  - Clarified: 152 policies N/A (IE11 deprecated, secedit-only, domain-only)
+  - Renamed: "Why Not 100% Baseline?" → "Beyond Baseline"
+  - Added note: Enhancements are NOT missing implementations, baseline requirements fully met
+  - Result: Consistent documentation across all files (README.md was already correct)
 - **FAQ.md**: New section "Can I use Remote Desktop (RDP) with this script?"
   - Explains Option 1 vs Option 2
   - Security warnings for RDP (use VPN/Tailscale!)
