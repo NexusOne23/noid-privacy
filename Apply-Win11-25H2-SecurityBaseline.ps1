@@ -902,13 +902,19 @@ if ($Interactive) {
                 }
             }
             
-            # Uebergebe aktuelle Sprache via Environment Variable
+            # Uebergebe aktuelle Sprache als Parameter UND Environment Variable (doppelte Absicherung)
             $env:NOID_LANGUAGE = $Global:CurrentLanguage
             
             # IMPORTANT: Start with -NoNewWindow to keep it in the same window
             # But: powershell.exe instead of &, so it runs in its own process and we can exit COMPLETELY
-            $restoreArgs = "-ExecutionPolicy Bypass -NoProfile -File `"$restoreScript`""
-            Write-Verbose "Starte Restore als separaten Prozess: powershell.exe $restoreArgs"
+            # CRITICAL FIX: Use ARRAY format for ArgumentList (string format can fail parameter parsing!)
+            $restoreArgs = @(
+                "-ExecutionPolicy", "Bypass",
+                "-NoProfile",
+                "-File", $restoreScript,
+                "-Language", $Global:CurrentLanguage
+            )
+            Write-Verbose "Starte Restore als separaten Prozess: powershell.exe -File $restoreScript -Language $Global:CurrentLanguage"
             
             # Start Restore and wait until it's finished
             Write-Host "$(Get-LocalizedString 'RestoreModeProcessStart')" -ForegroundColor Cyan

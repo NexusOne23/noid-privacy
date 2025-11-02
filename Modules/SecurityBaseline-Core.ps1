@@ -2188,7 +2188,7 @@ function Disable-RemoteAccessCompletely {
     # Interactive: User can choose to keep RDP enabled
     
     if ($script:DisableRDP) {
-        # User chose: Maximum Security → Disable RDP
+        # User chose: Maximum Security -> Disable RDP
         Write-Info (Get-LocalizedString 'CoreRemoteRDPDisabling')
         
         # Registry: Turn off RDP
@@ -2243,7 +2243,7 @@ function Disable-RemoteAccessCompletely {
         }
     }
     else {
-        # User chose: Allow Remote Access → Keep RDP enabled
+        # User chose: Allow Remote Access -> Keep RDP enabled
         Write-Info (Get-LocalizedString 'CoreRemoteRDPKeepEnabled')
         Write-Success (Get-LocalizedString 'CoreRemoteRDPKeptEnabled')
         Write-Info (Get-LocalizedString 'CoreRemoteRDPReminder')

@@ -123,7 +123,7 @@ function Enable-CloudflareDNS {
                 $adapterGuid = $adapter.InterfaceGuid
                 Write-Verbose "Setting DohFlags for adapter GUID: $adapterGuid"
                 
-                # IPv4 Servers → Doh branch
+                # IPv4 Servers -> Doh branch
                 foreach ($ip in $ipv4Servers) {
                     try {
                         $regPath = "HKLM:\System\CurrentControlSet\Services\Dnscache\InterfaceSpecificParameters\$adapterGuid\DohInterfaceSettings\Doh\$ip"
@@ -138,7 +138,7 @@ function Enable-CloudflareDNS {
                     }
                 }
                 
-                # IPv6 Servers → Doh6 branch (DIFFERENT from IPv4!)
+                # IPv6 Servers -> Doh6 branch (DIFFERENT from IPv4!)
                 if ($ipv6Enabled) {
                     foreach ($ip in $ipv6Servers) {
                         try {
@@ -321,7 +321,7 @@ function Enable-AdGuardDNS {
                 $adapterGuid = $adapter.InterfaceGuid
                 Write-Verbose "Setting DohFlags for adapter GUID: $adapterGuid"
                 
-                # IPv4 Servers → Doh branch
+                # IPv4 Servers -> Doh branch
                 foreach ($ip in $ipv4Servers) {
                     try {
                         $regPath = "HKLM:\System\CurrentControlSet\Services\Dnscache\InterfaceSpecificParameters\$adapterGuid\DohInterfaceSettings\Doh\$ip"
@@ -336,7 +336,7 @@ function Enable-AdGuardDNS {
                     }
                 }
                 
-                # IPv6 Servers → Doh6 branch
+                # IPv6 Servers -> Doh6 branch
                 if ($ipv6Enabled) {
                     foreach ($ip in $ipv6Servers) {
                         try {
@@ -533,7 +533,7 @@ function Enable-NextDNS {
                 $adapterGuid = $adapter.InterfaceGuid
                 Write-Verbose "Setting DohFlags for adapter GUID: $adapterGuid"
                 
-                # IPv4 Servers → Doh branch
+                # IPv4 Servers -> Doh branch
                 foreach ($ip in $ipv4Servers) {
                     try {
                         $regPath = "HKLM:\System\CurrentControlSet\Services\Dnscache\InterfaceSpecificParameters\$adapterGuid\DohInterfaceSettings\Doh\$ip"
@@ -548,7 +548,7 @@ function Enable-NextDNS {
                     }
                 }
                 
-                # IPv6 Servers → Doh6 branch
+                # IPv6 Servers -> Doh6 branch
                 if ($ipv6Enabled) {
                     foreach ($ip in $ipv6Servers) {
                         try {
@@ -721,7 +721,7 @@ function Enable-Quad9DNS {
                 $adapterGuid = $adapter.InterfaceGuid
                 Write-Verbose "Setting DohFlags for adapter GUID: $adapterGuid"
                 
-                # IPv4 Servers → Doh branch
+                # IPv4 Servers -> Doh branch
                 foreach ($ip in $ipv4Servers) {
                     try {
                         $regPath = "HKLM:\System\CurrentControlSet\Services\Dnscache\InterfaceSpecificParameters\$adapterGuid\DohInterfaceSettings\Doh\$ip"
@@ -736,7 +736,7 @@ function Enable-Quad9DNS {
                     }
                 }
                 
-                # IPv6 Servers → Doh6 branch
+                # IPv6 Servers -> Doh6 branch
                 if ($ipv6Enabled) {
                     foreach ($ip in $ipv6Servers) {
                         try {

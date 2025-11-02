@@ -52,7 +52,11 @@ param(
     [string]$BackupFile,
     
     [Parameter(Mandatory = $false)]
-    [string]$LogPath = "$env:ProgramData\SecurityBaseline\Logs"
+    [string]$LogPath = "$env:ProgramData\SecurityBaseline\Logs",
+    
+    [Parameter(Mandatory = $false)]
+    [ValidateSet('en', 'de')]
+    [string]$Language
 )
 
 #Requires -Version 5.1
@@ -147,46 +151,55 @@ finally {
     }
 }
 
-# Ensure language is set (use from interactive session, environment variable, or ask user)
-# IMPORTANT: Use Test-Path because of Strict Mode!
-if (-not (Test-Path Variable:\Global:CurrentLanguage)) {
-    # Check if language was passed via environment variable (from parent script)
-    if ($env:NOID_LANGUAGE) {
-        $Global:CurrentLanguage = $env:NOID_LANGUAGE
+# Ensure language is set (priority: Parameter > Environment Variable > Interactive Selection > Auto-detect)
+# CRITICAL: Check parameter FIRST, even if CurrentLanguage already exists from Localization.ps1!
+# Priority 1: Language parameter (passed from Apply script) - HIGHEST PRIORITY!
+if ($Language) {
+    $Global:CurrentLanguage = $Language
+    Write-Host "[DEBUG] Language set from parameter: $Language" -ForegroundColor Yellow
+}
+# Priority 2: Environment variable (from parent script)
+elseif ($env:NOID_LANGUAGE) {
+    $Global:CurrentLanguage = $env:NOID_LANGUAGE
+    Write-Host "[DEBUG] Language set from environment variable: $env:NOID_LANGUAGE" -ForegroundColor Yellow
+}
+# Priority 3: Check if already set (from Localization.ps1 or previous call)
+elseif (Test-Path Variable:\Global:CurrentLanguage) {
+    Write-Host "[DEBUG] Language already set: $Global:CurrentLanguage" -ForegroundColor Yellow
+}
+# Priority 4: Interactive selection (if available)
+elseif (Get-Command -Name Select-Language -ErrorAction SilentlyContinue) {
+    try {
+        Select-Language
+        Write-Host "[DEBUG] Language set from interactive selection: $Global:CurrentLanguage" -ForegroundColor Yellow
     }
-    else {
-        # Language selection - same as in Interactive Mode!
-        if (Get-Command -Name Select-Language -ErrorAction SilentlyContinue) {
-            try {
-                Select-Language
-            }
-            catch {
-                Write-Warning "Language selection failed: $_"
-                # Fallback: Detect system language (German or English)
-                $systemLang = (Get-Culture).TwoLetterISOLanguageName
-                $uiLang = (Get-UICulture).TwoLetterISOLanguageName
-                
-                if ($systemLang -eq 'de' -or $uiLang -eq 'de') {
-                    $Global:CurrentLanguage = 'de'
-                }
-                else {
-                    $Global:CurrentLanguage = 'en'
-                }
-            }
+    catch {
+        Write-Warning "Language selection failed: $_"
+        # Fallback: Detect system language (German or English)
+        $systemLang = (Get-Culture).TwoLetterISOLanguageName
+        $uiLang = (Get-UICulture).TwoLetterISOLanguageName
+        
+        if ($systemLang -eq 'de' -or $uiLang -eq 'de') {
+            $Global:CurrentLanguage = 'de'
         }
         else {
-            # Fallback: Auto-detect if Select-Language not available
-            $systemLang = (Get-Culture).TwoLetterISOLanguageName
-            $uiLang = (Get-UICulture).TwoLetterISOLanguageName
-            
-            if ($systemLang -eq 'de' -or $uiLang -eq 'de') {
-                $Global:CurrentLanguage = 'de'
-            }
-            else {
-                $Global:CurrentLanguage = 'en'
-            }
+            $Global:CurrentLanguage = 'en'
         }
+        Write-Host "[DEBUG] Language set from auto-detect (fallback): $Global:CurrentLanguage" -ForegroundColor Yellow
     }
+}
+# Priority 5: Auto-detect (last resort)
+else {
+    $systemLang = (Get-Culture).TwoLetterISOLanguageName
+    $uiLang = (Get-UICulture).TwoLetterISOLanguageName
+    
+    if ($systemLang -eq 'de' -or $uiLang -eq 'de') {
+        $Global:CurrentLanguage = 'de'
+    }
+    else {
+        $Global:CurrentLanguage = 'en'
+    }
+    Write-Host "[DEBUG] Language set from auto-detect: $Global:CurrentLanguage" -ForegroundColor Yellow
 }
 
 Write-Host "`n============================================================================" -ForegroundColor Yellow
@@ -376,7 +389,7 @@ $restoreStats = @{
 }
 
 #region Restore DNS Settings
-Write-Host "[1/14] $(Get-LocalizedString 'RestoreDNS')" -ForegroundColor Yellow
+Write-Host "[1/17] $(Get-LocalizedString 'RestoreDNS')" -ForegroundColor Yellow
 
 $dnsRestoredCount = 0
 $dnsFailedCount = 0
@@ -427,10 +440,10 @@ foreach ($adapter in $currentAdapters) {
             
             # CRITICAL: RESET-FIRST APPROACH (Option A - recommended)
             # Problem: Backup hat nur IPv4, aber System hat alte Provider-IPv6
-            # → Wenn wir nur IPv4 setzen, bleibt alte IPv6 kleben!
-            # → Set-DnsClientServerAddress hat KEIN -AddressFamily Parameter zum selektiven Reset
+            # -> Wenn wir nur IPv4 setzen, bleibt alte IPv6 kleben!
+            # -> Set-DnsClientServerAddress hat KEIN -AddressFamily Parameter zum selektiven Reset
             # Solution: IMMER erst komplett resetten, dann aus Backup neu aufbauen
-            # → Im Restore darf man radikal sein - deterministisch ist besser als Reste!
+            # -> Im Restore darf man radikal sein - deterministisch ist besser als Reste!
             
             # STEP 1: Reset alles (IPv4 + IPv6)
             Set-DnsClientServerAddress -InterfaceIndex $adapter.ifIndex -ResetServerAddresses -ErrorAction SilentlyContinue
@@ -442,7 +455,7 @@ foreach ($adapter in $currentAdapters) {
                 Write-Verbose "  IPv4 DNS restored: $($dnsIPv4 -join ', ')"
             }
             else {
-                Write-Verbose "  IPv4 DNS: Nicht im Backup → bleibt auf Auto/DHCP"
+                Write-Verbose "  IPv4 DNS: Nicht im Backup -> bleibt auf Auto/DHCP"
             }
             
             # STEP 3: Restore IPv6 from backup (if exists)
@@ -451,7 +464,7 @@ foreach ($adapter in $currentAdapters) {
                 Write-Verbose "  IPv6 DNS restored: $($dnsIPv6 -join ', ')"
             }
             else {
-                Write-Verbose "  IPv6 DNS: Nicht im Backup → bleibt auf Auto/DHCP"
+                Write-Verbose "  IPv6 DNS: Nicht im Backup -> bleibt auf Auto/DHCP"
             }
             
             Write-Host "  [OK] $($adapter.Name) restored" -ForegroundColor Green
@@ -486,7 +499,7 @@ Write-Host ""
 #endregion
 
 #region Restore Hosts File
-Write-Host "[2/14] $(Get-LocalizedString 'RestoreHosts')" -ForegroundColor Yellow
+Write-Host "[2/17] $(Get-LocalizedString 'RestoreHosts')" -ForegroundColor Yellow
 
 if ($backup.Settings.HostsFile) {
     $hostsPath = "$env:SystemRoot\System32\drivers\etc\hosts"
@@ -517,7 +530,7 @@ Write-Host ""
 #endregion
 
 #region Restore Services
-Write-Host "[3/14] $(Get-LocalizedString 'RestoreServices')" -ForegroundColor Yellow
+Write-Host "[3/17] $(Get-LocalizedString 'RestoreServices')" -ForegroundColor Yellow
 
 # CRITICAL: Protected Services List
 # ROOT CAUSE: These services are protected by TrustedInstaller/SYSTEM
@@ -616,7 +629,7 @@ Write-Host ""
 #endregion
 
 #region Restore Windows Optional Features
-Write-Host "[4/15] Restoring Windows Optional Features..." -ForegroundColor Yellow
+Write-Host "[4/17] Restoring Windows Optional Features..." -ForegroundColor Yellow
 
 $featuresCount = if ($backup.Settings.WindowsFeatures) { @($backup.Settings.WindowsFeatures).Count } else { 0 }
 if ($featuresCount -gt 0) {
@@ -737,7 +750,7 @@ Write-Host ""
 #endregion
 
 #region Restore Scheduled Tasks
-Write-Host "[5/15] Restore Scheduled Tasks..." -ForegroundColor Yellow
+Write-Host "[5/17] Restore Scheduled Tasks..." -ForegroundColor Yellow
 
 # CRITICAL: Check if Task Scheduler service is available
 # ROOT CAUSE: Schedule service is protected (TrustedInstaller/SYSTEM)
@@ -903,7 +916,7 @@ Write-Host ""
 #endregion
 
 #region Restore Firewall Rules
-Write-Host "[5/14] $(Get-LocalizedString 'RestoreFirewall')" -ForegroundColor Yellow
+Write-Host "[6/17] $(Get-LocalizedString 'RestoreFirewall')" -ForegroundColor Yellow
 
 Write-Host "  [i] $(Get-LocalizedString 'RestoreFirewallDeleting')" -ForegroundColor Cyan
 $customRules = Get-NetFirewallRule -DisplayName "NoID-*" -ErrorAction SilentlyContinue
@@ -1000,7 +1013,7 @@ Write-Host ""
 #endregion
 
 #region Restore Registry Keys (v2.0 - OPTIMIZED)
-Write-Host "[7/15] $(Get-LocalizedString 'RestoreRegistry')" -ForegroundColor Yellow
+Write-Host "[7/17] $(Get-LocalizedString 'RestoreRegistry')" -ForegroundColor Yellow
 
 # NEW v2.0: Specific registry restore (10-15x faster!)
 # Only restores the 383 registry keys that Apply actually modifies
@@ -1186,7 +1199,7 @@ Write-Host ""
 #endregion
 
 #region Restore User Accounts
-Write-Host "[8/15] $(Get-LocalizedString 'RestoreUsers')" -ForegroundColor Yellow
+Write-Host "[8/17] $(Get-LocalizedString 'RestoreUsers')" -ForegroundColor Yellow
 
 # Find the renamed Administrator account (with SID *-500)
 $currentAdminAccount = Get-LocalUser -ErrorAction SilentlyContinue | Where-Object { $_.SID -like "*-500" }
@@ -1369,7 +1382,7 @@ Write-Host ""
 #endregion
 
 #region Restore Apps
-Write-Host "[9/15] $(Get-LocalizedString 'RestoreApps')" -ForegroundColor Yellow
+Write-Host "[9/17] $(Get-LocalizedString 'RestoreApps')" -ForegroundColor Yellow
 
 $currentApps = Get-AppxPackage -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Name
 $missingApps = $backup.Settings.InstalledApps | Where-Object { $currentApps -notcontains $_.Name }
@@ -1474,6 +1487,113 @@ if ($missingAppsCount -gt 0) {
     # CRITICAL FIX v1.7.13: Write app list to Desktop for user reference
     # User will need to reboot - list will be available on desktop after restart
     try {
+        # App name mapping: Internal Package Name -> Readable Store Name
+        # This makes the list user-friendly for manual Store reinstallation
+        # Source: Microsoft Store display names (verified 2025-11-02)
+        $appNameMapping = @{
+            # Xbox & Gaming
+            'Microsoft.XboxApp' = 'Xbox (PC Game Pass / Xbox App)'
+            'Microsoft.GamingApp' = 'Xbox (neue Xbox-App fuer Windows 11)'
+            'Microsoft.XboxGamingOverlay' = 'Xbox Game Bar (Overlay)'
+            'Microsoft.XboxGameOverlay' = 'Xbox Game Bar - Game Overlay/Plugin'
+            'Microsoft.XboxSpeechToTextOverlay' = 'Xbox Speech-to-Text Overlay'
+            'Microsoft.XboxIdentityProvider' = 'Xbox Identity Provider'
+            'Microsoft.Xbox.TCUI' = 'Xbox in-game experience / Xbox TCUI'
+            
+            # Microsoft Teams
+            'MicrosoftTeams' = 'Microsoft Teams (klassisch)'
+            'Microsoft.Teams' = 'Microsoft Teams (neue App)'
+            'MSTeams' = 'Microsoft Teams'
+            
+            # Microsoft AI & Copilot
+            'Microsoft.Copilot' = 'Copilot'
+            'Microsoft.Windows.Ai.Copilot.Provider' = 'Windows Copilot - AI Provider'
+            
+            # Microsoft Family
+            'Microsoft.MicrosoftFamily' = 'Microsoft Family Safety'
+            'MicrosoftCorporationII.FamilySafety' = 'Microsoft Family Safety'
+            'MicrosoftCorporationII.Family' = 'Microsoft Family Safety'
+            'Microsoft.Family' = 'Microsoft Family'
+            
+            # Productivity Apps
+            'Clipchamp.Clipchamp' = 'Clipchamp - Video Editor'
+            'Microsoft.Todos' = 'Microsoft To Do'
+            'Microsoft.MicrosoftOfficeHub' = 'Microsoft 365 (Office Hub)'
+            'Microsoft.Office.OneNote' = 'OneNote'
+            'Microsoft.Office.Desktop' = 'Microsoft 365 / Office - Desktop App'
+            'Microsoft.Office.Sway' = 'Sway'
+            
+            # Social Media
+            'Facebook' = 'Facebook'
+            'Instagram' = 'Instagram'
+            'Twitter' = 'Twitter'
+            'LinkedIn' = 'LinkedIn'
+            
+            # Entertainment & Streaming
+            'Microsoft.ZuneMusic' = 'Groove Music (heute: Windows Media Player)'
+            'Microsoft.ZuneVideo' = 'Filme & TV / Movies & TV'
+            'Netflix' = 'Netflix'
+            'Disney' = 'Disney+'
+            'Spotify' = 'Spotify - Music and Podcasts'
+            'Hulu' = 'Hulu'
+            'Plex' = 'Plex for Windows'
+            'iHeartRadio' = 'iHeart: Radio, Music, Podcasts'
+            'TuneInRadio' = 'TuneIn Radio'
+            'PandoraMediaInc' = 'Pandora'
+            'Shazam' = 'Shazam'
+            
+            # Games (Casual)
+            'Microsoft.MinecraftUWP' = 'Minecraft for Windows'
+            'Microsoft.MicrosoftSolitaireCollection' = 'Microsoft Solitaire Collection'
+            'king.com.CandyCrush' = 'Candy Crush Saga'
+            'king.com.BubbleWitch3Saga' = 'Bubble Witch 3 Saga'
+            'Asphalt8Airborne' = 'Asphalt 8: Airborne'
+            'COOKINGFEVER' = 'Cooking Fever'
+            'FarmVille2CountryEscape' = 'FarmVille 2: Country Escape'
+            'HiddenCityMysteryofShadows' = 'Hidden City: Hidden Object Adventure'
+            'March.ofEmpires' = 'March of Empires: War of Lords'
+            'Royal.Revolt' = 'Royal Revolt!'
+            'CaesarsSlotsFreeCasino' = 'Caesars Slots Free Casino'
+            
+            # Microsoft System Apps
+            'MicrosoftCorporationII.QuickAssist' = 'Quick Assist / Remotehilfe'
+            'Microsoft.GetHelp' = 'Get Help / Hilfe anfordern'
+            'Microsoft.Getstarted' = 'Erste Schritte / Getting started'
+            'Microsoft.WindowsFeedbackHub' = 'Feedback Hub'
+            'Microsoft.YourPhone' = 'Phone Link (frueher: Ihr Smartphone)'
+            'Microsoft.People' = 'People (Kontakt-App)'
+            'Microsoft.Messaging' = 'Messaging (Windows-Nachrichten)'
+            'Microsoft.SkypeApp' = 'Skype'
+            'Microsoft.Wallet' = 'Microsoft Pay / Wallet (eingestellt)'
+            'Microsoft.Print3D' = 'Print 3D'
+            'Microsoft.MixedReality.Portal' = 'Mixed Reality Portal'
+            'Microsoft.Advertising.Xaml' = 'Microsoft Advertising SDK for XAML'
+            
+            # Utilities & Tools
+            'Flipboard' = 'Flipboard'
+            'Duolingo' = 'Duolingo - Language Lessons'
+            'NYTCrossword' = 'NYTimes - Crossword'
+            'Speed.Test' = 'Speedtest by Ookla'
+            'Keeper' = 'Keeper (R) Password Manager'
+            'OneConnect' = 'Clavister OneConnect (SSL-VPN)'
+            'WinZipUniversal' = 'WinZip Universal'
+            'XING' = 'XING'
+            
+            # Creative & Photo
+            'AutodeskSketchBook' = 'Autodesk SketchBook'
+            'DrawboardPDF' = 'Drawboard PDF'
+            'PhototasticCollage' = 'Phototastic Collage'
+            'PicsArt-PhotoStudio' = 'Picsart AI Photo Editor'
+            'PolarrPhotoEditorAcademicEdition' = 'Polarr Pro Photo Editor'
+            
+            # OEM & Misc
+            'ACGMediaPlayer' = 'ACG Player'
+            'ActiproSoftwareLLC' = 'Code Writer (Actipro)'
+            'EclipseManager' = 'Eclipse Manager'
+            'GAMELOFTSA' = 'Gameloft-Titel (z.B. Asphalt 8)'
+            'Fitbit' = 'Fitbit'
+        }
+        
         $desktopPath = [Environment]::GetFolderPath("Desktop")
         $fileName = Get-LocalizedString 'AppListFileName'
         $appListFile = Join-Path $desktopPath "$fileName-$timestamp.txt"
@@ -1505,7 +1625,13 @@ $intro
 "@
         
         foreach ($app in $missingApps) {
-            $appListContent += "- $($app.Name)`r`n"
+            # Use readable name from mapping, fall back to internal name
+            $displayName = if ($appNameMapping.ContainsKey($app.Name)) {
+                $appNameMapping[$app.Name]
+            } else {
+                $app.Name
+            }
+            $appListContent += "- $displayName`r`n"
         }
         
         $appListContent += @"
@@ -1544,7 +1670,7 @@ Write-Host ""
 
 #region Restore ASR Rules
 Write-Host ""
-Write-Host "[10/15] Restore ASR Rules..." -ForegroundColor Yellow
+Write-Host "[10/17] Restore ASR Rules..." -ForegroundColor Yellow
 
 if ($backup.Settings.ASRRules -and $backup.Settings.ASRRules.Enabled) {
     try {
@@ -1582,7 +1708,7 @@ else {
 
 #region Restore Exploit Protection
 Write-Host ""
-Write-Host "[11/15] Restore Exploit Protection..." -ForegroundColor Yellow
+Write-Host "[11/17] Restore Exploit Protection..." -ForegroundColor Yellow
 
 if ($backup.Settings.ExploitProtection -and $backup.Settings.ExploitProtection.Enabled) {
     try {
@@ -1703,7 +1829,7 @@ else {
 
 #region Restore DoH Configuration
 Write-Host ""
-Write-Host "[12/15] Restore DoH Configuration..." -ForegroundColor Yellow
+Write-Host "[12/17] Restore DoH Configuration..." -ForegroundColor Yellow
 
 if ($backup.Settings.DoH -and $backup.Settings.DoH.Enabled) {
     try {
@@ -1800,7 +1926,7 @@ else {
 
 #region Restore DoH Encryption Preferences (Adapter-specific DohFlags)
 Write-Host ""
-Write-Host "[13/15] Restore DoH Encryption Preferences (Adapter-specific)..." -ForegroundColor Yellow
+Write-Host "[13/17] Restore DoH Encryption Preferences (Adapter-specific)..." -ForegroundColor Yellow
 
 if ($backup.Settings.DohEncryption -and $backup.Settings.DohEncryption.Enabled) {
     try {
@@ -1892,7 +2018,7 @@ else {
 
 #region Restore Firewall Profile Settings
 Write-Host ""
-Write-Host "[14/15] Restore Firewall Profile Settings..." -ForegroundColor Yellow
+Write-Host "[14/17] Restore Firewall Profile Settings..." -ForegroundColor Yellow
 
 if ($backup.Settings.FirewallProfiles -and $backup.Settings.FirewallProfiles.Enabled) {
     try {
@@ -1941,7 +2067,7 @@ else {
 
 #region Restore Device-Level App Permissions
 Write-Host ""
-Write-Host "[15/15] Restore Device-Level App Permissions..." -ForegroundColor Yellow
+Write-Host "[15/17] Restore Device-Level App Permissions..." -ForegroundColor Yellow
 
 # CRITICAL FIX: Check property existence BEFORE access (StrictMode compatibility)
 # ROOT CAUSE: Direct property access crashes under StrictMode if property doesn't exist
@@ -2042,7 +2168,7 @@ else {
 
 # DNS Cache leeren
 Write-Host ""
-Write-Host "[14/14] $(Get-LocalizedString 'RestoreDNSClear')" -ForegroundColor Cyan
+Write-Host "[16/17] $(Get-LocalizedString 'RestoreDNSClear')" -ForegroundColor Cyan
 try {
     $job = Start-Job -ScriptBlock { ipconfig /flushdns 2>&1 }
     $job | Wait-Job -Timeout 10 | Out-Null
@@ -2065,12 +2191,12 @@ catch {
 # RESTORE: GP-Cache aktualisieren + Settings-App-Cache killen
 # ====================================================================
 Write-Host ""
-Write-Host "[15/15] Updating Group Policy cache..." -ForegroundColor Cyan
+Write-Host "[17/17] Updating Group Policy cache..." -ForegroundColor Cyan
 try {
     $job = Start-Job -ScriptBlock {
         # Damit die Settings-App es SOFORT merkt:
         gpupdate /force 2>&1
-        # Manchmal cached die Settings-App – deshalb hier noch Settings killen:
+        # Manchmal cached die Settings-App - deshalb hier noch Settings killen:
         Get-Process SystemSettings -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
     }
     $job | Wait-Job -Timeout 30 | Out-Null
