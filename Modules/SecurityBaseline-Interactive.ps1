@@ -1583,38 +1583,46 @@ function Show-OneDriveMenu {
         Shows OneDrive handling menu
     .DESCRIPTION
         Allows user to choose between privacy hardening, complete removal, or skip
+        Fully localized (EN/DE) with Get-LocalizedString
     .OUTPUTS
         String: '1' (Hardening), '2' (Remove), '3' (Skip)
     #>
     [CmdletBinding()]
     param()
     
+    $title = Get-LocalizedString 'OneDriveMenuTitle'
+    $question = Get-LocalizedString 'OneDriveMenuQuestion'
+    
     Write-Host "`n===========================================================" -ForegroundColor Cyan
-    Write-Host "  ONEDRIVE HANDLING" -ForegroundColor Cyan
+    Write-Host "  $title" -ForegroundColor Cyan
     Write-Host "===========================================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "How should OneDrive be configured?" -ForegroundColor White
+    Write-Host "$question" -ForegroundColor White
     Write-Host ""
     
-    Write-Host "  [1] Privacy Hardening (Recommended)" -ForegroundColor Yellow
-    Write-Host "      - Blocks telemetry and automatic uploads" -ForegroundColor Gray
-    Write-Host "      - OneDrive stays functional for manual use" -ForegroundColor Gray
-    Write-Host "      - You keep full control over what gets synced" -ForegroundColor Gray
+    # Option 1
+    Write-Host "  [1] $(Get-LocalizedString 'OneDriveMenuOption1')" -ForegroundColor Yellow
+    Write-Host "      - $(Get-LocalizedString 'OneDriveMenuOption1Desc1')" -ForegroundColor Gray
+    Write-Host "      - $(Get-LocalizedString 'OneDriveMenuOption1Desc2')" -ForegroundColor Gray
+    Write-Host "      - $(Get-LocalizedString 'OneDriveMenuOption1Desc3')" -ForegroundColor Gray
     Write-Host ""
     
-    Write-Host "  [2] Complete Removal (Advanced)" -ForegroundColor Yellow
-    Write-Host "      - Uninstalls OneDrive completely" -ForegroundColor Gray
-    Write-Host "      - WARNING: CANNOT be restored from backup!" -ForegroundColor Red
-    Write-Host "      - Your OneDrive folder and files stay safe" -ForegroundColor Green
-    Write-Host "      - Can be reinstalled manually if needed" -ForegroundColor Gray
+    # Option 2
+    Write-Host "  [2] $(Get-LocalizedString 'OneDriveMenuOption2')" -ForegroundColor Yellow
+    Write-Host "      - $(Get-LocalizedString 'OneDriveMenuOption2Desc1')" -ForegroundColor Gray
+    Write-Host "      - $(Get-LocalizedString 'OneDriveMenuOption2Warning')" -ForegroundColor Yellow
+    Write-Host "      - $(Get-LocalizedString 'OneDriveMenuOption2Desc2')" -ForegroundColor Green
+    Write-Host "      - $(Get-LocalizedString 'OneDriveMenuOption2Desc3')" -ForegroundColor Gray
     Write-Host ""
     
-    Write-Host "  [3] Skip (No changes)" -ForegroundColor Yellow
-    Write-Host "      - OneDrive stays as-is" -ForegroundColor Gray
+    # Option 3
+    Write-Host "  [3] $(Get-LocalizedString 'OneDriveMenuOption3')" -ForegroundColor Yellow
+    Write-Host "      - $(Get-LocalizedString 'OneDriveMenuOption3Desc')" -ForegroundColor Gray
     Write-Host ""
     
+    $prompt = Get-LocalizedString 'OneDriveMenuPrompt'
     do {
-        $choice = Read-Host "Your choice (1-3)"
+        $choice = Read-Host "$prompt"
     } while ($choice -notin @('1','2','3'))
     
     return $choice
@@ -1627,50 +1635,57 @@ function Show-RemoteAccessMenu {
     .DESCRIPTION
         Allows user to configure Remote Desktop (RDP) and Firewall strictness
         Important for: Remote servers, NUC with Tailscale, Development machines with local services
+        Fully localized (EN/DE) with Get-LocalizedString
     .OUTPUTS
         String: '1' (Disable RDP + Strict Firewall), '2' (Keep RDP + Allow localhost)
     #>
     [CmdletBinding()]
     param()
     
+    $title = Get-LocalizedString 'RemoteMenuTitle'
+    $question = Get-LocalizedString 'RemoteMenuQuestion'
+    
     Write-Host "`n===========================================================" -ForegroundColor Cyan
-    Write-Host "  REMOTE ACCESS & FIREWALL CONFIGURATION" -ForegroundColor Cyan
+    Write-Host "  $title" -ForegroundColor Cyan
     Write-Host "===========================================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "Do you use Remote Desktop (RDP) or run local services?" -ForegroundColor White
+    Write-Host "$question" -ForegroundColor White
     Write-Host ""
-    Write-Host "Examples:" -ForegroundColor Cyan
-    Write-Host "  - Remote access via RDP, TeamViewer, or Tailscale" -ForegroundColor Gray
-    Write-Host "  - Docker containers with inter-container communication" -ForegroundColor Gray
-    Write-Host "  - Local AI/LLM services (OpenWebUI, Ollama, etc.)" -ForegroundColor Gray
-    Write-Host "  - Development servers (Node, Python, WSL)" -ForegroundColor Gray
-    Write-Host "  - Online multiplayer games (Diablo, Call of Duty, etc.)" -ForegroundColor Gray
-    Write-Host ""
-    
-    Write-Host "  [1] Maximum Security (Recommended for Desktop/Laptop)" -ForegroundColor Yellow
-    Write-Host "      - RDP completely DISABLED" -ForegroundColor Gray
-    Write-Host "      - Firewall blocks ALL inbound (ultra-strict)" -ForegroundColor Gray
-    Write-Host "      - Best for: Standard workstations, office work, browsing" -ForegroundColor Gray
-    Write-Host "      - Pro: Maximum attack surface reduction" -ForegroundColor Green
-    Write-Host "      - Con: No remote access, local services may not work" -ForegroundColor Red
-    Write-Host "      - WARNING: Online multiplayer games may NOT work!" -ForegroundColor Red
-    Write-Host "                 (Diablo, CoD, etc. need inbound connections)" -ForegroundColor Red
+    Write-Host "$(Get-LocalizedString 'RemoteMenuExamples')" -ForegroundColor Cyan
+    Write-Host "  - $(Get-LocalizedString 'RemoteMenuExample1')" -ForegroundColor Gray
+    Write-Host "  - $(Get-LocalizedString 'RemoteMenuExample2')" -ForegroundColor Gray
+    Write-Host "  - $(Get-LocalizedString 'RemoteMenuExample3')" -ForegroundColor Gray
+    Write-Host "  - $(Get-LocalizedString 'RemoteMenuExample4')" -ForegroundColor Gray
+    Write-Host "  - $(Get-LocalizedString 'RemoteMenuExample5')" -ForegroundColor Gray
     Write-Host ""
     
-    Write-Host "  [2] Allow Remote Access + Local Services" -ForegroundColor Yellow
-    Write-Host "      - RDP stays ENABLED (for Tailscale/VPN access)" -ForegroundColor Gray
-    Write-Host "      - Firewall allows localhost connections" -ForegroundColor Gray
-    Write-Host "      - Best for: Gamers, remote servers, NUCs, development" -ForegroundColor Gray
-    Write-Host "      - Pro: Remote access works, Docker/LLM/WSL functional" -ForegroundColor Green
-    Write-Host "      - Pro: Online multiplayer games WILL work!" -ForegroundColor Green
-    Write-Host "      - Con: Slightly larger attack surface" -ForegroundColor Red
+    # Option 1
+    Write-Host "  [1] $(Get-LocalizedString 'RemoteMenuOption1')" -ForegroundColor Yellow
+    Write-Host "      - $(Get-LocalizedString 'RemoteMenuOption1Desc1')" -ForegroundColor Gray
+    Write-Host "      - $(Get-LocalizedString 'RemoteMenuOption1Desc2')" -ForegroundColor Gray
+    Write-Host "      - $(Get-LocalizedString 'RemoteMenuOption1Desc3')" -ForegroundColor Gray
+    Write-Host "      - $(Get-LocalizedString 'RemoteMenuOption1Pro')" -ForegroundColor Green
+    Write-Host "      - $(Get-LocalizedString 'RemoteMenuOption1Con')" -ForegroundColor Yellow
+    Write-Host "      - $(Get-LocalizedString 'RemoteMenuOption1Warning1')" -ForegroundColor Yellow
+    Write-Host "                 $(Get-LocalizedString 'RemoteMenuOption1Warning2')" -ForegroundColor Yellow
     Write-Host ""
     
-    Write-Host "  [Recommendation: Option 1 for office | Option 2 for gaming/remote/dev]" -ForegroundColor Cyan
+    # Option 2
+    Write-Host "  [2] $(Get-LocalizedString 'RemoteMenuOption2')" -ForegroundColor Yellow
+    Write-Host "      - $(Get-LocalizedString 'RemoteMenuOption2Desc1')" -ForegroundColor Gray
+    Write-Host "      - $(Get-LocalizedString 'RemoteMenuOption2Desc2')" -ForegroundColor Gray
+    Write-Host "      - $(Get-LocalizedString 'RemoteMenuOption2Desc3')" -ForegroundColor Gray
+    Write-Host "      - $(Get-LocalizedString 'RemoteMenuOption2Pro1')" -ForegroundColor Green
+    Write-Host "      - $(Get-LocalizedString 'RemoteMenuOption2Pro2')" -ForegroundColor Green
+    Write-Host "      - $(Get-LocalizedString 'RemoteMenuOption2Con')" -ForegroundColor Yellow
     Write-Host ""
     
+    Write-Host "  $(Get-LocalizedString 'RemoteMenuRecommendation')" -ForegroundColor Cyan
+    Write-Host ""
+    
+    $prompt = Get-LocalizedString 'RemoteMenuPrompt'
     do {
-        $choice = Read-Host "Your choice (1-2)"
+        $choice = Read-Host "$prompt"
     } while ($choice -notin @('1','2'))
     
     return $choice
