@@ -1433,37 +1433,6 @@ function Show-OneDriveMenu {
         $choice = Read-Host "Your choice (1-3)"
     } while ($choice -notin @('1','2','3'))
     
-    # Extra confirmation for removal
-    if ($choice -eq '2') {
-        Write-Host ""
-        Write-Host "===========================================================" -ForegroundColor Red
-        Write-Host "  WARNING: FINAL CONFIRMATION - ONEDRIVE REMOVAL" -ForegroundColor Red
-        Write-Host "===========================================================" -ForegroundColor Red
-        Write-Host ""
-        Write-Warning "OneDrive will be COMPLETELY REMOVED from your system!"
-        Write-Host ""
-        Write-Host "What happens:" -ForegroundColor Cyan
-        Write-Host "  [OK] OneDrive app will be uninstalled" -ForegroundColor Green
-        Write-Host "  [OK] Your OneDrive FOLDER and FILES will NOT be deleted" -ForegroundColor Green
-        Write-Host "  [OK] Your data stays safe on your hard drive" -ForegroundColor Green
-        Write-Host ""
-        Write-Host "  [X] Cannot be restored from backup" -ForegroundColor Red
-        Write-Host "  [X] Must be reinstalled manually if needed" -ForegroundColor Red
-        Write-Host ""
-        Write-Host "To reinstall later: Download from microsoft.com/onedrive" -ForegroundColor Cyan
-        Write-Host ""
-        $confirm = Read-Host "Type 'REMOVE' to confirm removal (or press ENTER to cancel)"
-        
-        if ($confirm -ne 'REMOVE') {
-            Write-Host ""
-            Write-Host "  [!] Cancelled. Using Privacy Hardening instead." -ForegroundColor Yellow
-            return '1'
-        }
-        
-        Write-Host ""
-        Write-Host "  [OK] Confirmed. OneDrive will be removed." -ForegroundColor Green
-    }
-    
     return $choice
 }
 
