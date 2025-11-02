@@ -233,18 +233,25 @@ function Restore-SpecificRegistryKeys {
     
     # Check if Ownership module exists
     $scriptDir = Split-Path -Parent $PSScriptRoot
-    $hasOwnershipModule = Test-Path "$scriptDir\Modules\SecurityBaseline-Ownership.ps1"
+    $ownershipModulePath = Join-Path $scriptDir "Modules\SecurityBaseline-RegistryOwnership.ps1"
+    $hasOwnershipModule = Test-Path $ownershipModulePath
     
     if ($hasOwnershipModule -and $UseOwnership) {
-        Write-Verbose "[Restore] Loading Ownership module for protected keys..."
+        Write-Host "  [i] Loading Ownership module for protected keys..." -ForegroundColor Cyan
         try {
-            . "$scriptDir\Modules\SecurityBaseline-Ownership.ps1"
-            Write-Verbose "[Restore] Ownership module loaded successfully"
+            . $ownershipModulePath
+            Write-Host "  [OK] Ownership module loaded - can restore TrustedInstaller-protected keys" -ForegroundColor Green
+            Write-Verbose "[Restore] Ownership module loaded successfully from: $ownershipModulePath"
         }
         catch {
             Write-Warning "[Restore] Could not load Ownership module: $_"
+            Write-Host "  [!] Ownership module load failed - protected keys may not restore" -ForegroundColor Yellow
             $hasOwnershipModule = $false
         }
+    }
+    elseif (-not $hasOwnershipModule -and $UseOwnership) {
+        Write-Host "  [!] Ownership module not found at: $ownershipModulePath" -ForegroundColor Yellow
+        Write-Host "  [!] Protected registry keys (TrustedInstaller) may not be restored" -ForegroundColor Yellow
     }
     
     foreach ($entry in $BackupData) {
