@@ -272,7 +272,13 @@ function Set-StrictInboundFirewall {
     [OutputType([void])]
     param()
     
-    Write-Section "Strict Inbound Firewall (BLOCK ALL INCOMING)"
+    # Dynamic section header based on firewall mode
+    if ($script:StrictFirewall) {
+        Write-Section "Strict Inbound Firewall (BLOCK ALL INCOMING)"
+    }
+    else {
+        Write-Section "Inbound Firewall (Standard Mode - Localhost Allowed)"
+    }
     
     Write-Info "$(Get-LocalizedString 'FirewallConfiguring')"
     
@@ -337,10 +343,21 @@ function Set-StrictInboundFirewall {
     }
     
     Write-Success "$(Get-LocalizedString 'FirewallActivated')"
-    Write-Info "$(Get-LocalizedString 'FirewallInbound')"
     Write-Info "$(Get-LocalizedString 'FirewallOutbound')"
-    Write-Warning "$(Get-LocalizedString 'FirewallMaxSecurity')"
-    Write-Warning "$(Get-LocalizedString 'FirewallCheckbox')"
+    
+    # Mode-specific messages
+    if ($script:StrictFirewall) {
+        # Ultra-Strict Mode
+        Write-Info "$(Get-LocalizedString 'FirewallInbound')"
+        Write-Warning "$(Get-LocalizedString 'FirewallMaxSecurity')"
+        Write-Warning "$(Get-LocalizedString 'FirewallCheckbox')"
+    }
+    else {
+        # Standard Mode (Allow localhost)
+        Write-Info "Inbound: Default BLOCK, but firewall rules work (localhost/Docker/LLM OK)"
+        Write-Success "Localhost connections allowed (AllowInboundRules=True)"
+        Write-Info "Remote servers, Docker, LLM services can communicate"
+    }
 }
 
 # Note: Export-ModuleMember is NOT needed for dot-sourced scripts
