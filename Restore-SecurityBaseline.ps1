@@ -147,7 +147,7 @@ finally {
     }
 }
 
-# Ensure language is set (use from interactive session, environment variable, or default to English)
+# Ensure language is set (use from interactive session, environment variable, or detect system language)
 # IMPORTANT: Use Test-Path because of Strict Mode!
 if (-not (Test-Path Variable:\Global:CurrentLanguage)) {
     # Check if language was passed via environment variable (from parent script)
@@ -155,8 +155,14 @@ if (-not (Test-Path Variable:\Global:CurrentLanguage)) {
         $Global:CurrentLanguage = $env:NOID_LANGUAGE
     }
     else {
-        # Fallback to English if standalone execution
-        $Global:CurrentLanguage = 'en'
+        # Detect system language (German or English)
+        $systemLang = (Get-Culture).TwoLetterISOLanguageName
+        if ($systemLang -eq 'de') {
+            $Global:CurrentLanguage = 'de'
+        }
+        else {
+            $Global:CurrentLanguage = 'en'
+        }
     }
 }
 
@@ -322,7 +328,7 @@ Write-Host "  - $(Get-LocalizedString 'RestoreWarningServices')" -ForegroundColo
 Write-Host "  - $(Get-LocalizedString 'RestoreWarningFirewall')" -ForegroundColor Gray
 Write-Host "  - $(Get-LocalizedString 'RestoreWarningRegistry')" -ForegroundColor Gray
 Write-Host ""
-Write-Host "$(Get-LocalizedString 'RestoreWarningRisk')" -ForegroundColor Red
+Write-Host "$(Get-LocalizedString 'RestoreWarningRisk')" -ForegroundColor Yellow
 Write-Host ""
 Write-Host "============================================================================" -ForegroundColor Red
 Write-Host ""
