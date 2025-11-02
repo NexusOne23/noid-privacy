@@ -92,6 +92,8 @@ Write-Host "  Windows 11 25H2 Security Baseline - QUICK CHECK" -ForegroundColor 
 Write-Host "================================================================`n" -ForegroundColor Cyan
 
 $script:results = @()
+$script:passCount = 0
+$script:failCount = 0
 
 function Test-BaselineCheck {
     param($Category, $Name, $Test, $Expected, $Impact = "Medium")
