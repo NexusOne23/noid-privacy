@@ -133,15 +133,16 @@ function Remove-OneDriveCompletely {
     
     Write-Section "OneDrive Complete Removal"
     
-    Write-Warning "OneDrive will be COMPLETELY REMOVED from this system!"
+    Write-Host ""
+    Write-Host "WARNING: OneDrive will be COMPLETELY REMOVED from this system!" -ForegroundColor Yellow
     Write-Host ""
     Write-Host "What happens:" -ForegroundColor Cyan
     Write-Host "  [OK] OneDrive app will be uninstalled" -ForegroundColor Green
     Write-Host "  [OK] Your OneDrive FOLDER and FILES stay safe" -ForegroundColor Green
     Write-Host "  [OK] Files remain at: C:\Users\$env:USERNAME\OneDrive" -ForegroundColor Green
     Write-Host ""
-    Write-Host "  [X] Cannot be restored from backup" -ForegroundColor Red
-    Write-Host "  [X] Manual reinstall required if needed later" -ForegroundColor Red
+    Write-Host "  [!] Cannot be restored from backup" -ForegroundColor Yellow
+    Write-Host "  [!] Manual reinstall required if needed later" -ForegroundColor Yellow
     Write-Host ""
     
     # 1. Stop OneDrive processes
