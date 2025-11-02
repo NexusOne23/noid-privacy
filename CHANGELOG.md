@@ -5,6 +5,67 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.16] - 2025-11-02
+
+### Added
+- **Optional Remote Access Mode** - Configure RDP and Firewall based on use-case
+  - New Interactive Menu: "Do you use Remote Desktop (RDP) or run local services?"
+  - Option 1: Maximum Security (Desktop/Laptop) - RDP disabled, ultra-strict firewall
+  - Option 2: Allow Remote Access + Local Services - RDP enabled, localhost allowed
+  - Supports: Remote servers, NUC with Tailscale, Development machines, Docker/LLM hosting
+  - Script variables: `$script:DisableRDP` and `$script:StrictFirewall`
+  - Secure defaults: Non-interactive mode = Maximum Security
+- **Automatic Zone.Identifier Unblock** - Fix for "Internet security settings prevent execution"
+  - Start-NoID-Privacy.bat automatically unblocks all PowerShell files on startup
+  - Prevents Windows Mark-of-the-Web from blocking ZIP downloads
+  - User-friendly: No manual unblocking required
+  - FAQ Troubleshooting section added with manual solutions
+
+### Changed
+- **RDP Disable Now Optional** - Previously always disabled, now configurable
+  - SecurityBaseline-Core.ps1: RDP disable wrapped in `if ($script:DisableRDP)` check
+  - Default behavior unchanged: RDP disabled for non-interactive mode
+  - Interactive mode: User can choose to keep RDP enabled for remote access
+  - Security reminder: Always use VPN/Tailscale, never expose RDP to internet!
+- **Firewall Strictness Configurable** - Previously ultra-strict (blocked localhost)
+  - SecurityBaseline-DNS.ps1: `AllowInboundRules` based on `$script:StrictFirewall`
+  - Strict Mode (Option 1): `AllowInboundRules=False` - blocks everything including localhost
+  - Standard Mode (Option 2): `AllowInboundRules=True` - localhost works (Docker/LLM OK)
+  - Fixes: OpenWebUI → FastFlowLM, Docker inter-container, WSL development
+
+### Fixed
+- **Zone.Identifier Blocking** - Windows marks downloaded ZIP files, preventing script execution
+  - Root Cause: Windows "Mark of the Web" security feature
+  - Impact: Users couldn't start scripts even as admin ("Internet security settings...")
+  - Solution: PowerShell `Unblock-File` on all .ps1/.psm1 files at startup
+  - Documentation: README warning + FAQ troubleshooting section
+- **RDP Access for Remote Servers** - Remote NUC users lost access after script
+  - Root Cause: RDP always disabled, no option for Tailscale/VPN users
+  - Impact: Remote servers became inaccessible
+  - Solution: Interactive menu allows keeping RDP enabled
+- **Local Services Broken** - Docker/LLM/localhost apps stopped working
+  - Root Cause: Firewall ultra-strict mode blocks localhost (127.0.0.1)
+  - Impact: OpenWebUI → FastFlowLM (NPU), Docker containers, WSL development
+  - Solution: Option 2 allows localhost connections (`AllowInboundRules=True`)
+
+### Documentation
+- **FAQ.md**: New section "Can I use Remote Desktop (RDP) with this script?"
+  - Explains Option 1 vs Option 2
+  - Security warnings for RDP (use VPN/Tailscale!)
+  - Use-cases: Remote servers, development, Docker/LLM hosting
+- **FAQ.md**: New troubleshooting section "Scripts won't start - Internet security settings"
+  - 3 solutions: Automatic (run .bat), Manual (unblock), PowerShell command
+  - Prevention: Use `git clone` instead of ZIP download
+- **README.md**: Warning after installation section
+  - Alerts ZIP downloaders to use Start-NoID-Privacy.bat for auto-unblock
+  - Links to FAQ troubleshooting
+
+### User Feedback Addressed
+- Issue: "Bitte macht das Deaktivieren des RDP optional" (Remote NUC with Tailscale)
+- Issue: "Script hat Connection zwischen OpenWebUI und FastFlowLM gekillt" (Local LLM)
+- Issue: "Ich kann das Backup nicht starten... Internetsicherheitseinstellungen verhindern es"
+- Solution: Optional RDP + Firewall configuration + Automatic unblock
+
 ## [1.7.15] - 2025-11-01
 
 ### Added

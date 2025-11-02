@@ -168,6 +168,45 @@ For domain environments:
 - Some settings (Password Policy, Account Lockout) require domain
 - This script focuses on local machine hardening
 
+### Can I use Remote Desktop (RDP) with this script?
+
+**Yes! The script asks during setup:**
+
+**During Interactive Mode:**
+```
+Do you use Remote Desktop (RDP) or run local services?
+
+[1] Maximum Security (Desktop/Laptop)
+    - RDP completely disabled
+    - Firewall ultra-strict (blocks all inbound)
+
+[2] Allow Remote Access + Local Services
+    - RDP stays enabled (for Tailscale/VPN)
+    - Firewall allows localhost connections
+```
+
+**Choose Option 2 if you:**
+- ✅ Access your PC remotely (RDP, Tailscale, VPN)
+- ✅ Run a home server or NUC
+- ✅ Host local services (Docker, LLM, OpenWebUI, Ollama)
+- ✅ Develop software (Node, Python, WSL)
+
+**Choose Option 1 if you:**
+- ✅ Use a standard desktop or laptop
+- ✅ Never access remotely
+- ✅ Want maximum security
+
+**Important Security Note:**
+If you choose Option 2 (RDP enabled):
+- ⚠️ **NEVER expose RDP directly to the internet!**
+- ✅ Always use VPN (WireGuard, Tailscale, OpenVPN)
+- ✅ Or use SSH tunneling
+- 🔴 Direct internet exposure = **HIGH RISK** (brute-force attacks!)
+
+**Non-Interactive Mode:**
+- Default = Maximum Security (RDP disabled)
+- Use parameter `-AllowRemoteAccess` to keep RDP enabled (future feature)
+
 ### Does this work with third-party antivirus?
 
 **Mostly yes, with caveats:**
@@ -570,5 +609,5 @@ Git-cloned files don't have Zone.Identifier!
 
 ---
 
-**Last Updated**: October 31, 2025  
-**Version**: 1.7.13
+**Last Updated**: November 2, 2025  
+**Version**: 1.7.16
