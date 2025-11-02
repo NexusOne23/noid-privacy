@@ -574,12 +574,17 @@ Write-Host "[4/15] Restoring Windows Optional Features..." -ForegroundColor Yell
 $featuresCount = if ($backup.Settings.WindowsFeatures) { @($backup.Settings.WindowsFeatures).Count } else { 0 }
 if ($featuresCount -gt 0) {
     Write-Host "  [i] Found $featuresCount Windows Features in backup" -ForegroundColor Cyan
+    Write-Host "  [i] This may take a while - processing each feature..." -ForegroundColor Gray
+    Write-Host ""
     
     $featuresRestored = 0
     $featuresSkipped = 0
     $featuresFailed = 0
+    $featuresProcessed = 0
     
     foreach ($featureConfig in $backup.Settings.WindowsFeatures) {
+        $featuresProcessed++
+        Write-Host "  [$featuresProcessed/$featuresCount] Processing: $($featureConfig.FeatureName)..." -ForegroundColor Cyan
         try {
             # CRITICAL: Skip Windows-Defender-Default-Definitions (system-managed, can hang)
             # ROOT CAUSE: Enable-WindowsOptionalFeature hangs when Defender is active
@@ -1918,8 +1923,20 @@ do {
 if ($reboot -eq 'Y') {
     Write-Host ""
     Write-Host "[i] $(Get-LocalizedString 'RestoreRebooting')" -ForegroundColor Cyan
-    Write-Host "    $(Get-LocalizedString 'RestoreRebootAbort')" -ForegroundColor Gray
-    Start-Sleep -Seconds 10
+    Write-Host ""
+    
+    # Countdown with visible seconds (like Apply Script)
+    for ($i = 10; $i -gt 0; $i--) {
+        Write-Host "  $i Sekunden..." -NoNewline -ForegroundColor Yellow
+        if ($i -eq 10) {
+            Write-Host " ($(Get-LocalizedString 'RestoreRebootAbort'))" -ForegroundColor Gray
+        } else {
+            Write-Host ""
+        }
+        Start-Sleep -Seconds 1
+    }
+    
+    Write-Host ""
     
     # Stop transcript before reboot
     if ($script:transcriptStarted) {

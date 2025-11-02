@@ -5,7 +5,7 @@
 [![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-blue.svg)](https://github.com/PowerShell/PowerShell)
 [![Windows 11](https://img.shields.io/badge/Windows%2011-25H2-0078D4.svg)](https://www.microsoft.com/windows/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-1.7.14-blue.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.7.16-blue.svg)](CHANGELOG.md)
 
 ---
 
@@ -613,21 +613,34 @@ The authors are not responsible for any damage or data loss caused by this scrip
 
 ## 📈 Project Status
 
-**Current Version:** 1.7.14  
-**Last Updated:** November 1, 2025  
+**Current Version:** 1.7.16  
+**Last Updated:** November 2, 2025  
 **Status:** Production-Ready ✅
 
-### Recent Updates (v1.7.14)
+### Recent Updates (v1.7.16)
+- ✅ **Optional Remote Access Mode** - Configure RDP and Firewall based on use-case (Desktop vs Remote Server/Development)
+- ✅ **Firewall Standard Mode** - Allows localhost connections (Docker, LLM, WSL services functional)
+- ✅ **Automatic Zone.Identifier Unblock** - ZIP downloads work out-of-the-box (no manual unblocking needed)
+- ✅ **UX Improvements** - Removed redundant OneDrive confirmation, consistent color coding (Yellow warnings)
+- ✅ **Bug Fixes** - Misleading firewall messages, inconsistent RDP warnings, OneDrive color scheme
+- ✅ **Multi-Provider DNS** - Choose from 4 DNS providers (Cloudflare, AdGuard, NextDNS, Quad9)
+
+<details>
+<summary><b>Previous Updates (click to expand)</b></summary>
+
+### v1.7.15
+- ✅ **Multi-Provider DNS-over-HTTPS** - Choose from 4 enterprise-grade DNS providers
+- ✅ **Interactive DNS Selection** - Cloudflare, AdGuard, NextDNS, Quad9, or Keep Existing
+- ✅ **OneDrive Interactive Menu** - Privacy Hardening, Complete Removal, or Skip
+- ✅ **Enhanced DoH Configuration** - Per-adapter IPv4+IPv6 dual-stack support
+- ✅ **Improved Logging** - Clear DNS provider selection and configuration feedback
+
+### v1.7.14
 - ✅ **Phase 1 - APT Protection** - 5 features (SMB Signing, LDAP Hardening, Explorer Zone, SRP, EFS RPC Disable)
 - ✅ **Phase 2 - Network Security** - 2 features (LocalAccountTokenFilterPolicy, WebClient/WebDAV Disable)
 - ✅ **Phase 3 - Print & Protocol** - 3 features (Point-and-Print, Nearby Sharing, Internet Printing Client)
 - ✅ **CISA KEV Protection** - 2 features (MSDT Follina, Vulnerable Driver Blocklist)
 - ✅ **Bug Fixes** - 4 fixes (Internet Printing Client PropertyNotFoundException, Verify Phase 1 count, Clipboard clear, Misleading restore message)
-- ✅ **Registry Keys** - Now 388 keys (was 375, +13 new keys)
-- ✅ **Verification** - 124 checks total (was 113, +11 Phase 1 checks)
-
-<details>
-<summary><b>Previous Updates (click to expand)</b></summary>
 
 ### v1.7.13
 - ✅ **DoH Verification Fixed** - Boolean conversion (Out-String) and correct command (show global)

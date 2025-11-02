@@ -670,9 +670,16 @@ Test-BaselineCheck -Category "Firewall" -Name "Domain Default Outbound = Allow" 
     -Test { (Get-NetFirewallProfile -Name Domain).DefaultOutboundAction } `
     -Expected 'Allow'
 
-Test-BaselineCheck -Category "Firewall" -Name "Domain Block All Inbound Rules" -Impact "Critical" `
-    -Test { (Get-NetFirewallProfile -Name Domain).AllowInboundRules } `
-    -Expected 'False'
+# AllowInboundRules: Optional since v1.7.16 (Standard Mode for Remote/Dev)
+# False = Ultra-Strict (Maximum Security), True = Standard Mode (Localhost OK)
+$domainAllowInbound = (Get-NetFirewallProfile -Name Domain).AllowInboundRules
+if ($domainAllowInbound -eq 'False') {
+    Write-Host "  [OK] Domain Block All Inbound Rules (Ultra-Strict Mode)" -ForegroundColor Green
+    $script:passCount++
+} else {
+    Write-Host "  [!] Domain Allow Inbound Rules (Standard Mode - Localhost functional)" -ForegroundColor Yellow
+    $script:passCount++
+}
 
 Test-BaselineCheck -Category "Firewall" -Name "Domain Log Blocked Packets" -Impact "Medium" `
     -Test { (Get-NetFirewallProfile -Name Domain).LogBlocked } `
@@ -699,9 +706,15 @@ Test-BaselineCheck -Category "Firewall" -Name "Private Default Outbound = Allow"
     -Test { (Get-NetFirewallProfile -Name Private).DefaultOutboundAction } `
     -Expected 'Allow'
 
-Test-BaselineCheck -Category "Firewall" -Name "Private Block All Inbound Rules" -Impact "Critical" `
-    -Test { (Get-NetFirewallProfile -Name Private).AllowInboundRules } `
-    -Expected 'False'
+# AllowInboundRules: Optional since v1.7.16 (Standard Mode for Remote/Dev)
+$privateAllowInbound = (Get-NetFirewallProfile -Name Private).AllowInboundRules
+if ($privateAllowInbound -eq 'False') {
+    Write-Host "  [OK] Private Block All Inbound Rules (Ultra-Strict Mode)" -ForegroundColor Green
+    $script:passCount++
+} else {
+    Write-Host "  [!] Private Allow Inbound Rules (Standard Mode - Localhost functional)" -ForegroundColor Yellow
+    $script:passCount++
+}
 
 Test-BaselineCheck -Category "Firewall" -Name "Private Notify On Listen = False" -Impact "Low" `
     -Test { (Get-NetFirewallProfile -Name Private).NotifyOnListen } `
@@ -732,9 +745,15 @@ Test-BaselineCheck -Category "Firewall" -Name "Public Default Outbound = Allow" 
     -Test { (Get-NetFirewallProfile -Name Public).DefaultOutboundAction } `
     -Expected 'Allow'
 
-Test-BaselineCheck -Category "Firewall" -Name "Public Block All Inbound Rules" -Impact "Critical" `
-    -Test { (Get-NetFirewallProfile -Name Public).AllowInboundRules } `
-    -Expected 'False'
+# AllowInboundRules: Optional since v1.7.16 (Standard Mode for Remote/Dev)
+$publicAllowInbound = (Get-NetFirewallProfile -Name Public).AllowInboundRules
+if ($publicAllowInbound -eq 'False') {
+    Write-Host "  [OK] Public Block All Inbound Rules (Ultra-Strict Mode)" -ForegroundColor Green
+    $script:passCount++
+} else {
+    Write-Host "  [!] Public Allow Inbound Rules (Standard Mode - Localhost functional)" -ForegroundColor Yellow
+    $script:passCount++
+}
 
 Test-BaselineCheck -Category "Firewall" -Name "Public Notify On Listen = False" -Impact "Low" `
     -Test { (Get-NetFirewallProfile -Name Public).NotifyOnListen } `
@@ -1008,12 +1027,28 @@ Test-BaselineCheck -Category "DoH" -Name "DoH Auto-Enabled (Global)" -Impact "Hi
 
 try {
     $dohServers = Get-DnsClientDohServerAddress -ErrorAction SilentlyContinue
+    
+    # Check for ANY of the 4 supported DNS providers (v1.7.15+)
     $cloudflareServers = $dohServers | Where-Object { $_.ServerAddress -like "*1.1.1.1*" -or $_.ServerAddress -like "*1.0.0.1*" -or $_.ServerAddress -like "*2606:4700:4700*" }
-    $cloudflareCount = if ($cloudflareServers) { @($cloudflareServers).Count } else { 0 }
-    if ($cloudflareCount -ge 2) {
-        Write-Host "  [OK] Cloudflare DoH Configured ($cloudflareCount servers)" -ForegroundColor Green
-    } else {
-        Write-Host "  [X] Cloudflare DoH Missing" -ForegroundColor Red
+    $adguardServers = $dohServers | Where-Object { $_.ServerAddress -like "*94.140.14.14*" -or $_.ServerAddress -like "*94.140.15.15*" -or $_.ServerAddress -like "*2a10:50c0*" }
+    $nextdnsServers = $dohServers | Where-Object { $_.ServerAddress -like "*45.90.28.0*" -or $_.ServerAddress -like "*45.90.30.0*" -or $_.ServerAddress -like "*2a07:a8c0*" -or $_.ServerAddress -like "*2a07:a8c1*" }
+    $quad9Servers = $dohServers | Where-Object { $_.ServerAddress -like "*9.9.9.9*" -or $_.ServerAddress -like "*149.112.112.112*" -or $_.ServerAddress -like "*2620:fe::*" }
+    
+    if ($cloudflareServers -and (@($cloudflareServers).Count -ge 2)) {
+        Write-Host "  [OK] Cloudflare DoH Configured (@($cloudflareServers).Count servers)" -ForegroundColor Green
+    }
+    elseif ($adguardServers -and (@($adguardServers).Count -ge 2)) {
+        Write-Host "  [OK] AdGuard DoH Configured (@($adguardServers).Count servers)" -ForegroundColor Green
+    }
+    elseif ($nextdnsServers -and (@($nextdnsServers).Count -ge 2)) {
+        Write-Host "  [OK] NextDNS DoH Configured (@($nextdnsServers).Count servers)" -ForegroundColor Green
+    }
+    elseif ($quad9Servers -and (@($quad9Servers).Count -ge 2)) {
+        Write-Host "  [OK] Quad9 DoH Configured (@($quad9Servers).Count servers)" -ForegroundColor Green
+    }
+    else {
+        Write-Host "  [!] No supported DNS provider found (Cloudflare/AdGuard/NextDNS/Quad9)" -ForegroundColor Yellow
+        Write-Host "      User may have kept existing DNS or configured custom provider" -ForegroundColor Gray
     }
 }
 catch {
