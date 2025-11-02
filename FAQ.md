@@ -511,6 +511,56 @@ git pull origin main
 
 ---
 
+## 🔧 Troubleshooting
+
+### Scripts won't start - "Internet security settings prevent execution"
+
+**Symptom:**
+- Can't start `.bat` or `.ps1` files
+- Error: "Internet security settings prevent opening this file"
+- Windows blocks downloaded files
+
+**Cause:**
+Windows marks files downloaded from the Internet with a **Zone.Identifier** (Mark of the Web). This prevents execution even with admin rights.
+
+**Solution 1: Automatic (Recommended)**
+```batch
+# Simply run Start-NoID-Privacy.bat as Administrator
+# It will automatically unblock all files!
+```
+
+The launcher automatically runs:
+```powershell
+Get-ChildItem -Recurse -Include *.ps1,*.psm1 | Unblock-File
+```
+
+**Solution 2: Manual Unblock**
+
+If automatic unblock fails:
+
+1. **Right-click** on `Start-NoID-Privacy.bat`
+2. Select **Properties**
+3. At the bottom: Check **"Unblock"** ✅
+4. Click **OK**
+5. Repeat for all `.ps1` files if needed
+
+**Solution 3: PowerShell Command**
+
+Open PowerShell as Administrator in the project folder:
+```powershell
+Get-ChildItem -Path . -Recurse -Include *.ps1,*.psm1,*.bat -File | Unblock-File
+```
+
+**Prevention:**
+
+Download the repository directly via Git instead of ZIP:
+```bash
+git clone https://github.com/NexusOne23/noid-privacy.git
+```
+Git-cloned files don't have Zone.Identifier!
+
+---
+
 ## 🆘 Still Have Questions?
 
 - **Documentation**: [README.md](README.md) | [INSTALLATION.md](INSTALLATION.md) | [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md)

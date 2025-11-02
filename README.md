@@ -64,6 +64,12 @@ cd noid-privacy
 .\Verify-SecurityBaseline.ps1
 ```
 
+> **⚠️ Downloaded ZIP instead of Git Clone?**  
+> Windows marks downloaded files as "blocked" (Zone.Identifier).  
+> **Solution:** Run `Start-NoID-Privacy.bat` - it automatically unblocks all files!  
+> **Manual:** Right-click each file → Properties → Check "Unblock" → OK  
+> **Details:** [FAQ - Troubleshooting](FAQ.md#-troubleshooting)
+
 **→ [Detailed Installation Guide](QUICKSTART.md)** · **[See All Features](FEATURES.md)** · **[View Changelog](CHANGELOG.md)**
 
 ---
