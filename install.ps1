@@ -183,8 +183,15 @@ Write-Host ""
 Start-Sleep -Seconds 2
 
 # Execute the Apply script in Interactive mode
+# CRITICAL: Use explicit -ExecutionPolicy Bypass to ensure script runs even if system policy is Restricted
 try {
-    & $applyScript.FullName -Interactive
+    $processArgs = @(
+        "-ExecutionPolicy", "Bypass",
+        "-NoProfile",
+        "-File", $applyScript.FullName,
+        "-Interactive"
+    )
+    & powershell.exe $processArgs
 }
 catch {
     Write-Host ""
@@ -197,7 +204,7 @@ catch {
     Write-Host ""
     Write-Host "You can try running manually:" -ForegroundColor White
     Write-Host "  cd $scriptDirectory" -ForegroundColor Gray
-    Write-Host "  .\Apply-Win11-25H2-SecurityBaseline.ps1 -Interactive" -ForegroundColor Gray
+    Write-Host "  powershell -ExecutionPolicy Bypass -File .\Apply-Win11-25H2-SecurityBaseline.ps1 -Interactive" -ForegroundColor Gray
     Write-Host ""
     Read-Host "Press ENTER to exit"
     exit 1
