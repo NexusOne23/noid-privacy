@@ -1644,25 +1644,29 @@ function Show-RemoteAccessMenu {
     Write-Host "  - Docker containers with inter-container communication" -ForegroundColor Gray
     Write-Host "  - Local AI/LLM services (OpenWebUI, Ollama, etc.)" -ForegroundColor Gray
     Write-Host "  - Development servers (Node, Python, WSL)" -ForegroundColor Gray
+    Write-Host "  - Online multiplayer games (Diablo, Call of Duty, etc.)" -ForegroundColor Gray
     Write-Host ""
     
     Write-Host "  [1] Maximum Security (Recommended for Desktop/Laptop)" -ForegroundColor Yellow
     Write-Host "      - RDP completely DISABLED" -ForegroundColor Gray
     Write-Host "      - Firewall blocks ALL inbound (ultra-strict)" -ForegroundColor Gray
-    Write-Host "      - Best for: Standard workstations, laptops" -ForegroundColor Gray
+    Write-Host "      - Best for: Standard workstations, office work, browsing" -ForegroundColor Gray
     Write-Host "      - Pro: Maximum attack surface reduction" -ForegroundColor Green
     Write-Host "      - Con: No remote access, local services may not work" -ForegroundColor Red
+    Write-Host "      - WARNING: Online multiplayer games may NOT work!" -ForegroundColor Red
+    Write-Host "                 (Diablo, CoD, etc. need inbound connections)" -ForegroundColor Red
     Write-Host ""
     
     Write-Host "  [2] Allow Remote Access + Local Services" -ForegroundColor Yellow
     Write-Host "      - RDP stays ENABLED (for Tailscale/VPN access)" -ForegroundColor Gray
     Write-Host "      - Firewall allows localhost connections" -ForegroundColor Gray
-    Write-Host "      - Best for: Remote servers, NUCs, development machines" -ForegroundColor Gray
+    Write-Host "      - Best for: Gamers, remote servers, NUCs, development" -ForegroundColor Gray
     Write-Host "      - Pro: Remote access works, Docker/LLM/WSL functional" -ForegroundColor Green
+    Write-Host "      - Pro: Online multiplayer games WILL work!" -ForegroundColor Green
     Write-Host "      - Con: Slightly larger attack surface" -ForegroundColor Red
     Write-Host ""
     
-    Write-Host "  [Recommendation: Option 1 for most users | Option 2 for remote/dev]" -ForegroundColor Cyan
+    Write-Host "  [Recommendation: Option 1 for office | Option 2 for gaming/remote/dev]" -ForegroundColor Cyan
     Write-Host ""
     
     do {
