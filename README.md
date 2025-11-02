@@ -621,8 +621,11 @@ The authors are not responsible for any damage or data loss caused by this scrip
 - ✅ **Optional Remote Access Mode** - Configure RDP and Firewall based on use-case (Desktop vs Remote Server/Development)
 - ✅ **Firewall Standard Mode** - Allows localhost connections (Docker, LLM, WSL services functional)
 - ✅ **Automatic Zone.Identifier Unblock** - ZIP downloads work out-of-the-box (no manual unblocking needed)
-- ✅ **UX Improvements** - Removed redundant OneDrive confirmation, consistent color coding (Yellow warnings)
-- ✅ **Bug Fixes** - Misleading firewall messages, inconsistent RDP warnings, OneDrive color scheme
+- ✅ **CRITICAL: Restore Ownership Fix** - Protected registry keys now restore correctly (TrustedInstaller-protected)
+- ✅ **Restore PolicyManager Cleanup** - Settings UI no longer shows "Your organization manages..." after restore
+- ✅ **Complete Localization** - 100% German menu titles and messages (Audit-Modus, Enforce-Modus, etc.)
+- ✅ **Unit Tests Fixed** - All 136 tests now pass (19 failures fixed)
+- ✅ **UX Improvements** - Consistent color coding (Yellow warnings, not Red), improved language detection
 - ✅ **Multi-Provider DNS** - Choose from 4 DNS providers (Cloudflare, AdGuard, NextDNS, Quad9)
 
 <details>

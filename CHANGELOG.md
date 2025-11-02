@@ -34,6 +34,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Fixes: OpenWebUI → FastFlowLM, Docker inter-container, WSL development
 
 ### Fixed
+- **CRITICAL: Restore Ownership Module Not Loading** - Protected registry keys were not restored
+  - Root Cause: Wrong filename `SecurityBaseline-Ownership.ps1` (actual: `SecurityBaseline-RegistryOwnership.ps1`)
+  - Impact: TrustedInstaller-protected telemetry keys remained after restore, Settings UI showed "Your organization manages..."
+  - Solution: Corrected module path in `RegistryBackup-Optimized.ps1`
+  - Result: Protected keys now restore correctly with ownership takeover
+- **Restore PolicyManager Cleanup Missing** - Windows Settings UI still showed managed state after restore
+  - Root Cause: Windows creates PolicyManager mirror keys after Apply (not in backup)
+  - Impact: Settings UI showed "Your organization manages..." even after full restore
+  - Solution: Advanced pattern-based cleanup of PolicyManager cache (`current + default` paths)
+  - Patterns: `*Telemetry*`, `*DataCollection*`, `*Diagnostic*`, `*Diag*`, `*Feedback*`
+  - Result: Settings UI now shows correct unmanaged state after restore
+- **Unit Tests Failed (19 failures)** - Tests checked for non-existent function names
+  - Root Cause: Tests were written for old function names that never existed
+  - Impact: CI/CD pipeline showed test failures
+  - Solution: Updated tests to match actual code (Advanced, ASR, Core, Backup modules)
+  - Result: All 136 tests now pass
+- **Restore Warning Colors** - Red warnings looked like errors
+  - Changed: Backup menu warnings and restore warnings from Red to Yellow
+  - Result: Better UX, warnings don't look like failures
+- **Main Menu Localization Incomplete** - Mixed English/German titles
+  - Fixed: German menu titles (Audit-Modus, Enforce-Modus, Angepasster Modus, Verifizieren, Beenden)
+  - Fixed: Localized "config follows" strings
+  - Result: 100% localized menu in German
+- **Restore Language Detection** - German system showed English messages
+  - Fixed: Check both `Get-Culture` AND `Get-UICulture` for 'de'
+  - Result: German language correctly detected and displayed
 - **Zone.Identifier Blocking** - Windows marks downloaded ZIP files, preventing script execution
   - Root Cause: Windows "Mark of the Web" security feature
   - Impact: Users couldn't start scripts even as admin ("Internet security settings...")
