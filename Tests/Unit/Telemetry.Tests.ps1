@@ -56,30 +56,30 @@ Describe "Telemetry Module - Basic Validation" {
 Describe "Telemetry Module - Functions" {
     
     Context "Main Functions" {
-        It "Should have Disable-WindowsTelemetry function" {
-            Get-Command Disable-WindowsTelemetry -ErrorAction SilentlyContinue | Should -Not -BeNullOrEmpty
-        }
-        
         It "Should have Disable-TelemetryServices function" {
             Get-Command Disable-TelemetryServices -ErrorAction SilentlyContinue | Should -Not -BeNullOrEmpty
         }
         
-        It "Should have Disable-TelemetryScheduledTasks function" {
-            Get-Command Disable-TelemetryScheduledTasks -ErrorAction SilentlyContinue | Should -Not -BeNullOrEmpty
+        It "Should have Set-TelemetryRegistry function" {
+            Get-Command Set-TelemetryRegistry -ErrorAction SilentlyContinue | Should -Not -BeNullOrEmpty
+        }
+        
+        It "Should have Remove-TelemetryTasks function" {
+            Get-Command Remove-TelemetryTasks -ErrorAction SilentlyContinue | Should -Not -BeNullOrEmpty
         }
         
         It "Should have Disable-AllAppPermissionsDefaults function" {
             Get-Command Disable-AllAppPermissionsDefaults -ErrorAction SilentlyContinue | Should -Not -BeNullOrEmpty
         }
         
-        It "Should have Set-MinimalDiagnosticData function" {
-            Get-Command Set-MinimalDiagnosticData -ErrorAction SilentlyContinue | Should -Not -BeNullOrEmpty
+        It "Should have Get-TelemetryStatus function" {
+            Get-Command Get-TelemetryStatus -ErrorAction SilentlyContinue | Should -Not -BeNullOrEmpty
         }
     }
     
     Context "CmdletBinding" {
         It "Should have CmdletBinding on main functions" {
-            $cmd = Get-Command Disable-WindowsTelemetry
+            $cmd = Get-Command Disable-TelemetryServices
             $cmd.CmdletBinding | Should -Be $true
         }
     }
