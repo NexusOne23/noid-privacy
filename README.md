@@ -637,6 +637,11 @@ The authors are not responsible for any damage or data loss caused by this scrip
 **Status:** Production-Ready ✅
 
 ### Recent Updates (v1.7.16)
+- ✅ **CRITICAL: Language Bug Fixed** - German selection now works correctly in Apply → Restore flow
+- ✅ **78 App Name Mappings** - Missing-Apps list shows readable Microsoft Store names (e.g., "Clipchamp - Video Editor" instead of "Clipchamp.Clipchamp")
+- ✅ **Step Counter Fixed** - Restore script shows consistent [1/17] through [17/17] progress display
+- ✅ **100% ASCII Clean** - All 37 PowerShell files cleaned (no encoding issues, cross-platform compatible)
+- ✅ **Oneliner Install Fixed** - ExecutionPolicy Bypass now enforced (works on all systems)
 - ✅ **Optional Remote Access Mode** - Configure RDP and Firewall based on use-case (Desktop vs Remote Server/Development)
 - ✅ **Firewall Standard Mode** - Allows localhost connections (Docker, LLM, WSL services functional)
 - ✅ **Automatic Zone.Identifier Unblock** - ZIP downloads work out-of-the-box (no manual unblocking needed)
@@ -644,7 +649,6 @@ The authors are not responsible for any damage or data loss caused by this scrip
 - ✅ **Restore PolicyManager Cleanup** - Settings UI no longer shows "Your organization manages..." after restore
 - ✅ **Complete Localization** - 100% German menu titles and messages (Audit-Modus, Enforce-Modus, etc.)
 - ✅ **Unit Tests Fixed** - All 136 tests now pass (19 failures fixed)
-- ✅ **UX Improvements** - Consistent color coding (Yellow warnings, not Red), improved language detection
 - ✅ **Multi-Provider DNS** - Choose from 4 DNS providers (Cloudflare, AdGuard, NextDNS, Quad9)
 
 <details>
