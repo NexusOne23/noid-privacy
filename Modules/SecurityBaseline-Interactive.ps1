@@ -1467,5 +1467,57 @@ function Show-OneDriveMenu {
     return $choice
 }
 
+function Show-RemoteAccessMenu {
+    <#
+    .SYNOPSIS
+        Shows Remote Access (RDP) configuration menu
+    .DESCRIPTION
+        Allows user to configure Remote Desktop (RDP) and Firewall strictness
+        Important for: Remote servers, NUC with Tailscale, Development machines with local services
+    .OUTPUTS
+        String: '1' (Disable RDP + Strict Firewall), '2' (Keep RDP + Allow localhost)
+    #>
+    [CmdletBinding()]
+    param()
+    
+    Write-Host "`n===========================================================" -ForegroundColor Cyan
+    Write-Host "  REMOTE ACCESS & FIREWALL CONFIGURATION" -ForegroundColor Cyan
+    Write-Host "===========================================================" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "Do you use Remote Desktop (RDP) or run local services?" -ForegroundColor White
+    Write-Host ""
+    Write-Host "Examples:" -ForegroundColor Cyan
+    Write-Host "  - Remote access via RDP, TeamViewer, or Tailscale" -ForegroundColor Gray
+    Write-Host "  - Docker containers with inter-container communication" -ForegroundColor Gray
+    Write-Host "  - Local AI/LLM services (OpenWebUI, Ollama, etc.)" -ForegroundColor Gray
+    Write-Host "  - Development servers (Node, Python, WSL)" -ForegroundColor Gray
+    Write-Host ""
+    
+    Write-Host "  [1] Maximum Security (Recommended for Desktop/Laptop)" -ForegroundColor Yellow
+    Write-Host "      - RDP completely DISABLED" -ForegroundColor Gray
+    Write-Host "      - Firewall blocks ALL inbound (ultra-strict)" -ForegroundColor Gray
+    Write-Host "      - Best for: Standard workstations, laptops" -ForegroundColor Gray
+    Write-Host "      - Pro: Maximum attack surface reduction" -ForegroundColor Green
+    Write-Host "      - Con: No remote access, local services may not work" -ForegroundColor Red
+    Write-Host ""
+    
+    Write-Host "  [2] Allow Remote Access + Local Services" -ForegroundColor Yellow
+    Write-Host "      - RDP stays ENABLED (for Tailscale/VPN access)" -ForegroundColor Gray
+    Write-Host "      - Firewall allows localhost connections" -ForegroundColor Gray
+    Write-Host "      - Best for: Remote servers, NUCs, development machines" -ForegroundColor Gray
+    Write-Host "      - Pro: Remote access works, Docker/LLM/WSL functional" -ForegroundColor Green
+    Write-Host "      - Con: Slightly larger attack surface" -ForegroundColor Red
+    Write-Host ""
+    
+    Write-Host "  [Recommendation: Option 1 for most users | Option 2 for remote/dev]" -ForegroundColor Cyan
+    Write-Host ""
+    
+    do {
+        $choice = Read-Host "Your choice (1-2)"
+    } while ($choice -notin @('1','2'))
+    
+    return $choice
+}
+
 # Note: Export-ModuleMember is NOT needed for dot-sourced scripts
 # Functions are automatically available in the calling scope

@@ -276,6 +276,10 @@ function Set-StrictInboundFirewall {
     
     Write-Info "$(Get-LocalizedString 'FirewallConfiguring')"
     
+    # CHANGED: Firewall strictness now configurable (for Docker/LLM/localhost services)
+    # Default: $script:StrictFirewall = $true (block everything including localhost)
+    # Interactive: User can choose to allow localhost (for remote servers, development)
+    
     # Set firewall to block ALL inbound (Maximum Security!)
     foreach ($firewallProfile in @('Domain', 'Private', 'Public')) {
         try {
@@ -284,8 +288,17 @@ function Set-StrictInboundFirewall {
             # Block all inbound by default
             Set-NetFirewallProfile -Name $firewallProfile -DefaultInboundAction Block -ErrorAction Stop
             
-            # CRITICAL: Block ALL incoming - even allowed apps (Maximum Security!)
-            Set-NetFirewallProfile -Name $firewallProfile -AllowInboundRules False -ErrorAction Stop
+            # CONFIGURABLE: Block ALL incoming OR allow firewall rules (for localhost)
+            if ($script:StrictFirewall) {
+                # Maximum Security: Block even allowed apps (kills Docker/LLM/localhost!)
+                Set-NetFirewallProfile -Name $firewallProfile -AllowInboundRules False -ErrorAction Stop
+                Write-Verbose "     ${firewallProfile}: Ultra-Strict Mode (AllowInboundRules=False)"
+            }
+            else {
+                # Allow Remote/Local Services: Firewall rules work (Docker/LLM/localhost OK)
+                Set-NetFirewallProfile -Name $firewallProfile -AllowInboundRules True -ErrorAction Stop
+                Write-Verbose "     ${firewallProfile}: Standard Mode (AllowInboundRules=True, localhost functional)"
+            }
             
             # Allow all outbound (you can still access internet)
             Set-NetFirewallProfile -Name $firewallProfile -DefaultOutboundAction Allow -ErrorAction Stop

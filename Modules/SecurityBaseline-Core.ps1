@@ -2182,58 +2182,71 @@ function Disable-RemoteAccessCompletely {
     
     Write-Section (Get-LocalizedString 'CoreRemoteTitle')
     
-    # ===== RDP (Remote Desktop) ALWAYS disable (not optional!) =====
-    Write-Info (Get-LocalizedString 'CoreRemoteRDPDisabling')
+    # ===== RDP (Remote Desktop) - OPTIONAL (based on user choice) =====
+    # CHANGED: RDP disable is now optional (for remote servers, Tailscale, development)
+    # Default: $script:DisableRDP = $true (maximum security)
+    # Interactive: User can choose to keep RDP enabled
     
-    # Registry: Turn off RDP
-    $rdpPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server"
-    Set-RegistryValue -Path $rdpPath -Name "fDenyTSConnections" -Value 1 -Type DWord `
-        -Description "RDP-Verbindungen verweigern"
-    
-    # Disable RDP Service (race-condition-free)
-    $rdpServices = @("TermService", "UmRdpService")
-    $successCount = 0
-    
-    foreach ($svc in $rdpServices) {
-        if (Stop-ServiceSafe -ServiceName $svc) {
-            $successCount++
+    if ($script:DisableRDP) {
+        # User chose: Maximum Security → Disable RDP
+        Write-Info (Get-LocalizedString 'CoreRemoteRDPDisabling')
+        
+        # Registry: Turn off RDP
+        $rdpPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server"
+        Set-RegistryValue -Path $rdpPath -Name "fDenyTSConnections" -Value 1 -Type DWord `
+            -Description "RDP-Verbindungen verweigern"
+        
+        # Disable RDP Service (race-condition-free)
+        $rdpServices = @("TermService", "UmRdpService")
+        $successCount = 0
+        
+        foreach ($svc in $rdpServices) {
+            if (Stop-ServiceSafe -ServiceName $svc) {
+                $successCount++
+            }
         }
-    }
-    
-    if ($successCount -eq $rdpServices.Count) {
-        Write-Success (Get-LocalizedString 'CoreRemoteRDPDisabled')
-    }
-    elseif ($successCount -gt 0) {
-        Write-Warning (Get-LocalizedString 'CoreRemoteRDPPartial' -FormatArgs $successCount, $rdpServices.Count)
+        
+        if ($successCount -eq $rdpServices.Count) {
+            Write-Success (Get-LocalizedString 'CoreRemoteRDPDisabled')
+        }
+        elseif ($successCount -gt 0) {
+            Write-Warning (Get-LocalizedString 'CoreRemoteRDPPartial' -FormatArgs $successCount, $rdpServices.Count)
+        }
+        else {
+            Write-Warning (Get-LocalizedString 'CoreRemoteRDPFailed')
+        }
+        
+        # HARD block Firewall rules
+        try {
+            # SilentlyContinue if rules don't exist (Windows 11 25H2)
+            Disable-NetFirewallRule -DisplayGroup "Remote Desktop" -ErrorAction SilentlyContinue
+            
+            # Additionally: Explicit block rule for RDP Port 3389 (unique name)
+            $rdpBlockRule = Get-NetFirewallRule -DisplayName "NoID-Block-RDP-Port-3389" -ErrorAction SilentlyContinue
+            if (-not $rdpBlockRule) {
+                $null = New-NetFirewallRule -DisplayName "NoID-Block-RDP-Port-3389" `
+                                   -Direction Inbound `
+                                   -Protocol TCP `
+                                   -LocalPort 3389 `
+                                   -Action Block `
+                                   -Profile Any `
+                                   -Enabled True -ErrorAction Stop
+                Write-Verbose "  -> Explicit block rule for RDP port 3389 created"
+            } else {
+                Write-Verbose "  -> Block rule for RDP already exists"
+            }
+            
+            Write-Success (Get-LocalizedString 'CoreRemoteRDPFirewall')
+        }
+        catch {
+            Write-Warning (Get-LocalizedString 'CoreRemoteRDPFirewallError' -FormatArgs $_)
+        }
     }
     else {
-        Write-Warning (Get-LocalizedString 'CoreRemoteRDPFailed')
-    }
-    
-    # HARD block Firewall rules
-    try {
-        # SilentlyContinue if rules don't exist (Windows 11 25H2)
-        Disable-NetFirewallRule -DisplayGroup "Remote Desktop" -ErrorAction SilentlyContinue
-        
-        # Additionally: Explicit block rule for RDP Port 3389 (unique name)
-        $rdpBlockRule = Get-NetFirewallRule -DisplayName "NoID-Block-RDP-Port-3389" -ErrorAction SilentlyContinue
-        if (-not $rdpBlockRule) {
-            $null = New-NetFirewallRule -DisplayName "NoID-Block-RDP-Port-3389" `
-                               -Direction Inbound `
-                               -Protocol TCP `
-                               -LocalPort 3389 `
-                               -Action Block `
-                               -Profile Any `
-                               -Enabled True -ErrorAction Stop
-            Write-Verbose "  -> Explicit block rule for RDP port 3389 created"
-        } else {
-            Write-Verbose "  -> Block rule for RDP already exists"
-        }
-        
-        Write-Success (Get-LocalizedString 'CoreRemoteRDPFirewall')
-    }
-    catch {
-        Write-Warning (Get-LocalizedString 'CoreRemoteRDPFirewallError' -FormatArgs $_)
+        # User chose: Allow Remote Access → Keep RDP enabled
+        Write-Info (Get-LocalizedString 'CoreRemoteRDPKeepEnabled')
+        Write-Success (Get-LocalizedString 'CoreRemoteRDPKeptEnabled')
+        Write-Info (Get-LocalizedString 'CoreRemoteRDPReminder')
     }
     
     # ===== Remote Registry ALWAYS disable =====

@@ -171,6 +171,12 @@ $script:mutex = $null
 $script:transcriptPath = ""
 $script:createRestorePoint = $false  # Default: false (can be overridden by Interactive/CLI mode)
 
+# Remote Access & Firewall Configuration
+# DEFAULT: Maximum Security (RDP disabled, strict firewall) for non-interactive mode
+# INTERACTIVE: User can choose to keep RDP enabled for remote access scenarios
+$script:DisableRDP = $true        # Default: true (disable RDP for maximum security)
+$script:StrictFirewall = $true    # Default: true (block all inbound including localhost)
+
 # Clear Error Collection IMMEDIATELY (before any operations that might fail)
 # REASON: $Error accumulates ALL errors including non-fatal ones
 # WITHOUT clear: We'd count errors from previous script runs!
@@ -1092,6 +1098,31 @@ if ($Interactive) {
                     }
                     
                     Write-Verbose "OneDrive action selected: $oneDriveChoice"
+                    
+                    # Remote Access & Firewall Configuration (always show in Enforce/Custom)
+                    $remoteAccessChoice = Show-RemoteAccessMenu
+                    
+                    # Store Remote Access choice and derive firewall strictness
+                    if (-not $config.ContainsKey('RemoteAccessMode')) {
+                        $config.Add('RemoteAccessMode', $remoteAccessChoice)
+                    }
+                    else {
+                        $config.RemoteAccessMode = $remoteAccessChoice
+                    }
+                    
+                    # Set script-level variables based on user choice
+                    if ($remoteAccessChoice -eq '1') {
+                        # Maximum Security: Disable RDP + Strict Firewall
+                        $script:DisableRDP = $true
+                        $script:StrictFirewall = $true
+                        Write-Verbose "Remote Access: RDP will be DISABLED, Firewall ultra-strict"
+                    }
+                    else {
+                        # Allow Remote Access: Keep RDP + Allow localhost
+                        $script:DisableRDP = $false
+                        $script:StrictFirewall = $false
+                        Write-Verbose "Remote Access: RDP will stay ENABLED, Firewall allows localhost"
+                    }
                     
                     Write-Host ""
                     Write-Host "===========================================================" -ForegroundColor Green
