@@ -98,7 +98,7 @@ function Show-MainMenu {
     $menuEnforceDesc = Get-LocalizedString 'MainMenuEnforceDesc'
     if (-not $menuEnforceDesc) { $menuEnforceDesc = "Apply all settings" }
     Write-Host "         $menuEnforceDesc" -ForegroundColor Gray
-    Write-Host "         -> DNS & OneDrive configuration follows" -ForegroundColor DarkCyan
+    Write-Host "         -> DNS, OneDrive & Remote Access configuration follows" -ForegroundColor DarkCyan
     Write-Host ""
     
     $menuCustom = Get-LocalizedString 'MainMenuCustom'
@@ -108,7 +108,7 @@ function Show-MainMenu {
     $menuCustomDesc = Get-LocalizedString 'MainMenuCustomDesc'
     if (-not $menuCustomDesc) { $menuCustomDesc = "Select modules" }
     Write-Host "         $menuCustomDesc" -ForegroundColor Gray
-    Write-Host "         -> DNS & OneDrive configuration follows (if DNS selected)" -ForegroundColor DarkCyan
+    Write-Host "         -> DNS, OneDrive & Remote Access configuration follows" -ForegroundColor DarkCyan
     Write-Host ""
     
     $menuVerify = Get-LocalizedString 'MainMenuVerify'
