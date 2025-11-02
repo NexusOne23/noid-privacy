@@ -1845,6 +1845,31 @@ catch {
     Write-Host "[!] DNS Cache error: $_" -ForegroundColor Yellow
 }
 
+# Group Policy Update (CRITICAL for "Ihre Organisation verhindert" message!)
+Write-Host ""
+Write-Host "[15/15] Updating Group Policy Cache..." -ForegroundColor Cyan
+Write-Host "  [i] This updates Windows Settings to reflect restored registry..." -ForegroundColor Gray
+try {
+    $job = Start-Job -ScriptBlock { gpupdate /force 2>&1 }
+    $job | Wait-Job -Timeout 30 | Out-Null
+    
+    if ($job.State -eq 'Completed') {
+        $output = Receive-Job $job
+        Remove-Job $job -Force
+        Write-Host "[OK] Group Policy updated" -ForegroundColor Green
+        Write-Host "      Windows Settings now show correct status" -ForegroundColor Gray
+    }
+    else {
+        Stop-Job $job -ErrorAction SilentlyContinue
+        Remove-Job $job -Force -ErrorAction SilentlyContinue
+        Write-Host "[!] Group Policy update timeout (settings may update after reboot)" -ForegroundColor Yellow
+    }
+}
+catch {
+    Write-Host "[!] Group Policy update error: $_" -ForegroundColor Yellow
+    Write-Host "    Settings will update after reboot" -ForegroundColor Gray
+}
+
 # Abschluss
 Write-Host ""
 Write-Host "============================================================================" -ForegroundColor Green
