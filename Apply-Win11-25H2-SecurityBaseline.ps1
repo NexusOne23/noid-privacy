@@ -54,7 +54,7 @@
     
     Changelog 1.7.6 (26. Oktober 2025):
     - CRITICAL FIX: UAC and WindowsUpdate modules missing in Interactive Menu!
-    - CRITICAL FIX: -Type Parameter korrigiert zu -ValueType (Set-RegistryValueSmart)
+    - CRITICAL FIX: -ValueType Parameter korrigiert zu -Type (Set-RegistryValueSmart)
     - CRITICAL FIX: HTML Report Crash gefixed (Action Property Check)
     - CRITICAL FIX: Windows Update over metered connections now ON (Security First!)
     - FIX: All 5 Windows Update toggles now ON (Maximum Security Updates)

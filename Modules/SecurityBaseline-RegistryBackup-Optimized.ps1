@@ -266,7 +266,7 @@ function Restore-SpecificRegistryKeys {
                             -Path $entry.Path `
                             -Name $entry.Name `
                             -Value $entry.OriginalValue `
-                            -ValueType $entry.OriginalType `
+                            -Type $entry.OriginalType `
                             -Description "Restore: $($entry.Description)"
                         
                         if ($result) {

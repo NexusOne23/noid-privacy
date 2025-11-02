@@ -266,7 +266,13 @@ function Set-StrictInboundFirewall {
     .DESCRIPTION
         Blocks ALL inbound connections by default
         Allows outbound (you can access internet)
-        Essential security hardening!
+        
+        Behavior depends on $script:StrictFirewall:
+        - Strict Mode ($true): AllowInboundRules=False, Public blocks local rules
+        - Standard Mode ($false): AllowInboundRules=True, Public allows local rules
+        
+        CRITICAL: Public profile local rules handling now conditional!
+        Fixes Steam/Gaming issues when "Allow Remote + Services" is selected.
     #>
     [CmdletBinding()]
     [OutputType([void])]
@@ -328,11 +334,29 @@ function Set-StrictInboundFirewall {
             # Log successful connections (allowed traffic)
             Set-NetFirewallProfile -Name $firewallProfile -LogAllowed True -ErrorAction Stop
             
-            # Public Profile: Additional restrictions (no local firewall/IPsec rules)
+            # Public Profile: Additional restrictions (conditional on StrictFirewall mode)
+            # CRITICAL: This affects Steam/Gaming - only block local rules in Strict Mode!
             if ($firewallProfile -eq 'Public') {
-                Set-NetFirewallProfile -Name $firewallProfile -AllowLocalFirewallRules False -ErrorAction Stop
-                Set-NetFirewallProfile -Name $firewallProfile -AllowLocalIPsecRules False -ErrorAction Stop
-                Write-Verbose "     ${firewallProfile}: Local FW/IPsec rules BLOCKED"
+                # Check if Public already blocks local rules (could be from previous hardening)
+                $currentPublic = Get-NetFirewallProfile -Name Public -ErrorAction SilentlyContinue
+                if ($currentPublic -and 
+                    $currentPublic.AllowLocalFirewallRules -eq $false -and 
+                    -not $script:StrictFirewall) {
+                    Write-Warning "Public profile already blocks local firewall rules. If you experience issues with Steam/Gaming, run Restore or manually set: Set-NetFirewallProfile -Name Public -AllowLocalFirewallRules True"
+                }
+                
+                if ($script:StrictFirewall) {
+                    # Maximum Security: Block local firewall/IPsec rules (no user-added exceptions)
+                    Set-NetFirewallProfile -Name $firewallProfile -AllowLocalFirewallRules False -ErrorAction Stop
+                    Set-NetFirewallProfile -Name $firewallProfile -AllowLocalIPsecRules False -ErrorAction Stop
+                    Write-Verbose "     ${firewallProfile}: Strict Mode - Local FW/IPsec rules BLOCKED (breaks Steam/Docker on Public WiFi)"
+                }
+                else {
+                    # Allow Remote + Services: Accept local firewall/IPsec rules (Steam/Gaming OK)
+                    Set-NetFirewallProfile -Name $firewallProfile -AllowLocalFirewallRules True -ErrorAction Stop
+                    Set-NetFirewallProfile -Name $firewallProfile -AllowLocalIPsecRules True -ErrorAction Stop
+                    Write-Verbose "     ${firewallProfile}: Standard Mode - Local FW/IPsec rules ALLOWED (Steam/Gaming/Docker functional)"
+                }
             }
             
             Write-Verbose "     ${firewallProfile}: Inbound=BLOCK ALL, Outbound=ALLOW, Logging=ENABLED"

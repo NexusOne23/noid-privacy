@@ -147,7 +147,7 @@ finally {
     }
 }
 
-# Ensure language is set (use from interactive session, environment variable, or detect system language)
+# Ensure language is set (use from interactive session, environment variable, or ask user)
 # IMPORTANT: Use Test-Path because of Strict Mode!
 if (-not (Test-Path Variable:\Global:CurrentLanguage)) {
     # Check if language was passed via environment variable (from parent script)
@@ -155,16 +155,36 @@ if (-not (Test-Path Variable:\Global:CurrentLanguage)) {
         $Global:CurrentLanguage = $env:NOID_LANGUAGE
     }
     else {
-        # Detect system language (German or English)
-        # Check both Culture and UICulture for best detection
-        $systemLang = (Get-Culture).TwoLetterISOLanguageName
-        $uiLang = (Get-UICulture).TwoLetterISOLanguageName
-        
-        if ($systemLang -eq 'de' -or $uiLang -eq 'de') {
-            $Global:CurrentLanguage = 'de'
+        # Language selection - same as in Interactive Mode!
+        if (Get-Command -Name Select-Language -ErrorAction SilentlyContinue) {
+            try {
+                Select-Language
+            }
+            catch {
+                Write-Warning "Language selection failed: $_"
+                # Fallback: Detect system language (German or English)
+                $systemLang = (Get-Culture).TwoLetterISOLanguageName
+                $uiLang = (Get-UICulture).TwoLetterISOLanguageName
+                
+                if ($systemLang -eq 'de' -or $uiLang -eq 'de') {
+                    $Global:CurrentLanguage = 'de'
+                }
+                else {
+                    $Global:CurrentLanguage = 'en'
+                }
+            }
         }
         else {
-            $Global:CurrentLanguage = 'en'
+            # Fallback: Auto-detect if Select-Language not available
+            $systemLang = (Get-Culture).TwoLetterISOLanguageName
+            $uiLang = (Get-UICulture).TwoLetterISOLanguageName
+            
+            if ($systemLang -eq 'de' -or $uiLang -eq 'de') {
+                $Global:CurrentLanguage = 'de'
+            }
+            else {
+                $Global:CurrentLanguage = 'en'
+            }
         }
     }
 }
@@ -318,9 +338,9 @@ catch {
 }
 
 # Warnung
-Write-Host "============================================================================" -ForegroundColor Red
-Write-Host "                             $(Get-LocalizedString 'RestoreWarningTitle')" -ForegroundColor Red
-Write-Host "============================================================================" -ForegroundColor Red
+Write-Host "============================================================================" -ForegroundColor Yellow
+Write-Host "                             $(Get-LocalizedString 'RestoreWarningTitle')" -ForegroundColor Yellow
+Write-Host "============================================================================" -ForegroundColor Yellow
 Write-Host ""
 Write-Host "$(Get-LocalizedString 'RestoreWarningText')" -ForegroundColor Yellow
 Write-Host ""
@@ -333,7 +353,7 @@ Write-Host "  - $(Get-LocalizedString 'RestoreWarningRegistry')" -ForegroundColo
 Write-Host ""
 Write-Host "$(Get-LocalizedString 'RestoreWarningRisk')" -ForegroundColor Yellow
 Write-Host ""
-Write-Host "============================================================================" -ForegroundColor Red
+Write-Host "============================================================================" -ForegroundColor Yellow
 Write-Host ""
 
 Write-Host "$(Get-LocalizedString 'RestoreConfirm') " -NoNewline -ForegroundColor Yellow
@@ -518,6 +538,23 @@ $servicesRestoredCount = 0
 $servicesSkippedCount = 0
 $servicesFailedCount = 0
 
+# PERFORMANCE FIX: Bulk load ALL services ONCE then lookup in hashtable
+# ROOT CAUSE: Calling Get-Service 214x is inefficient (even though relatively fast)
+# SOLUTION: Load all services once (~1s), store in hashtable, then O(1) lookup per service
+Write-Host "  [i] Loading all services (one-time operation)..." -ForegroundColor Gray
+try {
+    $allServices = Get-Service -ErrorAction Stop
+    $serviceMap = @{}
+    foreach ($s in $allServices) {
+        $serviceMap[$s.Name] = $s
+    }
+    Write-Host "  [OK] Loaded $($allServices.Count) services into cache" -ForegroundColor Green
+}
+catch {
+    Write-Host "  [!] Could not load services - using fallback method" -ForegroundColor Yellow
+    $serviceMap = $null
+}
+
 foreach ($svcConfig in $backup.Settings.Services) {
     try {
         # Skip protected services (prevent Access Denied errors)
@@ -538,7 +575,8 @@ foreach ($svcConfig in $backup.Settings.Services) {
             continue
         }
         
-        $service = Get-Service -Name $svcConfig.Name -ErrorAction SilentlyContinue
+        # Get service from cache (O(1) hashtable lookup!) or fallback to Get-Service
+        $service = if ($serviceMap) { $serviceMap[$svcConfig.Name] } else { Get-Service -Name $svcConfig.Name -ErrorAction SilentlyContinue }
         
         if ($service) {
             if ($PSCmdlet.ShouldProcess($svcConfig.Name, "Set StartType: $($svcConfig.StartType)")) {
@@ -591,64 +629,84 @@ if ($featuresCount -gt 0) {
     $featuresFailed = 0
     $featuresProcessed = 0
     
-    foreach ($featureConfig in $backup.Settings.WindowsFeatures) {
-        $featuresProcessed++
-        Write-Host "  [$featuresProcessed/$featuresCount] Processing: $($featureConfig.FeatureName)..." -ForegroundColor Cyan
-        try {
-            # CRITICAL: Skip Windows-Defender-Default-Definitions (system-managed, can hang)
-            # ROOT CAUSE: Enable-WindowsOptionalFeature hangs when Defender is active
-            # REASON: Feature communicates with Defender Real-Time Protection service
-            # SOLUTION: Skip this feature - it's managed by Windows automatically
-            if ($featureConfig.FeatureName -eq 'Windows-Defender-Default-Definitions') {
-                Write-Host "  [SKIP] $($featureConfig.FeatureName): System-managed feature (Defender signature database)" -ForegroundColor Yellow
-                $featuresSkipped++
-                $restoreStats.Skipped++
-                continue
-            }
-            
-            # Get current state
-            $currentFeature = Get-WindowsOptionalFeature -Online -FeatureName $featureConfig.FeatureName -ErrorAction SilentlyContinue
-            
-            if ($currentFeature) {
-                $currentState = $currentFeature.State.ToString()
-                $backupState = $featureConfig.State
+    # PERFORMANCE FIX: Bulk load ALL features ONCE then lookup in hashtable
+    # ROOT CAUSE: Calling Get-WindowsOptionalFeature 135x is VERY slow (DISM/WMI per call)
+    # SOLUTION: Load all features once (~5s), store in hashtable, then O(1) lookup per feature
+    Write-Host "  [i] Loading all Windows Features (one-time operation)..." -ForegroundColor Gray
+    try {
+        $allFeatures = Get-WindowsOptionalFeature -Online -ErrorAction Stop
+        $featureMap = @{}
+        foreach ($f in $allFeatures) {
+            $featureMap[$f.FeatureName] = $f
+        }
+        Write-Host "  [OK] Loaded $($allFeatures.Count) features into cache" -ForegroundColor Green
+    }
+    catch {
+        Write-Host "  [!] Could not load Windows Features - skipping restore" -ForegroundColor Yellow
+        Write-Host "  [i] Reason: $($_.Exception.Message)" -ForegroundColor Gray
+        $restoreStats.Skipped++
+        $featureMap = $null
+    }
+    
+    if ($featureMap) {
+        foreach ($featureConfig in $backup.Settings.WindowsFeatures) {
+            $featuresProcessed++
+            Write-Host "  [$featuresProcessed/$featuresCount] Processing: $($featureConfig.FeatureName)..." -ForegroundColor Cyan
+            try {
+                # CRITICAL: Skip Windows-Defender-Default-Definitions (system-managed, can hang)
+                # ROOT CAUSE: Enable-WindowsOptionalFeature hangs when Defender is active
+                # REASON: Feature communicates with Defender Real-Time Protection service
+                # SOLUTION: Skip this feature - it's managed by Windows automatically
+                if ($featureConfig.FeatureName -eq 'Windows-Defender-Default-Definitions') {
+                    Write-Host "  [SKIP] $($featureConfig.FeatureName): System-managed feature (Defender signature database)" -ForegroundColor Yellow
+                    $featuresSkipped++
+                    $restoreStats.Skipped++
+                    continue
+                }
                 
-                # Only restore if state changed
-                if ($currentState -ne $backupState) {
-                    if ($PSCmdlet.ShouldProcess($featureConfig.FeatureName, "Change state: $currentState -> $backupState")) {
-                        if ($backupState -eq 'Enabled') {
-                            Write-Host "    [i] Enabling: $($featureConfig.FeatureName)..." -ForegroundColor Gray
-                            Enable-WindowsOptionalFeature -Online -FeatureName $featureConfig.FeatureName -NoRestart -ErrorAction Stop | Out-Null
-                            Write-Host "    [OK] Enabled: $($featureConfig.FeatureName)" -ForegroundColor Green
-                            $featuresRestored++
-                            $restoreStats.Success++
+                # Get current state from cache (O(1) hashtable lookup!)
+                $currentFeature = $featureMap[$featureConfig.FeatureName]
+                
+                if ($currentFeature) {
+                    $currentState = $currentFeature.State.ToString()
+                    $backupState = $featureConfig.State
+                    
+                    # Only restore if state changed
+                    if ($currentState -ne $backupState) {
+                        if ($PSCmdlet.ShouldProcess($featureConfig.FeatureName, "Change state: $currentState -> $backupState")) {
+                            if ($backupState -eq 'Enabled') {
+                                Write-Host "    [i] Enabling: $($featureConfig.FeatureName)..." -ForegroundColor Gray
+                                Enable-WindowsOptionalFeature -Online -FeatureName $featureConfig.FeatureName -NoRestart -ErrorAction Stop | Out-Null
+                                Write-Host "    [OK] Enabled: $($featureConfig.FeatureName)" -ForegroundColor Green
+                                $featuresRestored++
+                                $restoreStats.Success++
+                            }
+                            elseif ($backupState -eq 'Disabled') {
+                                Write-Host "    [i] Disabling: $($featureConfig.FeatureName)..." -ForegroundColor Gray
+                                Disable-WindowsOptionalFeature -Online -FeatureName $featureConfig.FeatureName -NoRestart -ErrorAction Stop | Out-Null
+                                Write-Host "    [OK] Disabled: $($featureConfig.FeatureName)" -ForegroundColor Green
+                                $featuresRestored++
+                                $restoreStats.Success++
+                            }
+                            else {
+                                # DisabledWithPayloadRemoved or other states - skip
+                                Write-Verbose "    [SKIP] $($featureConfig.FeatureName): State '$backupState' cannot be automatically restored"
+                                $featuresSkipped++
+                                $restoreStats.Skipped++
+                            }
                         }
-                        elseif ($backupState -eq 'Disabled') {
-                            Write-Host "    [i] Disabling: $($featureConfig.FeatureName)..." -ForegroundColor Gray
-                            Disable-WindowsOptionalFeature -Online -FeatureName $featureConfig.FeatureName -NoRestart -ErrorAction Stop | Out-Null
-                            Write-Host "    [OK] Disabled: $($featureConfig.FeatureName)" -ForegroundColor Green
-                            $featuresRestored++
-                            $restoreStats.Success++
-                        }
-                        else {
-                            # DisabledWithPayloadRemoved or other states - skip
-                            Write-Verbose "    [SKIP] $($featureConfig.FeatureName): State '$backupState' cannot be automatically restored"
-                            $featuresSkipped++
-                            $restoreStats.Skipped++
-                        }
+                    }
+                    else {
+                        Write-Verbose "  [SKIP] $($featureConfig.FeatureName): Already in correct state ($currentState)"
+                        $featuresSkipped++
+                        $restoreStats.Skipped++
                     }
                 }
                 else {
-                    Write-Verbose "  [SKIP] $($featureConfig.FeatureName): Already in correct state ($currentState)"
+                    Write-Verbose "  [!] Feature not found: $($featureConfig.FeatureName)"
                     $featuresSkipped++
                     $restoreStats.Skipped++
                 }
-            }
-            else {
-                Write-Verbose "  [!] Feature not found: $($featureConfig.FeatureName)"
-                $featuresSkipped++
-                $restoreStats.Skipped++
-            }
         }
         catch {
             Write-Host "    [X] Failed to restore $($featureConfig.FeatureName): $_" -ForegroundColor Red
@@ -657,16 +715,17 @@ if ($featuresCount -gt 0) {
         }
     }
     
-    # Summary
-    Write-Host ""
-    if ($featuresRestored -gt 0) {
-        Write-Host "  [OK] $featuresRestored Windows Feature(s) restored" -ForegroundColor Green
-    }
-    if ($featuresSkipped -gt 0) {
-        Write-Host "  [i] $featuresSkipped Feature(s) skipped (already correct state)" -ForegroundColor Gray
-    }
-    if ($featuresFailed -gt 0) {
-        Write-Host "  [X] $featuresFailed Feature(s) failed to restore" -ForegroundColor Red
+        # Summary
+        Write-Host ""
+        if ($featuresRestored -gt 0) {
+            Write-Host "  [OK] $featuresRestored Windows Feature(s) restored" -ForegroundColor Green
+        }
+        if ($featuresSkipped -gt 0) {
+            Write-Host "  [i] $featuresSkipped Feature(s) skipped (already correct state)" -ForegroundColor Gray
+        }
+        if ($featuresFailed -gt 0) {
+            Write-Host "  [X] $featuresFailed Feature(s) failed to restore" -ForegroundColor Red
+        }
     }
 }
 else {
@@ -1206,7 +1265,7 @@ if ($currentAdminAccount) {
                             }
                             
                             Write-Host ""
-                            Write-Host "    $(Get-LocalizedString 'RestoreUsersPasswordNote')" -ForegroundColor Red
+                            Write-Host "    $(Get-LocalizedString 'RestoreUsersPasswordNote')" -ForegroundColor Yellow
                             Write-Host "  ============================================================" -ForegroundColor Green
                             Write-Host ""
                             
@@ -1357,10 +1416,25 @@ if ($missingAppsCount -gt 0) {
             Write-Host "      $(Get-LocalizedString 'RestoreAppsMayTakeTime')" -ForegroundColor Gray
             Write-Host ""
             
+            # PERFORMANCE FIX: Bulk load ALL packages ONCE then lookup in hashtable
+            # ROOT CAUSE: Calling Get-AppxProvisionedPackage -Online 14x is inefficient
+            # SOLUTION: Load all packages once (~2s), store in hashtable, then O(1) lookup per package
+            Write-Host "  [i] Checking Provisioned Packages availability..." -ForegroundColor Cyan
+            Write-Host "      (Checking if apps can be restored from Microsoft Store)" -ForegroundColor Gray
+            Write-Host ""
+            
+            $allPackages = Get-AppxProvisionedPackage -Online -ErrorAction SilentlyContinue
+            $pkgMap = @{}
+            if ($allPackages) {
+                foreach ($p in $allPackages) {
+                    $pkgMap[$p.DisplayName] = $p
+                }
+            }
+            
             $restoredApps = 0
             foreach ($pkg in $backup.Settings.ProvisionedPackages) {
                 try {
-                    $currentPkg = Get-AppxProvisionedPackage -Online | Where-Object { $_.DisplayName -eq $pkg.DisplayName } -ErrorAction SilentlyContinue
+                    $currentPkg = $pkgMap[$pkg.DisplayName]
                     
                     if (-not $currentPkg) {
                         $installingMsg = (Get-LocalizedString 'RestoreAppsInstalling')
@@ -1902,7 +1976,7 @@ if ($hasDeviceLevelApps) {
                     # Key existierte vorher - restore original value
                     if ($hasOwnershipModule) {
                         # Use ownership management for TrustedInstaller-protected keys
-                        $result = Set-RegistryValueSmart -Path $appPath -Name "EnabledByUser" -Value $appConfig.EnabledByUser -ValueType DWord `
+                        $result = Set-RegistryValueSmart -Path $appPath -Name "EnabledByUser" -Value $appConfig.EnabledByUser -Type DWord `
                             -Description "Restore Device-Level: $($appConfig.Permission)/$($appConfig.AppName)"
                         
                         if ($result) {

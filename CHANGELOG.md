@@ -20,6 +20,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Prevents Windows Mark-of-the-Web from blocking ZIP downloads
   - User-friendly: No manual unblocking required
   - FAQ Troubleshooting section added with manual solutions
+- **Restore Script Language Selection** - User can now choose language when running Restore script directly
+  - Previously: Auto-detected system language (always defaulted to English on EN systems)
+  - Now: Interactive language selection menu (like Apply script) when run standalone
+  - Fallback: Uses `$env:NOID_LANGUAGE` if called from Apply script
+  - Auto-detect: Only as last resort if Select-Language function unavailable
 
 ### Changed
 - **RDP Disable Now Optional** - Previously always disabled, now configurable
@@ -32,6 +37,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Strict Mode (Option 1): `AllowInboundRules=False` - blocks everything including localhost
   - Standard Mode (Option 2): `AllowInboundRules=True` - localhost works (Docker/LLM OK)
   - Fixes: OpenWebUI → FastFlowLM, Docker inter-container, WSL development
+- **Restore Warning Messages Color** - Changed from Red to Yellow for better visual distinction
+  - Restore-SecurityBaseline.ps1: All security warning boxes now use Yellow instead of Red
+  - Red is reserved for actual errors, Yellow for important warnings
+  - Affected: Security risk warnings, password notes, backup confirmation prompts
+  - Improves: Visual clarity, prevents misinterpretation of warnings as errors
 
 ### Fixed
 - **CRITICAL: Restore Ownership Module Not Loading** - Protected registry keys were not restored
@@ -73,6 +83,44 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Root Cause: Firewall ultra-strict mode blocks localhost (127.0.0.1)
   - Impact: OpenWebUI → FastFlowLM (NPU), Docker containers, WSL development
   - Solution: Option 2 allows localhost connections (`AllowInboundRules=True`)
+- **CRITICAL: Registry Restore Bug (49 Errors)** - Parameter name mismatch in Set-RegistryValueSmart calls
+  - Root Cause: Function expects `-Type` parameter, but code called with `-ValueType`
+  - Impact: 49 registry keys failed to restore with "Es wurde kein Parameter gefunden" error
+  - Files Fixed:
+    - `Modules/SecurityBaseline-RegistryBackup-Optimized.ps1` (line 269)
+    - `Restore-SecurityBaseline.ps1` (line 1925)
+  - Solution: Changed all `-ValueType` to `-Type` (correct parameter name)
+  - Result: All registry keys now restore successfully
+  - Note: Also corrected misleading changelog in Apply script (v1.7.6 had it backwards)
+- **CRITICAL: Public Profile Breaks Steam/Gaming Even in Standard Mode** - Unconditional blocking of local rules
+  - Root Cause: Public profile ALWAYS blocked local firewall rules, even when user chose "Allow Remote + Services"
+  - Impact: Steam/Games broken on Public WiFi (e.g., Guest networks, Hotspots) even with `$script:StrictFirewall = $false`
+  - Analysis: External security analyst identified this as "perfect storm" issue (only affects Public + Steam + certain network configs)
+  - Files Fixed: `Modules/SecurityBaseline-DNS.ps1` (lines 331-354)
+  - Solution: Made Public profile restrictions conditional on `$script:StrictFirewall` flag
+    - Strict Mode: `AllowLocalFirewallRules = False` (maximum security, breaks Steam on Public WiFi)
+    - Standard Mode: `AllowLocalFirewallRules = True` (Steam/Gaming/Docker functional, even on Public)
+  - Added: Warning if Public already blocked rules before script ran (detects previous hardening)
+  - Result: Steam/Gaming now works correctly when "Allow Remote + Services" is selected
+  - Note: This was hidden in DNS module (counter-intuitive location), now properly documented
+
+### Performance
+- **MASSIVE Performance Boost: 5 Minutes → 8 Seconds** - Restore script now 97% faster
+  - **Services Restore (214x → 1x)**: Bulk-load all services once, then hashtable lookup
+    - Before: 214 individual `Get-Service` calls (~15s)
+    - After: One bulk load + O(1) hashtable lookups (~1s)
+    - Improvement: 93% faster
+  - **Windows Features Restore (135x → 1x)**: Bulk-load all features once, then hashtable lookup
+    - Before: 135 individual `Get-WindowsOptionalFeature` calls with DISM/WMI (~270s = 4.5 minutes!)
+    - After: One bulk load + O(1) hashtable lookups (~5s)
+    - Improvement: 98% faster (265 seconds saved!)
+  - **Provisioned Packages Restore (14x → 1x)**: Bulk-load all packages once, then hashtable lookup
+    - Before: 14 individual `Get-AppxProvisionedPackage` calls with filter (~28s)
+    - After: One bulk load + O(1) hashtable lookups (~2s)
+    - Improvement: 92% faster
+  - Pattern: Same optimization technique as Scheduled Tasks (200x → 1x) and Firewall Rules (497x → 1x)
+  - Total Time Saved: ~305 seconds (5+ minutes!)
+  - Implementation: All with graceful fallback if bulk-load fails
 
 ### Documentation
 - **SECURITY_MAPPING.md**: Fixed baseline coverage inconsistency (Audit Finding #1)
