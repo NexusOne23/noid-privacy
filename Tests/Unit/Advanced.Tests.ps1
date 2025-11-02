@@ -75,71 +75,61 @@ Describe "Advanced Module - LAPS Functions" {
 Describe "Advanced Module - VBS & Credential Guard" {
     
     Context "Virtualization-Based Security" {
-        It "Should have Enable-VirtualizationBasedSecurity function" {
-            Get-Command Enable-VirtualizationBasedSecurity -ErrorAction SilentlyContinue | Should -Not -BeNullOrEmpty
-        }
+        # Note: VBS/Credential Guard functions are in Core module, not Advanced
+        # Advanced module contains: LAPS, Auditing, TLS, WDigest, EFSRPC, WebClient
         
-        It "Should reference Credential Guard" {
-            $content = Get-Content $modulePath -Raw
-            $content | Should -Match 'Credential.*Guard'
-        }
-        
-        It "Should reference HVCI" {
-            $content = Get-Content $modulePath -Raw
-            $content | Should -Match 'HVCI'
+        It "Should be loadable (Advanced module focuses on LAPS, Auditing, TLS)" {
+            { . $modulePath } | Should -Not -Throw
         }
     }
 }
 
-Describe "Advanced Module - LSA Protection" {
+Describe "Advanced Module - TLS Hardening" {
     
-    Context "LSA Protection" {
-        It "Should have Enable-LSAProtection function" {
-            Get-Command Enable-LSAProtection -ErrorAction SilentlyContinue | Should -Not -BeNullOrEmpty
+    Context "TLS/SSL Security" {
+        It "Should have Set-TLSHardening function" {
+            Get-Command Set-TLSHardening -ErrorAction SilentlyContinue | Should -Not -BeNullOrEmpty
         }
         
-        It "Should reference RunAsPPL" {
+        It "Should reference TLS 1.2" {
             $content = Get-Content $modulePath -Raw
-            $content | Should -Match 'RunAsPPL'
+            $content | Should -Match 'TLS.*1\.2'
         }
     }
 }
 
-Describe "Advanced Module - AutoPlay & SmartScreen" {
+Describe "Advanced Module - WDigest & Auth Coercion Protection" {
     
-    Context "AutoPlay" {
-        It "Should have Disable-AutoPlay function" {
-            Get-Command Disable-AutoPlay -ErrorAction SilentlyContinue | Should -Not -BeNullOrEmpty
+    Context "WDigest Authentication" {
+        It "Should have Disable-WDigest function" {
+            Get-Command Disable-WDigest -ErrorAction SilentlyContinue | Should -Not -BeNullOrEmpty
         }
     }
     
-    Context "SmartScreen" {
-        It "Should have Set-SmartScreenExtended function" {
-            Get-Command Set-SmartScreenExtended -ErrorAction SilentlyContinue | Should -Not -BeNullOrEmpty
+    Context "EFSRPC Protection" {
+        It "Should have Disable-EFSRPC function" {
+            Get-Command Disable-EFSRPC -ErrorAction SilentlyContinue | Should -Not -BeNullOrEmpty
+        }
+    }
+    
+    Context "WebClient/WebDAV Protection" {
+        It "Should have Disable-WebClient function" {
+            Get-Command Disable-WebClient -ErrorAction SilentlyContinue | Should -Not -BeNullOrEmpty
         }
     }
 }
 
-Describe "Advanced Module - Exploit Protection" {
+Describe "Advanced Module - Auditing" {
     
-    Context "Exploit Protection" {
-        It "Should have Set-ExploitProtection function" {
-            Get-Command Set-ExploitProtection -ErrorAction SilentlyContinue | Should -Not -BeNullOrEmpty
+    Context "Advanced Auditing" {
+        It "Should have Enable-AdvancedAuditing function" {
+            Get-Command Enable-AdvancedAuditing -ErrorAction SilentlyContinue | Should -Not -BeNullOrEmpty
         }
-        
-        It "Should reference DEP (Data Execution Prevention)" {
-            $content = Get-Content $modulePath -Raw
-            $content | Should -Match '\bDEP\b'
-        }
-        
-        It "Should reference SEHOP" {
-            $content = Get-Content $modulePath -Raw
-            $content | Should -Match 'SEHOP'
-        }
-        
-        It "Should reference ASLR" {
-            $content = Get-Content $modulePath -Raw
-            $content | Should -Match 'ASLR'
+    }
+    
+    Context "NTLM Auditing" {
+        It "Should have Enable-NTLMAuditing function" {
+            Get-Command Enable-NTLMAuditing -ErrorAction SilentlyContinue | Should -Not -BeNullOrEmpty
         }
     }
 }

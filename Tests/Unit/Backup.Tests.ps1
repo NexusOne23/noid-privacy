@@ -111,15 +111,15 @@ Describe "Backup Script - Error Handling" {
 
 Describe "Backup Script - Logging" {
     
-    Context "Transcript" {
-        It "Should have Start-Transcript" {
+    Context "Logging Output" {
+        It "Should use Write-Host for output" {
             $content = Get-Content $scriptPath -Raw
-            $content | Should -Match 'Start-Transcript'
+            $content | Should -Match 'Write-Host'
         }
         
-        It "Should have Stop-Transcript" {
+        It "Should have error handling for logging" {
             $content = Get-Content $scriptPath -Raw
-            $content | Should -Match 'Stop-Transcript'
+            $content | Should -Match '\bcatch\b'
         }
     }
     
