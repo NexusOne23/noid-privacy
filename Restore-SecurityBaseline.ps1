@@ -948,7 +948,7 @@ if ($backup.Settings.RegistryBackup) {
     $script:FailedRegistryKeys = @()
     
     try {
-        $result = Restore-SpecificRegistryKeys -BackupData $backup.Settings.RegistryBackup
+        $result = Restore-SpecificRegistryKeys -BackupData $backup.Settings.RegistryBackup -UseOwnership $true
         
         $elapsed = ((Get-Date) - $startTime).TotalSeconds
         
@@ -979,6 +979,86 @@ if ($backup.Settings.RegistryBackup) {
 }
 else {
     Write-Host "[!] No registry backup found in backup file - skipping" -ForegroundColor Yellow
+}
+
+# Clean up PolicyManager mirror keys (Windows creates these AFTER Apply, they're not in backup)
+# These cause Settings UI to still show "Your organization manages..." even after restore
+Write-Host ""
+Write-Host "[i] Cleaning up PolicyManager telemetry cache..." -ForegroundColor Cyan
+
+$telemetryPolicyCache = @(
+    "HKLM:\SOFTWARE\Microsoft\PolicyManager\current\device\System\AllowTelemetry",
+    "HKLM:\SOFTWARE\Microsoft\PolicyManager\current\device\System\LimitDiagnosticData",
+    "HKLM:\SOFTWARE\Microsoft\PolicyManager\current\device\System\DisableEnterpriseAuthProxy",
+    "HKLM:\SOFTWARE\Microsoft\PolicyManager\current\device\System\Telemetry",
+    "HKLM:\SOFTWARE\Microsoft\PolicyManager\current\device\System\DisableTelemetryOptIn",
+    "HKLM:\SOFTWARE\Microsoft\PolicyManager\current\device\System\LimitEnhancedDiagnosticData",
+    "HKLM:\SOFTWARE\Microsoft\PolicyManager\current\device\DataCollection"
+)
+
+$cleanedCount = 0
+foreach ($path in $telemetryPolicyCache) {
+    if (Test-Path $path) {
+        try {
+            Remove-Item $path -Recurse -Force -ErrorAction Stop
+            $cleanedCount++
+            Write-Host "  [OK] Removed: $path" -ForegroundColor Gray
+        }
+        catch {
+            Write-Host "  [!] Could not remove: $path - $_" -ForegroundColor Yellow
+        }
+    }
+}
+
+if ($cleanedCount -gt 0) {
+    Write-Host "[OK] PolicyManager cache cleaned ($cleanedCount keys removed)" -ForegroundColor Green
+    Write-Host "[i] Settings UI should now show user-controlled state" -ForegroundColor Cyan
+}
+else {
+    Write-Host "[i] No PolicyManager cache keys found (clean state)" -ForegroundColor Gray
+}
+
+# Clean up policy keys that did not exist before Apply (Exists=false in backup)
+# If Apply created these keys and they weren't there before, restore should remove them
+Write-Host ""
+Write-Host "[i] Checking for policy keys that should be removed..." -ForegroundColor Cyan
+
+$policyKeysToCheck = @(
+    "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection",
+    "HKLM:\SOFTWARE\Policies\Microsoft\Windows\AdvertisingInfo",
+    "HKLM:\SOFTWARE\Policies\Microsoft\Windows\AppPrivacy",
+    "HKLM:\SOFTWARE\Policies\Microsoft\SQMClient\Windows",
+    "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System"
+)
+
+$removedPolicyKeys = 0
+if ($backup.Settings.RegistryBackup) {
+    foreach ($keyPath in $policyKeysToCheck) {
+        # Check if ANY entry for this key path had Exists=$false in backup
+        $entriesForKey = $backup.Settings.RegistryBackup | Where-Object { $_.Path -eq $keyPath }
+        
+        if ($entriesForKey -and ($entriesForKey | Where-Object { $_.Exists -eq $false })) {
+            # At least one value in this key did not exist before Apply
+            # If the whole key was created by Apply, remove it entirely
+            if (Test-Path $keyPath) {
+                try {
+                    Remove-Item $keyPath -Recurse -Force -ErrorAction Stop
+                    $removedPolicyKeys++
+                    Write-Host "  [OK] Removed policy key: $keyPath" -ForegroundColor Gray
+                }
+                catch {
+                    Write-Host "  [!] Could not remove: $keyPath - $_" -ForegroundColor Yellow
+                }
+            }
+        }
+    }
+}
+
+if ($removedPolicyKeys -gt 0) {
+    Write-Host "[OK] Removed $removedPolicyKeys policy key(s) that were created by Apply" -ForegroundColor Green
+}
+else {
+    Write-Host "[i] No policy keys to remove (all existed before Apply)" -ForegroundColor Gray
 }
 
 Write-Host ""
