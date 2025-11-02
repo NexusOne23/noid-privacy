@@ -7,11 +7,18 @@ Get NoID Privacy up and running in 5 minutes!
 ## ⚡ Super Quick Start (1 Step!)
 
 ### One-Liner Install (Recommended - No Git!)
+
+**Step 1:** Open PowerShell as Administrator
+- Press `Win + X` on your keyboard
+- Click **"Terminal (Admin)"** or **"PowerShell (Admin)"**
+- Click "Yes" when Windows asks for permission
+
+**Step 2:** Paste this single line and press ENTER:
 ```powershell
-# Open PowerShell as Administrator (Win+X → "Terminal (Admin)")
-# Paste this single line:
 irm https://raw.githubusercontent.com/NexusOne23/noid-privacy/main/install.ps1 | iex
 ```
+
+> ⚠️ **Important:** This only works in **PowerShell** (not CMD)!
 
 **What happens:**
 1. **[1/5] Admin Check** - Verifies you're running as Administrator

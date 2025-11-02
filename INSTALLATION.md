@@ -96,10 +96,16 @@ Get-ComputerInfo | Select-Object HyperVisorPresent, HyperVRequirementVirtualizat
 ### Step 2: Download & Extract
 
 #### Option A: One-Liner Install (Recommended - Easiest!)
+
+**How to use:**
+1. Press `Win + X` → Click **"Terminal (Admin)"** or **"PowerShell (Admin)"**
+2. Paste this single line and press ENTER:
+
 ```powershell
-# Paste this single line in PowerShell (Admin):
 irm https://raw.githubusercontent.com/NexusOne23/noid-privacy/main/install.ps1 | iex
 ```
+
+> ⚠️ **Important:** Only works in **PowerShell** (not CMD)!
 
 **What it does:**
 1. **[1/5] Admin Check** - Verifies Administrator privileges (exits if not admin)

@@ -46,10 +46,16 @@
 ## 🚀 Quick Start
 
 ### One-Liner Install (Recommended - No Git Required!)
+
+**Step 1:** Open PowerShell as Administrator
+- Press `Win + X` → Click **"Terminal (Admin)"** or **"PowerShell (Admin)"**
+
+**Step 2:** Paste this single line and press ENTER:
 ```powershell
-# Open PowerShell as Administrator and paste this single line:
 irm https://raw.githubusercontent.com/NexusOne23/noid-privacy/main/install.ps1 | iex
 ```
+
+> ⚠️ **Important:** This only works in **PowerShell** (not CMD)!
 
 **What it does:**
 1. **[1/5] Checks Administrator privileges** - Exits with clear message if not admin
