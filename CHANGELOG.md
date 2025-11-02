@@ -25,6 +25,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Now: Interactive language selection menu (like Apply script) when run standalone
   - Fallback: Uses `$env:NOID_LANGUAGE` if called from Apply script
   - Auto-detect: Only as last resort if Select-Language function unavailable
+- **78 App Name Mappings** - User-friendly app names in Missing-Apps list
+  - Maps internal package names to Microsoft Store display names
+  - Example: `Clipchamp.Clipchamp` → `Clipchamp - Video Editor`
+  - Example: `MSTeams` → `Microsoft Teams (klassisch)`
+  - Example: `Microsoft.YourPhone` → `Phone Link (frueher: Ihr Smartphone)`
+  - Categories: Xbox/Gaming, Teams, Productivity, Social Media, Entertainment, Games, Utilities, Creative
+  - Result: Users can easily find and reinstall apps from Microsoft Store
 
 ### Changed
 - **RDP Disable Now Optional** - Previously always disabled, now configurable
@@ -42,8 +49,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Red is reserved for actual errors, Yellow for important warnings
   - Affected: Security risk warnings, password notes, backup confirmation prompts
   - Improves: Visual clarity, prevents misinterpretation of warnings as errors
+- **ASCII Cleanup (Project-Wide)** - Replaced non-ASCII characters with ASCII equivalents
+  - Scanned all 37 PowerShell files in project for non-ASCII characters
+  - Replaced: EN DASH (`–` U+2013) → HYPHEN-MINUS (`-` U+002D)
+  - Replaced: RIGHTWARDS ARROW (`→` U+2192) → ASCII (`->`)
+  - Replaced: REGISTERED SIGN (`®` U+00AE) → `(R)`
+  - Files Modified: Restore-SecurityBaseline.ps1, Apply-Win11-25H2-SecurityBaseline.ps1, SecurityBaseline-Core.ps1, SecurityBaseline-DNS-Providers.ps1
+  - Result: 100% ASCII-clean codebase for maximum cross-platform compatibility
+- **ArgumentList Array Format** - Robust parameter passing in Start-Process
+  - Changed from string format to array format for `Start-Process -ArgumentList`
+  - Before: `-ArgumentList "-ExecutionPolicy Bypass -File $script -Language de"` (string - can fail on quotes/spaces)
+  - After: `-ArgumentList @("-ExecutionPolicy", "Bypass", "-File", $script, "-Language", "de")` (array - robust)
+  - Files Modified: Apply-Win11-25H2-SecurityBaseline.ps1 (lines 911-921)
+  - Result: Language parameter passing now reliable in all edge cases
 
 ### Fixed
+- **CRITICAL: Language Parameter Ignored in Restore Script** - German selection reverted to English
+  - Root Cause: `SecurityBaseline-Localization.ps1` initialized `$Global:CurrentLanguage = "en"` before parameter check
+  - Impact: After selecting German in Apply script, Restore showed English messages ("Searching for available backups...")
+  - Solution: Reordered language setting logic to check `-Language` parameter FIRST (before `Test-Path Variable:\Global:CurrentLanguage`)
+  - Priority: Parameter > Environment > Existing Variable > Interactive > Auto-detect
+  - Added: Debug messages to trace language selection (`[DEBUG] Language set from parameter: de`)
+  - Files Fixed: `Restore-SecurityBaseline.ps1` (lines 154-203), `Apply-Win11-25H2-SecurityBaseline.ps1` (lines 911-921)
+  - Result: Language selection now works correctly - German stays German throughout Apply → Restore flow
+- **Step Counter Inconsistency in Restore Script** - Counter showed incorrect numbering
+  - Problem: Step counter jumped between totals (e.g., `[5/14]` → `[6/15]`, ending at `[14/14]` instead of correct total)
+  - Impact: Unprofessional display, user confusion about progress
+  - Solution: Fixed all 17 step counters to show consistent `[1/17]` through `[17/17]`
+  - Files Fixed: `Restore-SecurityBaseline.ps1` (lines 392-2081, all step displays)
+  - Result: Clean, professional step counter display throughout entire restore process
 - **CRITICAL: Restore Ownership Module Not Loading** - Protected registry keys were not restored
   - Root Cause: Wrong filename `SecurityBaseline-Ownership.ps1` (actual: `SecurityBaseline-RegistryOwnership.ps1`)
   - Impact: TrustedInstaller-protected telemetry keys remained after restore, Settings UI showed "Your organization manages..."
