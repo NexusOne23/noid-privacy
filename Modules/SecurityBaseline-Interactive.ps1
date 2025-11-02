@@ -843,7 +843,7 @@ function Invoke-VerifyMode {
         # ReadKey with error handling
         try {
             if ($Host.UI.RawUI) {
-                $key = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+                $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
             }
             else {
                 $pressEnterMsg = Get-LocalizedString 'PressEnter'
