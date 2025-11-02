@@ -1370,8 +1370,8 @@ function Show-BackupPrompt {
         Write-Host ""
         Write-Host "  [N] Kein Backup (nur Windows Restore Point)" -ForegroundColor Yellow
         Write-Host "         Schneller Start" -ForegroundColor Gray
-        Write-Host "         WARNUNG: Nur ~70% wiederherstellbar!" -ForegroundColor Red
-        Write-Host "         DNS, Hosts, Apps NICHT wiederherstellbar!" -ForegroundColor Red
+        Write-Host "         WARNUNG: Nur ~70% wiederherstellbar!" -ForegroundColor Yellow
+        Write-Host "         DNS, Hosts, Apps NICHT wiederherstellbar!" -ForegroundColor Yellow
         Write-Host ""
         Write-Host "  [R] Backup WIEDERHERSTELLEN" -ForegroundColor Cyan
         Write-Host "         Macht alle Aenderungen rueckgaengig!" -ForegroundColor Gray
@@ -1415,7 +1415,7 @@ function Show-BackupPrompt {
         elseif ($choice -eq 'N') {
             Write-Host ""
             Write-Host "  [!] KEIN Backup - nur Windows Restore Point" -ForegroundColor Yellow
-            Write-Host "      Warnung: Nur ~70% wiederherstellbar!" -ForegroundColor Red
+            Write-Host "      Warnung: Nur ~70% wiederherstellbar!" -ForegroundColor Yellow
             Start-Sleep -Seconds 2
             return @{Action='NoBackup'; Success=$true}
         }
@@ -1461,8 +1461,8 @@ function Show-BackupPrompt {
         Write-Host ""
         Write-Host "  [N] No backup (only Windows Restore Point)" -ForegroundColor Yellow
         Write-Host "         Faster start" -ForegroundColor Gray
-        Write-Host "         WARNING: Only ~70% restorable!" -ForegroundColor Red
-        Write-Host "         DNS, Hosts, Apps NOT restorable!" -ForegroundColor Red
+        Write-Host "         WARNING: Only ~70% restorable!" -ForegroundColor Yellow
+        Write-Host "         DNS, Hosts, Apps NOT restorable!" -ForegroundColor Yellow
         Write-Host ""
         Write-Host "  [R] RESTORE from backup" -ForegroundColor Cyan
         Write-Host "         Reverts all changes!" -ForegroundColor Gray
@@ -1506,7 +1506,7 @@ function Show-BackupPrompt {
         elseif ($choice -eq 'N') {
             Write-Host ""
             Write-Host "  [!] NO Backup - only Windows Restore Point" -ForegroundColor Yellow
-            Write-Host "      Warning: Only ~70% restorable!" -ForegroundColor Red
+            Write-Host "      Warning: Only ~70% restorable!" -ForegroundColor Yellow
             Start-Sleep -Seconds 2
             return @{Action='NoBackup'; Success=$true}
         }
