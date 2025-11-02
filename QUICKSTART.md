@@ -13,10 +13,14 @@ Get NoID Privacy up and running in 5 minutes!
 irm https://raw.githubusercontent.com/NexusOne23/noid-privacy/main/install.ps1 | iex
 ```
 
-**Done!** The installer:
-- ✅ Downloads latest release
-- ✅ Unblocks all files automatically
-- ✅ Starts interactive menu
+**What happens:**
+1. **[1/5] Admin Check** - Verifies you're running as Administrator
+2. **[2/5] Windows 11 Check** - Confirms Build 22000+ (25H2 recommended)
+3. **[3/5] Download** - Fetches latest release from GitHub
+4. **[4/5] Extract & Unblock** - Removes Zone.Identifier from all files
+5. **[5/5] Interactive Start** - Launches menu automatically
+
+**Done!** Zero manual steps needed!
 
 ---
 

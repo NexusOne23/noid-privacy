@@ -102,11 +102,17 @@ irm https://raw.githubusercontent.com/NexusOne23/noid-privacy/main/install.ps1 |
 ```
 
 **What it does:**
-- Downloads latest release from GitHub
-- Extracts all files
-- **Automatically unblocks all PowerShell files** (no Zone.Identifier issues!)
-- Starts interactive menu immediately
-- **No Git required!**
+1. **[1/5] Admin Check** - Verifies Administrator privileges (exits if not admin)
+2. **[2/5] Windows 11 Check** - Confirms Build 22000+ (25H2 recommended)
+3. **[3/5] Download** - Fetches latest release from GitHub API
+4. **[4/5] Extract & Unblock** - Removes Zone.Identifier from all PowerShell files
+5. **[5/5] Interactive Start** - Launches menu automatically
+
+**Benefits:**
+- ✅ No Git required
+- ✅ No manual unblocking
+- ✅ Always latest release
+- ✅ Zero manual steps
 
 ➡️ **Skip to "Post-Installation"** if using this option!
 
