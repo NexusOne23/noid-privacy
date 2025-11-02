@@ -2310,8 +2310,11 @@ function Disable-RemoteAccessCompletely {
         Write-Warning (Get-LocalizedString 'CoreRemoteWinRMFirewallError' -FormatArgs $_)
     }
     
-    Write-Success (Get-LocalizedString 'CoreRemoteComplete')
-    Write-Warning (Get-LocalizedString 'CoreRemoteWarning')
+    # Final summary - only if RDP was disabled
+    if ($script:DisableRDP) {
+        Write-Success (Get-LocalizedString 'CoreRemoteComplete')
+        Write-Warning (Get-LocalizedString 'CoreRemoteWarning')
+    }
 }
 
 function Disable-SudoForWindows {
