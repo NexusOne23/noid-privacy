@@ -785,13 +785,26 @@ Test-BaselineCheck -Category "Firewall" -Name "Public Log Max Size = 16384 KB" -
     -Test { (Get-NetFirewallProfile -Name Public).LogMaxSizeKilobytes } `
     -Expected 16384
 
-Test-BaselineCheck -Category "Firewall" -Name "Public Block Local Firewall Rules" -Impact "High" `
-    -Test { (Get-NetFirewallProfile -Name Public).AllowLocalFirewallRules } `
-    -Expected 'False'
+# AllowLocalFirewallRules: Optional since v1.7.16 (Standard Mode for Gaming/Docker)
+# False = Strict (Max Security, breaks Steam on Public WiFi), True = Standard (Gaming/Docker OK)
+$publicAllowLocalFW = (Get-NetFirewallProfile -Name Public).AllowLocalFirewallRules
+if ($publicAllowLocalFW -eq 'False') {
+    Write-Host "  [OK] Public Block Local Firewall Rules (Strict Mode)" -ForegroundColor Green
+    $script:passCount++
+} else {
+    Write-Host "  [!] Public Allow Local Firewall Rules (Standard Mode - Gaming/Docker OK)" -ForegroundColor Yellow
+    $script:passCount++
+}
 
-Test-BaselineCheck -Category "Firewall" -Name "Public Block Local IPsec Rules" -Impact "High" `
-    -Test { (Get-NetFirewallProfile -Name Public).AllowLocalIPsecRules } `
-    -Expected 'False'
+# AllowLocalIPsecRules: Optional since v1.7.16 (Standard Mode for Gaming/Docker)
+$publicAllowLocalIPsec = (Get-NetFirewallProfile -Name Public).AllowLocalIPsecRules
+if ($publicAllowLocalIPsec -eq 'False') {
+    Write-Host "  [OK] Public Block Local IPsec Rules (Strict Mode)" -ForegroundColor Green
+    $script:passCount++
+} else {
+    Write-Host "  [!] Public Allow Local IPsec Rules (Standard Mode - Gaming/Docker OK)" -ForegroundColor Yellow
+    $script:passCount++
+}
 
 # ===========================
 # NETWORK HARDENING (mDNS, LLMNR, NetBIOS)
