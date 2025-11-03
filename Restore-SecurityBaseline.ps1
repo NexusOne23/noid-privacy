@@ -1984,7 +1984,7 @@ else {
             Write-Verbose "  Failed to set EnableAutoDoh registry: $_"
         }
         
-        Write-Host "  [OK] DoH configuration removed (restored to state before Apply)" -ForegroundColor Green
+        Write-Host "  [OK] $(Get-LocalizedString 'RestoreDohRemoved')" -ForegroundColor Green
         $restoreStats.Success++
     }
     catch {
