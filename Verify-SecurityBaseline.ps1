@@ -1184,11 +1184,9 @@ Test-BaselineCheck -Category "APT-Protection" -Name "Internet Zone: Block Launch
     } `
     -Expected 3
 
-Test-BaselineCheck -Category "APT-Protection" -Name "Internet Zone: Block Auto Downloads (3)" -Impact "High" `
-    -Test { 
-        Get-RegistryValueSafe $internetZonePath "1803"
-    } `
-    -Expected 3
+# NOTE: 1803 (Block Auto Downloads) test removed
+# REASON: Blocking downloads (1803=3) breaks Chrome/Edge ("blocked by your organization")
+# SECURITY: Still protected via 1806 (blocks execution) - users must save locally before opening
 
 $intranetZonePath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\1"
 

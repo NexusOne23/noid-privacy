@@ -286,13 +286,14 @@ function Set-ExplorerZoneHardening {
     # Internet Zone (Zone 3) - UNTRUSTED
     $internetZonePath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\3"
     
-    # Block: Launching applications and unsafe files
+    # Block: Launching applications and unsafe files (CVE-2025-9491)
     [void](Set-RegistryValue -Path $internetZonePath -Name "1806" -Value 3 -Type DWord `
         -Description "Internet Zone: Disable launching applications")
     
-    # Block: File downloads (require prompt)
-    [void](Set-RegistryValue -Path $internetZonePath -Name "1803" -Value 3 -Type DWord `
-        -Description "Internet Zone: Disable automatic file downloads")
+    # NOTE: 1803 (File download) is NOT blocked!
+    # REASON: Would break Chrome/Edge downloads ("blocked by your organization")
+    # SECURITY: Files from Internet Zone can be downloaded but NOT executed (1806 blocks execution)
+    # RESULT: Users must save file locally first, then open → CVE-2025-9491 protection maintained!
     
     # Intranet Zone (Zone 1) - ALSO HARDEN (compromised internal servers)
     $intranetZonePath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\1"

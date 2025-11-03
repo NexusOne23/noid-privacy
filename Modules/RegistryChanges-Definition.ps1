@@ -3089,14 +3089,8 @@ $script:RegistryChanges = @(
         Description = 'Internet Zone: Disable launching applications'
         File = 'SecurityBaseline-Core.ps1'
     },
-    @{
-        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\3'
-        Name = '1803'
-        Type = 'DWord'
-        ApplyValue = 3
-        Description = 'Internet Zone: Disable automatic file downloads'
-        File = 'SecurityBaseline-Core.ps1'
-    },
+    # NOTE: 1803 (File download) was removed - would break Chrome/Edge downloads
+    # Security maintained via 1806 (execution block) + local save requirement
     @{
         Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\1'
         Name = '1806'
