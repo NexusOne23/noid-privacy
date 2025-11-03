@@ -25,6 +25,46 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - All 4 DNS providers + "Keep Existing" option translated
   - Consistent with rest of project - 100% localized menus
 
+- **Third-Party Antivirus Compatibility Documentation** - Comprehensive guide added
+  - New file: ANTIVIRUS_COMPATIBILITY.md (413 lines)
+  - Coverage: Bitdefender, Kaspersky, Norton, ESET, Avast, McAfee, Avira, and more
+  - Details: Expected behavior, false positives, whitelisting instructions
+  - Special focus: Bitdefender hosts file scanning issue (80K+ entries)
+  - User feedback addressed: "Why is my antivirus flagging the script?"
+
+- **Complete Code Quality Audit** - Systematic analysis of all 8 critical areas
+  - CODE_AUDIT.md: Files 1-5 audited (Apply, Restore, Backup, Core, Advanced)
+  - Found and fixed: Get-ItemProperty -Name pattern (causes errors), missing localization strings
+  - Verified: TLS/SChannel implementation is complete (all algorithms covered)
+  - Result: Clean code, no critical issues, only localization TODOs remaining
+
+- **100% Telemetry Module Localization** - All 13 functions now fully localized
+  - ~210 hardcoded strings replaced with Get-LocalizedString calls
+  - Functions: Disable-TelemetryServices, Set-PrivacySettings, Disable-Camera, Disable-Microphone, Disable-Location, Disable-AllAppPermissionsDefaults, and 7 more
+  - Added to Localization.ps1: ~210 new strings (EN + DE)
+  - Consistency: 100% localized project (no hardcoded German/English texts)
+
+- **100% Bloatware Module Localization** - Complete internationalization
+  - All Write-Host statements now use Get-LocalizedString
+  - Added progress indicators for long-running operations
+  - Code Quality: Removed 4 duplicate app entries (Flipboard, Netflix, Plex, Shazam)
+  - Result: 79 unique app patterns (was 83)
+
+- **Advanced/ASR/DNS Module Localization Completed**
+  - SecurityBaseline-Advanced.ps1: 16 missing strings added (WDigest, EFSRPC, WebClient functions)
+  - SecurityBaseline-ASR.ps1: 3 missing strings added (ASRReason, ASRRetrievalError, ASRConflictTip)
+  - SecurityBaseline-DNS.ps1: 3 missing firewall strings added (Standard Mode messages)
+  - Result: 100% localization in all security modules
+
+- **Restore Script: 36 Missing Localization Strings Added**
+  - All hardcoded German texts replaced with Get-LocalizedString calls
+  - Added: Registry restore, Service restore, Scheduled Tasks, Firewall, and more
+  - Consistency: Restore script now fully bilingual (EN/DE)
+
+- **7 Functions: Add Missing [OutputType([void])]** - Code quality improvement
+  - SecurityBaseline-Telemetry.ps1: 7 functions updated for consistency
+  - Best practice: All functions now have proper OutputType annotations
+
 ### Changed
 - **DNS Default: Keep Current DNS** - Fixed slow internet issue from forum feedback
   - Apply-Win11-25H2-SecurityBaseline.ps1: Lines 1429, 1432-1435
@@ -38,13 +78,73 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Interactive mode unchanged: Menu still offers all 4 providers + keep option
 
 ### Fixed
+- **CRITICAL: Registry Count Corrected** - Final count is 392 keys (not 394)
+  - **Root Cause**: 2 "dead" DohFlags entries in RegistryChanges-Definition.ps1
+  - **Analysis**: These entries were DEFINED but NEVER SET by any Set-RegistryValue calls
+  - **Action**: Removed from code AND all documentation for 100% accuracy
+  - **Updated Files**: README.md, Apply script header (.NOTES), REGISTRY_KEYS.md module tables
+  - **Result**: Perfect consistency - 392 keys everywhere in codebase (no more 375/380/394 confusion!)
+  - **Commits**: `2e48fb1`, `2975680`, `8555d9d`, `c33c744`, `d67a26a`, `2ef689a`
+
+- **CRITICAL: Internet Zone 1803 Download Blocking** - Chrome/Edge downloads broken
+  - **Bug**: Set-ExplorerZoneHardening set 1803 (File Download) to 3 (Disable)
+  - **Impact**: Broke Chrome/Edge downloads ("blocked by your organization" error)
+  - **Root Cause**: Overzealous hardening - downloads must be allowed, only EXECUTION blocked (1806)
+  - **Fix**: Removed 1803 setting, kept 1806 (Disable launching apps)
+  - **Security**: CVE-2025-9491 protection maintained - files can be downloaded but NOT executed
+  - **Workaround**: Users must save file locally first, then open (protection working correctly!)
+  - **Commit**: `7394811`
+
 - **Critical Backup/Restore Gap** - Device-Level App Permissions not backed up (v1.7.13-v1.7.16)
-  - Impact: After Restore, webcam/microphone EnabledByUser keys remained at "Deny" (not restored)
-  - Scope: ~5-20 app permission keys per permission (webcam, microphone)
-  - Why removed in v1.7.13: "TrustedInstaller-protected, backup meaningless"
-  - Why critical: Restore script expected this data → without it, cannot restore original state
-  - Fix approach: Backup with try-catch per app, skip Access Denied gracefully, backup readable entries
-  - Verification: Restore-SecurityBaseline.ps1 (Lines 2069-2178) already had correct restore logic waiting for data!
+  - **Impact**: After Restore, webcam/microphone EnabledByUser keys remained at "Deny" (not restored)
+  - **Scope**: ~5-20 app permission keys per permission (webcam, microphone)
+  - **Why removed in v1.7.13**: "TrustedInstaller-protected, backup meaningless"
+  - **Why critical**: Restore script expected this data → without it, cannot restore original state
+  - **Fix approach**: Backup with try-catch per app, skip Access Denied gracefully, backup readable entries
+  - **Verification**: Restore-SecurityBaseline.ps1 (Lines 2069-2178) already had correct restore logic waiting for data!
+  - **Commit**: `49216e1`
+
+- **Get-ItemProperty -Name Pattern** - Clean error records (63 instances fixed)
+  - **Bug**: `Get-ItemProperty -Path $path -Name $prop -ErrorAction SilentlyContinue` creates error records even with SilentlyContinue
+  - **Impact**: Error Records pollute $Error variable, confuse debugging
+  - **Fix**: Replaced with Get-RegistryValueSafe helper function (check ItemProperty, then access property)
+  - **Scope**: 63 instances across Backup, Restore, SecurityBaseline-RegistryBackup-Optimized.ps1
+  - **Result**: Clean Error Records, no more PropertyNotFoundException false positives
+  - **Commits**: `49d30be`, `2561a6c`
+
+- **Restore Script: PSObject.Properties Pattern** - Property access safety
+  - **Bug**: Direct property access crashes under StrictMode if property doesn't exist
+  - **Fix**: All property access now uses PSObject.Properties.Name check first
+  - **Example**: `if ('PropertyName' -in $obj.PSObject.Properties.Name) { $value = $obj.PropertyName }`
+  - **Scope**: Registry restore, Service restore, all JSON deserialization
+  - **Commit**: `79d751c`
+
+- **Verify Script: Firewall Checks Mode-Aware** - False failures in Standard Mode
+  - **Bug**: Verify script expected ultra-strict firewall (AllowInboundRules=False) always
+  - **Impact**: False failures for users who chose Standard Mode (localhost allowed)
+  - **Fix**: Made Public firewall checks mode-aware (both Strict and Standard are valid)
+  - **Commits**: `f578b1d`, `7302cab`
+
+- **String Formatting, ASR Null-Check, SRP Rules Check** - Various fixes
+  - **Fix 1**: String formatting errors in Verify script
+  - **Fix 2**: ASR Rules null-check (prevents crash when Defender not configured)
+  - **Fix 3**: Network Protection verification improved
+  - **Fix 4**: SRP Rules check now validates 5+ rules (was hardcoded 6)
+  - **Commit**: `f578b1d`
+
+- **Intel Driver Installation Workaround** - Documentation fix
+  - **Fixed**: Description of Intel WiFi/Bluetooth driver installation workaround in docs
+  - **Context**: Windows Driver Foundation blocks some Intel drivers after hardening
+  - **Commit**: `31b5e30`
+
+- **MASTERPLAN.md Removed from Git** - Added to .gitignore
+  - **Reason**: Internal planning document, not relevant for end users
+  - **Commit**: `377f3c9`
+
+- **Documentation Cleanup** - Removed obsolete audit docs
+  - **Removed**: CODE_AUDIT.md, SYSTEMATIC_CODE_ANALYSIS.md (obsolete)
+  - **Reason**: Replaced by comprehensive CHANGELOG and inline documentation
+  - **Commit**: `2ef689a`
 
 ## [1.7.16] - 2025-11-02
 

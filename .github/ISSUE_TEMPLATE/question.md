@@ -27,7 +27,7 @@ If your question is related to a specific scenario, please provide:
 
 - **OS**: Windows 11 25H2 (Build XXXXX)
 - **PowerShell Version**: [e.g., 5.1.26100.1]
-- **Script Version**: [e.g., 1.7.11]
+- **Script Version**: [e.g., 1.7.17]
 - **Scenario**: [Describe what you're trying to accomplish]
 
 ## 📝 Additional Information

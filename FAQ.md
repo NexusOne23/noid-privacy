@@ -677,4 +677,4 @@ Git-cloned files don't have Zone.Identifier!
 ---
 
 **Last Updated**: November 3, 2025  
-**Version**: 1.8.0 (Added Network Protection Enhancement + PIN Complexity, explained why Tamper Protection is not included)
+**Version**: 1.7.17
