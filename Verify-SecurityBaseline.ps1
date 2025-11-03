@@ -144,6 +144,45 @@ function Test-BaselineCheck {
     }
 }
 
+function Get-RegistryValueSafe {
+    <#
+    .SYNOPSIS
+        Safely reads registry value without creating error records
+    .DESCRIPTION
+        Uses PSObject.Properties pattern to avoid Get-ItemProperty -Name creating error records
+        even with -ErrorAction SilentlyContinue. Memory MEMORY[46874c67...] pattern.
+    .PARAMETER Path
+        Registry path
+    .PARAMETER Name
+        Property name to read
+    .PARAMETER DefaultValue
+        Value to return if property doesn't exist (default: 0)
+    #>
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Path,
+        
+        [Parameter(Mandatory = $true)]
+        [string]$Name,
+        
+        [Parameter(Mandatory = $false)]
+        $DefaultValue = 0
+    )
+    
+    try {
+        $item = Get-ItemProperty -Path $Path -ErrorAction SilentlyContinue
+        if ($item -and ($item.PSObject.Properties.Name -contains $Name)) {
+            return $item.$Name
+        }
+        else {
+            return $DefaultValue
+        }
+    }
+    catch {
+        return $DefaultValue
+    }
+}
+
 # System Basics
 Write-Host "`n=== SYSTEM BASICS ===" -ForegroundColor Yellow
 
@@ -169,8 +208,8 @@ Write-Host "`n=== MICROSOFT DEFENDER ANTIVIRUS (17 SETTINGS) ===" -ForegroundCol
 # 1. Real-Time Protection
 Test-BaselineCheck -Category "Defender" -Name "Real-Time Monitoring Enabled" -Impact "Critical" `
     -Test { 
-        $rt = Get-ItemProperty "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" -Name DisableRealtimeMonitoring -ErrorAction SilentlyContinue
-        if ($rt) { $rt.DisableRealtimeMonitoring -eq 0 } else { $true }
+        $value = Get-RegistryValueSafe "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" "DisableRealtimeMonitoring" -DefaultValue -1
+        if ($value -eq -1) { $true } else { $value -eq 0 }
     } `
     -Expected $true
 
@@ -181,8 +220,8 @@ Test-BaselineCheck -Category "Defender" -Name "IOAV Protection Enabled" -Impact 
             $mpPref = Get-MpPreference -ErrorAction Stop
             -not $mpPref.DisableIOAVProtection
         } catch {
-            $ioav = Get-ItemProperty "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" -Name DisableIOAVProtection -ErrorAction SilentlyContinue
-            if ($ioav) { $ioav.DisableIOAVProtection -eq 0 } else { $true }
+            $value = Get-RegistryValueSafe "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" "DisableIOAVProtection" -DefaultValue -1
+            if ($value -eq -1) { $true } else { $value -eq 0 }
         }
     } `
     -Expected $true
@@ -194,8 +233,8 @@ Test-BaselineCheck -Category "Defender" -Name "Behavior Monitoring Enabled" -Imp
             $mpPref = Get-MpPreference -ErrorAction Stop
             -not $mpPref.DisableBehaviorMonitoring
         } catch {
-            $bm = Get-ItemProperty "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" -Name DisableBehaviorMonitoring -ErrorAction SilentlyContinue
-            if ($bm) { $bm.DisableBehaviorMonitoring -eq 0 } else { $true }
+            $value = Get-RegistryValueSafe "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection" "DisableBehaviorMonitoring" -DefaultValue -1
+            if ($value -eq -1) { $true } else { $value -eq 0 }
         }
     } `
     -Expected $true
@@ -279,8 +318,8 @@ Test-BaselineCheck -Category "Defender" -Name "Cloud Protection Enabled (MAPS)" 
             $mpStatus = Get-MpComputerStatus -ErrorAction Stop
             $mpStatus.AMServiceEnabled
         } catch {
-            $spynet = Get-ItemProperty "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" -Name SpynetReporting -ErrorAction SilentlyContinue
-            if ($spynet) { $spynet.SpynetReporting -ge 1 } else { $false }
+            $value = Get-RegistryValueSafe "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" "SpynetReporting"
+            $value -ge 1
         }
     } `
     -Expected $true
@@ -288,8 +327,7 @@ Test-BaselineCheck -Category "Defender" -Name "Cloud Protection Enabled (MAPS)" 
 # 11. Cloud Block Level (High for zero-hour protection)
 Test-BaselineCheck -Category "Defender" -Name "Cloud Block Level = High" -Impact "High" `
     -Test { 
-        $cbl = Get-ItemProperty "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\MpEngine" -Name MpCloudBlockLevel -ErrorAction SilentlyContinue
-        if ($cbl) { $cbl.MpCloudBlockLevel } else { 0 }
+        Get-RegistryValueSafe "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\MpEngine" "MpCloudBlockLevel"
     } `
     -Expected 2
 
@@ -300,8 +338,7 @@ Test-BaselineCheck -Category "Defender" -Name "Sample Submission = Send Safe Sam
             $mpPref = Get-MpPreference -ErrorAction Stop
             $mpPref.SubmitSamplesConsent
         } catch {
-            $submit = Get-ItemProperty "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" -Name SubmitSamplesConsent -ErrorAction SilentlyContinue
-            if ($submit) { $submit.SubmitSamplesConsent } else { 0 }
+            Get-RegistryValueSafe "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet" "SubmitSamplesConsent"
         }
     } `
     -Expected { param($v) $v -ge 1 }
@@ -313,8 +350,8 @@ Test-BaselineCheck -Category "Defender" -Name "PUA Protection Enabled" -Impact "
             $mpPref = Get-MpPreference -ErrorAction Stop
             $mpPref.PUAProtection -eq 1
         } catch {
-            $pua = Get-ItemProperty "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender" -Name PUAProtection -ErrorAction SilentlyContinue
-            if ($pua) { $pua.PUAProtection -eq 1 } else { $false }
+            $value = Get-RegistryValueSafe "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender" "PUAProtection"
+            $value -eq 1
         }
     } `
     -Expected $true
@@ -334,8 +371,7 @@ Test-BaselineCheck -Category "Defender" -Name "Network Protection Enabled (Block
         }
         
         # Method 2: Check Registry (fallback for third-party AV or Defender disabled)
-        $np = Get-ItemProperty "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Windows Defender Exploit Guard\Network Protection" -Name EnableNetworkProtection -ErrorAction SilentlyContinue
-        if ($np) { $np.EnableNetworkProtection } else { 0 }
+        Get-RegistryValueSafe "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Windows Defender Exploit Guard\Network Protection" "EnableNetworkProtection"
     } `
     -Expected 1
 
@@ -346,8 +382,8 @@ Test-BaselineCheck -Category "Defender" -Name "Controlled Folder Access Enabled"
             $mpPref = Get-MpPreference -ErrorAction Stop
             $mpPref.EnableControlledFolderAccess -eq 1
         } catch {
-            $cfa = Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows Defender\Windows Defender Exploit Guard\Controlled Folder Access" -Name EnableControlledFolderAccess -ErrorAction SilentlyContinue
-            if ($cfa) { $cfa.EnableControlledFolderAccess -eq 1 } else { $false }
+            $value = Get-RegistryValueSafe "HKLM:\SOFTWARE\Microsoft\Windows Defender\Windows Defender Exploit Guard\Controlled Folder Access" "EnableControlledFolderAccess"
+            $value -eq 1
         }
     } `
     -Expected $true
@@ -355,16 +391,15 @@ Test-BaselineCheck -Category "Defender" -Name "Controlled Folder Access Enabled"
 # 16. SmartScreen for Apps (Windows Security)
 Test-BaselineCheck -Category "Defender" -Name "SmartScreen for Apps Enabled" -Impact "High" `
     -Test { 
-        $ss = Get-ItemProperty "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name EnableSmartScreen -ErrorAction SilentlyContinue
-        if ($ss) { $ss.EnableSmartScreen } else { 0 }
+        Get-RegistryValueSafe "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" "EnableSmartScreen"
     } `
     -Expected 1
 
 # 17. SmartScreen Warn -> Block Mode
 Test-BaselineCheck -Category "Defender" -Name "SmartScreen Warn -> Block Mode" -Impact "Medium" `
     -Test { 
-        $ssmode = Get-ItemProperty "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" -Name ShellSmartScreenLevel -ErrorAction SilentlyContinue
-        if ($ssmode) { $ssmode.ShellSmartScreenLevel -eq "Block" } else { $false }
+        $value = Get-RegistryValueSafe "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" "ShellSmartScreenLevel" -DefaultValue ""
+        $value -eq "Block"
     } `
     -Expected $true
 

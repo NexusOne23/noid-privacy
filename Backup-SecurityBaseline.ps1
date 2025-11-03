@@ -308,7 +308,7 @@ Write-Host "[i] $(Get-LocalizedString 'BackupCreating')" -ForegroundColor Cyan
 Write-Host ""
 
 #region DNS Settings Backup
-Write-Host "[1/13] $(Get-LocalizedString 'BackupDNS')" -ForegroundColor Yellow
+Write-Host "[1/14] $(Get-LocalizedString 'BackupDNS')" -ForegroundColor Yellow
 
 $adapters = Get-NetAdapter | Where-Object { $_.Status -eq 'Up' }
 
@@ -354,7 +354,7 @@ Write-Host "[OK] $dnsMsg`n" -ForegroundColor Green
 #endregion
 
 #region Hosts File Backup
-Write-Host "[2/13] $(Get-LocalizedString 'BackupHosts')" -ForegroundColor Yellow
+Write-Host "[2/14] $(Get-LocalizedString 'BackupHosts')" -ForegroundColor Yellow
 
 $hostsPath = "$env:SystemRoot\System32\drivers\etc\hosts"
 if (Test-Path $hostsPath) {
@@ -372,7 +372,7 @@ else {
 #endregion
 
 #region Installed Apps Backup (WITH PROVISIONED PACKAGES!)
-Write-Host "[3/13] $(Get-LocalizedString 'BackupApps')" -ForegroundColor Yellow
+Write-Host "[3/14] $(Get-LocalizedString 'BackupApps')" -ForegroundColor Yellow
 
 # User Apps (with timeout protection)
 $installedApps = @()
@@ -459,7 +459,7 @@ Write-Host ""
 #endregion
 
 #region Services Backup (ALL SERVICES!)
-Write-Host "[4/13] $(Get-LocalizedString 'BackupServices')" -ForegroundColor Yellow
+Write-Host "[4/14] $(Get-LocalizedString 'BackupServices')" -ForegroundColor Yellow
 
 # BACKUP ALL SERVICES (not just the ones we change!)
 $allServices = Get-Service -ErrorAction SilentlyContinue
