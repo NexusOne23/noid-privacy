@@ -292,8 +292,8 @@ function Set-AttackSurfaceReductionRules {
             Write-Info "$(Get-LocalizedString 'ASRCannotSetScript')"
             Write-Info "$(Get-LocalizedString 'ASRManualActivation')"
             Write-Info "                    "
-            Write-Info "Grund: $($_.Exception.Message)"
-            Write-Verbose "Tip: For conflicts with existing rules, delete them first with Remove-MpPreference"
+            Write-Info (Get-LocalizedString 'ASRReason' $_.Exception.Message)
+            Write-Verbose "$(Get-LocalizedString 'ASRConflictTip')"
         }
         else {
             Write-Verbose "Ignoring known Defender timing issue (0x800106ba)"
@@ -351,7 +351,7 @@ function Get-ASRRuleStatus {
         }
     }
     catch {
-        Write-Error-Custom "Fehler beim Abrufen der ASR-Regeln: $_"
+        Write-Error-Custom (Get-LocalizedString 'ASRRetrievalError' $_)
     }
 }
 

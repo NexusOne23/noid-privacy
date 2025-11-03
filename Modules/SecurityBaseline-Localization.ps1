@@ -425,6 +425,9 @@ $Global:Strings = @{
         SACWindowsManages = "Smart App Control: Windows manages status automatically"
         SACEvaluationPeriod = "After 7-14 days evaluation, Windows can activate SAC"
         SACSmartScreenActive = "SmartScreen active"
+        ASRReason = "Reason: {0}"
+        ASRRetrievalError = "Error retrieving ASR rules: {0}"
+        ASRConflictTip = "Tip: For conflicts with existing rules, delete them first with Remove-MpPreference"
         
         # Core Module - System Validation
         CoreSystemValidation = "System Validation"
@@ -1591,6 +1594,9 @@ $Global:Strings = @{
         SACWindowsManages = "Smart App Control: Windows verwaltet Status automatisch"
         SACEvaluationPeriod = "Nach 7-14 Tagen Evaluation kann Windows SAC aktivieren"
         SACSmartScreenActive = "SmartScreen aktiv"
+        ASRReason = "Grund: {0}"
+        ASRRetrievalError = "Fehler beim Abrufen der ASR-Regeln: {0}"
+        ASRConflictTip = "Tipp: Bei Konflikten mit bestehenden Regeln, diese zuerst loeschen mit Remove-MpPreference"
         
         # Core Module - System Validation
         CoreSystemValidation = "System-Validierung"
