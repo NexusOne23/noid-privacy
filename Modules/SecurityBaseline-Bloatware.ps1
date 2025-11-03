@@ -215,9 +215,11 @@ function Remove-BloatwareApps {
     Write-Host ("     " + (Get-LocalizedString 'BloatwareCompleted' $bloatwareList.Count $bloatwareList.Count)) -ForegroundColor Green
     
     Write-Success "$(Get-LocalizedString 'BloatwareRemovalDone')"
-    Write-Info (Get-LocalizedString 'BloatwareRemoved' $removedCount)
+    $removedMsg = Get-LocalizedString 'BloatwareRemoved' $removedCount
+    Write-Info $removedMsg
     if ($failedCount -gt 0) {
-        Write-Warning (Get-LocalizedString 'BloatwareFailed' $failedCount)
+        $failedMsg = Get-LocalizedString 'BloatwareFailed' $failedCount
+        Write-Warning $failedMsg
     }
     
     Write-Info "$(Get-LocalizedString 'BloatwareStoreNote')"

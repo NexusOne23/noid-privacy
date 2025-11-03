@@ -507,6 +507,24 @@ $Global:Strings = @{
         CoreCFAEnableFailed = "Controlled Folder Access could not be activated: {0}"
         CoreCFAManual = "Manually activate: Windows Security | Ransomware Protection"
         
+        # Core Module - Network Protection
+        CoreNetworkProtectionEnabled = "Network Protection enabled - blocks malicious IPs/domains"
+        CoreNetworkProtectionRegistry = "Network Protection enabled via Registry (Defender cmdlet unavailable)"
+        
+        # Advanced Module - Windows Hello PIN
+        AdvancedPINTitle = "Windows Hello PIN Security Configuration"
+        AdvancedPINNoTPM = "TPM 2.0 not found or not present"
+        AdvancedPINTPMNotReady = "TPM 2.0 is present but not ready (may need BIOS configuration)"
+        AdvancedPINCheckFailed = "Could not check TPM requirements: {0}"
+        AdvancedPINSkipped = "Skipping Windows Hello PIN configuration (requirements not met)"
+        AdvancedPINConfiguring = "Configuring Windows Hello PIN complexity requirements..."
+        AdvancedPINConfigured = "Windows Hello PIN complexity configured (min 6 digits, history of 5)"
+        AdvancedPINVBSProtected = "PIN is protected by VBS (Credential Guard) - isolated in secure enclave"
+        AdvancedPINAppliesNew = "Applies to NEW PINs only (existing PINs not affected)"
+        AdvancedPINWeakWarning = "IMPORTANT: Avoid common PINs (birthdays, sequences like 123456, repeating digits)"
+        AdvancedPINBestPractices = "Best Practice: Use random 6-8 digits, not personal information (birthdays, phone numbers)"
+        AdvancedPINFailed = "Could not configure PIN complexity: {0}"
+        
         # Core Module - Exploit Protection
         CoreExploitTitle = "Exploit Protection EXTENDED (Maximum Security)"
         CoreExploitConfiguring = "Configuring ALL Exploit Mitigations..."
@@ -1617,6 +1635,24 @@ $Global:Strings = @{
         CoreCFAEnableFailed = "Controlled Folder Access konnte nicht aktiviert werden: {0}"
         CoreCFAManual = "Manuell aktivieren: Windows Security | Ransomware Protection"
         
+        # Core Module - Network Protection
+        CoreNetworkProtectionEnabled = "Netzwerkschutz aktiviert - blockiert boesartige IPs/Domains"
+        CoreNetworkProtectionRegistry = "Netzwerkschutz via Registry aktiviert (Defender-Cmdlet nicht verfuegbar)"
+        
+        # Advanced Module - Windows Hello PIN
+        AdvancedPINTitle = "Windows Hello PIN Sicherheits-Konfiguration"
+        AdvancedPINNoTPM = "TPM 2.0 nicht gefunden oder nicht vorhanden"
+        AdvancedPINTPMNotReady = "TPM 2.0 vorhanden aber nicht bereit (evtl. BIOS-Konfiguration noetig)"
+        AdvancedPINCheckFailed = "Konnte TPM-Voraussetzungen nicht pruefen: {0}"
+        AdvancedPINSkipped = "Ueberspringe Windows Hello PIN Konfiguration (Voraussetzungen nicht erfuellt)"
+        AdvancedPINConfiguring = "Konfiguriere Windows Hello PIN Komplexitaetsanforderungen..."
+        AdvancedPINConfigured = "Windows Hello PIN Komplexitaet konfiguriert (min 6 Ziffern, Historie von 5)"
+        AdvancedPINVBSProtected = "PIN ist durch VBS geschuetzt (Credential Guard) - isoliert in sicherer Enklave"
+        AdvancedPINAppliesNew = "Gilt nur fuer NEUE PINs (bestehende PINs nicht betroffen)"
+        AdvancedPINWeakWarning = "WICHTIG: Vermeide haeufige PINs (Geburtstage, Sequenzen wie 123456, sich wiederholende Ziffern)"
+        AdvancedPINBestPractices = "Best Practice: Nutze zufaellige 6-8 Ziffern, keine persoenlichen Infos (Geburtstage, Telefonnummern)"
+        AdvancedPINFailed = "Konnte PIN-Komplexitaet nicht konfigurieren: {0}"
+        
         # Core Module - Exploit Protection
         CoreExploitTitle = "Exploit Protection EXTENDED (Maximum Security)"
         CoreExploitConfiguring = "Konfiguriere ALLE Exploit Mitigations..."
@@ -2306,7 +2342,9 @@ function Get-LocalizedString {
     }
     
     # Apply formatting if Format parameters provided
-    if ($FormatArgs -and $FormatArgs.Count -gt 0) {
+    # CRITICAL: Check $FormatArgs is not $null, then check Count
+    # Don't use -and with $FormatArgs directly (fails when $FormatArgs = @(0))
+    if ($null -ne $FormatArgs -and $FormatArgs.Count -gt 0) {
         try {
             $result = $result -f $FormatArgs
         }

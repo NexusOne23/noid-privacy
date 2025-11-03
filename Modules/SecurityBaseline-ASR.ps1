@@ -40,7 +40,8 @@ function Set-AttackSurfaceReductionRules {
     # Best Practice 25H2: Enforce = Block Mode
     $asrMode = if ($Mode -eq 'Enforce') { 1 } else { 2 }
     
-    Write-Info (Get-LocalizedString 'ASRMode' $Mode)
+    $modeMsg = Get-LocalizedString 'ASRMode' $Mode
+    Write-Info $modeMsg
     if ($Mode -eq 'Audit') {
         Write-Warning-Custom "$(Get-LocalizedString 'ASRAuditWarning')"
         Write-Warning-Custom "$(Get-LocalizedString 'ASREvaluateLogs')"
@@ -256,12 +257,16 @@ function Set-AttackSurfaceReductionRules {
         $verifyMpPrefs = Get-MpPreference -ErrorAction SilentlyContinue
         
         # Check if property exists before accessing Count (Third-Party AV compatibility)
+        # CRITICAL: Check $verifyMpPrefs is not null first (Bitdefender returns $null)
         if ($verifyMpPrefs -and 
+            $verifyMpPrefs.PSObject.Properties.Name -contains 'AttackSurfaceReductionRules_Ids' -and 
             $verifyMpPrefs.PSObject.Properties['AttackSurfaceReductionRules_Ids'] -and 
             $verifyMpPrefs.AttackSurfaceReductionRules_Ids -and 
             $verifyMpPrefs.AttackSurfaceReductionRules_Ids.Count -gt 0) {
-            Write-Success (Get-LocalizedString 'ASRConfigured' $verifyMpPrefs.AttackSurfaceReductionRules_Ids.Count)
-            Write-Info (Get-LocalizedString 'ASRModeSet' $Mode)
+            $configuredMsg = Get-LocalizedString 'ASRConfigured' $verifyMpPrefs.AttackSurfaceReductionRules_Ids.Count
+            Write-Success $configuredMsg
+            $modeSetMsg = Get-LocalizedString 'ASRModeSet' $Mode
+            Write-Info $modeSetMsg
         }
         else {
             Write-Info "$(Get-LocalizedString 'ASRCannotSetScript')"
@@ -327,7 +332,8 @@ function Get-ASRRuleStatus {
             return
         }
         
-        Write-Info (Get-LocalizedString 'ASRConfiguredRules' $mpPrefs.AttackSurfaceReductionRules_Ids.Count)
+        $rulesMsg = Get-LocalizedString 'ASRConfiguredRules' $mpPrefs.AttackSurfaceReductionRules_Ids.Count
+        Write-Info $rulesMsg
         
         for ($i = 0; $i -lt $mpPrefs.AttackSurfaceReductionRules_Ids.Count; $i++) {
             $ruleId = $mpPrefs.AttackSurfaceReductionRules_Ids[$i]
@@ -418,7 +424,8 @@ function Enable-SmartAppControl {
             2 { "On (Enforcing)" }
             default { "Unknown" }
         }
-        Write-Info (Get-LocalizedString 'SACStatus' $statusText)
+        $statusMsg = Get-LocalizedString 'SACStatus' $statusText
+        Write-Info $statusMsg
     } else {
         Write-Info "$(Get-LocalizedString 'SACNotConfigured')"
     }

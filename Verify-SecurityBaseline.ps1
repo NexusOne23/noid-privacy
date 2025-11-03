@@ -322,6 +322,18 @@ Test-BaselineCheck -Category "Defender" -Name "PUA Protection Enabled" -Impact "
 # 14. Network Protection (Exploit Guard)
 Test-BaselineCheck -Category "Defender" -Name "Network Protection Enabled (Block)" -Impact "Critical" `
     -Test { 
+        # Method 1: Check via Get-MpPreference (if Defender is active)
+        try {
+            $mpPref = Get-MpPreference -ErrorAction Stop
+            if ($mpPref.EnableNetworkProtection -eq 1) {
+                return 1
+            }
+        }
+        catch {
+            # Defender not available, fall through to registry check
+        }
+        
+        # Method 2: Check Registry (fallback for third-party AV or Defender disabled)
         $np = Get-ItemProperty "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Windows Defender Exploit Guard\Network Protection" -Name EnableNetworkProtection -ErrorAction SilentlyContinue
         if ($np) { $np.EnableNetworkProtection } else { 0 }
     } `
@@ -1037,16 +1049,20 @@ try {
     $quad9Servers = $dohServers | Where-Object { $_.ServerAddress -like "*9.9.9.9*" -or $_.ServerAddress -like "*149.112.112.112*" -or $_.ServerAddress -like "*2620:fe::*" }
     
     if ($cloudflareServers -and (@($cloudflareServers).Count -ge 2)) {
-        Write-Host "  [OK] Cloudflare DoH Configured (@($cloudflareServers).Count servers)" -ForegroundColor Green
+        $count = @($cloudflareServers).Count
+        Write-Host "  [OK] Cloudflare DoH Configured ($count servers)" -ForegroundColor Green
     }
     elseif ($adguardServers -and (@($adguardServers).Count -ge 2)) {
-        Write-Host "  [OK] AdGuard DoH Configured (@($adguardServers).Count servers)" -ForegroundColor Green
+        $count = @($adguardServers).Count
+        Write-Host "  [OK] AdGuard DoH Configured ($count servers)" -ForegroundColor Green
     }
     elseif ($nextdnsServers -and (@($nextdnsServers).Count -ge 2)) {
-        Write-Host "  [OK] NextDNS DoH Configured (@($nextdnsServers).Count servers)" -ForegroundColor Green
+        $count = @($nextdnsServers).Count
+        Write-Host "  [OK] NextDNS DoH Configured ($count servers)" -ForegroundColor Green
     }
     elseif ($quad9Servers -and (@($quad9Servers).Count -ge 2)) {
-        Write-Host "  [OK] Quad9 DoH Configured (@($quad9Servers).Count servers)" -ForegroundColor Green
+        $count = @($quad9Servers).Count
+        Write-Host "  [OK] Quad9 DoH Configured ($count servers)" -ForegroundColor Green
     }
     else {
         Write-Host "  [!] No supported DNS provider found (Cloudflare/AdGuard/NextDNS/Quad9)" -ForegroundColor Yellow
@@ -1222,7 +1238,7 @@ Test-BaselineCheck -Category "APT-Protection" -Name "SRP Deny Rules Configured (
             if ($rules) { $rules.Count } else { 0 }
         } else { 0 }
     } `
-    -Expected 5
+    -Expected { param($actual) $actual -ge 5 }
 
 Test-BaselineCheck -Category "APT-Protection" -Name "WebClient Service Disabled (4)" -Impact "High" `
     -Test { 

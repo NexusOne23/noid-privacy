@@ -1498,6 +1498,9 @@ try {
         # Print Spooler User Right (Baseline 25H2 - Windows Protected Print)
         Add-PrintSpoolerUserRight
         
+        # Windows Hello PIN Complexity (Optional - requires TPM 2.0)
+        Enable-WindowsHelloPINComplexity
+        
         Write-Host "[OK] $(Get-LocalizedString 'SuccessAdvanced')" -ForegroundColor Green
     }
     

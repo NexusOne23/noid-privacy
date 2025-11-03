@@ -174,7 +174,8 @@ function Install-DNSBlocklist {
         $allContent = Get-Content $localHostsFile -ErrorAction Stop
         $blockedDomains = ($allContent | Where-Object { $_ -match '^0\.0\.0\.0\s+' }).Count * 9
         
-        Write-Success (Get-LocalizedString 'DNSValidated' $blockedDomains)
+        $validatedMsg = Get-LocalizedString 'DNSValidated' $blockedDomains
+        Write-Success $validatedMsg
         Write-Verbose "File-Size: $([Math]::Round((Get-Item $localHostsFile).Length / 1MB, 2)) MB"
         
         # Install via ATOMIC REPLACE (Best Practice 25H2)
@@ -230,7 +231,8 @@ function Install-DNSBlocklist {
         }
         
         # SUCCESS!
-        Write-Success (Get-LocalizedString 'DNSBlocklistInstalled' $blockedDomains)
+        $installedMsg = Get-LocalizedString 'DNSBlocklistInstalled' $blockedDomains
+        Write-Success $installedMsg
         Write-Info "$(Get-LocalizedString 'DNSBlockedTypes')"
         Write-Info "$(Get-LocalizedString 'DNSSource')"
         Write-Warning "$(Get-LocalizedString 'DNSLegitimateWarning')"

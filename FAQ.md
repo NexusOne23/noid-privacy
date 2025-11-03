@@ -114,6 +114,38 @@ If you have third-party AV, some Defender features (ASR, PUA) may be unavailable
 - ✅ Exploit Protection (system-wide mitigations)
 - ✅ Smart App Control (reputation-based)
 
+### Why is Tamper Protection NOT included?
+
+**Tamper Protection would prevent you from managing Defender.**
+
+**What Tamper Protection does:**
+- Locks Windows Defender settings (cannot be disabled)
+- Blocks registry modifications to Defender keys
+- Prevents stopping Defender services
+- Makes it impossible to temporarily disable real-time protection
+
+**Why we DON'T include it:**
+1. **Too restrictive for daily use**
+   - Cannot temporarily disable Defender for software installation
+   - Cannot quick-disable for troubleshooting
+   - Requires restore script just to install some software
+
+2. **Our target audience doesn't need it**
+   - We target power users and SMB, not enterprise
+   - Power users need flexibility
+   - Restore script available for full reset if needed
+
+3. **What you CAN do instead:**
+   - Add exclusions via Windows Security GUI (always works)
+   - Use the restore script when you need full Defender control
+   - Controlled Folder Access + ASR rules provide strong protection
+
+**If you WANT Tamper Protection:**
+- Enable it manually: Windows Security → Virus & threat protection → Manage settings → Tamper Protection (toggle ON)
+- This is an informed choice you can make after running the script
+
+**Note:** This is an intentional decision for user flexibility. Enterprise environments should use Group Policy to enforce Tamper Protection centrally.
+
 ### Does this protect against all attacks?
 
 **No solution is 100% secure.** This script provides:
@@ -609,5 +641,5 @@ Git-cloned files don't have Zone.Identifier!
 
 ---
 
-**Last Updated**: November 2, 2025  
-**Version**: 1.7.16
+**Last Updated**: November 3, 2025  
+**Version**: 1.8.0 (Added Network Protection Enhancement + PIN Complexity, explained why Tamper Protection is not included)

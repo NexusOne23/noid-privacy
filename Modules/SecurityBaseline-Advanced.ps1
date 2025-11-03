@@ -676,5 +676,92 @@ function Add-PrintSpoolerUserRight {
 
 #endregion
 
+#region AUTHENTICATION HARDENING
+
+function Enable-WindowsHelloPINComplexity {
+    <#
+    .SYNOPSIS
+        Configures Windows Hello PIN Complexity Requirements
+    
+    .DESCRIPTION
+        Enforces strong PIN requirements for Windows Hello sign-in.
+        Works on ALL systems (no special hardware needed).
+        
+        Requirements:
+        - TPM 2.0 (standard since 2019)
+        - No biometric hardware needed
+        
+        Best Practice 25H2: Strong Authentication
+        
+    .EXAMPLE
+        Enable-WindowsHelloPINComplexity
+    #>
+    [CmdletBinding()]
+    [OutputType([void])]
+    param()
+    
+    Write-Section (Get-LocalizedString 'AdvancedPINTitle')
+    
+    # Check TPM 2.0
+    try {
+        $tpm = Get-Tpm -ErrorAction SilentlyContinue
+        if (-not $tpm -or $tpm.TpmPresent -eq $false) {
+            Write-Warning (Get-LocalizedString 'AdvancedPINNoTPM')
+            Write-Info (Get-LocalizedString 'AdvancedPINSkipped')
+            return
+        }
+        
+        if ($tpm.TpmReady -eq $false) {
+            Write-Warning (Get-LocalizedString 'AdvancedPINTPMNotReady')
+            Write-Info (Get-LocalizedString 'AdvancedPINSkipped')
+            return
+        }
+    }
+    catch {
+        Write-Warning (Get-LocalizedString 'AdvancedPINCheckFailed' $_)
+        Write-Info (Get-LocalizedString 'AdvancedPINSkipped')
+        return
+    }
+    
+    Write-Info (Get-LocalizedString 'AdvancedPINConfiguring')
+    
+    $pinPath = "HKLM:\SOFTWARE\Policies\Microsoft\PassportForWork\PINComplexity"
+    
+    try {
+        # Minimum PIN Length: 6 digits
+        [void](Set-RegistryValue -Path $pinPath -Name "MinimumPINLength" -Value 6 -Type DWord `
+            -Description "Windows Hello: Minimum PIN length (6 digits)")
+        
+        # Maximum PIN Length: 127
+        [void](Set-RegistryValue -Path $pinPath -Name "MaximumPINLength" -Value 127 -Type DWord `
+            -Description "Windows Hello: Maximum PIN length")
+        
+        # Require Digits
+        [void](Set-RegistryValue -Path $pinPath -Name "Digits" -Value 1 -Type DWord `
+            -Description "Windows Hello: Require digits in PIN")
+        
+        # PIN Expiration: Never
+        [void](Set-RegistryValue -Path $pinPath -Name "Expiration" -Value 0 -Type DWord `
+            -Description "Windows Hello: PIN never expires")
+        
+        # PIN History: Remember last 5
+        [void](Set-RegistryValue -Path $pinPath -Name "History" -Value 5 -Type DWord `
+            -Description "Windows Hello: Remember last 5 PINs")
+        
+        Write-Success (Get-LocalizedString 'AdvancedPINConfigured')
+        Write-Info (Get-LocalizedString 'AdvancedPINVBSProtected')
+        Write-Info (Get-LocalizedString 'AdvancedPINAppliesNew')
+        Write-Warning-Custom (Get-LocalizedString 'AdvancedPINWeakWarning')
+        Write-Info (Get-LocalizedString 'AdvancedPINBestPractices')
+        
+    }
+    catch {
+        Write-Warning (Get-LocalizedString 'AdvancedPINFailed' $_)
+        Write-Verbose "Error details: $_"
+    }
+}
+
+#endregion
+
 # Note: Export-ModuleMember is NOT needed for dot-sourced scripts
 # Functions are automatically available in the calling scope

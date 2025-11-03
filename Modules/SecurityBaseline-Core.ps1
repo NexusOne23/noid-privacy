@@ -153,16 +153,25 @@ function Set-NetBIOSDisabled {
             $guid = $adapter.SettingID
             $netbtPath = "HKLM:\SYSTEM\CurrentControlSet\Services\NetBT\Parameters\Interfaces\Tcpip_$guid"
             
-            if (Test-Path -Path $netbtPath) {
-                [void](Set-RegistryValue -Path $netbtPath -Name "NetbiosOptions" -Value 2 -Type DWord `
-                    -Description "NetBIOS auf Adapter $guid deaktivieren")
+            # Create path if it doesn't exist (Best Practice 25H2)
+            if (-not (Test-Path -Path $netbtPath)) {
+                Write-Verbose "Creating NetBT path for adapter $guid"
+                New-Item -Path $netbtPath -Force -ErrorAction SilentlyContinue | Out-Null
             }
+            
+            # Set NetbiosOptions = 2 (Disable NetBIOS)
+            [void](Set-RegistryValue -Path $netbtPath -Name "NetbiosOptions" -Value 2 -Type DWord `
+                -Description "NetBIOS auf Adapter $guid deaktivieren")
+            
+            Write-Verbose "NetBIOS disabled for adapter $guid"
         }
         
-        Write-Success (Get-LocalizedString 'CoreNetBIOSDisabled' $adapterCount)
+        $message = Get-LocalizedString 'CoreNetBIOSDisabled' $adapterCount
+        Write-Success $message
     }
     catch {
-        Write-Error-Custom (Get-LocalizedString 'CoreNetworkAdapterError' $_)
+        $errorMsg = Get-LocalizedString 'CoreNetworkAdapterError' $_
+        Write-Error-Custom $errorMsg
         Write-Verbose "Details: $($_.Exception.Message)"
     }
 }
@@ -830,9 +839,21 @@ function Set-DefenderBaselineSettings {
     
     # Edge SmartScreen PUA Protection (Block downloads) is set in Edge module
     
-    # Network Protection
-    [void](Set-RegistryValue -Path "$defenderPath\Windows Defender Exploit Guard\Network Protection" -Name "EnableNetworkProtection" -Value 1 -Type DWord `
-        -Description "Network Protection")
+    # Network Protection (SmartScreen for Network)
+    Write-Verbose "Enabling Network Protection..."
+    try {
+        # Method 1: PowerShell cmdlet (preferred - works with Defender active)
+        Set-MpPreference -EnableNetworkProtection Enabled -ErrorAction Stop
+        Write-Success (Get-LocalizedString 'CoreNetworkProtectionEnabled')
+    }
+    catch {
+        # Method 2: Registry fallback (for systems with third-party AV or Defender disabled)
+        Write-Verbose "Set-MpPreference failed, using Registry method: $_"
+        [void](Set-RegistryValue -Path "$defenderPath\Windows Defender Exploit Guard\Network Protection" `
+            -Name "EnableNetworkProtection" -Value 1 -Type DWord `
+            -Description "Network Protection (Registry fallback)")
+        Write-Success (Get-LocalizedString 'CoreNetworkProtectionRegistry')
+    }
     
     # ===========================
     # MICROSOFT BASELINE 25H2: 6 DEFENDER SETTINGS
@@ -1742,7 +1763,8 @@ function Disable-UnnecessaryServices {
     )
     
     Write-Info (Get-LocalizedString 'CoreServicesWLANActive')
-    Write-Info (Get-LocalizedString 'CoreServicesDisabling' -FormatArgs $servicesToDisable.Count)
+    $disablingMsg = Get-LocalizedString 'CoreServicesDisabling' -FormatArgs $servicesToDisable.Count
+    Write-Info $disablingMsg
     
     $successCount = 0
     $notFoundCount = 0

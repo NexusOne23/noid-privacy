@@ -4,13 +4,13 @@
 # Enable Strict Mode for better error detection
 Set-StrictMode -Version Latest
 
-# Parsed 375 entries, 375 valid
+# Parsed 380 entries, 380 valid (375 original + 5 PIN Complexity)
 <#
 .SYNOPSIS
     Registry Changes Definition
     
 .DESCRIPTION
-    Contains all 375 registry changes that the Security Baseline applies.
+    Contains all 380 registry changes that the Security Baseline applies.
     Used by Backup and Restore scripts for specific (fast) backup/restore.
     
     This file was AUTO-GENERATED from registry-changes-complete.txt
@@ -18,7 +18,8 @@ Set-StrictMode -Version Latest
     
 .NOTES
     Generated: 2025-10-31 17:15:00
-    Total Entries: 375
+    Updated: 2025-11-03 (Added Network Protection Enhancement + PIN Complexity)
+    Total Entries: 380
     Source: registry-changes-complete.txt
 #>
 
@@ -3143,6 +3144,46 @@ $script:RegistryChanges = @(
         ApplyValue = 4
         Description = 'Disable DevicesFlowUserSvc (Wireless Display User Service)'
         File = 'SecurityBaseline-WirelessDisplay.ps1'
+    },
+    @{
+        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\PassportForWork\PINComplexity'
+        Name = 'MinimumPINLength'
+        Type = 'DWord'
+        ApplyValue = 6
+        Description = 'Windows Hello: Minimum PIN length (6 digits)'
+        File = 'SecurityBaseline-Advanced.ps1'
+    },
+    @{
+        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\PassportForWork\PINComplexity'
+        Name = 'MaximumPINLength'
+        Type = 'DWord'
+        ApplyValue = 127
+        Description = 'Windows Hello: Maximum PIN length'
+        File = 'SecurityBaseline-Advanced.ps1'
+    },
+    @{
+        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\PassportForWork\PINComplexity'
+        Name = 'Digits'
+        Type = 'DWord'
+        ApplyValue = 1
+        Description = 'Windows Hello: Require digits in PIN'
+        File = 'SecurityBaseline-Advanced.ps1'
+    },
+    @{
+        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\PassportForWork\PINComplexity'
+        Name = 'Expiration'
+        Type = 'DWord'
+        ApplyValue = 0
+        Description = 'Windows Hello: PIN never expires'
+        File = 'SecurityBaseline-Advanced.ps1'
+    },
+    @{
+        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\PassportForWork\PINComplexity'
+        Name = 'History'
+        Type = 'DWord'
+        ApplyValue = 5
+        Description = 'Windows Hello: Remember last 5 PINs'
+        File = 'SecurityBaseline-Advanced.ps1'
     }
 
 )
