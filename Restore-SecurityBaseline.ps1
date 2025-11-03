@@ -1865,36 +1865,44 @@ else {
 Write-Host ""
 Write-Host "[12/17] Restore DoH Configuration..." -ForegroundColor Yellow
 
+# STRATEGY: TRUE RESTORE - restore to state BEFORE Apply script
+# If backup HAD DoH → restore with BACKUP settings (not hardcoded strict!)
+# If backup had NO DoH → REMOVE all DoH configuration
+
+# Remove all existing DoH configurations first (idempotent)
+Write-Verbose "Removing all existing DoH configurations..."
+$existingDoh = Get-DnsClientDohServerAddress -ErrorAction SilentlyContinue
+if ($existingDoh) {
+    foreach ($doh in $existingDoh) {
+        try {
+            $null = netsh dnsclient delete encryption server=$($doh.ServerAddress) 2>&1
+        }
+        catch {
+            # Ignore errors during cleanup
+        }
+    }
+}
+
 if ($backup.Settings.DoH -and $backup.Settings.DoH.Enabled) {
     try {
-        # CRITICAL UPDATE v1.7.11: Use netsh (consistent with Enable-CloudflareDNSoverHTTPS!)
-        # MS-documented method (not Add-DnsClientDohServerAddress)
+        # Backup HAD DoH → restore with BACKUP settings
+        Write-Verbose "Backup had DoH configuration - restoring from backup..."
         
-        # Remove all existing DoH configurations first (idempotent)
-        Write-Verbose "Entferne existierende DoH-Konfigurationen..."
-        $existingDoh = Get-DnsClientDohServerAddress -ErrorAction SilentlyContinue
-        if ($existingDoh) {
-            foreach ($doh in $existingDoh) {
-                try {
-                    $null = netsh dnsclient delete encryption server=$($doh.ServerAddress) 2>&1
-                }
-                catch {
-                    # Ignore errors during cleanup
-                }
-            }
-        }
-        
-        # CRITICAL: Enforce DoH at OS level (Registry + netsh)
-        # This ensures Windows always prefers encrypted DNS
-        Write-Verbose "Setting DoH enforcement at OS level..."
+        # Restore EnableAutoDoh from BACKUP (not hardcoded!)
         try {
             $dnsRegPath = 'HKLM:\SYSTEM\CurrentControlSet\Services\Dnscache\Parameters'
             if (-not (Test-Path $dnsRegPath)) {
                 New-Item -Path $dnsRegPath -Force -ErrorAction SilentlyContinue | Out-Null
             }
-            # EnableAutoDoh = 2 (enforce DoH, no fallback)
-            Set-ItemProperty -Path $dnsRegPath -Name 'EnableAutoDoh' -Value 2 -Type DWord -Force -ErrorAction SilentlyContinue
-            Write-Verbose "  Registry: EnableAutoDoh = 2 (enforce)"
+            
+            # Get EnableAutoDoh from backup (if exists)
+            $enableAutoDoh = 2  # Default to 2 if not in backup
+            if ($backup.Settings.DoH.PSObject.Properties.Name -contains 'EnableAutoDoh') {
+                $enableAutoDoh = $backup.Settings.DoH.EnableAutoDoh
+            }
+            
+            Set-ItemProperty -Path $dnsRegPath -Name 'EnableAutoDoh' -Value $enableAutoDoh -Type DWord -Force -ErrorAction SilentlyContinue
+            Write-Verbose "  Registry: EnableAutoDoh = $enableAutoDoh (from backup)"
         }
         catch {
             Write-Verbose "  Failed to set EnableAutoDoh registry: $_"
@@ -1909,16 +1917,13 @@ if ($backup.Settings.DoH -and $backup.Settings.DoH.Enabled) {
             Write-Verbose "  Failed to enable global DoH via netsh: $_"
         }
         
-        # Restore backed up DoH servers using netsh
-        # CRITICAL: Always use STRICT mode (ignore backup settings for security)
-        # udpfallback=no: No fallback to unencrypted DNS
-        # autoupgrade=yes: Auto-upgrade to DoH when available
+        # Restore DoH servers with BACKUP settings (not hardcoded!)
         $restoredCount = 0
         foreach ($server in $backup.Settings.DoH.Servers) {
             try {
-                # STRICT MODE: Always enforce encrypted DNS (ignore backup values)
-                $udpFallback = "no"   # Never fallback to unencrypted
-                $autoUpgrade = "yes"  # Always auto-upgrade to DoH
+                # Use BACKUP values (not hardcoded strict mode!)
+                $udpFallback = if ($server.AllowFallbackToUdp -eq $true) { "yes" } else { "no" }
+                $autoUpgrade = if ($server.AutoUpgrade -eq $true) { "yes" } else { "no" }
                 
                 $result = netsh dnsclient add encryption server=$($server.ServerAddress) `
                     dohtemplate=$($server.DohTemplate) `
@@ -1954,7 +1959,38 @@ if ($backup.Settings.DoH -and $backup.Settings.DoH.Enabled) {
     }
 }
 else {
-    Write-Host "  [SKIP] $(Get-LocalizedString 'RestoreDohNoBackup')" -ForegroundColor Gray
+    # Backup had NO DoH → REMOVE all DoH configuration (true restore!)
+    Write-Host "  [INFO] Backup had no DoH configuration - removing all DoH settings..." -ForegroundColor Gray
+    
+    try {
+        # Disable DoH globally
+        try {
+            netsh dnsclient set global doh=no 2>$null | Out-Null
+            Write-Verbose "  netsh: DoH globally disabled"
+        }
+        catch {
+            Write-Verbose "  Failed to disable global DoH via netsh: $_"
+        }
+        
+        # Set EnableAutoDoh = 0 (disabled)
+        try {
+            $dnsRegPath = 'HKLM:\SYSTEM\CurrentControlSet\Services\Dnscache\Parameters'
+            if (Test-Path $dnsRegPath) {
+                Set-ItemProperty -Path $dnsRegPath -Name 'EnableAutoDoh' -Value 0 -Type DWord -Force -ErrorAction SilentlyContinue
+                Write-Verbose "  Registry: EnableAutoDoh = 0 (disabled)"
+            }
+        }
+        catch {
+            Write-Verbose "  Failed to set EnableAutoDoh registry: $_"
+        }
+        
+        Write-Host "  [OK] DoH configuration removed (restored to state before Apply)" -ForegroundColor Green
+        $restoreStats.Success++
+    }
+    catch {
+        Write-Verbose "Failed to remove DoH configuration: $_"
+        $restoreStats.Failed++
+    }
 }
 #endregion
 
