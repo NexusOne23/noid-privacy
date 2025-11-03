@@ -1444,7 +1444,7 @@ function Disable-AllAppPermissionsDefaults {
     
     # CRITICAL: Settings App must be restarted for changes to become visible!
     # Settings App caches privacy settings in memory!
-    Write-Verbose "Stoppe Settings App damit Aenderungen sofort sichtbar werden..."
+    Write-Verbose "$(Get-LocalizedString 'TelemetryAppPermStoppingSettings')"
     try {
         $settingsProcess = Get-Process -Name SystemSettings -ErrorAction SilentlyContinue
         if ($settingsProcess) {
@@ -1452,14 +1452,14 @@ function Disable-AllAppPermissionsDefaults {
             Start-Sleep -Milliseconds 500
             
             if (-not (Get-Process -Name SystemSettings -ErrorAction SilentlyContinue)) {
-                Write-Verbose "     Settings App erfolgreich gestoppt"
+                Write-Verbose "$(Get-LocalizedString 'TelemetryAppPermSettingsStopped')"
             } else {
-                Write-Warning "Settings App konnte nicht beendet werden"
+                Write-Warning "$(Get-LocalizedString 'TelemetryAppPermSettingsNotStopped')"
             }
         }
     }
     catch {
-        Write-Verbose "Settings App stoppen fehlgeschlagen: $_"
+        Write-Verbose "$(Get-LocalizedString 'TelemetryAppPermSettingsStopFailed' $_)"
     }
     
     Write-Success "$(Get-LocalizedString 'TelemetryAppPermComplete')"
@@ -1467,9 +1467,10 @@ function Disable-AllAppPermissionsDefaults {
     Write-Host ""
     
     # CRITICAL INFO: Windows 11 24H2/25H2 Changes
-    Write-Host "========================================" -ForegroundColor Yellow
-    Write-Host "WICHTIG: WINDOWS 11 24H2/25H2 AENDERUNG!" -ForegroundColor Yellow
-    Write-Host "========================================" -ForegroundColor Yellow
+    Write-Host ""
+    Write-Host "$(Get-LocalizedString 'TelemetryImportantChangeSeparator')" -ForegroundColor Yellow
+    Write-Host "$(Get-LocalizedString 'TelemetryImportantWin11Change')" -ForegroundColor Yellow
+    Write-Host "$(Get-LocalizedString 'TelemetryImportantChangeSeparator')" -ForegroundColor Yellow
     Write-Host ""
     Write-Warning "$(Get-LocalizedString 'TelemetryAppPermSQLiteInfo')"
     Write-Info "$(Get-LocalizedString 'TelemetryAppPermStandardDisabled')"
