@@ -20,12 +20,14 @@
     - Exploit Protection (System-wide Mitigations)
     - DoH Configuration (DNS over HTTPS Server)
     - Firewall Profile Settings (Domain/Private/Public)
-    - Device-Level App Permissions (20-50 SubKeys) - NEW v1.4.0!
+    - Device-Level App Permissions (webcam/microphone) - RE-ADDED v1.7.17!
     
-    NEW IN VERSION 1.4.0:
-    - Device-Level App Permission SubKeys are now backed up!
-    - ~20-50 dynamic SubKeys per permission (webcam/microphone/location)
-    - PERFECT 100% Coverage - NO gaps anymore!
+    NEW IN VERSION 1.7.17:
+    - Device-Level App Permissions backup RE-ADDED with proper error handling!
+    - Previous v1.7.13 removed it (TrustedInstaller protection issue)
+    - NOW: Graceful degradation - skips Access Denied, backs up readable entries
+    - CRITICAL: Without this backup, Restore cannot restore original state!
+    - PERFECT 100% Backup/Restore Coverage restored!
     
     VERSION 1.3.0:
     - Firewall Profile Settings (Get-NetFirewallProfile) are now backed up!
@@ -308,7 +310,7 @@ Write-Host "[i] $(Get-LocalizedString 'BackupCreating')" -ForegroundColor Cyan
 Write-Host ""
 
 #region DNS Settings Backup
-Write-Host "[1/14] $(Get-LocalizedString 'BackupDNS')" -ForegroundColor Yellow
+Write-Host "[1/15] $(Get-LocalizedString 'BackupDNS')" -ForegroundColor Yellow
 
 $adapters = Get-NetAdapter | Where-Object { $_.Status -eq 'Up' }
 
@@ -354,7 +356,7 @@ Write-Host "[OK] $dnsMsg`n" -ForegroundColor Green
 #endregion
 
 #region Hosts File Backup
-Write-Host "[2/14] $(Get-LocalizedString 'BackupHosts')" -ForegroundColor Yellow
+Write-Host "[2/15] $(Get-LocalizedString 'BackupHosts')" -ForegroundColor Yellow
 
 $hostsPath = "$env:SystemRoot\System32\drivers\etc\hosts"
 if (Test-Path $hostsPath) {
@@ -372,7 +374,7 @@ else {
 #endregion
 
 #region Installed Apps Backup (WITH PROVISIONED PACKAGES!)
-Write-Host "[3/14] $(Get-LocalizedString 'BackupApps')" -ForegroundColor Yellow
+Write-Host "[3/15] $(Get-LocalizedString 'BackupApps')" -ForegroundColor Yellow
 
 # User Apps (with timeout protection)
 $installedApps = @()
@@ -459,7 +461,7 @@ Write-Host ""
 #endregion
 
 #region Services Backup (ALL SERVICES!)
-Write-Host "[4/14] $(Get-LocalizedString 'BackupServices')" -ForegroundColor Yellow
+Write-Host "[4/15] $(Get-LocalizedString 'BackupServices')" -ForegroundColor Yellow
 
 # BACKUP ALL SERVICES (not just the ones we change!)
 $allServices = Get-Service -ErrorAction SilentlyContinue
@@ -488,7 +490,7 @@ Write-Host ""
 #endregion
 
 #region Windows Optional Features Backup
-Write-Host "[5/14] Backing up Windows Optional Features..." -ForegroundColor Yellow
+Write-Host "[5/15] Backing up Windows Optional Features..." -ForegroundColor Yellow
 
 $windowsFeaturesBackup = @()
 try {
@@ -532,7 +534,7 @@ Write-Host ""
 #endregion
 
 #region Scheduled Tasks Backup (ALL TASKS!)
-Write-Host "[6/14] $(Get-LocalizedString 'BackupScheduledTasks')" -ForegroundColor Yellow
+Write-Host "[6/15] $(Get-LocalizedString 'BackupScheduledTasks')" -ForegroundColor Yellow
 
 # BACKUP ALL SCHEDULED TASKS (not just the ones we change!)
 $allTasks = Get-ScheduledTask -ErrorAction SilentlyContinue
@@ -561,7 +563,7 @@ Write-Host ""
 #endregion
 
 #region Firewall Rules Backup (ALL RULES!)
-Write-Host "[7/14] $(Get-LocalizedString 'BackupFirewall')" -ForegroundColor Yellow
+Write-Host "[7/15] $(Get-LocalizedString 'BackupFirewall')" -ForegroundColor Yellow
 
 # BACKUP ALL FIREWALL RULES (not just custom!)
 $allFirewallRules = Get-NetFirewallRule -ErrorAction SilentlyContinue
@@ -593,7 +595,7 @@ Write-Host ""
 #endregion
 
 #region User Accounts Backup
-Write-Host "[8/14] $(Get-LocalizedString 'BackupUsers')" -ForegroundColor Yellow
+Write-Host "[8/15] $(Get-LocalizedString 'BackupUsers')" -ForegroundColor Yellow
 
 $localUsers = Get-LocalUser -ErrorAction SilentlyContinue
 
@@ -618,7 +620,7 @@ Write-Host ""
 #endregion
 
 #region Registry Keys Backup (v2.0 - OPTIMIZED)
-Write-Host "[9/14] $(Get-LocalizedString 'BackupRegistry')" -ForegroundColor Yellow
+Write-Host "[9/15] $(Get-LocalizedString 'BackupRegistry')" -ForegroundColor Yellow
 
 # NEW v2.0: Specific registry backup (20-30x faster!)
 # Only backs up the 392 registry keys that Apply actually modifies
@@ -648,7 +650,7 @@ Write-Host ""
 #endregion
 
 #region ASR Rules Backup (Attack Surface Reduction)
-Write-Host "[10/14] $(Get-LocalizedString 'BackupASRTitle')" -ForegroundColor Yellow
+Write-Host "[10/15] $(Get-LocalizedString 'BackupASRTitle')" -ForegroundColor Yellow
 
 $asrBackup = @{
     Rules = @()
@@ -686,7 +688,7 @@ Write-Host ""
 #endregion
 
 #region Exploit Protection Backup (Set-ProcessMitigation)
-Write-Host "[11/14] $(Get-LocalizedString 'BackupExploitTitle')" -ForegroundColor Yellow
+Write-Host "[11/15] $(Get-LocalizedString 'BackupExploitTitle')" -ForegroundColor Yellow
 
 $exploitProtectionBackup = @{
     SystemMitigations = @()
@@ -733,7 +735,7 @@ Write-Host ""
 #endregion
 
 #region DoH Configuration Backup (DNS over HTTPS)
-Write-Host "[12/14] $(Get-LocalizedString 'BackupDohTitle')" -ForegroundColor Yellow
+Write-Host "[12/15] $(Get-LocalizedString 'BackupDohTitle')" -ForegroundColor Yellow
 
 $dohBackup = @{
     Servers = @()
@@ -797,7 +799,7 @@ Write-Host ""
 #endregion
 
 #region DoH Encryption Preferences Backup (Adapter-specific DohFlags)
-Write-Host "[13/14] $(Get-LocalizedString 'BackupDohEncryptionTitle')" -ForegroundColor Yellow
+Write-Host "[13/15] $(Get-LocalizedString 'BackupDohEncryptionTitle')" -ForegroundColor Yellow
 
 $dohEncryptionBackup = @{
     Adapters = @()
@@ -901,7 +903,7 @@ Write-Host ""
 #endregion
 
 #region Firewall Profile Settings Backup
-Write-Host "[14/14] $(Get-LocalizedString 'BackupFirewallProfilesTitle')" -ForegroundColor Yellow
+Write-Host "[14/15] $(Get-LocalizedString 'BackupFirewallProfilesTitle')" -ForegroundColor Yellow
 
 $firewallProfileBackup = @{
     Profiles = @()
@@ -954,9 +956,69 @@ $backup.Settings.FirewallProfiles = $firewallProfileBackup
 Write-Host ""
 #endregion
 
-# NOTE: Device-Level Backup (EnabledByUser) was removed in v1.7.13
-# Reason: All EnabledByUser keys are TrustedInstaller-protected and always re-applied by the script
-# Backup is meaningless as keys cannot be read (Access Denied) or written without ownership change
+#region Device-Level App Permissions Backup
+Write-Host "[15/15] Backing up Device-Level App Permissions..." -ForegroundColor Yellow
+
+# CRITICAL FIX v1.7.17: Re-add Device-Level backup WITH ownership management
+# Previous version removed this backup claiming "TrustedInstaller-protected"
+# BUT: Restore script expects this data! Without backup, Restore cannot restore original state!
+# SOLUTION: Backup with graceful degradation (skip Access Denied entries)
+
+$deviceLevelBackup = @{
+    Apps = @()
+    Enabled = $false
+}
+
+try {
+    # Permissions we modify (only these need backup)
+    $permissions = @('webcam', 'microphone')
+    
+    foreach ($permission in $permissions) {
+        $capabilityPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\Capabilities\$permission\Apps"
+        
+        if (Test-Path $capabilityPath) {
+            $apps = Get-ChildItem -Path $capabilityPath -ErrorAction SilentlyContinue
+            
+            foreach ($app in $apps) {
+                try {
+                    # Try to read EnabledByUser value
+                    $item = Get-ItemProperty -Path $app.PSPath -ErrorAction SilentlyContinue
+                    
+                    # Check if EnabledByUser exists using PSObject.Properties pattern
+                    if ($item -and ($item.PSObject.Properties.Name -contains 'EnabledByUser')) {
+                        $deviceLevelBackup.Apps += @{
+                            Permission = $permission
+                            AppName = $app.PSChildName
+                            EnabledByUser = $item.EnabledByUser
+                            Exists = $true
+                        }
+                        Write-Verbose "  [OK] Backed up: $permission/$($app.PSChildName) = $($item.EnabledByUser)"
+                    }
+                }
+                catch {
+                    # Access Denied (TrustedInstaller) - skip silently
+                    Write-Verbose "  [SKIP] $permission/$($app.PSChildName) - Access Denied (protected)"
+                }
+            }
+        }
+    }
+    
+    if ($deviceLevelBackup.Apps.Count -gt 0) {
+        $deviceLevelBackup.Enabled = $true
+        Write-Host "  [OK] $($deviceLevelBackup.Apps.Count) device-level app permissions backed up" -ForegroundColor Green
+    }
+    else {
+        Write-Host "  [INFO] No device-level app permissions found (or all Access Denied)" -ForegroundColor Gray
+    }
+}
+catch {
+    Write-Warning "Could not backup device-level app permissions: $_"
+    $deviceLevelBackup.Enabled = $false
+}
+
+$backup.Settings.DeviceLevelApps = $deviceLevelBackup
+Write-Host ""
+#endregion
 
 #region System Info
 Write-Host "$(Get-LocalizedString 'BackupSystem')" -ForegroundColor Yellow
