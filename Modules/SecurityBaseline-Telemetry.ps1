@@ -37,9 +37,9 @@ function Disable-TelemetryServices {
     [OutputType([void])]
     param()
     
-    Write-Section "Telemetrie-Services deaktivieren"
+    Write-Section "$(Get-LocalizedString 'TelemetryServicesTitle')"
     
-    Write-Info "Telemetrie-Services werden deaktiviert..."
+    Write-Info "$(Get-LocalizedString 'TelemetryServicesDisabling')"
     
     # List of telemetry services (Best Practice 2025)
     $telemetryServices = @(
@@ -130,7 +130,7 @@ function Disable-TelemetryServices {
         
         if ($service) {
             if ($svc.Critical) {
-                Write-Warning "UEBERSPRUNGEN: $($svc.DisplayName) (kritisch fuer Windows-Funktionen)"
+                Write-Warning "$(Get-LocalizedString 'TelemetryServicesSkippedCritical' $svc.DisplayName)"
                 $skippedCount++
                 continue
             }
@@ -141,32 +141,32 @@ function Disable-TelemetryServices {
                                      Where-Object { $_.Status -eq 'Running' }
                 
                 if ($dependentServices) {
-                    Write-Warning "UEBERSPRUNGEN: $($svc.DisplayName) (hat $($dependentServices.Count) abhaengige Services)"
+                    Write-Warning "$(Get-LocalizedString 'TelemetryServicesSkippedDependent' $svc.DisplayName $dependentServices.Count)"
                     foreach ($depSvc in $dependentServices) {
-                        Write-Verbose "     Abhaengiger Service: $($depSvc.DisplayName)"
+                        Write-Verbose "$(Get-LocalizedString 'TelemetryServicesDependentService' $depSvc.DisplayName)"
                     }
                     $skippedCount++
                     continue
                 }
             }
             catch {
-                Write-Verbose "Konnte abhaengige Services nicht pruefen fuer $($svc.DisplayName): $_"
+                Write-Verbose "$(Get-LocalizedString 'TelemetryServicesCheckDependentFailed' $svc.DisplayName $_)"
             }
             
             # Stop and disable service (race-condition-frei)
             if (Stop-ServiceSafe -ServiceName $svc.Name) {
-                Write-Verbose "     Deaktiviert: $($svc.DisplayName)"
+                Write-Verbose "$(Get-LocalizedString 'TelemetryServicesDeactivated' $svc.DisplayName)"
                 $disabledCount++
             }
             else {
-                Write-Warning "Fehler bei $($svc.DisplayName)"
+                Write-Warning "$(Get-LocalizedString 'TelemetryServicesError' $svc.DisplayName)"
             }
         }
     }
     
-    Write-Success "$disabledCount Telemetrie-Services deaktiviert"
+    Write-Success "$(Get-LocalizedString 'TelemetryServicesDisabledCount' $disabledCount)"
     if ($skippedCount -gt 0) {
-        Write-Warning "$skippedCount kritische Services uebersprungen (wuerden Windows brechen)"
+        Write-Warning "$(Get-LocalizedString 'TelemetryServicesSkippedCount' $skippedCount)"
     }
 }
 
@@ -181,9 +181,9 @@ function Set-TelemetryRegistry {
     [OutputType([void])]
     param()
     
-    Write-Section "Telemetrie-Registry-Keys setzen"
+    Write-Section "$(Get-LocalizedString 'TelemetryRegistryTitle')"
     
-    Write-Info "Registry-Keys fuer Privacy werden gesetzt..."
+    Write-Info "$(Get-LocalizedString 'TelemetryRegistrySetting')"
     
     # ===== MAIN SWITCH: Set telemetry to Security (0) =====
     $policiesPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection"
@@ -229,7 +229,7 @@ function Set-TelemetryRegistry {
     # ===== PRIVACY | GENERAL - COMPLETE (5 TOGGLES) =====
     # Best Practice October 2025: All 5 toggles in Settings | Privacy and security | General
     # Toggle 5 is NEW in Windows 11 25H2!
-    Write-Info "Privacy | General: Alle 5 Toggles deaktivieren..."
+    Write-Info "$(Get-LocalizedString 'TelemetryPrivacyGeneralToggles')"
     
     # Toggle 2: Let websites show me locally relevant content by accessing my language list
     $intlPath = "HKCU:\Control Panel\International\User Profile"
@@ -272,13 +272,13 @@ function Set-TelemetryRegistry {
             $null = New-Item -Path $settingsNotifPath -Force -ErrorAction Stop
         }
         Set-ItemProperty -Path $settingsNotifPath -Name "EnableAccountNotifications" -Value 0 -Force -ErrorAction Stop
-        Write-Verbose "     Settings-Benachrichtigungen: AUS (FORCED)"
+        Write-Verbose "$(Get-LocalizedString 'TelemetrySettingsNotifForced')"
     }
     catch {
-        Write-Warning "Settings-Benachrichtigungen Fehler: $_"
+        Write-Warning "$(Get-LocalizedString 'TelemetrySettingsNotifError' $_)"
     }
     
-    Write-Success "Privacy | General: Alle 5 Toggles sind jetzt OFF"
+    Write-Success "$(Get-LocalizedString 'TelemetryPrivacyGeneralComplete')"
     
     # ===== ACTIVITY HISTORY / TIMELINE =====
     $activityHistoryPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System"
@@ -350,7 +350,7 @@ function Set-TelemetryRegistry {
     Set-RegistryValue -Path $appDiagPath -Name "Value" -Value "Deny" -Type String `
         -Description "App Diagnostics Zugriff verweigern"
     
-    Write-Success "Telemetrie-Registry-Keys gesetzt (Maximum Privacy)"
+    Write-Success "$(Get-LocalizedString 'TelemetryRegistryComplete')"
 }
 
 function Remove-TelemetryTasks {
@@ -364,9 +364,9 @@ function Remove-TelemetryTasks {
     [OutputType([void])]
     param()
     
-    Write-Section "Telemetrie Scheduled Tasks entfernen"
+    Write-Section "$(Get-LocalizedString 'TelemetryTasksTitle')"
     
-    Write-Info "Telemetrie-Tasks werden deaktiviert..."
+    Write-Info "$(Get-LocalizedString 'TelemetryTasksDisabling')"
     
     # List of telemetry tasks (Best Practice 2025)
     $telemetryTasks = @(
@@ -426,11 +426,11 @@ function Remove-TelemetryTasks {
                 if ($task.State -ne 'Disabled') {
                     # Disable task
                     [void](Disable-ScheduledTask -TaskName $task.TaskName -TaskPath $task.TaskPath -ErrorAction Stop)
-                    Write-Verbose "     Deaktiviert: $taskPath"
+                    Write-Verbose "$(Get-LocalizedString 'TelemetryTasksDeactivated' $taskPath)"
                     $disabledCount++
                 }
                 else {
-                    Write-Verbose "     Bereits deaktiviert (uebersprungen): $taskPath"
+                    Write-Verbose "$(Get-LocalizedString 'TelemetryTasksAlreadyDisabled' $taskPath)"
                 }
             }
             else {
@@ -438,13 +438,13 @@ function Remove-TelemetryTasks {
             }
         }
         catch {
-            Write-Verbose "Fehler bei ${taskPath}: $_"
+            Write-Verbose "$(Get-LocalizedString 'TelemetryTasksError' $taskPath $_)"
         }
     }
     
-    Write-Success "$disabledCount Telemetrie-Tasks deaktiviert"
+    Write-Success "$(Get-LocalizedString 'TelemetryTasksDisabledCount' $disabledCount)"
     if ($notFoundCount -gt 0) {
-        Write-Verbose "$notFoundCount Tasks nicht gefunden (evtl. schon entfernt)"
+        Write-Verbose "$(Get-LocalizedString 'TelemetryTasksNotFoundCount' $notFoundCount)"
     }
 }
 
@@ -461,11 +461,11 @@ function Block-TelemetryHosts {
     [OutputType([void])]
     param()
     
-    Write-Section "Telemetrie-Hosts blockieren (Firewall)"
+    Write-Section "$(Get-LocalizedString 'TelemetryHostsTitle')"
     
-    Write-Warning-Custom "Firewall-Blockierung uebersprungen (technische Limitierung)"
-    Write-Info "GRUND: Windows Firewall akzeptiert nur IP-Adressen, keine Hostnamen"
-    Write-Info "ALTERNATIVE: Telemetrie wird via Registry + Services blockiert (bereits aktiv)"
+    Write-Warning-Custom "$(Get-LocalizedString 'TelemetryHostsSkipped')"
+    Write-Info "$(Get-LocalizedString 'TelemetryHostsReason')"
+    Write-Info "$(Get-LocalizedString 'TelemetryHostsAlternative')"
     
     # Telemetry is already blocked through:
     # 1. Registry keys (AllowTelemetry = 0)
@@ -482,7 +482,7 @@ function Block-TelemetryHosts {
     
     <#
     # THIS CODE IS DISABLED - DOES NOT WORK WITH HOSTNAMES
-    Write-Info "Telemetrie-Endpunkte werden blockiert..."
+    Write-Info "$(Get-LocalizedString 'TelemetryHostsBlocking')"
     
     # List of telemetry hosts (Best Practice 2025)
     # IMPORTANT: Windows Update hosts are NOT in this list!
@@ -573,16 +573,16 @@ function Block-TelemetryHosts {
             $rulesCreated++
         }
         catch {
-            Write-Warning "Fehler beim Erstellen der Firewall-Regel $ruleName : $_"
+            Write-Warning "$(Get-LocalizedString 'TelemetryHostsRuleError' $ruleName $_)"
         }
     }
     
     if ($rulesCreated -gt 0) {
-        Write-Success "Telemetrie-Hosts blockiert ($($telemetryHosts.Count) Endpunkte in $rulesCreated Regeln)"
-        Write-Info "Windows Update funktioniert weiterhin normal!"
+        Write-Success "$(Get-LocalizedString 'TelemetryHostsBlocked' $telemetryHosts.Count $rulesCreated)"
+        Write-Info "$(Get-LocalizedString 'TelemetryHostsWindowsUpdateOK')"
     }
     else {
-        Write-Warning "Keine Telemetrie-Firewall-Regeln konnten erstellt werden"
+        Write-Warning "$(Get-LocalizedString 'TelemetryHostsNoRules')"
     }
     #>
 }
@@ -601,53 +601,53 @@ function Get-TelemetryStatus {
     [OutputType([void])]
     param()
     
-    Write-Section "Telemetrie-Status Report"
+    Write-Section "$(Get-LocalizedString 'TelemetryStatusTitle')"
     
-    Write-Info "Erstelle Telemetrie-Status-Report..."
+    Write-Info "$(Get-LocalizedString 'TelemetryStatusCreating')"
     
-    Write-Host "`n=== DEAKTIVIERT ([OK]) ===" -ForegroundColor Green
-    Write-Host "[OK] DiagTrack Service (Connected User Experiences)" -ForegroundColor Green
-    Write-Host "[OK] dmwappushservice (WAP Push Routing)" -ForegroundColor Green
-    Write-Host "[OK] WerSvc (Windows Error Reporting)" -ForegroundColor Green
-    Write-Host "[OK] Telemetrie-Registry (AllowTelemetry = 0)" -ForegroundColor Green
-    Write-Host "[OK] Application Telemetry" -ForegroundColor Green
-    Write-Host "[OK] Advertising ID" -ForegroundColor Green
-    Write-Host "[OK] Activity History / Timeline" -ForegroundColor Green
-    Write-Host "[OK] Cloud Clipboard" -ForegroundColor Green
-    Write-Host "[OK] Location Services" -ForegroundColor Green
-    Write-Host "[OK] Handwriting Data Collection" -ForegroundColor Green
-    Write-Host "[OK] Settings Sync" -ForegroundColor Green
-    Write-Host "[OK] Find My Device" -ForegroundColor Green
-    Write-Host "[OK] Windows Tips" -ForegroundColor Green
-    Write-Host "[OK] Tailored Experiences" -ForegroundColor Green
-    Write-Host "[OK] Consumer Features (Auto-Install Apps)" -ForegroundColor Green
-    Write-Host "[OK] ~14 Telemetrie Scheduled Tasks" -ForegroundColor Green
-    Write-Host "[OK] ~45 Telemetrie-Hosts (Firewall)" -ForegroundColor Green
+    Write-Host "$(Get-LocalizedString 'TelemetryStatusDeactivated')" -ForegroundColor Green
+    Write-Host "$(Get-LocalizedString 'TelemetryStatusDiagTrack')" -ForegroundColor Green
+    Write-Host "$(Get-LocalizedString 'TelemetryStatusWAPPush')" -ForegroundColor Green
+    Write-Host "$(Get-LocalizedString 'TelemetryStatusErrorReporting')" -ForegroundColor Green
+    Write-Host "$(Get-LocalizedString 'TelemetryStatusRegistry')" -ForegroundColor Green
+    Write-Host "$(Get-LocalizedString 'TelemetryStatusAppTelemetry')" -ForegroundColor Green
+    Write-Host "$(Get-LocalizedString 'TelemetryStatusAdvertisingID')" -ForegroundColor Green
+    Write-Host "$(Get-LocalizedString 'TelemetryStatusActivityHistory')" -ForegroundColor Green
+    Write-Host "$(Get-LocalizedString 'TelemetryStatusCloudClipboard')" -ForegroundColor Green
+    Write-Host "$(Get-LocalizedString 'TelemetryStatusLocationServices')" -ForegroundColor Green
+    Write-Host "$(Get-LocalizedString 'TelemetryStatusHandwriting')" -ForegroundColor Green
+    Write-Host "$(Get-LocalizedString 'TelemetryStatusSettingsSync')" -ForegroundColor Green
+    Write-Host "$(Get-LocalizedString 'TelemetryStatusFindMyDevice')" -ForegroundColor Green
+    Write-Host "$(Get-LocalizedString 'TelemetryStatusWindowsTips')" -ForegroundColor Green
+    Write-Host "$(Get-LocalizedString 'TelemetryStatusTailoredExp')" -ForegroundColor Green
+    Write-Host "$(Get-LocalizedString 'TelemetryStatusConsumerFeatures')" -ForegroundColor Green
+    Write-Host "$(Get-LocalizedString 'TelemetryStatusScheduledTasks')" -ForegroundColor Green
+    Write-Host "$(Get-LocalizedString 'TelemetryStatusFirewallHosts')" -ForegroundColor Green
     
-    Write-Host "`n=== NICHT DEAKTIVIERT ([!]) - WARUM? ===" -ForegroundColor Yellow
-    Write-Host "[!] Windows Update Service" -ForegroundColor Yellow
-    Write-Host "      GRUND: Kritisch fuer Sicherheits-Updates!" -ForegroundColor White
-    Write-Host "      Ohne das: KEINE Windows/Defender-Updates!" -ForegroundColor White
+    Write-Host "$(Get-LocalizedString 'TelemetryStatusNotDeactivated')" -ForegroundColor Yellow
+    Write-Host "$(Get-LocalizedString 'TelemetryStatusWindowsUpdate')" -ForegroundColor Yellow
+    Write-Host "$(Get-LocalizedString 'TelemetryStatusUpdateReason')" -ForegroundColor White
+    Write-Host "$(Get-LocalizedString 'TelemetryStatusUpdateWithout')" -ForegroundColor White
     
-    Write-Host "[!] Diagnostic Policy Service (DPS)" -ForegroundColor Yellow
-    Write-Host "      GRUND: Windows Troubleshooter braucht das!" -ForegroundColor White
-    Write-Host "      Ohne das: Problembehandlung funktioniert nicht!" -ForegroundColor White
+    Write-Host "$(Get-LocalizedString 'TelemetryStatusDiagPolicy')" -ForegroundColor Yellow
+    Write-Host "$(Get-LocalizedString 'TelemetryStatusDiagPolicyReason')" -ForegroundColor White
+    Write-Host "$(Get-LocalizedString 'TelemetryStatusDiagPolicyWithout')" -ForegroundColor White
     
-    Write-Host "[!] Diagnostic System Host (WdiSystemHost)" -ForegroundColor Yellow
-    Write-Host "      GRUND: System-Diagnosen (z.B. Festplatten-Check)" -ForegroundColor White
-    Write-Host "      Ohne das: Keine Hardware-Diagnosen moeglich!" -ForegroundColor White
+    Write-Host "$(Get-LocalizedString 'TelemetryStatusDiagSystemHost')" -ForegroundColor Yellow
+    Write-Host "$(Get-LocalizedString 'TelemetryStatusDiagSystemReason')" -ForegroundColor White
+    Write-Host "$(Get-LocalizedString 'TelemetryStatusDiagSystemWithout')" -ForegroundColor White
     
-    Write-Host "[!] Minimal-Telemetrie (Security Level = 0)" -ForegroundColor Yellow
-    Write-Host "      GRUND: Windows Update + Defender brauchen Basis-Telemetrie!" -ForegroundColor White
-    Write-Host "      WAS WIRD GESENDET: Nur kritische Security-Events" -ForegroundColor White
-    Write-Host "      NICHT gesendet: Nutzungs-Daten, App-Listen, Browsing, etc." -ForegroundColor White
+    Write-Host "$(Get-LocalizedString 'TelemetryStatusMinimalTelemetry')" -ForegroundColor Yellow
+    Write-Host "$(Get-LocalizedString 'TelemetryStatusMinimalReason')" -ForegroundColor White
+    Write-Host "$(Get-LocalizedString 'TelemetryStatusMinimalWhat')" -ForegroundColor White
+    Write-Host "$(Get-LocalizedString 'TelemetryStatusMinimalNot')" -ForegroundColor White
     
-    Write-Host "`n=== ERGEBNIS ===" -ForegroundColor Cyan
-    Write-Host "[OK] ~95% Telemetrie deaktiviert" -ForegroundColor Green
-    Write-Host "[OK] Nur Security-kritische Basis-Telemetrie aktiv" -ForegroundColor Green
-    Write-Host "[OK] KEINE Nutzungs-Daten, Advertising, Tracking" -ForegroundColor Green
-    Write-Host "[OK] Windows Update + Defender funktionieren!" -ForegroundColor Green
-    Write-Host "[OK] Maximum Privacy OHNE Funktionsverlust!" -ForegroundColor Green
+    Write-Host "$(Get-LocalizedString 'TelemetryStatusResult')" -ForegroundColor Cyan
+    Write-Host "$(Get-LocalizedString 'TelemetryStatus95Percent')" -ForegroundColor Green
+    Write-Host "$(Get-LocalizedString 'TelemetryStatusOnlySecurity')" -ForegroundColor Green
+    Write-Host "$(Get-LocalizedString 'TelemetryStatusNoTracking')" -ForegroundColor Green
+    Write-Host "$(Get-LocalizedString 'TelemetryStatusUpdateWorks')" -ForegroundColor Green
+    Write-Host "$(Get-LocalizedString 'TelemetryStatusMaxPrivacy')" -ForegroundColor Green
 }
 
 #region PRIVACY EXTENDED - KRITISCHE Settings die vorher FEHLTEN!
@@ -661,7 +661,7 @@ function Disable-WindowsSearchWebFeatures {
     [OutputType([void])]
     param()
     
-    Write-Section "Windows Search - Web-Features deaktivieren"
+    Write-Section "$(Get-LocalizedString 'TelemetrySearchTitle')"
     
     $searchPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Search"
     
@@ -674,7 +674,7 @@ function Disable-WindowsSearchWebFeatures {
     
     # Best Practice October 2025: HKCU settings required for GUI to show correctly!
     # HKLM Policy alone is NOT enough - Windows Settings reads HKCU
-    Write-Info "Setze User-Level Web Search Settings (HKCU)..."
+    Write-Info "$(Get-LocalizedString 'TelemetrySearchSettingUser')"
     
     # Disable Search Box Web Suggestions (User-Level)
     $explorerPath = "HKCU:\SOFTWARE\Policies\Microsoft\Windows\Explorer"
@@ -688,8 +688,8 @@ function Disable-WindowsSearchWebFeatures {
     Set-RegistryValue -Path $userSearchPath -Name "CortanaConsent" -Value 0 -Type DWord `
         -Description "Cortana Consent (User) deaktivieren"
     
-    Write-Success "Windows Search: Nur lokal, KEIN Web/Bing/Cloud!"
-    Write-Info "Start Menu Search zeigt jetzt KEINE Web-Ergebnisse mehr"
+    Write-Success "$(Get-LocalizedString 'TelemetrySearchComplete')"
+    Write-Info "$(Get-LocalizedString 'TelemetrySearchNoWebResults')"
 }
 
 function Disable-CameraAndMicrophone {
