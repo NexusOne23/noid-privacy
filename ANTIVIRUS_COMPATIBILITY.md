@@ -149,10 +149,32 @@ Bitdefender → Protection → Vulnerability → Settings → Exclusions → Add
 - ✅ **Software Installers** - Any installer using PowerShell + registry checks
 - ✅ **IT Management Tools** - SCCM, Intune, PDQ Deploy scripts
 
-**Workaround:**
-- Temporarily disable Bitdefender protection during driver/software installation
-- OR: Add exclusion BEFORE running installations
-- OR: Copy installer to `%TEMP%` manually (as user reported working)
+**Example - Intel Driver Installation Failure:**
+```
+1. Intel installer starts
+2. Extracts files to %TEMP%
+3. Tries to launch driver installer from %TEMP%
+4. → Bitdefender blocks! (RestrictRemoteSAM false positive)
+5. Installation fails with error
+```
+
+**Workarounds:**
+
+**Method 1: Manual Installation from Desktop (Recommended)**
+1. Run Intel installer (it extracts to `%TEMP%`)
+2. Installation will fail (Bitdefender blocks)
+3. Go to: `C:\Users\[YourUsername]\AppData\Local\Temp\`
+4. Find Intel extracted folder (e.g., `Intel_Graphics_...`)
+5. Copy entire folder to Desktop
+6. Run installer from Desktop → Works! ✅
+
+**Method 2: Temporary Disable Protection**
+- Disable Bitdefender protection during installation
+- Re-enable after installation completes
+
+**Method 3: Add Exclusion First**
+- Add `RestrictRemoteSAM` registry key to exclusions (see above)
+- Then run Intel installer normally
 
 ---
 
