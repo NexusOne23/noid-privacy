@@ -909,9 +909,9 @@ if ($Interactive) {
             # But: powershell.exe instead of &, so it runs in its own process and we can exit COMPLETELY
             # CRITICAL FIX: Use -Command with quoted path (handles spaces AND special chars correctly!)
             # -File parameter fails when path contains spaces (like "Neuer Ordner")
-            # CRITICAL: Start-Process with ArgumentList as STRING (not array) to preserve quotes
-            $escapedPath = $restoreScript -replace '"', '""'
-            $argString = "-ExecutionPolicy Bypass -NoProfile -Command `"& \`"$escapedPath\`" -Language $Global:CurrentLanguage`""
+            # Escape double quotes with backtick for PowerShell, use double quotes (not single) to handle apostrophes
+            $escapedScript = $restoreScript -replace '"','`"'
+            $argString = "-ExecutionPolicy Bypass -NoProfile -Command `"& `"$escapedScript`" -Language $Global:CurrentLanguage`""
             
             Write-Verbose "Starte Restore als separaten Prozess: powershell.exe $argString"
             
