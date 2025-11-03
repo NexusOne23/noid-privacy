@@ -1440,6 +1440,26 @@ $Global:Strings = @{
         RemoteMenuOption2Con = "Con: Slightly larger attack surface"
         RemoteMenuRecommendation = "[Recommendation: Option 1 for office | Option 2 for gaming/remote/dev]"
         RemoteMenuPrompt = "Your choice (1-2)"
+        
+        # DNS Provider Menu
+        DNSMenuTitle = "DNS PROVIDER SELECTION (DNS over HTTPS)"
+        DNSMenuPrompt = "Choose your DNS-over-HTTPS provider:"
+        DNSMenuOption1 = "[1] Cloudflare (1.1.1.1)"
+        DNSMenuOption1Speed = "Speed: ***** | Privacy: ***   | Location: USA"
+        DNSMenuOption1Desc = "Fastest DNS, used by millions worldwide"
+        DNSMenuOption2 = "[2] AdGuard DNS (94.140.14.14)"
+        DNSMenuOption2Speed = "Speed: ****  | Privacy: ***** | Location: EU (Cyprus)"
+        DNSMenuOption2Desc = "Privacy-focused, built-in ad/tracker blocking"
+        DNSMenuOption3 = "[3] NextDNS (45.90.28.0)"
+        DNSMenuOption3Speed = "Speed: ****  | Privacy: ***** | Location: Switzerland/Global"
+        DNSMenuOption3Desc = "Customizable filtering, analytics dashboard"
+        DNSMenuOption4 = "[4] Quad9 (9.9.9.9)"
+        DNSMenuOption4Speed = "Speed: ****  | Privacy: ***** | Location: Switzerland"
+        DNSMenuOption4Desc = "Non-profit, GDPR-compliant, threat intelligence"
+        DNSMenuOption5 = "[5] Keep Existing DNS"
+        DNSMenuOption5Desc = "No changes to your current DNS configuration"
+        DNSMenuRecommendation = "[Recommendation for EU users: AdGuard or Quad9]"
+        DNSMenuChoice = "Your choice (1-5)"
     }
     
     de = @{
@@ -2869,6 +2889,26 @@ $Global:Strings = @{
         RemoteMenuOption2Con = "Contra: Etwas groessere Angriffsflaeche"
         RemoteMenuRecommendation = "[Empfehlung: Option 1 fuer Buero | Option 2 fuer Gaming/Remote/Dev]"
         RemoteMenuPrompt = "Ihre Auswahl (1-2)"
+        
+        # DNS Provider Menu
+        DNSMenuTitle = "DNS-ANBIETER AUSWAHL (DNS over HTTPS)"
+        DNSMenuPrompt = "Waehlen Sie Ihren DNS-over-HTTPS Anbieter:"
+        DNSMenuOption1 = "[1] Cloudflare (1.1.1.1)"
+        DNSMenuOption1Speed = "Geschwindigkeit: ***** | Datenschutz: ***   | Standort: USA"
+        DNSMenuOption1Desc = "Schnellster DNS, von Millionen weltweit genutzt"
+        DNSMenuOption2 = "[2] AdGuard DNS (94.140.14.14)"
+        DNSMenuOption2Speed = "Geschwindigkeit: ****  | Datenschutz: ***** | Standort: EU (Zypern)"
+        DNSMenuOption2Desc = "Datenschutz-fokussiert, integrierte Werbung/Tracker-Blockierung"
+        DNSMenuOption3 = "[3] NextDNS (45.90.28.0)"
+        DNSMenuOption3Speed = "Geschwindigkeit: ****  | Datenschutz: ***** | Standort: Schweiz/Global"
+        DNSMenuOption3Desc = "Anpassbare Filter, Analytics-Dashboard"
+        DNSMenuOption4 = "[4] Quad9 (9.9.9.9)"
+        DNSMenuOption4Speed = "Geschwindigkeit: ****  | Datenschutz: ***** | Standort: Schweiz"
+        DNSMenuOption4Desc = "Non-Profit, DSGVO-konform, Threat Intelligence"
+        DNSMenuOption5 = "[5] Aktuellen DNS behalten"
+        DNSMenuOption5Desc = "Keine Aenderungen an Ihrer aktuellen DNS-Konfiguration"
+        DNSMenuRecommendation = "[Empfehlung fuer EU-Nutzer: AdGuard oder Quad9]"
+        DNSMenuChoice = "Ihre Auswahl (1-5)"
     }
 }
 

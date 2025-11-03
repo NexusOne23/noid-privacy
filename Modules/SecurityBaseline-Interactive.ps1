@@ -1536,6 +1536,7 @@ function Show-DNSProviderMenu {
         Shows DNS provider selection menu
     .DESCRIPTION
         Allows user to choose between Cloudflare, AdGuard, NextDNS, Quad9, or keep existing DNS
+        Fully localized (EN/DE) with Get-LocalizedString
     .OUTPUTS
         String: '1' (Cloudflare), '2' (AdGuard), '3' (NextDNS), '4' (Quad9), '5' (Keep existing)
     #>
@@ -1543,41 +1544,41 @@ function Show-DNSProviderMenu {
     param()
     
     Write-Host "`n===========================================================" -ForegroundColor Cyan
-    Write-Host "  DNS PROVIDER SELECTION (DNS over HTTPS)" -ForegroundColor Cyan
+    Write-Host "  $(Get-LocalizedString 'DNSMenuTitle')" -ForegroundColor Cyan
     Write-Host "===========================================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "Choose your DNS-over-HTTPS provider:" -ForegroundColor White
+    Write-Host (Get-LocalizedString 'DNSMenuPrompt') -ForegroundColor White
     Write-Host ""
     
-    Write-Host "  [1] Cloudflare (1.1.1.1)" -ForegroundColor Yellow
-    Write-Host "      Speed: ***** | Privacy: ***   | Location: USA" -ForegroundColor Gray
-    Write-Host "      Fastest DNS, used by millions worldwide" -ForegroundColor Gray
+    Write-Host "  $(Get-LocalizedString 'DNSMenuOption1')" -ForegroundColor Yellow
+    Write-Host "      $(Get-LocalizedString 'DNSMenuOption1Speed')" -ForegroundColor Gray
+    Write-Host "      $(Get-LocalizedString 'DNSMenuOption1Desc')" -ForegroundColor Gray
     Write-Host ""
     
-    Write-Host "  [2] AdGuard DNS (94.140.14.14)" -ForegroundColor Yellow
-    Write-Host "      Speed: ****  | Privacy: ***** | Location: EU (Cyprus)" -ForegroundColor Gray
-    Write-Host "      Privacy-focused, built-in ad/tracker blocking" -ForegroundColor Gray
+    Write-Host "  $(Get-LocalizedString 'DNSMenuOption2')" -ForegroundColor Yellow
+    Write-Host "      $(Get-LocalizedString 'DNSMenuOption2Speed')" -ForegroundColor Gray
+    Write-Host "      $(Get-LocalizedString 'DNSMenuOption2Desc')" -ForegroundColor Gray
     Write-Host ""
     
-    Write-Host "  [3] NextDNS (45.90.28.0)" -ForegroundColor Yellow
-    Write-Host "      Speed: ****  | Privacy: ***** | Location: Switzerland/Global" -ForegroundColor Gray
-    Write-Host "      Customizable filtering, analytics dashboard" -ForegroundColor Gray
+    Write-Host "  $(Get-LocalizedString 'DNSMenuOption3')" -ForegroundColor Yellow
+    Write-Host "      $(Get-LocalizedString 'DNSMenuOption3Speed')" -ForegroundColor Gray
+    Write-Host "      $(Get-LocalizedString 'DNSMenuOption3Desc')" -ForegroundColor Gray
     Write-Host ""
     
-    Write-Host "  [4] Quad9 (9.9.9.9)" -ForegroundColor Yellow
-    Write-Host "      Speed: ****  | Privacy: ***** | Location: Switzerland" -ForegroundColor Gray
-    Write-Host "      Non-profit, GDPR-compliant, threat intelligence" -ForegroundColor Gray
+    Write-Host "  $(Get-LocalizedString 'DNSMenuOption4')" -ForegroundColor Yellow
+    Write-Host "      $(Get-LocalizedString 'DNSMenuOption4Speed')" -ForegroundColor Gray
+    Write-Host "      $(Get-LocalizedString 'DNSMenuOption4Desc')" -ForegroundColor Gray
     Write-Host ""
     
-    Write-Host "  [5] Keep Existing DNS" -ForegroundColor Yellow
-    Write-Host "      No changes to your current DNS configuration" -ForegroundColor Gray
+    Write-Host "  $(Get-LocalizedString 'DNSMenuOption5')" -ForegroundColor Yellow
+    Write-Host "      $(Get-LocalizedString 'DNSMenuOption5Desc')" -ForegroundColor Gray
     Write-Host ""
     
-    Write-Host "  [Recommendation for EU users: AdGuard or Quad9]" -ForegroundColor Cyan
+    Write-Host "  $(Get-LocalizedString 'DNSMenuRecommendation')" -ForegroundColor Cyan
     Write-Host ""
     
     do {
-        $choice = Read-Host "Your choice (1-5)"
+        $choice = Read-Host (Get-LocalizedString 'DNSMenuChoice')
     } while ($choice -notin @('1','2','3','4','5'))
     
     return $choice
