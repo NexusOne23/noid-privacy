@@ -21,7 +21,7 @@ function Remove-BloatwareApps {
     [OutputType([void])]
     param()
     
-    Write-Section "Bloatware Removal (Conservative)"
+    Write-Section "$(Get-LocalizedString 'BloatwareTitle')"
     
     Write-Info "$(Get-LocalizedString 'BloatwareRemoving')"
     
@@ -234,7 +234,7 @@ function Disable-ConsumerFeatures {
     [OutputType([void])]
     param()
     
-    Write-Section "Consumer Features (Auto-Install Bloatware)"
+    Write-Section "$(Get-LocalizedString 'ConsumerFeaturesTitle')"
     
     Write-Info "$(Get-LocalizedString 'ConsumerFeaturesDisabling')"
     
@@ -302,7 +302,7 @@ function Remove-SpecificApps {
     [OutputType([void])]
     param()
     
-    Write-Section "Specific App Removal"
+    Write-Section "$(Get-LocalizedString 'SpecificAppsTitle')"
     
     Write-Info "$(Get-LocalizedString 'SpecificAppsRemoving')"
     
