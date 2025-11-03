@@ -277,7 +277,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - MSDT Follina Workaround (CVE-2022-30190) - Disables ms-msdt:// protocol handler
   - Vulnerable Driver Blocklist (CVE-2025-0289) - Enables Microsoft's BYOVD attack protection
 
-- **13 New Registry Keys** - Total now 388 keys (was 375)
+- **13 New Registry Keys** - Total now $1394 keys (was 375)
   - 5 keys for SMB/LDAP/Network hardening
   - 2 keys for SRP file execution restrictions
   - 3 keys for Point-and-Print
@@ -293,7 +293,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Network Attack Surface** reduced significantly (auth coercion vectors eliminated)
 
 ### Changed
-- **Registry Key Count** - Now 388 keys (was 375), +13 new hardening keys
+- **Registry Key Count** - Now $1394 keys (was 375), +13 new hardening keys
 - **Security Functions** - 7 new hardening functions added across Core and Advanced modules
 - **Verify-SecurityBaseline.ps1** - Added 4 new verification checks for new features
 

@@ -1,4 +1,4 @@
-﻿# Complete Code Audit - NoID Privacy Windows 11 25H2 Security Baseline
+# Complete Code Audit - NoID Privacy Windows 11 25H2 Security Baseline
 
 **Date:** November 3, 2025  
 **Version:** 1.7.16  
@@ -82,7 +82,7 @@
 - âœ… UTF-8 without BOM for cross-platform
 - âœ… Atomic file operations (.tmp â†’ final)
 - âœ… Automatic backup validation
-- âœ… Registry backup optimized: 375 keys (30s) vs 50,000+ keys (15min)
+- âœ… Registry backup optimized: 394 keys (30s) vs 50,000+ keys (15min)
 
 ---
 

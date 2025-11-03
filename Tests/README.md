@@ -88,7 +88,7 @@ Invoke-Pester -Configuration $config
 - ✅ ASR (19 Attack Surface Reduction Rules)
 - ✅ Advanced (VBS, Credential Guard, LAPS, Exploit Protection)
 - ✅ Backup (Registry backup functionality)
-- ✅ Telemetry (Privacy features, 158 keys, 37 services)
+- ✅ Telemetry (Privacy features, 110 keys, 37 services)
 - ✅ Restore (Registry restore functionality)
 
 ### Integration Tests

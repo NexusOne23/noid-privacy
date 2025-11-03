@@ -1,6 +1,6 @@
 # 🔐 Registry Keys Reference
 
-**Complete list of all 375 registry keys modified by NoID Privacy**
+**Complete list of all 394 registry keys modified by NoID Privacy**
 
 
 > Auto-generated from RegistryChanges-Definition.ps1
@@ -11,7 +11,7 @@
 
 ## 📑 Modules
 
-- **SecurityBaseline-Advanced.ps1**: 34 keys
+- **SecurityBaseline-Advanced.ps1**: 41 keys
 
 - **SecurityBaseline-AI.ps1**: 15 keys
 
@@ -21,7 +21,7 @@
 
 - **SecurityBaseline-Common.ps1**: 1 keys
 
-- **SecurityBaseline-Core.ps1**: 127 keys
+- **SecurityBaseline-Core.ps1**: 137 keys
 
 - **SecurityBaseline-DNS.ps1**: 3 keys
 
@@ -37,7 +37,7 @@
 
 - **SecurityBaseline-WindowsUpdate.ps1**: 9 keys
 
-- **SecurityBaseline-WirelessDisplay.ps1**: 7 keys
+- **SecurityBaseline-WirelessDisplay.ps1**: 9 keys
 
 
 ---
@@ -47,7 +47,7 @@
 
 **Source**: `SecurityBaseline-Advanced.ps1`
 
-**Keys**: 34
+**Keys**: 41
 
 
 | Path | Name | Value | Type | Description |
@@ -251,7 +251,7 @@
 
 **Source**: `SecurityBaseline-Core.ps1`
 
-**Keys**: 127
+**Keys**: 137
 
 
 | Path | Name | Value | Type | Description |
@@ -965,8 +965,7 @@
 
 **Source**: `SecurityBaseline-WirelessDisplay.ps1`
 
-**Keys**: 7
-
+**Keys**: 9
 
 | Path | Name | Value | Type | Description |
 

@@ -852,7 +852,7 @@ Solitaire, Candy Crush, Bubble Witch
 
 **6 Backup Components:**
 
-**1. Registry Snapshots (375 keys)**
+**1. Registry Snapshots ($1394 keys)**
 - Security policy keys (Defender, ASR, BitLocker, Firewall, VBS, etc.)
 - Privacy setting keys (Telemetry, App Permissions, AI, Tracking)
 - Network configuration keys (DNS, TLS/SSL, Legacy Protocols, WDigest)
@@ -1092,7 +1092,7 @@ Solitaire, Candy Crush, Bubble Witch
 → Defender (11 layers) + ASR (19 rules) + BitLocker + Exploit Protection (13 mitigations) + System Hardening (15 protections)
 
 **Want Maximum Privacy?**
-→ Telemetry OFF (25+ services + 30 tasks + 375 keys) + App Permissions (37 categories) + AI Lockdown (9 features) + 79,776 domains blocked
+→ Telemetry OFF (25+ services + 30 tasks + $1394 keys) + App Permissions (37 categories) + AI Lockdown (9 features) + 79,776 domains blocked
 
 **Want Ransomware Protection?**
 → ASR Rules + Controlled Folder Access + AutoPlay OFF + Network Protection
