@@ -909,18 +909,15 @@ if ($Interactive) {
             # But: powershell.exe instead of &, so it runs in its own process and we can exit COMPLETELY
             # CRITICAL FIX: Use -Command with quoted path (handles spaces AND special chars correctly!)
             # -File parameter fails when path contains spaces (like "Neuer Ordner")
-            # Use double quotes (not single) to handle apostrophes in path (like "User's Documents")
-            $restoreCommand = "& `"$restoreScript`" -Language $Global:CurrentLanguage"
-            $restoreArgs = @(
-                "-ExecutionPolicy", "Bypass",
-                "-NoProfile",
-                "-Command", $restoreCommand
-            )
-            Write-Verbose "Starte Restore als separaten Prozess: powershell.exe -Command `"& `"$restoreScript`" -Language $Global:CurrentLanguage`""
+            # CRITICAL: Start-Process with ArgumentList as STRING (not array) to preserve quotes
+            $escapedPath = $restoreScript -replace '"', '""'
+            $argString = "-ExecutionPolicy Bypass -NoProfile -Command `"& \`"$escapedPath\`" -Language $Global:CurrentLanguage`""
+            
+            Write-Verbose "Starte Restore als separaten Prozess: powershell.exe $argString"
             
             # Start Restore and wait until it's finished
             Write-Host "$(Get-LocalizedString 'RestoreModeProcessStart')" -ForegroundColor Cyan
-            $restoreProcess = Start-Process -FilePath "powershell.exe" -ArgumentList $restoreArgs -NoNewWindow -Wait -PassThru
+            $restoreProcess = Start-Process -FilePath "powershell.exe" -ArgumentList $argString -NoNewWindow -Wait -PassThru
             
             Remove-Item Env:\NOID_LANGUAGE -ErrorAction SilentlyContinue
             
