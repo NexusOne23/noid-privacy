@@ -401,5 +401,5 @@ After successful installation and reboot:
 
 ---
 
-**Last Updated**: November 2, 2025  
-**Version**: 1.7.16
+**Last Updated**: November 3, 2025  
+**Version**: 1.7.17

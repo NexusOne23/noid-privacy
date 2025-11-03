@@ -5,7 +5,7 @@
 [![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-blue.svg)](https://github.com/PowerShell/PowerShell)
 [![Windows 11](https://img.shields.io/badge/Windows%2011-25H2-0078D4.svg)](https://www.microsoft.com/windows/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-1.7.16-blue.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.7.17-blue.svg)](CHANGELOG.md)
 
 ---
 
@@ -632,14 +632,14 @@ The authors are not responsible for any damage or data loss caused by this scrip
 
 ## 📈 Project Status
 
-**Current Version:** 1.7.16  
-**Last Updated:** November 2, 2025  
+**Current Version:** 1.7.17  
+**Last Updated:** November 3, 2025  
 **Status:** Production-Ready ✅
 
-### Recent Updates (v1.7.16)
-- ✅ **CRITICAL: Language Bug Fixed** - German selection now works correctly in Apply → Restore flow
-- ✅ **78 App Name Mappings** - Missing-Apps list shows readable Microsoft Store names (e.g., "Clipchamp - Video Editor" instead of "Clipchamp.Clipchamp")
-- ✅ **Step Counter Fixed** - Restore script shows consistent [1/17] through [17/17] progress display
+### Recent Updates (v1.7.17)
+- ✅ **CRITICAL: Device-Level App Permissions Backup Re-Added** - Backup now includes webcam/microphone EnabledByUser keys (Backup/Restore gap closed!)
+- ✅ **DNS Default Changed** - 'Keep Current DNS' instead of forced Cloudflare (fixes slow internet issue from forum feedback)
+- ✅ **DNS Menu Localized** - Full EN/DE translation for DNS provider selection menu
 - ✅ **100% ASCII Clean** - All 37 PowerShell files cleaned (no encoding issues, cross-platform compatible)
 - ✅ **Oneliner Install Fixed** - ExecutionPolicy Bypass now enforced (works on all systems)
 - ✅ **Optional Remote Access Mode** - Configure RDP and Firewall based on use-case (Desktop vs Remote Server/Development)

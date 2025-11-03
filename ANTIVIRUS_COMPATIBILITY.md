@@ -407,6 +407,6 @@ ConvertFrom-SddlString -Sddl "O:BAG:BAD:(A;;RC;;;BA)"
 ## 🔄 Last Updated
 
 **Date:** November 3, 2025  
-**Version:** 1.7.16+  
+**Version:** 1.7.17+  
 **Scope:** All third-party antivirus products (Bitdefender, Kaspersky, Norton, ESET, etc.)  
 **Status:** Documented - Expected behavior and workarounds provided

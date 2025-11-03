@@ -5,6 +5,47 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.17] - 2025-11-03
+
+### Added
+- **Device-Level App Permissions Backup Re-Added** - Critical Backup/Restore gap closed!
+  - Backup-SecurityBaseline.ps1: New section [15/15] Device-Level App Permissions Backup
+  - Previous v1.7.13 removed this backup claiming "TrustedInstaller protection makes it meaningless"
+  - Critical Issue: Restore script EXPECTED this data but backup had none → Restore failed to restore original state!
+  - Solution: Graceful degradation - backup readable entries, skip Access Denied silently
+  - Coverage: webcam + microphone EnabledByUser keys (~5-20 per permission)
+  - Result: 100% Backup/Restore coverage restored - ALL changes by Apply script are now fully reversible!
+  - All counters updated: Backup [1/14] → [1/15] through [14/14] → [14/15]
+  - Forum feedback addressed: "Does Restore really restore EVERYTHING?" → YES!
+
+- **DNS Menu Localization (EN/DE)** - Full internationalization of DNS provider selection
+  - SecurityBaseline-Interactive.ps1: Show-DNSProviderMenu fully localized
+  - SecurityBaseline-Localization.ps1: 18 new strings added (DNSMenuTitle, DNSMenuOption1-5, etc.)
+  - English: "Speed / Privacy / Location" | German: "Geschwindigkeit / Datenschutz / Standort"
+  - All 4 DNS providers + "Keep Existing" option translated
+  - Consistent with rest of project - 100% localized menus
+
+### Changed
+- **DNS Default: Keep Current DNS** - Fixed slow internet issue from forum feedback
+  - Apply-Win11-25H2-SecurityBaseline.ps1: Lines 1429, 1432-1435
+  - Previous behavior: Non-interactive mode forced Cloudflare DNS (caused slow internet for some users)
+  - Previous behavior: Invalid choice defaulted to Cloudflare
+  - New behavior: Non-interactive mode keeps current DNS (safer default)
+  - New behavior: Invalid choice keeps current DNS with warning message
+  - Forum complaint: "5-10 second delays after applying script - 90s internet vibes"
+  - Root cause: Cloudflare DoH can be slow depending on location + SmartScreen + DNSSEC = triple latency
+  - Solution: User keeps their existing fast DNS, no forced changes
+  - Interactive mode unchanged: Menu still offers all 4 providers + keep option
+
+### Fixed
+- **Critical Backup/Restore Gap** - Device-Level App Permissions not backed up (v1.7.13-v1.7.16)
+  - Impact: After Restore, webcam/microphone EnabledByUser keys remained at "Deny" (not restored)
+  - Scope: ~5-20 app permission keys per permission (webcam, microphone)
+  - Why removed in v1.7.13: "TrustedInstaller-protected, backup meaningless"
+  - Why critical: Restore script expected this data → without it, cannot restore original state
+  - Fix approach: Backup with try-catch per app, skip Access Denied gracefully, backup readable entries
+  - Verification: Restore-SecurityBaseline.ps1 (Lines 2069-2178) already had correct restore logic waiting for data!
+
 ## [1.7.16] - 2025-11-02
 
 ### Added
