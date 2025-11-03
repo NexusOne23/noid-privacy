@@ -452,10 +452,6 @@
 
 | `HKLM:\SOFTWARE\Policies\Microsoft\Windows\System` | EnumerateLocalUsers | 0 | DWord | Do NOT enumerate local users on logon screen (privacy) |
 
-| `HKLM:\System\CurrentControlSet\Services\Dnscache\InterfaceSpecificParameters\` | DohFlags | 1 | QWord |  |
-
-| `$ipPath` | DohFlags | 1 | QWord |  |
-
 | `HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server` | fDenyTSConnections | 1 | DWord | RDP-Verbindungen verweigern |
 
 | `HKLM:\SYSTEM\CurrentControlSet\Control\SecurePipeServers\winreg` | RemoteRegAccess | 0 | DWord | Remote Registry Access verweigern |
