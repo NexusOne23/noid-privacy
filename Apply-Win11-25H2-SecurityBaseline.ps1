@@ -907,14 +907,15 @@ if ($Interactive) {
             
             # IMPORTANT: Start with -NoNewWindow to keep it in the same window
             # But: powershell.exe instead of &, so it runs in its own process and we can exit COMPLETELY
-            # CRITICAL FIX: Use ARRAY format for ArgumentList (string format can fail parameter parsing!)
+            # CRITICAL FIX: Use -Command with quoted path (handles spaces in path correctly!)
+            # -File parameter fails when path contains spaces (like "Neuer Ordner")
+            $restoreCommand = "& '$restoreScript' -Language $Global:CurrentLanguage"
             $restoreArgs = @(
                 "-ExecutionPolicy", "Bypass",
                 "-NoProfile",
-                "-File", $restoreScript,
-                "-Language", $Global:CurrentLanguage
+                "-Command", $restoreCommand
             )
-            Write-Verbose "Starte Restore als separaten Prozess: powershell.exe -File $restoreScript -Language $Global:CurrentLanguage"
+            Write-Verbose "Starte Restore als separaten Prozess: powershell.exe -Command `"& '$restoreScript' -Language $Global:CurrentLanguage`""
             
             # Start Restore and wait until it's finished
             Write-Host "$(Get-LocalizedString 'RestoreModeProcessStart')" -ForegroundColor Cyan
