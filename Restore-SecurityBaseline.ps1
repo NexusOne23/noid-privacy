@@ -907,7 +907,7 @@ else {
         }
     }
     else {
-        Write-Host "  [!] Keine Scheduled Tasks im Backup" -ForegroundColor Yellow
+        Write-Host "  [!] $(Get-LocalizedString 'RestoreNoTasksInBackup')" -ForegroundColor Yellow
         $restoreStats.Skipped++
     }
 }
@@ -1267,13 +1267,13 @@ if ($currentAdminAccount) {
                             # Instead: Use clipboard
                             try {
                                 Set-Clipboard -Value $newPassword -ErrorAction Stop
-                                Write-Host "    [OK] Passwort wurde in Zwischenablage kopiert!" -ForegroundColor Green
-                                Write-Host "    [!] Bitte JETZT in Passwort-Manager einfuegen!" -ForegroundColor Yellow
-                                Write-Host "    [!] Zwischenablage wird in 30 Sekunden geloescht!" -ForegroundColor Yellow
+                                Write-Host "    [OK] $(Get-LocalizedString 'RestorePasswordCopied')" -ForegroundColor Green
+                                Write-Host "    [!] $(Get-LocalizedString 'RestorePasswordPasteNow')" -ForegroundColor Yellow
+                                Write-Host "    [!] $(Get-LocalizedString 'RestorePasswordClearIn30')" -ForegroundColor Yellow
                             }
                             catch {
                                 # Fallback if Clipboard doesn't work (e.g. SSH session)
-                                Write-Host "    [!] Zwischenablage nicht verfuegbar - Passwort wird angezeigt:" -ForegroundColor Yellow
+                                Write-Host "    [!] $(Get-LocalizedString 'RestorePasswordClipboardFailed')" -ForegroundColor Yellow
                                 Write-Host "    $newPassword" -ForegroundColor Yellow
                             }
                             
@@ -1284,16 +1284,17 @@ if ($currentAdminAccount) {
                             
                             # Wait 30 seconds with countdown
                             if ((Get-Clipboard -ErrorAction SilentlyContinue) -eq $newPassword) {
-                                Write-Host "  [i] Warte 30 Sekunden bevor Zwischenablage geleert wird..." -ForegroundColor Gray
+                                Write-Host "  [i] $(Get-LocalizedString 'RestorePasswordWait30')" -ForegroundColor Gray
                                 for ($i = 30; $i -gt 0; $i -= 5) {
-                                    Write-Host "      $i Sekunden verbleiben..." -ForegroundColor DarkGray
+                                    $remainingMsg = Get-LocalizedString 'RestorePasswordSecondsLeft' $i
+                                    Write-Host "      $remainingMsg" -ForegroundColor DarkGray
                                     Start-Sleep -Seconds 5
                                 }
                                 try {
                                     # CRITICAL: Set-Clipboard requires non-empty string (not "" or $null)
                                     # Using single space to effectively clear clipboard without error
                                     Set-Clipboard -Value " " -ErrorAction Stop
-                                    Write-Host "  [OK] Zwischenablage geleert (Sicherheit)" -ForegroundColor Green
+                                    Write-Host "  [OK] $(Get-LocalizedString 'RestorePasswordCleared')" -ForegroundColor Green
                                 } catch {
                                     Write-Verbose "Could not clear clipboard: $_"
                                     # Non-critical - clipboard clear is just a security nicety
@@ -1688,21 +1689,21 @@ if ($backup.Settings.ASRRules -and $backup.Settings.ASRRules.Enabled) {
             if ($asrCount -gt 0) {
                 # Restore ASR Rules
                 $null = Set-MpPreference -AttackSurfaceReductionRules_Ids $asrIds -AttackSurfaceReductionRules_Actions $asrActions -ErrorAction Stop
-                Write-Host "  [OK] $asrCount ASR Rules wiederhergestellt" -ForegroundColor Green
+                Write-Host "  [OK] $(Get-LocalizedString 'RestoreASRSuccess' $asrCount)" -ForegroundColor Green
                 $restoreStats.Success++
             }
         }
         else {
-            Write-Host "  [SKIP] Set-MpPreference nicht verfuegbar" -ForegroundColor Gray
+            Write-Host "  [SKIP] $(Get-LocalizedString 'RestoreASRNotAvailable')" -ForegroundColor Gray
         }
     }
     catch {
-        Write-Warning "ASR Rules Restore fehlgeschlagen: $_"
+        Write-Warning "$(Get-LocalizedString 'RestoreASRFailed') $_"
         $restoreStats.Errors++
     }
 }
 else {
-    Write-Host "  [SKIP] Keine ASR Rules im Backup" -ForegroundColor Gray
+    Write-Host "  [SKIP] $(Get-LocalizedString 'RestoreASRNoBackup')" -ForegroundColor Gray
 }
 #endregion
 
@@ -1714,7 +1715,7 @@ if ($backup.Settings.ExploitProtection -and $backup.Settings.ExploitProtection.E
     try {
         # Check if Set-ProcessMitigation is available (Windows 10 1709+)
         if (-not (Get-Command Set-ProcessMitigation -ErrorAction SilentlyContinue)) {
-            Write-Host "  [SKIP] Set-ProcessMitigation nicht verfuegbar (Windows 10 1709+ required)" -ForegroundColor Gray
+            Write-Host "  [SKIP] $(Get-LocalizedString 'RestoreExploitNotAvailable')" -ForegroundColor Gray
             $restoreStats.Skipped++
         }
         else {
@@ -1803,26 +1804,26 @@ if ($backup.Settings.ExploitProtection -and $backup.Settings.ExploitProtection.E
             }
             
             if ($mitigationsSet -gt 0) {
-                Write-Host "  [OK] Exploit Protection: $mitigationsSet mitigations restored" -ForegroundColor Green
+                Write-Host "  [OK] $(Get-LocalizedString 'RestoreExploitSuccess' $mitigationsSet)" -ForegroundColor Green
                 $restoreStats.Success++
             }
             elseif ($mitigationsFailed -gt 0) {
-                Write-Host "  [!] Exploit Protection: All mitigations failed (incompatible system?)" -ForegroundColor Yellow
+                Write-Host "  [!] $(Get-LocalizedString 'RestoreExploitAllFailed')" -ForegroundColor Yellow
                 $restoreStats.Failed++
             }
             else {
-                Write-Host "  [!] Exploit Protection: No mitigations set (hardware incompatible)" -ForegroundColor Yellow
+                Write-Host "  [!] $(Get-LocalizedString 'RestoreExploitNoMitigations')" -ForegroundColor Yellow
                 $restoreStats.Skipped++
             }
         }
     }
     catch {
-        Write-Warning "Exploit Protection Restore fehlgeschlagen: $_"
+        Write-Warning "$(Get-LocalizedString 'RestoreExploitFailed') $_"
         $restoreStats.Failed++
     }
 }
 else {
-    Write-Host "  [SKIP] Keine Exploit Protection im Backup (oder nicht aktiviert)" -ForegroundColor Gray
+    Write-Host "  [SKIP] $(Get-LocalizedString 'RestoreExploitNoBackup')" -ForegroundColor Gray
     $restoreStats.Skipped++
 }
 #endregion
@@ -1905,22 +1906,22 @@ if ($backup.Settings.DoH -and $backup.Settings.DoH.Enabled) {
         
         if ($restoredCount -gt 0) {
             # NOTE: EnableAutoDoh and netsh global DoH already set to STRICT mode above
-            # (Lines 1335-1358: Registry = 2, netsh = yes)
+            # (Lines 1856-1876: Registry = 2, netsh = yes)
             # We do NOT restore from backup values - security always wins!
-            Write-Host "  [OK] $restoredCount DoH Server wiederhergestellt (strict mode: registry=2, netsh=yes)" -ForegroundColor Green
+            Write-Host "  [OK] $(Get-LocalizedString 'RestoreDohSuccess' $restoredCount)" -ForegroundColor Green
             $restoreStats.Success++
         }
         else {
-            Write-Host "  [WARN] Keine DoH Server wiederhergestellt" -ForegroundColor Yellow
+            Write-Host "  [WARN] $(Get-LocalizedString 'RestoreDohNoServers')" -ForegroundColor Yellow
         }
     }
     catch {
-        Write-Warning "DoH Restore fehlgeschlagen: $_"
+        Write-Warning "$(Get-LocalizedString 'RestoreDohFailed') $_"
         $restoreStats.Errors++
     }
 }
 else {
-    Write-Host "  [SKIP] Keine DoH Konfiguration im Backup" -ForegroundColor Gray
+    Write-Host "  [SKIP] $(Get-LocalizedString 'RestoreDohNoBackup')" -ForegroundColor Gray
 }
 #endregion
 
@@ -1999,20 +2000,20 @@ if ($backup.Settings.DohEncryption -and $backup.Settings.DohEncryption.Enabled) 
         }
         
         if ($restoredServers -gt 0) {
-            Write-Host "  [OK] DoH Encryption: $restoredAdapters Adapter, $restoredServers DNS-Server wiederhergestellt" -ForegroundColor Green
+            Write-Host "  [OK] $(Get-LocalizedString 'RestoreDohEncryptionSuccess' $restoredAdapters $restoredServers)" -ForegroundColor Green
             $restoreStats.Success++
         }
         else {
-            Write-Host "  [WARN] Keine DoH Encryption Preferences wiederhergestellt" -ForegroundColor Yellow
+            Write-Host "  [WARN] $(Get-LocalizedString 'RestoreDohEncryptionNoServers')" -ForegroundColor Yellow
         }
     }
     catch {
-        Write-Warning "DoH Encryption Preferences Restore fehlgeschlagen: $_"
+        Write-Warning "$(Get-LocalizedString 'RestoreDohEncryptionFailed') $_"
         $restoreStats.Errors++
     }
 }
 else {
-    Write-Host "  [SKIP] Keine DoH Encryption Preferences im Backup" -ForegroundColor Gray
+    Write-Host "  [SKIP] $(Get-LocalizedString 'RestoreDohEncryptionNoBackup')" -ForegroundColor Gray
 }
 #endregion
 
@@ -2042,26 +2043,26 @@ if ($backup.Settings.FirewallProfiles -and $backup.Settings.FirewallProfiles.Ena
                     -LogIgnored $profileConfig.LogIgnored `
                     -ErrorAction Stop
                 
-                Write-Host "  [OK] Firewall Profile '$($profileConfig.Name)' wiederhergestellt" -ForegroundColor Green
+                Write-Host "  [OK] $(Get-LocalizedString 'RestoreFirewallProfileSuccess' $profileConfig.Name)" -ForegroundColor Green
                 $restoredProfiles++
             }
             catch {
-                Write-Warning "Firewall Profile '$($profileConfig.Name)' konnte nicht wiederhergestellt werden: $_"
+                Write-Warning "$(Get-LocalizedString 'RestoreFirewallProfileFailed' $profileConfig.Name) $_"
             }
         }
         
         if ($restoredProfiles -gt 0) {
-            Write-Host "  [OK] $restoredProfiles Firewall Profile wiederhergestellt" -ForegroundColor Green
+            Write-Host "  [OK] $(Get-LocalizedString 'RestoreFirewallProfilesSuccess' $restoredProfiles)" -ForegroundColor Green
             $restoreStats.Success++
         }
     }
     catch {
-        Write-Warning "Firewall Profile Restore fehlgeschlagen: $_"
+        Write-Warning "$(Get-LocalizedString 'RestoreFirewallProfilesError') $_"
         $restoreStats.Errors++
     }
 }
 else {
-    Write-Host "  [SKIP] Keine Firewall Profiles im Backup" -ForegroundColor Gray
+    Write-Host "  [SKIP] $(Get-LocalizedString 'RestoreFirewallProfilesNoBackup')" -ForegroundColor Gray
 }
 #endregion
 
@@ -2113,8 +2114,9 @@ if ($hasDeviceLevelApps) {
                     else {
                         # Fallback without ownership management
                         if (Test-Path $appPath) {
-                            # Check if value exists
-                            $valueExists = Get-ItemProperty -Path $appPath -Name "EnabledByUser" -ErrorAction SilentlyContinue
+                            # Check if value exists using PSObject.Properties pattern
+                            $item = Get-ItemProperty -Path $appPath -ErrorAction SilentlyContinue
+                            $valueExists = $item -and ($item.PSObject.Properties.Name -contains "EnabledByUser")
                             if ($valueExists) {
                                 Set-ItemProperty -Path $appPath -Name "EnabledByUser" -Value $appConfig.EnabledByUser -Force -ErrorAction Stop
                             }
@@ -2129,8 +2131,9 @@ if ($hasDeviceLevelApps) {
                 else {
                     # Key did NOT exist before - should be deleted
                     if (Test-Path $appPath) {
-                        $currentValue = Get-ItemProperty -Path $appPath -Name "EnabledByUser" -ErrorAction SilentlyContinue
-                        if ($null -ne $currentValue) {
+                        $item = Get-ItemProperty -Path $appPath -ErrorAction SilentlyContinue
+                        $hasValue = $item -and ($item.PSObject.Properties.Name -contains "EnabledByUser")
+                        if ($hasValue) {
                             # Script created the key - delete it!
                             Remove-ItemProperty -Path $appPath -Name "EnabledByUser" -ErrorAction SilentlyContinue
                             Write-Verbose "  [OK] Deleted: $($appConfig.Permission)/$($appConfig.AppName)"
@@ -2140,20 +2143,20 @@ if ($hasDeviceLevelApps) {
                 }
             }
             catch {
-                Write-Verbose "Device-Level App '$($appConfig.AppName)' konnte nicht wiederhergestellt werden: $_"
+                Write-Verbose "$(Get-LocalizedString 'RestoreDeviceAppFailed' $appConfig.AppName) $_"
             }
         }
         
         if ($restoredApps -gt 0 -or $deletedApps -gt 0) {
-            Write-Host "  [OK] $restoredApps Device-Level Apps restored, $deletedApps deleted" -ForegroundColor Green
+            Write-Host "  [OK] $(Get-LocalizedString 'RestoreDeviceAppSuccess' $restoredApps $deletedApps)" -ForegroundColor Green
             $restoreStats.Success++
         }
         else {
-            Write-Host "  [i] No device-level apps needed restoration" -ForegroundColor Gray
+            Write-Host "  [i] $(Get-LocalizedString 'RestoreDeviceAppNoChanges')" -ForegroundColor Gray
         }
         }
         catch {
-            Write-Warning "Device-Level App Restore fehlgeschlagen: $_"
+            Write-Warning "$(Get-LocalizedString 'RestoreDeviceAppError') $_"
             $restoreStats.Errors++
         }
     }
@@ -2297,7 +2300,8 @@ if ($reboot -eq 'Y') {
     
     # Countdown with visible seconds (like Apply Script)
     for ($i = 10; $i -gt 0; $i--) {
-        Write-Host "  $i Sekunden..." -NoNewline -ForegroundColor Yellow
+        $countdownMsg = Get-LocalizedString 'RestoreRebootCountdown' $i
+        Write-Host "  $countdownMsg" -NoNewline -ForegroundColor Yellow
         if ($i -eq 10) {
             Write-Host " ($(Get-LocalizedString 'RestoreRebootAbort'))" -ForegroundColor Gray
         } else {
