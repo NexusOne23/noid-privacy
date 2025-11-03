@@ -337,6 +337,9 @@ $Global:Strings = @{
         FirewallOutbound = "Outbound: ALL ALLOWED (Internet works normally)"
         FirewallMaxSecurity = "MAXIMUM SECURITY: NOTHING can get in from outside!"
         FirewallCheckbox = "Checkbox 'Block all incoming connections' is now ACTIVE!"
+        FirewallInboundStandard = "Inbound: Default BLOCK, but firewall rules work (localhost/Docker/LLM OK)"
+        FirewallLocalhostAllowed = "Localhost connections allowed (AllowInboundRules=True)"
+        FirewallRemoteOK = "Remote servers, Docker, LLM services can communicate"
         
         # Common Module
         CommonCreatingKey = "Creating registry key: {0}"
@@ -1522,6 +1525,9 @@ $Global:Strings = @{
         FirewallOutbound = "Ausgehend: ALLES ERLAUBT (Internet funktioniert normal)"
         FirewallMaxSecurity = "MAXIMUM SECURITY: NICHTS kann von aussen rein!"
         FirewallCheckbox = "Checkbox 'Blockiert alle eingehenden Verbindungen' ist jetzt AKTIV!"
+        FirewallInboundStandard = "Eingehend: Standard BLOCKIERT, aber Firewall-Regeln funktionieren (localhost/Docker/LLM OK)"
+        FirewallLocalhostAllowed = "Localhost-Verbindungen erlaubt (AllowInboundRules=True)"
+        FirewallRemoteOK = "Remote-Server, Docker, LLM-Dienste koennen kommunizieren"
         
         # Common Module
         CommonCreatingKey = "Erstelle Registry-Key: {0}"

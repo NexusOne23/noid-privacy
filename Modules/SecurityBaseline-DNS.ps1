@@ -380,9 +380,9 @@ function Set-StrictInboundFirewall {
     }
     else {
         # Standard Mode (Allow localhost)
-        Write-Info "Inbound: Default BLOCK, but firewall rules work (localhost/Docker/LLM OK)"
-        Write-Success "Localhost connections allowed (AllowInboundRules=True)"
-        Write-Info "Remote servers, Docker, LLM services can communicate"
+        Write-Info "$(Get-LocalizedString 'FirewallInboundStandard')"
+        Write-Success "$(Get-LocalizedString 'FirewallLocalhostAllowed')"
+        Write-Info "$(Get-LocalizedString 'FirewallRemoteOK')"
     }
 }
 
