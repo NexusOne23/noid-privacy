@@ -90,7 +90,8 @@ echo %YELLOW%===================================================================
 echo.
 
 :: Run PowerShell with ExecutionPolicy Bypass
-powershell.exe -ExecutionPolicy Bypass -NoProfile -File "%~dp0Apply-Win11-25H2-SecurityBaseline.ps1" -Interactive
+:: CRITICAL: Use -Command instead of -File to handle paths with spaces
+powershell.exe -ExecutionPolicy Bypass -NoProfile -Command "& '%~dp0Apply-Win11-25H2-SecurityBaseline.ps1' -Interactive"
 
 :: Check result
 if %errorLevel% equ 0 (
