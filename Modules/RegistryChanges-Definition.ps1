@@ -4,13 +4,13 @@
 # Enable Strict Mode for better error detection
 Set-StrictMode -Version Latest
 
-# Parsed 380 entries, 380 valid (375 original + 5 PIN Complexity)
+# Parsed 394 entries, 394 valid (394 original + 5 PIN Complexity)
 <#
 .SYNOPSIS
     Registry Changes Definition
     
 .DESCRIPTION
-    Contains all 380 registry changes that the Security Baseline applies.
+    Contains all 394 registry changes that the Security Baseline applies.
     Used by Backup and Restore scripts for specific (fast) backup/restore.
     
     This file was AUTO-GENERATED from registry-changes-complete.txt
@@ -19,7 +19,7 @@ Set-StrictMode -Version Latest
 .NOTES
     Generated: 2025-10-31 17:15:00
     Updated: 2025-11-03 (Added Network Protection Enhancement + PIN Complexity)
-    Total Entries: 380
+    Total Entries: 394
     Source: registry-changes-complete.txt
 #>
 

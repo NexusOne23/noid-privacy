@@ -12,7 +12,7 @@
 - [Privacy Features](#-privacy-features) - 300+ Settings  
 - [Network Security](#-network-security) - DNS, Firewall, SMB
 - [AI & Tracking Lockdown](#-ai--tracking-lockdown) - 9 AI Features Disabled
-- [Telemetry Control](#-telemetry-control) - 25+ Services, 375 Keys, 30 Tasks
+- [Telemetry Control](#-telemetry-control) - 25+ Services, 394 Keys, 30 Tasks
 - [Application Control](#-application-control) - 50+ Apps Removed
 - [Windows Update](#-windows-update) - Secure Auto-Update Configuration
 - [System Hardening](#-system-hardening) - 15+ Additional Protections
@@ -491,7 +491,7 @@ Every single diagnostic/telemetry service disabled
 
 **Registry (110 telemetry-specific keys):**
 Every telemetry setting = OFF/BLOCKED/DISABLED
-(375 total registry keys modified across all modules)
+(394 total registry keys modified across all modules)
 
 **Tasks (30):**
 All data collection tasks disabled
@@ -1073,7 +1073,7 @@ Solitaire, Candy Crush, Bubble Witch
 | **Advanced Security** | 5 | LAPS, Advanced Auditing, NTLM Auditing, Smart App Control, USB Device Control |
 | **Services Disabled** | 25+ | DiagTrack, WerSvc, Diagnostics, etc. |
 | **Tasks Disabled** | 30 | CEIP, Appraiser, Data Collection |
-| **Registry Keys** | 375 | Security, Privacy, Network, Performance (see REGISTRY_KEYS.md) |
+| **Registry Keys** | 394 | Security, Privacy, Network, Performance (see REGISTRY_KEYS.md) |
 | **Domains Blocked** | 79,776 | Malware + Ads + Tracking (hosts) |
 | **Apps Removed** | 80+ | Bloatware, Xbox, 3D, Games |
 | **Windows Update** | 6 settings | Auto-update config + Delivery Optimization |
