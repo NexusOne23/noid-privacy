@@ -637,22 +637,29 @@ The authors are not responsible for any damage or data loss caused by this scrip
 **Status:** Production-Ready ✅
 
 ### Recent Updates (v1.7.17)
+- ✅ **CRITICAL: Registry Count Corrected** - Final count is 392 keys (not 394) - 2 dead DohFlags entries removed for 100% accuracy
+- ✅ **CRITICAL: Internet Zone Download Bug Fixed** - Removed 1803 blocking (Chrome/Edge downloads work again, CVE-2025-9491 protection maintained)
 - ✅ **CRITICAL: Device-Level App Permissions Backup Re-Added** - Backup now includes webcam/microphone EnabledByUser keys (Backup/Restore gap closed!)
 - ✅ **DNS Default Changed** - 'Keep Current DNS' instead of forced Cloudflare (fixes slow internet issue from forum feedback)
 - ✅ **DNS Menu Localized** - Full EN/DE translation for DNS provider selection menu
-- ✅ **100% ASCII Clean** - All 37 PowerShell files cleaned (no encoding issues, cross-platform compatible)
-- ✅ **Oneliner Install Fixed** - ExecutionPolicy Bypass now enforced (works on all systems)
-- ✅ **Optional Remote Access Mode** - Configure RDP and Firewall based on use-case (Desktop vs Remote Server/Development)
-- ✅ **Firewall Standard Mode** - Allows localhost connections (Docker, LLM, WSL services functional)
-- ✅ **Automatic Zone.Identifier Unblock** - ZIP downloads work out-of-the-box (no manual unblocking needed)
-- ✅ **CRITICAL: Restore Ownership Fix** - Protected registry keys now restore correctly (TrustedInstaller-protected)
-- ✅ **Restore PolicyManager Cleanup** - Settings UI no longer shows "Your organization manages..." after restore
-- ✅ **Complete Localization** - 100% German menu titles and messages (Audit-Modus, Enforce-Modus, etc.)
-- ✅ **Unit Tests Fixed** - All 136 tests now pass (19 failures fixed)
-- ✅ **Multi-Provider DNS** - Choose from 4 DNS providers (Cloudflare, AdGuard, NextDNS, Quad9)
+- ✅ **100% Telemetry Module Localization** - All 13 functions now fully localized (~210 strings EN/DE)
+- ✅ **100% Bloatware Module Localization** - Complete internationalization with progress indicators
+- ✅ **Third-Party Antivirus Documentation** - New comprehensive compatibility guide (Bitdefender, Kaspersky, Norton, ESET, etc.)
+- ✅ **Code Quality: Get-ItemProperty Pattern** - 63 instances fixed (clean error records, no PropertyNotFoundException)
+- ✅ **Code Quality: PSObject.Properties Pattern** - Property access safety in Restore script (StrictMode compatible)
+- ✅ **Complete Localization** - Advanced/ASR/DNS modules, Restore script (36 strings), 100% German/English support
+- ✅ **Verify Script: Firewall Checks Mode-Aware** - No false failures for Standard Mode users
 
 <details>
 <summary><b>Previous Updates (click to expand)</b></summary>
+
+### v1.7.16
+- ✅ **Optional Remote Access Mode** - Configure RDP and Firewall based on use-case (Desktop vs Remote Server/Development)
+- ✅ **Firewall Standard Mode** - Allows localhost connections (Docker, LLM, WSL services functional)
+- ✅ **Automatic Zone.Identifier Unblock** - ZIP downloads work out-of-the-box (no manual unblocking needed)
+- ✅ **Restore Script Language Selection** - User can choose language when running Restore directly
+- ✅ **78 App Name Mappings** - Missing-Apps list shows readable Microsoft Store names
+- ✅ **100% ASCII Clean** - All 37 PowerShell files cleaned (no encoding issues, cross-platform compatible)
 
 ### v1.7.15
 - ✅ **Multi-Provider DNS-over-HTTPS** - Choose from 4 enterprise-grade DNS providers
