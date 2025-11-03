@@ -271,7 +271,7 @@ Checked all modules for "user-hostile" settings without clear warning:
 ### ✅ SYSTEMATIC ANALYSIS COMPLETE
 
 **FILES ANALYZED:** 27 PowerShell files  
-**REGISTRY CALLS CHECKED:** 394 Set-RegistryValue operations  
+**REGISTRY CALLS CHECKED:** 392 Set-RegistryValue operations  
 **CRITICAL AREAS VERIFIED:** 8/8  
 
 ### 📊 AUDIT RESULTS:

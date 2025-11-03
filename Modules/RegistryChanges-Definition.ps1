@@ -4,13 +4,13 @@
 # Enable Strict Mode for better error detection
 Set-StrictMode -Version Latest
 
-# Parsed 394 entries, 394 valid (394 original + 5 PIN Complexity)
+# Parsed 392 entries, 392 valid (removed 2 dead DohFlags entries)
 <#
 .SYNOPSIS
     Registry Changes Definition
     
 .DESCRIPTION
-    Contains all 394 registry changes that the Security Baseline applies.
+    Contains all 392 registry changes that the Security Baseline applies.
     Used by Backup and Restore scripts for specific (fast) backup/restore.
     
     This file was AUTO-GENERATED from registry-changes-complete.txt
@@ -18,8 +18,8 @@ Set-StrictMode -Version Latest
     
 .NOTES
     Generated: 2025-10-31 17:15:00
-    Updated: 2025-11-03 (Added Network Protection Enhancement + PIN Complexity)
-    Total Entries: 394
+    Updated: 2025-11-03 (Removed 2 dead DohFlags entries - never actually set)
+    Total Entries: 392
     Source: registry-changes-complete.txt
 #>
 
@@ -1383,22 +1383,6 @@ $script:RegistryChanges = @(
         Type = 'DWord'
         ApplyValue = 0
         Description = 'Do NOT enumerate local users on logon screen (privacy)'
-        File = 'SecurityBaseline-Core.ps1'
-    },
-    @{
-        Path = 'HKLM:\System\CurrentControlSet\Services\Dnscache\InterfaceSpecificParameters\'
-        Name = 'DohFlags'
-        Type = 'QWord'
-        ApplyValue = 1
-        Description = ''
-        File = 'SecurityBaseline-Core.ps1'
-    },
-    @{
-        Path = '$ipPath'
-        Name = 'DohFlags'
-        Type = 'QWord'
-        ApplyValue = 1
-        Description = ''
         File = 'SecurityBaseline-Core.ps1'
     },
     @{

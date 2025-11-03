@@ -3,7 +3,7 @@
     Registry Backup/Restore Helper Functions (OPTIMIERT)
     
 .DESCRIPTION
-    Funktionen fuer schnelles, spezifisches Backup und Restore der 394 Registry-Keys.
+    Funktionen fuer schnelles, spezifisches Backup und Restore der 392 Registry-Keys.
     Diese Funktionen ersetzen das langsame Snapshot-System.
     
     VORTEILE:

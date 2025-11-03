@@ -1,6 +1,6 @@
 # 🔐 Registry Keys Reference
 
-**Complete list of all 394 registry keys modified by NoID Privacy**
+**Complete list of all 392 registry keys modified by NoID Privacy**
 
 
 > Auto-generated from RegistryChanges-Definition.ps1
@@ -21,7 +21,7 @@
 
 - **SecurityBaseline-Common.ps1**: 1 keys
 
-- **SecurityBaseline-Core.ps1**: 137 keys
+- **SecurityBaseline-Core.ps1**: 135 keys
 
 - **SecurityBaseline-DNS.ps1**: 3 keys
 
@@ -251,7 +251,7 @@
 
 **Source**: `SecurityBaseline-Core.ps1`
 
-**Keys**: 137
+**Keys**: 135
 
 
 | Path | Name | Value | Type | Description |
