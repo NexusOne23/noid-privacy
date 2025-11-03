@@ -1426,12 +1426,13 @@ try {
                 '3' { Enable-NextDNS }
                 '4' { Enable-Quad9DNS }
                 '5' { Write-Host "  [SKIP] DNS configuration skipped (user choice)" -ForegroundColor Yellow }
-                default { Enable-CloudflareDNS }  # Fallback to Cloudflare
+                default { Write-Host "  [SKIP] DNS configuration skipped (invalid choice - keeping current DNS)" -ForegroundColor Yellow }
             }
         }
         else {
-            # No choice made (CLI mode or old flow) - use default Cloudflare
-            Enable-CloudflareDNS
+            # No choice made (CLI mode or old flow) - keep current DNS (safer default)
+            Write-Host "  [SKIP] DNS configuration skipped (non-interactive mode - keeping current DNS)" -ForegroundColor Yellow
+            Write-Host "  [i] To configure DNS, run in interactive mode or use -DNSProvider parameter" -ForegroundColor Cyan
         }
         
         Disable-RemoteAccessCompletely
