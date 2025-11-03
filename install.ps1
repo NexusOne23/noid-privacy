@@ -184,12 +184,14 @@ Start-Sleep -Seconds 2
 
 # Execute the Apply script in Interactive mode
 # CRITICAL: Use explicit -ExecutionPolicy Bypass to ensure script runs even if system policy is Restricted
+# CRITICAL: Use -Command (not -File) to handle paths with spaces/apostrophes (like "User's Temp Folder")
 try {
+    $scriptPath = $applyScript.FullName
+    $command = "& `"$scriptPath`" -Interactive"
     $processArgs = @(
         "-ExecutionPolicy", "Bypass",
         "-NoProfile",
-        "-File", $applyScript.FullName,
-        "-Interactive"
+        "-Command", $command
     )
     & powershell.exe $processArgs
 }
