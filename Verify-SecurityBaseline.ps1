@@ -445,8 +445,7 @@ function Test-ASRRule {
         $asrPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Windows Defender Exploit Guard\ASR\Rules"
         Test-BaselineCheck -Category "ASR" -Name $Name -Impact $Impact `
             -Test { 
-                $v = Get-ItemProperty $asrPath -Name $GUID -ErrorAction SilentlyContinue
-                if ($v) { $v.$GUID } else { 0 }
+                Get-RegistryValueSafe $asrPath $GUID
             } `
             -Expected 1
     }
@@ -579,57 +578,49 @@ $smbServerPath = "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameter
 
 Test-BaselineCheck -Category "SMB-Server" -Name "Auth Rate Limiter Enabled" -Impact "High" `
     -Test { 
-        $v = Get-ItemProperty $smbServerPath -Name EnableAuthenticationRateLimiter -ErrorAction SilentlyContinue
-        if ($v) { $v.EnableAuthenticationRateLimiter } else { 0 }
+        Get-RegistryValueSafe $smbServerPath "EnableAuthenticationRateLimiter"
     } `
     -Expected 1
 
 Test-BaselineCheck -Category "SMB-Server" -Name "Auth Rate Limiter Delay = 2000ms" -Impact "High" `
     -Test { 
-        $v = Get-ItemProperty $smbServerPath -Name InvalidAuthenticationDelayTimeInMs -ErrorAction SilentlyContinue
-        if ($v) { $v.InvalidAuthenticationDelayTimeInMs } else { 0 }
+        Get-RegistryValueSafe $smbServerPath "InvalidAuthenticationDelayTimeInMs"
     } `
     -Expected 2000
 
 Test-BaselineCheck -Category "SMB-Server" -Name "SMB Min Version = 3.0.0 (768)" -Impact "Critical" `
     -Test { 
-        $v = Get-ItemProperty $smbServerPath -Name SMBServerMinimumProtocol -ErrorAction SilentlyContinue
-        if ($v) { $v.SMBServerMinimumProtocol } else { 0 }
+        Get-RegistryValueSafe $smbServerPath "SMBServerMinimumProtocol"
     } `
     -Expected 768
 
 Test-BaselineCheck -Category "SMB-Server" -Name "SMB Max Version = 3.1.1 (1025)" -Impact "Medium" `
     -Test { 
-        $v = Get-ItemProperty $smbServerPath -Name SMBServerMaximumProtocol -ErrorAction SilentlyContinue
-        if ($v) { $v.SMBServerMaximumProtocol } else { 0 }
+        Get-RegistryValueSafe $smbServerPath "SMBServerMaximumProtocol"
     } `
     -Expected 1025
 
 Test-BaselineCheck -Category "SMB-Server" -Name "Audit Client Without Encryption" -Impact "Medium" `
     -Test { 
-        $v = Get-ItemProperty $smbServerPath -Name AuditClientDoesNotSupportEncryption -ErrorAction SilentlyContinue
-        if ($v) { $v.AuditClientDoesNotSupportEncryption } else { 0 }
+        Get-RegistryValueSafe $smbServerPath "AuditClientDoesNotSupportEncryption"
     } `
     -Expected 1
 
 Test-BaselineCheck -Category "SMB-Server" -Name "Audit Client Without Signing" -Impact "Medium" `
     -Test { 
-        $v = Get-ItemProperty $smbServerPath -Name AuditClientDoesNotSupportSigning -ErrorAction SilentlyContinue
-        if ($v) { $v.AuditClientDoesNotSupportSigning } else { 0 }
+        Get-RegistryValueSafe $smbServerPath "AuditClientDoesNotSupportSigning"
     } `
     -Expected 1
 
 Test-BaselineCheck -Category "SMB-Server" -Name "Audit Insecure Guest Logon" -Impact "High" `
     -Test { 
-        $v = Get-ItemProperty $smbServerPath -Name AuditInsecureGuestLogon -ErrorAction SilentlyContinue
-        if ($v) { $v.AuditInsecureGuestLogon } else { 0 }
+        Get-RegistryValueSafe $smbServerPath "AuditInsecureGuestLogon"
     } `
     -Expected 1
 
 Test-BaselineCheck -Category "SMB-Server" -Name "Remote Mailslots Disabled" -Impact "Medium" `
     -Test { 
-        $v = Get-ItemProperty $smbServerPath -Name EnableRemoteMailslots -ErrorAction SilentlyContinue
-        if ($v) { $v.EnableRemoteMailslots } else { 1 }
+        Get-RegistryValueSafe $smbServerPath "EnableRemoteMailslots" -DefaultValue 1
     } `
     -Expected 0
 
@@ -643,58 +634,50 @@ $smbClientPath = "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanWorkstation\Para
 
 Test-BaselineCheck -Category "SMB-Client" -Name "SMB Client Min Version = 3.0.0 (768)" -Impact "Critical" `
     -Test { 
-        $v = Get-ItemProperty $smbClientPath -Name SMBClientMinimumProtocol -ErrorAction SilentlyContinue
-        if ($v) { $v.SMBClientMinimumProtocol } else { 0 }
+        Get-RegistryValueSafe $smbClientPath "SMBClientMinimumProtocol"
     } `
     -Expected 768
 
 Test-BaselineCheck -Category "SMB-Client" -Name "SMB Client Max Version = 3.1.1 (1025)" -Impact "Medium" `
     -Test { 
-        $v = Get-ItemProperty $smbClientPath -Name SMBClientMaximumProtocol -ErrorAction SilentlyContinue
-        if ($v) { $v.SMBClientMaximumProtocol } else { 0 }
+        Get-RegistryValueSafe $smbClientPath "SMBClientMaximumProtocol"
     } `
     -Expected 1025
 
 Test-BaselineCheck -Category "SMB-Client" -Name "Audit Insecure Guest Logon (Client)" -Impact "High" `
     -Test { 
-        $v = Get-ItemProperty $smbClientPath -Name AuditInsecureGuestLogon -ErrorAction SilentlyContinue
-        if ($v) { $v.AuditInsecureGuestLogon } else { 0 }
+        Get-RegistryValueSafe $smbClientPath "AuditInsecureGuestLogon"
     } `
     -Expected 1
 
 Test-BaselineCheck -Category "SMB-Client" -Name "Audit Server Without Encryption" -Impact "Medium" `
     -Test { 
-        $v = Get-ItemProperty $smbClientPath -Name AuditServerDoesNotSupportEncryption -ErrorAction SilentlyContinue
-        if ($v) { $v.AuditServerDoesNotSupportEncryption } else { 0 }
+        Get-RegistryValueSafe $smbClientPath "AuditServerDoesNotSupportEncryption"
     } `
     -Expected 1
 
 Test-BaselineCheck -Category "SMB-Client" -Name "Audit Server Without Signing" -Impact "Medium" `
     -Test { 
-        $v = Get-ItemProperty $smbClientPath -Name AuditServerDoesNotSupportSigning -ErrorAction SilentlyContinue
-        if ($v) { $v.AuditServerDoesNotSupportSigning } else { 0 }
+        Get-RegistryValueSafe $smbClientPath "AuditServerDoesNotSupportSigning"
     } `
     -Expected 1
 
 Test-BaselineCheck -Category "SMB-Client" -Name "Remote Mailslots Disabled (Client)" -Impact "Medium" `
     -Test { 
-        $v = Get-ItemProperty $smbClientPath -Name EnableRemoteMailslots -ErrorAction SilentlyContinue
-        if ($v) { $v.EnableRemoteMailslots } else { 1 }
+        Get-RegistryValueSafe $smbClientPath "EnableRemoteMailslots" -DefaultValue 1
     } `
     -Expected 0
 
 Test-BaselineCheck -Category "SMB-Client" -Name "Insecure Guest Auth Disabled" -Impact "High" `
     -Test { 
         $smbPolicyPath = "HKLM:\Software\Policies\Microsoft\Windows\LanmanWorkstation"
-        $v = Get-ItemProperty $smbPolicyPath -Name AllowInsecureGuestAuth -ErrorAction SilentlyContinue
-        if ($v) { $v.AllowInsecureGuestAuth } else { 1 }
+        Get-RegistryValueSafe $smbPolicyPath "AllowInsecureGuestAuth" -DefaultValue 1
     } `
     -Expected 0
 
 Test-BaselineCheck -Category "SMB-Client" -Name "Plaintext Passwords to SMB Servers Disabled" -Impact "Critical" `
     -Test { 
-        $v = Get-ItemProperty $smbClientPath -Name EnablePlainTextPassword -ErrorAction SilentlyContinue
-        if ($v) { $v.EnablePlainTextPassword } else { 1 }
+        Get-RegistryValueSafe $smbClientPath "EnablePlainTextPassword" -DefaultValue 1
     } `
     -Expected 0
 
@@ -849,15 +832,13 @@ Write-Host "`n=== NETWORK HARDENING (3 SETTINGS) ===" -ForegroundColor Yellow
 
 Test-BaselineCheck -Category "Network" -Name "mDNS Disabled" -Impact "High" `
     -Test { 
-        $v = Get-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Services\WlanSvc\Parameters" -Name DisableMdnsDiscovery -ErrorAction SilentlyContinue
-        if ($v) { $v.DisableMdnsDiscovery } else { 0 }
+        Get-RegistryValueSafe "HKLM:\SYSTEM\CurrentControlSet\Services\WlanSvc\Parameters" "DisableMdnsDiscovery"
     } `
     -Expected 1
 
 Test-BaselineCheck -Category "Network" -Name "LLMNR Disabled" -Impact "High" `
     -Test { 
-        $v = Get-ItemProperty "HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\DNSClient" -Name EnableMulticast -ErrorAction SilentlyContinue
-        if ($v) { $v.EnableMulticast } else { 1 }
+        Get-RegistryValueSafe "HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\DNSClient" "EnableMulticast" -DefaultValue 1
     } `
     -Expected 0
 
@@ -889,50 +870,43 @@ $uacPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System"
 
 Test-BaselineCheck -Category "UAC" -Name "UAC Enabled (EnableLUA)" -Impact "Critical" `
     -Test { 
-        $v = Get-ItemProperty $uacPath -Name EnableLUA -ErrorAction SilentlyContinue
-        if ($v) { $v.EnableLUA } else { 0 }
+        Get-RegistryValueSafe $uacPath "EnableLUA"
     } `
     -Expected 1
 
 Test-BaselineCheck -Category "UAC" -Name "UAC Always Notify (Slider TOP)" -Impact "High" `
     -Test { 
-        $v = Get-ItemProperty $uacPath -Name ConsentPromptBehaviorAdmin -ErrorAction SilentlyContinue
-        if ($v) { $v.ConsentPromptBehaviorAdmin } else { 5 }
+        Get-RegistryValueSafe $uacPath "ConsentPromptBehaviorAdmin" -DefaultValue 5
     } `
     -Expected 2
 
 Test-BaselineCheck -Category "UAC" -Name "UAC Secure Desktop Enabled" -Impact "High" `
     -Test { 
-        $v = Get-ItemProperty $uacPath -Name PromptOnSecureDesktop -ErrorAction SilentlyContinue
-        if ($v) { $v.PromptOnSecureDesktop } else { 0 }
+        Get-RegistryValueSafe $uacPath "PromptOnSecureDesktop"
     } `
     -Expected 1
 
 Test-BaselineCheck -Category "UAC" -Name "Standard User Prompt for Credentials" -Impact "Medium" `
     -Test { 
-        $v = Get-ItemProperty $uacPath -Name ConsentPromptBehaviorUser -ErrorAction SilentlyContinue
-        if ($v) { $v.ConsentPromptBehaviorUser } else { 3 }
+        Get-RegistryValueSafe $uacPath "ConsentPromptBehaviorUser" -DefaultValue 3
     } `
     -Expected 1
 
 Test-BaselineCheck -Category "UAC" -Name "UAC Local Account Token Filter (Anti-Pass-the-Hash)" -Impact "Critical" `
     -Test { 
-        $v = Get-ItemProperty $uacPath -Name LocalAccountTokenFilterPolicy -ErrorAction SilentlyContinue
-        if ($v) { $v.LocalAccountTokenFilterPolicy } else { 1 }
+        Get-RegistryValueSafe $uacPath "LocalAccountTokenFilterPolicy" -DefaultValue 1
     } `
     -Expected 0
 
 Test-BaselineCheck -Category "UAC" -Name "Inactivity Timeout = 900 sec (15 min)" -Impact "High" `
     -Test { 
-        $v = Get-ItemProperty $uacPath -Name InactivityTimeoutSecs -ErrorAction SilentlyContinue
-        if ($v) { $v.InactivityTimeoutSecs } else { 0 }
+        Get-RegistryValueSafe $uacPath "InactivityTimeoutSecs"
     } `
     -Expected 900
 
 Test-BaselineCheck -Category "UAC" -Name "EPP Mode Configured (Future-Ready)" -Impact "Low" `
     -Test { 
-        $v = Get-ItemProperty $uacPath -Name ConsentPromptBehaviorAdminInEPPMode -ErrorAction SilentlyContinue
-        if ($v) { $v.ConsentPromptBehaviorAdminInEPPMode } else { 0 }
+        Get-RegistryValueSafe $uacPath "ConsentPromptBehaviorAdminInEPPMode"
     } `
     -Expected 2
 
@@ -946,22 +920,19 @@ $lsaPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Lsa"
 
 Test-BaselineCheck -Category "LSA" -Name "LSA Protection (RunAsPPL) Enabled" -Impact "Critical" `
     -Test { 
-        $v = Get-ItemProperty $lsaPath -Name RunAsPPL -ErrorAction SilentlyContinue
-        if ($v) { $v.RunAsPPL } else { 0 }
+        Get-RegistryValueSafe $lsaPath "RunAsPPL"
     } `
     -Expected 1
 
 Test-BaselineCheck -Category "LSA" -Name "LM Hash Disabled (Legacy Hashes)" -Impact "High" `
     -Test { 
-        $v = Get-ItemProperty $lsaPath -Name NoLMHash -ErrorAction SilentlyContinue
-        if ($v) { $v.NoLMHash } else { 0 }
+        Get-RegistryValueSafe $lsaPath "NoLMHash"
     } `
     -Expected 1
 
 Test-BaselineCheck -Category "LSA" -Name "Everyone Excludes Anonymous Users" -Impact "High" `
     -Test { 
-        $v = Get-ItemProperty $lsaPath -Name EveryoneIncludesAnonymous -ErrorAction SilentlyContinue
-        if ($v) { $v.EveryoneIncludesAnonymous } else { 1 }
+        Get-RegistryValueSafe $lsaPath "EveryoneIncludesAnonymous" -DefaultValue 1
     } `
     -Expected 0
 
@@ -977,43 +948,37 @@ $hvciPath = "HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\Hyperv
 
 Test-BaselineCheck -Category "CredentialGuard" -Name "VBS (Virtualization-Based Security) Enabled" -Impact "Critical" `
     -Test { 
-        $v = Get-ItemProperty $dgPath -Name EnableVirtualizationBasedSecurity -ErrorAction SilentlyContinue
-        if ($v) { $v.EnableVirtualizationBasedSecurity } else { 0 }
+        Get-RegistryValueSafe $dgPath "EnableVirtualizationBasedSecurity"
     } `
     -Expected 1
 
 Test-BaselineCheck -Category "CredentialGuard" -Name "VBS Secure Boot + DMA Protection" -Impact "High" `
     -Test { 
-        $v = Get-ItemProperty $dgPath -Name RequirePlatformSecurityFeatures -ErrorAction SilentlyContinue
-        if ($v) { $v.RequirePlatformSecurityFeatures } else { 0 }
+        Get-RegistryValueSafe $dgPath "RequirePlatformSecurityFeatures"
     } `
     -Expected 3
 
 Test-BaselineCheck -Category "CredentialGuard" -Name "Credential Guard Enabled (LsaCfgFlags)" -Impact "Critical" `
     -Test { 
-        $v = Get-ItemProperty $lsaPath -Name LsaCfgFlags -ErrorAction SilentlyContinue
-        if ($v) { $v.LsaCfgFlags } else { 0 }
+        Get-RegistryValueSafe $lsaPath "LsaCfgFlags"
     } `
     -Expected 1
 
 Test-BaselineCheck -Category "CredentialGuard" -Name "Credential Guard Scenario Enabled (25H2)" -Impact "High" `
     -Test { 
-        $v = Get-ItemProperty $cgPath -Name Enabled -ErrorAction SilentlyContinue
-        if ($v) { $v.Enabled } else { 0 }
+        Get-RegistryValueSafe $cgPath "Enabled"
     } `
     -Expected 1
 
 Test-BaselineCheck -Category "CredentialGuard" -Name "HVCI (Memory Integrity) Enabled" -Impact "Critical" `
     -Test { 
-        $v = Get-ItemProperty $hvciPath -Name Enabled -ErrorAction SilentlyContinue
-        if ($v) { $v.Enabled } else { 0 }
+        Get-RegistryValueSafe $hvciPath "Enabled"
     } `
     -Expected 1
 
 Test-BaselineCheck -Category "CredentialGuard" -Name "Vulnerable Driver Blocklist Enabled" -Impact "High" `
     -Test { 
-        $v = Get-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Control\CI\Config" -Name VulnerableDriverBlocklistEnable -ErrorAction SilentlyContinue
-        if ($v) { $v.VulnerableDriverBlocklistEnable } else { 0 }
+        Get-RegistryValueSafe "HKLM:\SYSTEM\CurrentControlSet\Control\CI\Config" "VulnerableDriverBlocklistEnable"
     } `
     -Expected 1
 
@@ -1029,22 +994,19 @@ if (Test-Path $lapsPath) {
     
     Test-BaselineCheck -Category "LAPS" -Name "LAPS Enabled" -Impact "High" `
         -Test { 
-            $v = Get-ItemProperty $lapsPath -Name Enabled -ErrorAction SilentlyContinue
-            if ($v) { $v.Enabled } else { 0 }
+            Get-RegistryValueSafe $lapsPath "Enabled"
         } `
         -Expected 1
     
     Test-BaselineCheck -Category "LAPS" -Name "LAPS Password Complexity = Maximum (4)" -Impact "Medium" `
         -Test { 
-            $v = Get-ItemProperty $lapsPath -Name PasswordComplexity -ErrorAction SilentlyContinue
-            if ($v) { $v.PasswordComplexity } else { 0 }
+            Get-RegistryValueSafe $lapsPath "PasswordComplexity"
         } `
         -Expected 4
     
     Test-BaselineCheck -Category "LAPS" -Name "LAPS Backup to AD/Entra Enabled" -Impact "Medium" `
         -Test { 
-            $v = Get-ItemProperty $lapsPath -Name BackupDirectory -ErrorAction SilentlyContinue
-            if ($v) { $v.BackupDirectory } else { 0 }
+            Get-RegistryValueSafe $lapsPath "BackupDirectory"
         } `
         -Expected 2
         
@@ -1062,15 +1024,13 @@ $kerbPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System\Ker
 
 Test-BaselineCheck -Category "Kerberos" -Name "Kerberos PKINIT Hash = SHA256/384/512" -Impact "Medium" `
     -Test { 
-        $v = Get-ItemProperty $kerbPath -Name PKINITHashAlgorithm -ErrorAction SilentlyContinue
-        if ($v) { $v.PKINITHashAlgorithm } else { 0 }
+        Get-RegistryValueSafe $kerbPath "PKINITHashAlgorithm"
     } `
     -Expected 56
 
 Test-BaselineCheck -Category "Kerberos" -Name "Kerberos Supported Encryption Types (Modern)" -Impact "Medium" `
     -Test { 
-        $v = Get-ItemProperty $kerbPath -Name SupportedEncryptionTypes -ErrorAction SilentlyContinue
-        if ($v) { $v.SupportedEncryptionTypes } else { 0 }
+        Get-RegistryValueSafe $kerbPath "SupportedEncryptionTypes"
     } `
     -Expected { param($value) $value -ge 24 }
 
@@ -1206,15 +1166,13 @@ $ldapPath = "HKLM:\SYSTEM\CurrentControlSet\Services\LDAP"
 
 Test-BaselineCheck -Category "APT-Protection" -Name "LDAP Client Signing = Require (2)" -Impact "Critical" `
     -Test { 
-        $v = Get-ItemProperty $ldapPath -Name LDAPClientIntegrity -ErrorAction SilentlyContinue
-        if ($v) { $v.LDAPClientIntegrity } else { 0 }
+        Get-RegistryValueSafe $ldapPath "LDAPClientIntegrity"
     } `
     -Expected 2
 
 Test-BaselineCheck -Category "APT-Protection" -Name "LDAP Channel Binding = Always (2)" -Impact "Critical" `
     -Test { 
-        $v = Get-ItemProperty $ldapPath -Name LdapEnforceChannelBinding -ErrorAction SilentlyContinue
-        if ($v) { $v.LdapEnforceChannelBinding } else { 0 }
+        Get-RegistryValueSafe $ldapPath "LdapEnforceChannelBinding"
     } `
     -Expected 2
 
@@ -1222,15 +1180,13 @@ $internetZonePath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CurrentVersion\In
 
 Test-BaselineCheck -Category "APT-Protection" -Name "Internet Zone: Block Launching Apps (3)" -Impact "Critical" `
     -Test { 
-        $v = Get-ItemProperty $internetZonePath -Name "1806" -ErrorAction SilentlyContinue
-        if ($v) { $v.'1806' } else { 0 }
+        Get-RegistryValueSafe $internetZonePath "1806"
     } `
     -Expected 3
 
 Test-BaselineCheck -Category "APT-Protection" -Name "Internet Zone: Block Auto Downloads (3)" -Impact "High" `
     -Test { 
-        $v = Get-ItemProperty $internetZonePath -Name "1803" -ErrorAction SilentlyContinue
-        if ($v) { $v.'1803' } else { 0 }
+        Get-RegistryValueSafe $internetZonePath "1803"
     } `
     -Expected 3
 
@@ -1238,8 +1194,7 @@ $intranetZonePath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CurrentVersion\In
 
 Test-BaselineCheck -Category "APT-Protection" -Name "Intranet Zone: Block Launching Apps (3)" -Impact "High" `
     -Test { 
-        $v = Get-ItemProperty $intranetZonePath -Name "1806" -ErrorAction SilentlyContinue
-        if ($v) { $v.'1806' } else { 0 }
+        Get-RegistryValueSafe $intranetZonePath "1806"
     } `
     -Expected 3
 
@@ -1247,8 +1202,7 @@ $efsServicePath = "HKLM:\SYSTEM\CurrentControlSet\Services\EFS"
 
 Test-BaselineCheck -Category "APT-Protection" -Name "EFS Service Disabled (4)" -Impact "High" `
     -Test { 
-        $v = Get-ItemProperty $efsServicePath -Name Start -ErrorAction SilentlyContinue
-        if ($v) { $v.Start } else { 0 }
+        Get-RegistryValueSafe $efsServicePath "Start"
     } `
     -Expected 4
 
@@ -1256,8 +1210,7 @@ $efsDriverPath = "HKLM:\SYSTEM\CurrentControlSet\Control\EFS"
 
 Test-BaselineCheck -Category "APT-Protection" -Name "EFS Driver Disabled (1)" -Impact "High" `
     -Test { 
-        $v = Get-ItemProperty $efsDriverPath -Name Disabled -ErrorAction SilentlyContinue
-        if ($v) { $v.Disabled } else { 0 }
+        Get-RegistryValueSafe $efsDriverPath "Disabled"
     } `
     -Expected 1
 
@@ -1265,15 +1218,13 @@ $srpPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Safer\CodeIdentifiers"
 
 Test-BaselineCheck -Category "APT-Protection" -Name "SRP Enabled (DefaultLevel = 0x40000)" -Impact "Critical" `
     -Test { 
-        $v = Get-ItemProperty $srpPath -Name DefaultLevel -ErrorAction SilentlyContinue
-        if ($v) { $v.DefaultLevel } else { 0 }
+        Get-RegistryValueSafe $srpPath "DefaultLevel"
     } `
     -Expected 0x00040000
 
 Test-BaselineCheck -Category "APT-Protection" -Name "SRP Transparent Enforcement = ON (1)" -Impact "Medium" `
     -Test { 
-        $v = Get-ItemProperty $srpPath -Name TransparentEnabled -ErrorAction SilentlyContinue
-        if ($v) { $v.TransparentEnabled } else { 0 }
+        Get-RegistryValueSafe $srpPath "TransparentEnabled"
     } `
     -Expected 1
 
