@@ -66,7 +66,9 @@ echo.
 :: CRITICAL: Windows marks files downloaded from Internet with Zone.Identifier
 :: This prevents scripts from running ("Internet security settings prevent execution")
 :: Solution: Automatically unblock all .ps1 and .psm1 files
-powershell -ExecutionPolicy Bypass -NoProfile -Command "Get-ChildItem -Path '%~dp0' -Recurse -Include *.ps1,*.psm1 -File | Unblock-File -ErrorAction SilentlyContinue" >nul 2>&1
+:: Use env variable to handle apostrophes in path (C:\User's\...)
+set "SCRIPTDIR=%~dp0"
+powershell -ExecutionPolicy Bypass -NoProfile -Command "Get-ChildItem -LiteralPath $env:SCRIPTDIR -Recurse -Include *.ps1,*.psm1 -File | Unblock-File -ErrorAction SilentlyContinue" >nul 2>&1
 echo %GREEN%[OK] PowerShell files unblocked%RESET%
 echo.
 
