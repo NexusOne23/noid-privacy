@@ -715,14 +715,14 @@ function Disable-CameraAndMicrophone {
     [OutputType([void])]
     param()
     
-    Write-Section "Kamera und Mikrofon - APP-BERECHTIGUNGEN entfernen"
+    Write-Section "$(Get-LocalizedString 'TelemetryCameraTitle')"
     
     # CRITICAL FIX October 2025: Windows 11 25H2 reads GUI from HKCU, not HKLM!
     # HKLM = Default for NEW users only
     # HKCU = Current user (what GUI shows)
     # We need to set BOTH!
     
-    Write-Info "Entferne Kamera und Mikrofon Berechtigungen fuer ALLE Apps..."
+    Write-Info "$(Get-LocalizedString 'TelemetryCameraRemoving')"
     
     # CRITICAL FIX v1.7.10: ONLY set "Value"="Deny" (MS-compliant!)
     # LastUsedTime* are FORENSIC-TRACKING (managed automatically by Windows!)
@@ -737,7 +737,7 @@ function Disable-CameraAndMicrophone {
             $null = New-Item -Path $cameraPathHKCU -Force -ErrorAction Stop
         }
         Set-ItemProperty -Path $cameraPathHKCU -Name "Value" -Value "Deny" -Type String -Force -ErrorAction Stop
-        Write-Verbose "     Kamera HKCU: Value=Deny"
+        Write-Verbose "$(Get-LocalizedString 'TelemetryCameraHKCUValue')"
         
         # Sub-keys also set to Deny
         try {
@@ -748,17 +748,17 @@ function Disable-CameraAndMicrophone {
                         Set-ItemProperty -Path $app.PSPath -Name "Value" -Value "Deny" -Type String -Force -ErrorAction Stop
                     }
                     catch {
-                        Write-Verbose "     Kamera App '$($app.PSChildName)' Fehler: $_"
+                        Write-Verbose "$(Get-LocalizedString 'TelemetryCameraAppError' $app.PSChildName $_)"
                     }
                 }
             }
         }
         catch {
-            Write-Verbose "Kamera Apps Enumeration Fehler (nicht kritisch): $_"
+            Write-Verbose "$(Get-LocalizedString 'TelemetryCameraAppsEnumError' $_)"
         }
     }
     catch {
-        Write-Warning "Kamera HKCU Fehler: $_"
+        Write-Warning "$(Get-LocalizedString 'TelemetryCameraHKCUError' $_)"
     }
     
     # HKLM (new users - default)
@@ -768,10 +768,10 @@ function Disable-CameraAndMicrophone {
             $null = New-Item -Path $cameraPathHKLM -Force -ErrorAction Stop
         }
         Set-ItemProperty -Path $cameraPathHKLM -Name "Value" -Value "Deny" -Type String -Force -ErrorAction Stop
-        Write-Verbose "     Kamera HKLM: Value=Deny"
+        Write-Verbose "$(Get-LocalizedString 'TelemetryCameraHKLMValue')"
     }
     catch {
-        Write-Verbose "Kamera HKLM Fehler: $_"
+        Write-Verbose "$(Get-LocalizedString 'TelemetryCameraHKLMError' $_)"
     }
     
     # ===== MIKROFON (MICROPHONE) =====
@@ -783,7 +783,7 @@ function Disable-CameraAndMicrophone {
             $null = New-Item -Path $microphonePathHKCU -Force -ErrorAction Stop
         }
         Set-ItemProperty -Path $microphonePathHKCU -Name "Value" -Value "Deny" -Type String -Force -ErrorAction Stop
-        Write-Verbose "     Mikrofon HKCU: Value=Deny"
+        Write-Verbose "$(Get-LocalizedString 'TelemetryMicrophoneHKCUValue')"
         
         # Sub-keys also set to Deny
         try {
@@ -794,17 +794,17 @@ function Disable-CameraAndMicrophone {
                         Set-ItemProperty -Path $app.PSPath -Name "Value" -Value "Deny" -Type String -Force -ErrorAction Stop
                     }
                     catch {
-                        Write-Verbose "     Mikrofon App '$($app.PSChildName)' Fehler: $_"
+                        Write-Verbose "$(Get-LocalizedString 'TelemetryMicrophoneAppError' $app.PSChildName $_)"
                     }
                 }
             }
         }
         catch {
-            Write-Verbose "Mikrofon Apps Enumeration Fehler (nicht kritisch): $_"
+            Write-Verbose "$(Get-LocalizedString 'TelemetryMicrophoneAppsEnumError' $_)"
         }
     }
     catch {
-        Write-Warning "Mikrofon HKCU Fehler: $_"
+        Write-Warning "$(Get-LocalizedString 'TelemetryMicrophoneHKCUError' $_)"
     }
     
     # HKLM (new users - default)
@@ -814,10 +814,10 @@ function Disable-CameraAndMicrophone {
             $null = New-Item -Path $microphonePathHKLM -Force -ErrorAction Stop
         }
         Set-ItemProperty -Path $microphonePathHKLM -Name "Value" -Value "Deny" -Type String -Force -ErrorAction Stop
-        Write-Verbose "     Mikrofon HKLM: Value=Deny"
+        Write-Verbose "$(Get-LocalizedString 'TelemetryMicrophoneHKLMValue')"
     }
     catch {
-        Write-Verbose "Mikrofon HKLM Fehler: $_"
+        Write-Verbose "$(Get-LocalizedString 'TelemetryMicrophoneHKLMError' $_)"
     }
     
     # ===== CRITICAL FIX: DEVICE-LEVEL TOGGLE (Windows 11 25H2) =====
@@ -827,7 +827,7 @@ function Disable-CameraAndMicrophone {
     # 
     # We must set BOTH to OFF!
     
-    Write-Verbose "Setze Device-Level Toggles (Zugriff auf Kamera/Mikrofon)..."
+    Write-Verbose "$(Get-LocalizedString 'TelemetryDeviceTogglesSet')"
     
     # CAMERA: Device-Level Toggle OFF (TrustedInstaller-Protected!)
     $cameraCapabilitiesPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\Capabilities\webcam\Apps"
@@ -841,13 +841,13 @@ function Disable-CameraAndMicrophone {
                 $result = Set-RegistryValueSmart -Path $appPath -Name "EnabledByUser" -Value 0 -Type DWord `
                     -Description "Device-Toggle Kamera: $($app.PSChildName)"
                 if ($result) {
-                    Write-Verbose "     Device-Toggle Kamera: $($app.PSChildName) = AUS"
+                    Write-Verbose "$(Get-LocalizedString 'TelemetryCameraDeviceToggle' $app.PSChildName)"
                 }
             }
         }
     }
     catch {
-        Write-Verbose "Kamera Device-Level Toggle Fehler: $_"
+        Write-Verbose "$(Get-LocalizedString 'TelemetryCameraDeviceError' $_)"
     }
     
     # MICROPHONE: Device-Level Toggle OFF (TrustedInstaller-Protected!)
@@ -862,16 +862,16 @@ function Disable-CameraAndMicrophone {
                 $result = Set-RegistryValueSmart -Path $appPath -Name "EnabledByUser" -Value 0 -Type DWord `
                     -Description "Device-Toggle Mikrofon: $($app.PSChildName)"
                 if ($result) {
-                    Write-Verbose "     Device-Toggle Mikrofon: $($app.PSChildName) = AUS"
+                    Write-Verbose "$(Get-LocalizedString 'TelemetryMicrophoneDeviceToggle' $app.PSChildName)"
                 }
             }
         }
     }
     catch {
-        Write-Verbose "Mikrofon Device-Level Toggle Fehler: $_"
+        Write-Verbose "$(Get-LocalizedString 'TelemetryMicrophoneDeviceError' $_)"
     }
     
-    Write-Verbose "Device-Level Toggles gesetzt - 'Zugriff auf Kamera/Mikrofon' sollte jetzt AUS sein"
+    Write-Verbose "$(Get-LocalizedString 'TelemetryDeviceTogglesComplete')"
     
     # Verification: Check if values were really set
     Start-Sleep -Milliseconds 500  # Kurze Pause damit Registry committed
@@ -883,68 +883,68 @@ function Disable-CameraAndMicrophone {
     $micValue = if ($micItem -and ($micItem.PSObject.Properties.Name -contains "Value")) { $micItem.Value } else { $null }
     
     if ($camValue -eq "Deny") {
-        Write-Success "Kamera: ALLE Standard-Apps deaktiviert (User muss pro App zustimmen)"
+        Write-Success "$(Get-LocalizedString 'TelemetryCameraAllDisabled')"
     } else {
-        Write-Warning "Kamera ConsentStore: '$camValue' (erwartet: Deny)"
+        Write-Warning "$(Get-LocalizedString 'TelemetryCameraConsentStore' $camValue)"
     }
     
     if ($micValue -eq "Deny") {
-        Write-Success "Mikrofon: ALLE Standard-Apps deaktiviert (User muss pro App zustimmen)"
+        Write-Success "$(Get-LocalizedString 'TelemetryMicrophoneAllDisabled')"
     } else {
-        Write-Warning "Mikrofon ConsentStore: '$micValue' (erwartet: Deny)"
+        Write-Warning "$(Get-LocalizedString 'TelemetryMicrophoneConsentStore' $micValue)"
     }
     
     # CRITICAL: Settings App AND Explorer must be restarted!
     # Settings App caches privacy settings in memory!
-    Write-Verbose "Stoppe Settings App damit Aenderungen sofort sichtbar werden..."
+    Write-Verbose "$(Get-LocalizedString 'TelemetryStopSettingsApp')"
     try {
         Get-Process -Name SystemSettings -ErrorAction SilentlyContinue | Stop-Process -Force -ErrorAction SilentlyContinue
-        Write-Verbose "     Settings App wurde neu gestartet"
+        Write-Verbose "$(Get-LocalizedString 'TelemetrySettingsAppRestarted')"
     }
     catch {
-        Write-Verbose "Settings App war nicht geoeffnet - OK"
+        Write-Verbose "$(Get-LocalizedString 'TelemetrySettingsAppNotOpen')"
     }
     
     # ADDITIONAL FIX: Flush Registry Cache
-    Write-Verbose "Flushe Registry-Cache..."
+    Write-Verbose "$(Get-LocalizedString 'TelemetryFlushRegistryCache')"
     try {
         # Force registry write to disk
         $null = Invoke-Command {reg.exe query HKCU\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\webcam 2>&1}
         Start-Sleep -Milliseconds 200
-        Write-Verbose "     Registry-Cache geflushed"
+        Write-Verbose "$(Get-LocalizedString 'TelemetryRegistryCacheFlushed')"
     }
     catch {
-        Write-Verbose "Registry-Cache Flush optional"
+        Write-Verbose "$(Get-LocalizedString 'TelemetryRegistryCacheOptional')"
     }
     
     Write-Host ""
-    Write-Host "========================================" -ForegroundColor Yellow
-    Write-Host "WICHTIG: WINDOWS 11 24H2/25H2 AENDERUNG!" -ForegroundColor Yellow
-    Write-Host "========================================" -ForegroundColor Yellow
+    Write-Host "$(Get-LocalizedString 'TelemetryImportantChangeSeparator')" -ForegroundColor Yellow
+    Write-Host "$(Get-LocalizedString 'TelemetryImportantWin11Change')" -ForegroundColor Yellow
+    Write-Host "$(Get-LocalizedString 'TelemetryImportantChangeSeparator')" -ForegroundColor Yellow
     Write-Host ""
-    Write-Warning "Ab Windows 11 24H2/25H2 verwendet Windows eine SQLite-Datenbank fuer Privacy-Einstellungen!"
-    Write-Info "Das Script hat alle STANDARD-APPS deaktiviert - funktioniert:"
-    Write-Info "  - Apps brauchen DEINE ERLAUBNIS fuer Kamera/Mikrofon-Zugriff"
-    Write-Info "  - Beim ersten Zugriff fragt Windows: 'Darf [App] zugreifen?'"
-    Write-Info "  - Du kannst dann Allow oder Deny klicken"
+    Write-Warning "$(Get-LocalizedString 'TelemetrySQLiteChange')"
+    Write-Info "$(Get-LocalizedString 'TelemetryStandardAppsDisabled')"
+    Write-Info "$(Get-LocalizedString 'TelemetryAppsNeedPermission')"
+    Write-Info "$(Get-LocalizedString 'TelemetryWindowsAsksFirst')"
+    Write-Info "$(Get-LocalizedString 'TelemetryUserCanAllow')"
     Write-Host ""
-    Write-Warning "ABER: Die MASTER-TOGGLES in Settings koennen NUR MANUELL geaendert werden!"
+    Write-Warning "$(Get-LocalizedString 'TelemetryMasterTogglesManual')"
     Write-Host ""
-    Write-Info "EMPFOHLEN: Schalte die Master-Toggles manuell AUS:"
-    Write-Info "  1. Oeffne: Settings (Windows-Taste + I)"
-    Write-Info "  2. Gehe zu: Privacy and security | Camera"
-    Write-Info "  3. Schalte AUS: 'Camera access' (oberster Toggle)"
-    Write-Info "  4. Schalte AUS: 'Let apps access your camera' (zweiter Toggle)"
+    Write-Info "$(Get-LocalizedString 'TelemetryRecommendedManual')"
+    Write-Info "$(Get-LocalizedString 'TelemetryOpenSettings')"
+    Write-Info "$(Get-LocalizedString 'TelemetryCameraSettings')"
+    Write-Info "$(Get-LocalizedString 'TelemetryCameraAccessOff')"
+    Write-Info "$(Get-LocalizedString 'TelemetryCameraAppsOff')"
     Write-Host ""
-    Write-Info "  5. Gehe zu: Privacy and security | Microphone"  
-    Write-Info "  6. Schalte AUS: 'Microphone access' (oberster Toggle)"
-    Write-Info "  7. Schalte AUS: 'Let apps access your microphone' (zweiter Toggle)"
+    Write-Info "$(Get-LocalizedString 'TelemetryMicrophoneSettings')"  
+    Write-Info "$(Get-LocalizedString 'TelemetryMicrophoneAccessOff')"
+    Write-Info "$(Get-LocalizedString 'TelemetryMicrophoneAppsOff')"
     Write-Host ""
-    Write-Success "ERGEBNIS: Maximale Privacy + Du behaeltst volle Kontrolle!"
-    Write-Info "Du kannst jederzeit einzelne Apps in Settings erlauben."
+    Write-Success "$(Get-LocalizedString 'TelemetryResultMaxPrivacy')"
+    Write-Info "$(Get-LocalizedString 'TelemetryCanAllowIndividual')"
     Write-Host ""
-    Write-Info "HARDWARE-INFO: Die physischen Kamera/Mikrofon-Geraete bleiben aktiv"
-    Write-Info "Um Hardware zu deaktivieren: Geraete-Manager | Kamera/Audio | Rechtsklick | Deaktivieren"
+    Write-Info "$(Get-LocalizedString 'TelemetryHardwareInfo')"
+    Write-Info "$(Get-LocalizedString 'TelemetryHardwareDisable')"
 }
 
 function Disable-PrivacyExperienceSettings {
@@ -956,7 +956,7 @@ function Disable-PrivacyExperienceSettings {
     [OutputType([void])]
     param()
     
-    Write-Section "Privacy Experience Settings deaktivieren"
+    Write-Section "$(Get-LocalizedString 'TelemetryPrivacyExpTitle')"
     
     # Language List via POLICY (applies to ALL users!)
     # NOTE: There is no direct HKLM policy for HttpAcceptLanguageOptOut
@@ -968,7 +968,7 @@ function Disable-PrivacyExperienceSettings {
     Set-RegistryValue -Path $cloudContentPath -Name "DisableSoftLanding" -Value 1 -Type DWord -Description "Vorgeschlagene Inhalte deaktivieren"
     Set-RegistryValue -Path $cloudContentPath -Name "DisableThirdPartySuggestions" -Value 1 -Type DWord -Description "Drittanbieter-Vorschlaege deaktivieren"
     
-    Write-Success "Privacy Experience: Vorgeschlagene Inhalte deaktiviert"
+    Write-Success "$(Get-LocalizedString 'TelemetryPrivacyExpComplete')"
 }
 
 function Disable-InkingAndTypingPersonalization {
@@ -985,7 +985,7 @@ function Disable-InkingAndTypingPersonalization {
     [OutputType([void])]
     param()
     
-    Write-Section "Freihand- und Eingabeanpassung deaktivieren"
+    Write-Section "$(Get-LocalizedString 'TelemetryInkingTitle')"
     
     # Input Personalization via POLICY (applies to ALL users!)
     $inputPolicyPath = "HKLM:\SOFTWARE\Policies\Microsoft\InputPersonalization"
@@ -997,7 +997,7 @@ function Disable-InkingAndTypingPersonalization {
     Set-RegistryValue -Path $inputPersonalizationPath -Name "AllowInputPersonalization" -Value 0 -Type DWord -Description "Input Personalization komplett deaktivieren"
     
     # Best Practice October 2025: HKCU settings required for GUI to show correctly!
-    Write-Info "Setze User-Level Inking and Typing Settings (HKCU)..."
+    Write-Info "$(Get-LocalizedString 'TelemetryInkingSettingUser')"
     
     # User-Level: Handwriting Personalization
     $inkPath = "HKCU:\Software\Microsoft\InputPersonalization"
@@ -1016,8 +1016,8 @@ function Disable-InkingAndTypingPersonalization {
     Set-RegistryValue -Path $personalizationPath -Name "AcceptedPrivacyPolicy" -Value 0 -Type DWord `
         -Description "Personalization Privacy Policy ablehnen"
     
-    Write-Success "Freihand- und Eingabeanpassung: KEINE Datensammlung"
-    Write-Info "Settings | Privacy and security | Inking and typing personalization ist jetzt OFF"
+    Write-Success "$(Get-LocalizedString 'TelemetryInkingComplete')"
+    Write-Info "$(Get-LocalizedString 'TelemetryInkingSettingsOff')"
 }
 
 function Set-LocationServicesDefault {
@@ -1032,7 +1032,7 @@ function Set-LocationServicesDefault {
     [OutputType([void])]
     param()
     
-    Write-Section "Standortdienste deaktivieren"
+    Write-Section "$(Get-LocalizedString 'TelemetryLocationTitle')"
     
     # HKLM: Default for new users
     $locationPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location"
@@ -1042,7 +1042,7 @@ function Set-LocationServicesDefault {
     Set-RegistryValue -Path $sensorPath -Name "DisableLocation" -Value 1 -Type DWord -Description "Standortdienste deaktivieren"
     
     # CRITICAL FIX v1.7.10: HKCU for current user (ONLY Value!)
-    Write-Verbose "Setze Location auch fuer aktuellen User (HKCU)..."
+    Write-Verbose "$(Get-LocalizedString 'TelemetryLocationSettingHKCU')"
     $locationPathHKCU = "HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location"
     try {
         if (-not (Test-Path $locationPathHKCU)) {
@@ -1050,7 +1050,7 @@ function Set-LocationServicesDefault {
         }
         # ONLY set Value - Windows manages LastUsedTime* itself!
         Set-ItemProperty -Path $locationPathHKCU -Name "Value" -Value "Deny" -Type String -Force -ErrorAction Stop
-        Write-Verbose "     Location HKCU: Value=Deny"
+        Write-Verbose "$(Get-LocalizedString 'TelemetryLocationHKCUValue')"
         
         # Sub-keys also set to Deny
         try {
@@ -1061,21 +1061,21 @@ function Set-LocationServicesDefault {
                         Set-ItemProperty -Path $app.PSPath -Name "Value" -Value "Deny" -Type String -Force -ErrorAction Stop
                     }
                     catch {
-                        Write-Verbose "     Location App '$($app.PSChildName)' Fehler: $_"
+                        Write-Verbose "$(Get-LocalizedString 'TelemetryLocationAppError' $app.PSChildName $_)"
                     }
                 }
             }
         }
         catch {
-            Write-Verbose "Location Apps Enumeration Fehler (nicht kritisch): $_"
+            Write-Verbose "$(Get-LocalizedString 'TelemetryLocationAppsEnumError' $_)"
         }
     }
     catch {
-        Write-Warning "Location HKCU Fehler: $_"
+        Write-Warning "$(Get-LocalizedString 'TelemetryLocationHKCUError' $_)"
     }
     
-    Write-Success "Location: Standard-Apps deaktiviert (User muss pro App zustimmen)"
-    Write-Info "Master-Toggle muss in Settings (Privacy | Location) manuell ausgeschaltet werden (25H2)"
+    Write-Success "$(Get-LocalizedString 'TelemetryLocationComplete')"
+    Write-Info "$(Get-LocalizedString 'TelemetryLocationMasterToggle')"
 }
 
 function Disable-AllAppPermissionsDefaults {
@@ -1120,9 +1120,9 @@ function Disable-AllAppPermissionsDefaults {
     [OutputType([void])]
     param()
     
-    Write-Section "App Permissions - Privacy by Default (Complete)"
+    Write-Section "$(Get-LocalizedString 'TelemetryAppPermTitle')"
     
-    Write-Info "Setze ALLE App Permissions auf OFF (User kann individuell aktivieren)..."
+    Write-Info "$(Get-LocalizedString 'TelemetryAppPermSetting')"
     
     # Base path for ConsentStore
     $consentStoreBase = "SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore"
@@ -1130,103 +1130,103 @@ function Disable-AllAppPermissionsDefaults {
     # ===== CRITICAL: SENSITIVE DATA ACCESS =====
     
     # Speech (Online speech recognition)
-    Write-Verbose "Speech Recognition OFF..."
+    Write-Verbose "$(Get-LocalizedString 'TelemetryAppPermVerboseSpeech')"
     $speechPath = "HKCU:\Software\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy"
     Set-RegistryValue -Path $speechPath -Name "HasAccepted" -Value 0 -Type DWord `
         -Description "Online Speech Recognition OFF (Privacy)"
     
     # Notifications (Apps can read notifications)
-    Write-Verbose "Notifications Access OFF..."
+    Write-Verbose "$(Get-LocalizedString 'TelemetryAppPermVerboseNotif')"
     $notifPath = "HKLM:\$consentStoreBase\userNotificationListener"
     Set-RegistryValue -Path $notifPath -Name "Value" -Value "Deny" -Type String `
         -Description "Apps: Notifications OFF"
     
     # Account Info (Name, picture, email)
-    Write-Verbose "Account Info Access OFF..."
+    Write-Verbose "$(Get-LocalizedString 'TelemetryAppPermVerboseAccount')"
     $accountPath = "HKLM:\$consentStoreBase\userAccountInformation"
     Set-RegistryValue -Path $accountPath -Name "Value" -Value "Deny" -Type String `
         -Description "Apps: Account Info OFF"
     
     # Contacts
-    Write-Verbose "Contacts Access OFF..."
+    Write-Verbose "$(Get-LocalizedString 'TelemetryAppPermVerboseContacts')"
     $contactsPath = "HKLM:\$consentStoreBase\contacts"
     Set-RegistryValue -Path $contactsPath -Name "Value" -Value "Deny" -Type String `
         -Description "Apps: Contacts OFF"
     
     # Calendar
-    Write-Verbose "Calendar Access OFF..."
+    Write-Verbose "$(Get-LocalizedString 'TelemetryAppPermVerboseCalendar')"
     $calendarPath = "HKLM:\$consentStoreBase\appointments"
     Set-RegistryValue -Path $calendarPath -Name "Value" -Value "Deny" -Type String `
         -Description "Apps: Calendar OFF"
     
     # Email
-    Write-Verbose "Email Access OFF..."
+    Write-Verbose "$(Get-LocalizedString 'TelemetryAppPermVerboseEmail')"
     $emailPath = "HKLM:\$consentStoreBase\email"
     Set-RegistryValue -Path $emailPath -Name "Value" -Value "Deny" -Type String `
         -Description "Apps: Email OFF"
     
     # Phone Calls
-    Write-Verbose "Phone Calls Access OFF..."
+    Write-Verbose "$(Get-LocalizedString 'TelemetryAppPermVerbosePhone')"
     $phonePath = "HKLM:\$consentStoreBase\phoneCall"
     Set-RegistryValue -Path $phonePath -Name "Value" -Value "Deny" -Type String `
         -Description "Apps: Phone Calls OFF"
     
     # Call History
-    Write-Verbose "Call History Access OFF..."
+    Write-Verbose "$(Get-LocalizedString 'TelemetryAppPermVerboseCallHistory')"
     $callHistoryPath = "HKLM:\$consentStoreBase\phoneCallHistory"
     Set-RegistryValue -Path $callHistoryPath -Name "Value" -Value "Deny" -Type String `
         -Description "Apps: Call History OFF"
     
     # Messaging (SMS)
-    Write-Verbose "Messaging Access OFF..."
+    Write-Verbose "$(Get-LocalizedString 'TelemetryAppPermVerboseMessaging')"
     $messagingPath = "HKLM:\$consentStoreBase\chat"
     Set-RegistryValue -Path $messagingPath -Name "Value" -Value "Deny" -Type String `
         -Description "Apps: Messaging/SMS OFF"
     
     # Tasks (To-do lists)
-    Write-Verbose "Tasks Access OFF..."
+    Write-Verbose "$(Get-LocalizedString 'TelemetryAppPermVerboseTasks')"
     $tasksPath = "HKLM:\$consentStoreBase\userDataTasks"
     Set-RegistryValue -Path $tasksPath -Name "Value" -Value "Deny" -Type String `
         -Description "Apps: Tasks OFF"
     
     # Radios (Bluetooth/WiFi control)
-    Write-Verbose "Radios Control OFF..."
+    Write-Verbose "$(Get-LocalizedString 'TelemetryAppPermVerboseRadios')"
     $radiosPath = "HKLM:\$consentStoreBase\radios"
     Set-RegistryValue -Path $radiosPath -Name "Value" -Value "Deny" -Type String `
         -Description "Apps: Radios Control OFF"
     
     # Other Devices (Unpaired devices sync)
-    Write-Verbose "Other Devices Sync OFF..."
+    Write-Verbose "$(Get-LocalizedString 'TelemetryAppPermVerboseDevices')"
     $devicesPath = "HKLM:\$consentStoreBase\bluetoothSync"
     Set-RegistryValue -Path $devicesPath -Name "Value" -Value "Deny" -Type String `
         -Description "Apps: Other Devices OFF"
     
     # Voice Activation
-    Write-Verbose "Voice Activation OFF..."
+    Write-Verbose "$(Get-LocalizedString 'TelemetryAppPermVerboseVoice')"
     $voicePath = "HKLM:\SOFTWARE\Microsoft\Speech_OneCore\Preferences"
     Set-RegistryValue -Path $voicePath -Name "VoiceActivationEnableAboveLockscreen" -Value 0 -Type DWord `
         -Description "Voice Activation above Lockscreen OFF"
     
     # Documents Library
-    Write-Verbose "Documents Library Access OFF..."
+    Write-Verbose "$(Get-LocalizedString 'TelemetryAppPermVerboseDocs')"
     $docsPath = "HKLM:\$consentStoreBase\documentsLibrary"
     Set-RegistryValue -Path $docsPath -Name "Value" -Value "Deny" -Type String `
         -Description "Apps: Documents OFF"
     
     # Pictures Library
-    Write-Verbose "Pictures Library Access OFF..."
+    Write-Verbose "$(Get-LocalizedString 'TelemetryAppPermVerbosePics')"
     $picsPath = "HKLM:\$consentStoreBase\picturesLibrary"
     Set-RegistryValue -Path $picsPath -Name "Value" -Value "Deny" -Type String `
         -Description "Apps: Pictures OFF"
     
     # Videos Library
-    Write-Verbose "Videos Library Access OFF..."
+    Write-Verbose "$(Get-LocalizedString 'TelemetryAppPermVerboseVideos')"
     $videosPath = "HKLM:\$consentStoreBase\videosLibrary"
     Set-RegistryValue -Path $videosPath -Name "Value" -Value "Deny" -Type String `
         -Description "Apps: Videos OFF"
     
     # Broad File System Access (Full file system)
-    Write-Verbose "Broad File System Access OFF..."
+    Write-Verbose "$(Get-LocalizedString 'TelemetryAppPermVerboseBroadFS')"
     $broadFSPath = "HKLM:\$consentStoreBase\broadFileSystemAccess"
     Set-RegistryValue -Path $broadFSPath -Name "Value" -Value "Deny" -Type String `
         -Description "Apps: Broad File System OFF (Maximum Security!)"
@@ -1234,25 +1234,25 @@ function Disable-AllAppPermissionsDefaults {
     # ===== NEU: FEHLENDE PERMISSIONS (25H2 Update) =====
     
     # Downloads Folder (separate from Documents!)
-    Write-Verbose "Downloads Folder Access OFF..."
+    Write-Verbose "$(Get-LocalizedString 'TelemetryAppPermVerboseDownloads')"
     $downloadsFolderPath = "HKLM:\$consentStoreBase\downloadsFolder"
     Set-RegistryValue -Path $downloadsFolderPath -Name "Value" -Value "Deny" -Type String `
         -Description "Apps: Downloads Folder OFF"
     
     # Music Library
-    Write-Verbose "Music Library Access OFF..."
+    Write-Verbose "$(Get-LocalizedString 'TelemetryAppPermVerboseMusic')"
     $musicPath = "HKLM:\$consentStoreBase\musicLibrary"
     Set-RegistryValue -Path $musicPath -Name "Value" -Value "Deny" -Type String `
         -Description "Apps: Music Library OFF"
     
     # Automatic File Downloads (Background file access)
-    Write-Verbose "Automatic File Downloads OFF..."
+    Write-Verbose "$(Get-LocalizedString 'TelemetryAppPermVerboseAutoDownloads')"
     $autoDownloadsPath = "HKLM:\$consentStoreBase\automaticFileDownloads"
     Set-RegistryValue -Path $autoDownloadsPath -Name "Value" -Value "Deny" -Type String `
         -Description "Apps: Automatic File Downloads OFF"
     
     # App Diagnostics (Apps reading other apps' info)
-    Write-Verbose "App Diagnostics OFF..."
+    Write-Verbose "$(Get-LocalizedString 'TelemetryAppPermVerboseAppDiag')"
     $appDiagPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\AppPrivacy"
     Set-RegistryValue -Path $appDiagPath -Name "LetAppsGetDiagnosticInfo" -Value 2 -Type DWord `
         -Description "Apps: Diagnostics OFF (Value 2 means User Denied)"
@@ -1260,91 +1260,91 @@ function Disable-AllAppPermissionsDefaults {
     # ===== NEW: ALL REMAINING CATEGORIES (Windows 11 25H2 Complete) =====
     
     # Activity (Activity History)
-    Write-Verbose "Activity History Access OFF..."
+    Write-Verbose "$(Get-LocalizedString 'TelemetryAppPermVerboseActivity')"
     $activityPath = "HKLM:\$consentStoreBase\activity"
     Set-RegistryValue -Path $activityPath -Name "Value" -Value "Deny" -Type String `
         -Description "Apps: Activity History OFF"
     
     # Bluetooth (Bluetooth devices access)
-    Write-Verbose "Bluetooth Access OFF..."
+    Write-Verbose "$(Get-LocalizedString 'TelemetryAppPermVerboseBluetooth')"
     $bluetoothPath = "HKLM:\$consentStoreBase\bluetooth"
     Set-RegistryValue -Path $bluetoothPath -Name "Value" -Value "Deny" -Type String `
         -Description "Apps: Bluetooth OFF"
     
     # Cellular Data (Mobile data access)
-    Write-Verbose "Cellular Data Access OFF..."
+    Write-Verbose "$(Get-LocalizedString 'TelemetryAppPermVerboseCellular')"
     $cellularPath = "HKLM:\$consentStoreBase\cellularData"
     Set-RegistryValue -Path $cellularPath -Name "Value" -Value "Deny" -Type String `
         -Description "Apps: Cellular Data OFF"
     
     # Gaze Input (Eye tracking)
-    Write-Verbose "Gaze Input (Eye Tracking) OFF..."
+    Write-Verbose "$(Get-LocalizedString 'TelemetryAppPermVerboseGaze')"
     $gazePath = "HKLM:\$consentStoreBase\gazeInput"
     Set-RegistryValue -Path $gazePath -Name "Value" -Value "Deny" -Type String `
         -Description "Apps: Gaze Input/Eye Tracking OFF"
     
     # Graphics Capture Programmatic (Screen capture API)
-    Write-Verbose "Graphics Capture (Programmatic) OFF..."
+    Write-Verbose "$(Get-LocalizedString 'TelemetryAppPermVerboseGraphicsProg')"
     $graphicsProgPath = "HKLM:\$consentStoreBase\graphicsCaptureProgrammatic"
     Set-RegistryValue -Path $graphicsProgPath -Name "Value" -Value "Deny" -Type String `
         -Description "Apps: Graphics Capture Programmatic OFF"
     
     # Graphics Capture Without Border (Borderless screen capture)
-    Write-Verbose "Graphics Capture (Without Border) OFF..."
+    Write-Verbose "$(Get-LocalizedString 'TelemetryAppPermVerboseGraphicsBorder')"
     $graphicsBorderPath = "HKLM:\$consentStoreBase\graphicsCaptureWithoutBorder"
     Set-RegistryValue -Path $graphicsBorderPath -Name "Value" -Value "Deny" -Type String `
         -Description "Apps: Graphics Capture Without Border OFF"
     
     # Human Interface Device (HID devices)
-    Write-Verbose "Human Interface Device Access OFF..."
+    Write-Verbose "$(Get-LocalizedString 'TelemetryAppPermVerboseHID')"
     $hidPath = "HKLM:\$consentStoreBase\humanInterfaceDevice"
     Set-RegistryValue -Path $hidPath -Name "Value" -Value "Deny" -Type String `
         -Description "Apps: Human Interface Device OFF"
     
     # Passkeys (Passkey authentication)
-    Write-Verbose "Passkeys Access OFF..."
+    Write-Verbose "$(Get-LocalizedString 'TelemetryAppPermVerbosePasskeys')"
     $passkeysPath = "HKLM:\$consentStoreBase\passkeys"
     Set-RegistryValue -Path $passkeysPath -Name "Value" -Value "Deny" -Type String `
         -Description "Apps: Passkeys OFF"
     
     # Passkeys Enumeration (List passkeys)
-    Write-Verbose "Passkeys Enumeration OFF..."
+    Write-Verbose "$(Get-LocalizedString 'TelemetryAppPermVerbosePasskeysEnum')"
     $passkeysEnumPath = "HKLM:\$consentStoreBase\passkeysEnumeration"
     Set-RegistryValue -Path $passkeysEnumPath -Name "Value" -Value "Deny" -Type String `
         -Description "Apps: Passkeys Enumeration OFF"
     
     # Custom Sensors (Custom sensor access)
-    Write-Verbose "Custom Sensors Access OFF..."
+    Write-Verbose "$(Get-LocalizedString 'TelemetryAppPermVerboseSensors')"
     $sensorsPath = "HKLM:\$consentStoreBase\sensors.custom"
     Set-RegistryValue -Path $sensorsPath -Name "Value" -Value "Deny" -Type String `
         -Description "Apps: Custom Sensors OFF"
     
     # Serial Communication (COM ports)
-    Write-Verbose "Serial Communication Access OFF..."
+    Write-Verbose "$(Get-LocalizedString 'TelemetryAppPermVerboseSerial')"
     $serialPath = "HKLM:\$consentStoreBase\serialCommunication"
     Set-RegistryValue -Path $serialPath -Name "Value" -Value "Deny" -Type String `
         -Description "Apps: Serial Communication OFF"
     
     # System AI Models (NEW in Windows 11 25H2!)
-    Write-Verbose "System AI Models Access OFF..."
+    Write-Verbose "$(Get-LocalizedString 'TelemetryAppPermVerboseAI')"
     $aiModelsPath = "HKLM:\$consentStoreBase\systemAIModels"
     Set-RegistryValue -Path $aiModelsPath -Name "Value" -Value "Deny" -Type String `
         -Description "Apps: System AI Models OFF (Windows 11 25H2)"
     
     # USB Devices (USB device access)
-    Write-Verbose "USB Device Access OFF..."
+    Write-Verbose "$(Get-LocalizedString 'TelemetryAppPermVerboseUSB')"
     $usbPath = "HKLM:\$consentStoreBase\usb"
     Set-RegistryValue -Path $usbPath -Name "Value" -Value "Deny" -Type String `
         -Description "Apps: USB Devices OFF"
     
     # WiFi Data (WiFi network info)
-    Write-Verbose "WiFi Data Access OFF..."
+    Write-Verbose "$(Get-LocalizedString 'TelemetryAppPermVerboseWiFiData')"
     $wifiDataPath = "HKLM:\$consentStoreBase\wifiData"
     Set-RegistryValue -Path $wifiDataPath -Name "Value" -Value "Deny" -Type String `
         -Description "Apps: WiFi Data OFF"
     
     # WiFi Direct (WiFi Direct connections)
-    Write-Verbose "WiFi Direct Access OFF..."
+    Write-Verbose "$(Get-LocalizedString 'TelemetryAppPermVerboseWiFiDirect')"
     $wifiDirectPath = "HKLM:\$consentStoreBase\wiFiDirect"
     Set-RegistryValue -Path $wifiDirectPath -Name "Value" -Value "Deny" -Type String `
         -Description "Apps: WiFi Direct OFF"
@@ -1353,7 +1353,7 @@ function Disable-AllAppPermissionsDefaults {
     # HKLM only sets defaults for NEW users
     # HKCU = Current user (takes effect immediately!)
     
-    Write-Verbose "Setze Permissions auch fuer AKTUELLEN User (HKCU)..."
+    Write-Verbose "$(Get-LocalizedString 'TelemetryAppPermSettingHKCU')"
     $consentStoreCurrentUser = "HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore"
     
     # List of all permissions that should also be set for current user
@@ -1412,7 +1412,7 @@ function Disable-AllAppPermissionsDefaults {
             
             # ONLY set Value - Windows manages LastUsedTime* itself!
             Set-ItemProperty -Path $hkcuPath -Name "Value" -Value "Deny" -Type String -Force -ErrorAction Stop
-            Write-Verbose "     HKCU: $permission = Deny"
+            Write-Verbose "$(Get-LocalizedString 'TelemetryAppPermHKCUDeny' $permission)"
             
             # Sub-keys also set to Deny
             try {
@@ -1423,17 +1423,17 @@ function Disable-AllAppPermissionsDefaults {
                             Set-ItemProperty -Path $appKey.PSPath -Name "Value" -Value "Deny" -Type String -Force -ErrorAction Stop
                         }
                         catch {
-                            Write-Verbose "     App '$($appKey.PSChildName)' Fehler: $_"
+                            Write-Verbose "$(Get-LocalizedString 'TelemetryAppPermAppError' $appKey.PSChildName $_)"
                         }
                     }
                 }
             }
             catch {
-                Write-Verbose "Permission '$permission' Apps Enumeration Fehler (nicht kritisch): $_"
+                Write-Verbose "$(Get-LocalizedString 'TelemetryAppPermAppsEnumError' $permission $_)"
             }
         }
         catch {
-            Write-Warning "HKCU Permission '$permission' Fehler: $_"
+            Write-Warning "$(Get-LocalizedString 'TelemetryAppPermHKCUError' $permission $_)"
         }
     }
     
@@ -1462,8 +1462,8 @@ function Disable-AllAppPermissionsDefaults {
         Write-Verbose "Settings App stoppen fehlgeschlagen: $_"
     }
     
-    Write-Success "App Permissions: ALLE 33 Kategorien - Standard-Apps deaktiviert!"
-    Write-Success "Apps brauchen DEINE ERLAUBNIS fuer Zugriff auf Daten!"
+    Write-Success "$(Get-LocalizedString 'TelemetryAppPermComplete')"
+    Write-Success "$(Get-LocalizedString 'TelemetryAppPermNeedConsent')"
     Write-Host ""
     
     # CRITICAL INFO: Windows 11 24H2/25H2 Changes
@@ -1471,28 +1471,28 @@ function Disable-AllAppPermissionsDefaults {
     Write-Host "WICHTIG: WINDOWS 11 24H2/25H2 AENDERUNG!" -ForegroundColor Yellow
     Write-Host "========================================" -ForegroundColor Yellow
     Write-Host ""
-    Write-Warning "Ab Windows 11 24H2/25H2 verwendet Windows eine SQLite-Datenbank fuer Privacy-Einstellungen!"
-    Write-Info "Das Script hat alle STANDARD-APPS deaktiviert fuer:"
-    Write-Info "  - Notifications, Contacts, Calendar, Email, Messages"
-    Write-Info "  - Account Info, Phone Calls, Documents, Pictures, Videos"
-    Write-Info "  - Location, Bluetooth, WiFi, USB, und 20+ weitere"
+    Write-Warning "$(Get-LocalizedString 'TelemetryAppPermSQLiteInfo')"
+    Write-Info "$(Get-LocalizedString 'TelemetryAppPermStandardDisabled')"
+    Write-Info "$(Get-LocalizedString 'TelemetryAppPermCategories')"
+    Write-Info "$(Get-LocalizedString 'TelemetryAppPermMoreCategories')"
+    Write-Info "$(Get-LocalizedString 'TelemetryAppPermEvenMore')"
     Write-Host ""
-    Write-Success "Privacy by Default: Apps brauchen DEINE ERLAUBNIS!"
-    Write-Info "  - Beim ersten Zugriff fragt Windows: 'Darf [App] zugreifen?'"
-    Write-Info "  - Du kannst dann Allow oder Deny klicken"
+    Write-Success "$(Get-LocalizedString 'TelemetryAppPermDefaultPrivacy')"
+    Write-Info "$(Get-LocalizedString 'TelemetryAppPermFirstAccess')"
+    Write-Info "$(Get-LocalizedString 'TelemetryAppPermCanDeny')"
     Write-Host ""
-    Write-Warning "ABER: Die MASTER-TOGGLES in Settings koennen NUR MANUELL geaendert werden!"
+    Write-Warning "$(Get-LocalizedString 'TelemetryAppPermTogglesManual')"
     Write-Host ""
-    Write-Info "OPTIONAL: Du kannst die Master-Toggles manuell ausschalten:"
-    Write-Info "  1. Oeffne: Settings (Windows-Taste + I) | Privacy and security"
-    Write-Info "  2. Gehe durch alle Kategorien (Notifications, Contacts, etc.)"
-    Write-Info "  3. Schalte jeweils den obersten Toggle AUS"
+    Write-Info "$(Get-LocalizedString 'TelemetryAppPermOptionalManual')"
+    Write-Info "$(Get-LocalizedString 'TelemetryAppPermOpenSettings')"
+    Write-Info "$(Get-LocalizedString 'TelemetryAppPermGoThrough')"
+    Write-Info "$(Get-LocalizedString 'TelemetryAppPermTurnOffTop')"
     Write-Host ""
-    Write-Info "TIPP: Das ist OPTIONAL! Auch ohne Toggle-Aenderung:"
-    Write-Info "  - Apps haben keinen Zugriff bis du erlaubst"
-    Write-Info "  - Privacy ist garantiert!"
+    Write-Info "$(Get-LocalizedString 'TelemetryAppPermTipOptional')"
+    Write-Info "$(Get-LocalizedString 'TelemetryAppPermNoAccessUntil')"
+    Write-Info "$(Get-LocalizedString 'TelemetryAppPermGuaranteed')"
     Write-Host ""
-    Write-Success "ERGEBNIS: Privacy + Du behaeltst volle Kontrolle!"
+    Write-Success "$(Get-LocalizedString 'TelemetryAppPermResultControl')"
 }
 
 function Disable-GameBarAndGameMode {
@@ -1510,7 +1510,7 @@ function Disable-GameBarAndGameMode {
     [OutputType([void])]
     param()
     
-    Write-Section "Xbox Game Bar und Game Mode deaktivieren"
+    Write-Section "$(Get-LocalizedString 'TelemetryGameBarTitle')"
     
     # Disable Game DVR (User-Level)
     $gameDVRPath = "HKCU:\Software\Microsoft\Windows\CurrentVersion\GameDVR"
@@ -1534,9 +1534,9 @@ function Disable-GameBarAndGameMode {
     Set-RegistryValue -Path $gameBarPath -Name "AllowAutoGameMode" -Value 0 -Type DWord `
         -Description "Auto Game Mode verbieten"
     
-    Write-Success "Xbox Game Bar und Game Mode deaktiviert"
-    Write-Info "Windows-Taste + G oeffnet jetzt NICHTS mehr"
-    Write-Info "Game Mode wird NICHT automatisch aktiviert"
+    Write-Success "$(Get-LocalizedString 'TelemetryGameBarComplete')"
+    Write-Info "$(Get-LocalizedString 'TelemetryGameBarWindowsKeyG')"
+    Write-Info "$(Get-LocalizedString 'TelemetryGameBarAutoMode')"
 }
 
 function Set-LockScreenSecurity {
@@ -1550,7 +1550,7 @@ function Set-LockScreenSecurity {
     [OutputType([void])]
     param()
     
-    Write-Section "Lock Screen Security Hardening"
+    Write-Section "$(Get-LocalizedString 'TelemetryLockScreenTitle')"
     
     # User: Turn off toast notifications on the lock screen
     $pushNotifPath = "HKCU:\SOFTWARE\Policies\Microsoft\Windows\CurrentVersion\PushNotifications"
@@ -1566,7 +1566,7 @@ function Set-LockScreenSecurity {
     Set-RegistryValue -Path $personalizationPath -Name "NoLockScreenSlideshow" -Value 1 -Type DWord `
         -Description "Prevent lock screen slideshow (privacy)"
     
-    Write-Success "Lock screen hardened: No camera, no slideshow, no toast notifications"
+    Write-Success "$(Get-LocalizedString 'TelemetryLockScreenComplete')"
 }
 
 #endregion
