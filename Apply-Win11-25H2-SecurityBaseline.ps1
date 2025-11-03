@@ -908,9 +908,7 @@ if ($Interactive) {
             # ROBUST WORKAROUND: Use cmd.exe as wrapper to handle path quoting
             # cmd.exe handles quotes correctly, then passes to powershell.exe
             # This avoids ALL Start-Process ArgumentList escaping issues
-            $cmdLine = "cmd.exe /c `"powershell.exe -ExecutionPolicy Bypass -NoProfile -File `"`"$restoreScript`"`" -Language $Global:CurrentLanguage`""
-            
-            Write-Verbose "Starte Restore via cmd wrapper: $cmdLine"
+            Write-Verbose "Starte Restore via cmd wrapper: powershell.exe -File `"$restoreScript`" -Language $Global:CurrentLanguage"
             
             # Start Restore and wait until it's finished
             Write-Host "$(Get-LocalizedString 'RestoreModeProcessStart')" -ForegroundColor Cyan
