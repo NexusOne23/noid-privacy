@@ -1719,101 +1719,134 @@ if ($backup.Settings.ExploitProtection -and $backup.Settings.ExploitProtection.E
             $restoreStats.Skipped++
         }
         else {
-            Write-Verbose "Restoring Exploit Protection mitigations (same as Apply)..."
+            Write-Verbose "Restoring Exploit Protection from backup data..."
             
-            # STRATEGY: Mirror Apply behavior (idempotent)
-            # Backup had Exploit Protection enabled -> restore to hardened state
-            # This is safer than trying to parse backup data and restore individual settings
+            # NEW STRATEGY: Restore from BACKUP (not hardcoded "hardened state")
+            # This is TRUE restore - returns system to state BEFORE Apply script
+            $backupMitigations = $backup.Settings.ExploitProtection.SystemMitigations
             
-            $mitigationsSet = 0
-            $mitigationsFailed = 0
-            
-            # ===== BASIC MITIGATIONS (Standard) =====
-            try {
-                Write-Verbose "Setting basic mitigations (DEP, SEHOP, ASLR)..."
-                Set-ProcessMitigation -System -Enable DEP, SEHOP, ForceRelocateImages, BottomUp, HighEntropy -ErrorAction Stop
-                Write-Verbose "  [OK] Basic mitigations: DEP, SEHOP, ASLR"
-                $mitigationsSet += 5
-            }
-            catch {
-                Write-Verbose "  [FAILED] Basic mitigations: $($_.Exception.Message)"
-                $mitigationsFailed += 5
-            }
-            
-            # ===== EXTENDED MITIGATIONS (Best Practice) =====
-            # Individual try-catch for each (not all systems support all mitigations)
-            
-            # Heap Protection (Terminate on Error)
-            try {
-                Set-ProcessMitigation -System -Enable TerminateOnError -ErrorAction Stop
-                Write-Verbose "  [OK] Heap Protection: Terminate on Error"
-                $mitigationsSet++
-            }
-            catch {
-                Write-Verbose "  [SKIP] Heap Protection: $($_.Exception.Message)"
-            }
-            
-            # Control Flow Guard - Strict Mode
-            try {
-                Set-ProcessMitigation -System -Enable StrictCFG -ErrorAction Stop
-                Write-Verbose "  [OK] CFG: Strict Mode"
-                $mitigationsSet++
-            }
-            catch {
-                Write-Verbose "  [SKIP] CFG Strict: $($_.Exception.Message)"
-            }
-            
-            # CFG - Suppress Exports (Anti-ROP)
-            try {
-                Set-ProcessMitigation -System -Enable SuppressExports -ErrorAction Stop
-                Write-Verbose "  [OK] CFG: Export Suppression (Anti-ROP)"
-                $mitigationsSet++
-            }
-            catch {
-                Write-Verbose "  [SKIP] CFG Exports: $($_.Exception.Message)"
-            }
-            
-            # Image Load Protection - Block Remote Images
-            try {
-                Set-ProcessMitigation -System -Enable BlockRemoteImageLoads -ErrorAction Stop
-                Write-Verbose "  [OK] Image Load: Block Remote (DLL Hijacking Protection)"
-                $mitigationsSet++
-            }
-            catch {
-                Write-Verbose "  [SKIP] Image Load Remote: $($_.Exception.Message)"
-            }
-            
-            # Image Load Protection - Block Low Integrity Images
-            try {
-                Set-ProcessMitigation -System -Enable BlockLowLabelImageLoads -ErrorAction Stop
-                Write-Verbose "  [OK] Image Load: Block Low Integrity (Untrusted Sources)"
-                $mitigationsSet++
-            }
-            catch {
-                Write-Verbose "  [SKIP] Image Load Low Integrity: $($_.Exception.Message)"
-            }
-            
-            # Disable Extension Points (Legacy COM)
-            try {
-                Set-ProcessMitigation -System -Enable DisableExtensionPoints -ErrorAction Stop
-                Write-Verbose "  [OK] Disable Extension Points (Legacy COM)"
-                $mitigationsSet++
-            }
-            catch {
-                Write-Verbose "  [SKIP] Extension Points: $($_.Exception.Message)"
-            }
-            
-            if ($mitigationsSet -gt 0) {
-                Write-Host "  [OK] $(Get-LocalizedString 'RestoreExploitSuccess' $mitigationsSet)" -ForegroundColor Green
-                $restoreStats.Success++
-            }
-            elseif ($mitigationsFailed -gt 0) {
-                Write-Host "  [!] $(Get-LocalizedString 'RestoreExploitAllFailed')" -ForegroundColor Yellow
-                $restoreStats.Failed++
+            if (-not $backupMitigations) {
+                Write-Host "  [SKIP] No mitigation data in backup" -ForegroundColor Gray
+                $restoreStats.Skipped++
             }
             else {
-                Write-Host "  [!] $(Get-LocalizedString 'RestoreExploitNoMitigations')" -ForegroundColor Yellow
-                $restoreStats.Skipped++
+                $mitigationsSet = 0
+                $mitigationsFailed = 0
+                
+                # Helper function to restore a mitigation based on backup state
+                $restoreMitigation = {
+                    param($Name, $BackupState, $EnableParams, $DisableParams)
+                    
+                    # BackupState properties: Enable (0=NotSet, 1=On, 2=Off), Disable, etc.
+                    # We check the ENABLE state: 1 = On → Enable, 2 = Off → Disable
+                    
+                    $enableList = @()
+                    $disableList = @()
+                    
+                    foreach ($param in $EnableParams) {
+                        # Check if property exists in backup state
+                        $props = $BackupState.PSObject.Properties.Name
+                        if ($param -in $props) {
+                            $value = $BackupState.$param
+                            # Value 1 = On → Enable, Value 2 = Off → Disable, 0 = NotSet → skip
+                            if ($value -eq 1) { $enableList += $param }
+                            elseif ($value -eq 2) { $disableList += $param }
+                        }
+                    }
+                    
+                    $success = $false
+                    
+                    # Enable parameters
+                    if ($enableList.Count -gt 0) {
+                        try {
+                            Set-ProcessMitigation -System -Enable $enableList -ErrorAction Stop
+                            Write-Verbose "  [OK] $Name Enable: $($enableList -join ', ')"
+                            $success = $true
+                        }
+                        catch {
+                            Write-Verbose "  [SKIP] $Name Enable failed: $_"
+                        }
+                    }
+                    
+                    # Disable parameters
+                    if ($disableList.Count -gt 0) {
+                        try {
+                            Set-ProcessMitigation -System -Disable $disableList -ErrorAction Stop
+                            Write-Verbose "  [OK] $Name Disable: $($disableList -join ', ')"
+                            $success = $true
+                        }
+                        catch {
+                            Write-Verbose "  [SKIP] $Name Disable failed: $_"
+                        }
+                    }
+                    
+                    return $success
+                }
+                
+                # Restore DEP
+                if ($backupMitigations.DEP) {
+                    if (& $restoreMitigation -Name "DEP" -BackupState $backupMitigations.DEP `
+                        -EnableParams @('Enable', 'EmulateAtlThunks', 'OverrideDEP') -DisableParams @()) {
+                        $mitigationsSet++
+                    }
+                }
+                
+                # Restore SEHOP
+                if ($backupMitigations.SEHOP) {
+                    if (& $restoreMitigation -Name "SEHOP" -BackupState $backupMitigations.SEHOP `
+                        -EnableParams @('Enable', 'TelemetryOnly') -DisableParams @()) {
+                        $mitigationsSet++
+                    }
+                }
+                
+                # Restore ASLR
+                if ($backupMitigations.ASLR) {
+                    if (& $restoreMitigation -Name "ASLR" -BackupState $backupMitigations.ASLR `
+                        -EnableParams @('ForceRelocateImages', 'BottomUp', 'HighEntropy', 'RequireInfo') -DisableParams @()) {
+                        $mitigationsSet++
+                    }
+                }
+                
+                # Restore CFG
+                if ($backupMitigations.CFG) {
+                    if (& $restoreMitigation -Name "CFG" -BackupState $backupMitigations.CFG `
+                        -EnableParams @('Enable', 'StrictCFG', 'SuppressExports') -DisableParams @()) {
+                        $mitigationsSet++
+                    }
+                }
+                
+                # Restore Heap
+                if ($backupMitigations.Heap) {
+                    if (& $restoreMitigation -Name "Heap" -BackupState $backupMitigations.Heap `
+                        -EnableParams @('TerminateOnError') -DisableParams @()) {
+                        $mitigationsSet++
+                    }
+                }
+                
+                # Restore ImageLoad
+                if ($backupMitigations.ImageLoad) {
+                    if (& $restoreMitigation -Name "ImageLoad" -BackupState $backupMitigations.ImageLoad `
+                        -EnableParams @('BlockRemoteImageLoads', 'BlockLowLabelImageLoads', 'PreferSystem32') -DisableParams @()) {
+                        $mitigationsSet++
+                    }
+                }
+                
+                # Restore ExtensionPoints
+                if ($backupMitigations.ExtensionPoints) {
+                    if (& $restoreMitigation -Name "ExtensionPoints" -BackupState $backupMitigations.ExtensionPoints `
+                        -EnableParams @('DisableExtensionPoints') -DisableParams @()) {
+                        $mitigationsSet++
+                    }
+                }
+                
+                if ($mitigationsSet -gt 0) {
+                    Write-Host "  [OK] $(Get-LocalizedString 'RestoreExploitSuccess' $mitigationsSet)" -ForegroundColor Green
+                    $restoreStats.Success++
+                }
+                else {
+                    Write-Host "  [!] $(Get-LocalizedString 'RestoreExploitNoMitigations')" -ForegroundColor Yellow
+                    $restoreStats.Skipped++
+                }
             }
         }
     }
