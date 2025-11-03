@@ -658,6 +658,7 @@ function Disable-WindowsSearchWebFeatures {
         Deaktiviert Web-Suche in Windows Search
     #>
     [CmdletBinding()]
+    [OutputType([void])]
     param()
     
     Write-Section "Windows Search - Web-Features deaktivieren"
@@ -711,6 +712,7 @@ function Disable-CameraAndMicrophone {
         - Rechtsklick | Deaktivieren
     #>
     [CmdletBinding()]
+    [OutputType([void])]
     param()
     
     Write-Section "Kamera und Mikrofon - APP-BERECHTIGUNGEN entfernen"
@@ -951,6 +953,7 @@ function Disable-PrivacyExperienceSettings {
         Deaktiviert Privacy-invasive Windows Features
     #>
     [CmdletBinding()]
+    [OutputType([void])]
     param()
     
     Write-Section "Privacy Experience Settings deaktivieren"
@@ -979,6 +982,7 @@ function Disable-InkingAndTypingPersonalization {
         UPDATED: Added HKCU keys (were missing before!)
     #>
     [CmdletBinding()]
+    [OutputType([void])]
     param()
     
     Write-Section "Freihand- und Eingabeanpassung deaktivieren"
@@ -1025,6 +1029,7 @@ function Set-LocationServicesDefault {
         Windows 11 GUI reads from HKCU, not HKLM!
     #>
     [CmdletBinding()]
+    [OutputType([void])]
     param()
     
     Write-Section "Standortdienste deaktivieren"
@@ -1112,6 +1117,7 @@ function Disable-AllAppPermissionsDefaults {
         - Speech (in dieser Funktion via Speech_OneCore)
     #>
     [CmdletBinding()]
+    [OutputType([void])]
     param()
     
     Write-Section "App Permissions - Privacy by Default (Complete)"
@@ -1501,6 +1507,7 @@ function Disable-GameBarAndGameMode {
         Users reported Windows-Taste+G still worked after script execution.
     #>
     [CmdletBinding()]
+    [OutputType([void])]
     param()
     
     Write-Section "Xbox Game Bar und Game Mode deaktivieren"
