@@ -905,24 +905,21 @@ if ($Interactive) {
             # Uebergebe aktuelle Sprache als Parameter UND Environment Variable (doppelte Absicherung)
             $env:NOID_LANGUAGE = $Global:CurrentLanguage
             
-            # IMPORTANT: Start with -NoNewWindow to keep it in the same window
-            # But: powershell.exe instead of &, so it runs in its own process and we can exit COMPLETELY
-            # CRITICAL FIX: Use -Command with quoted path (handles spaces AND special chars correctly!)
-            # -File parameter fails when path contains spaces (like "Neuer Ordner")
-            # Escape double quotes with backtick for PowerShell, use double quotes (not single) to handle apostrophes
-            $escapedScript = $restoreScript -replace '"','`"'
-            $argString = "-ExecutionPolicy Bypass -NoProfile -Command `"& `"$escapedScript`" -Language $Global:CurrentLanguage`""
+            # ROBUST WORKAROUND: Use cmd.exe as wrapper to handle path quoting
+            # cmd.exe handles quotes correctly, then passes to powershell.exe
+            # This avoids ALL Start-Process ArgumentList escaping issues
+            $cmdLine = "cmd.exe /c `"powershell.exe -ExecutionPolicy Bypass -NoProfile -File `"`"$restoreScript`"`" -Language $Global:CurrentLanguage`""
             
-            Write-Verbose "Starte Restore als separaten Prozess: powershell.exe $argString"
+            Write-Verbose "Starte Restore via cmd wrapper: $cmdLine"
             
             # Start Restore and wait until it's finished
             Write-Host "$(Get-LocalizedString 'RestoreModeProcessStart')" -ForegroundColor Cyan
-            $restoreProcess = Start-Process -FilePath "powershell.exe" -ArgumentList $argString -NoNewWindow -Wait -PassThru
+            
+            # Use & to call cmd.exe directly - waits for completion automatically
+            & cmd.exe /c "powershell.exe -ExecutionPolicy Bypass -NoProfile -File `"$restoreScript`" -Language $Global:CurrentLanguage"
+            $restoreExitCode = $LASTEXITCODE
             
             Remove-Item Env:\NOID_LANGUAGE -ErrorAction SilentlyContinue
-            
-            # Exit code from Restore script
-            $restoreExitCode = $restoreProcess.ExitCode
             Write-Host ""
             Write-Host "$(Get-LocalizedString 'RestoreModeScriptComplete' $restoreExitCode)" -ForegroundColor Cyan
             Write-Host "$(Get-LocalizedString 'RestoreModeApplyExitNow')" -ForegroundColor Yellow
