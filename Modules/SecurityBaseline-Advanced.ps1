@@ -453,7 +453,7 @@ function Disable-WDigest {
     
     Write-Section "WDigest Authentication (Credential Protection)"
     
-    Write-Info "Disabling WDigest to prevent plaintext password storage in RAM..."
+    Write-Info "$(Get-LocalizedString 'AdvancedWDigestDisabling')"
     
     $wdigestPath = "HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\WDigest"
     
@@ -463,9 +463,9 @@ function Disable-WDigest {
     Set-RegistryValue -Path $wdigestPath -Name "UseLogonCredential" -Value 0 -Type DWord `
         -Description "WDigest disabled (no plaintext passwords in RAM)"
     
-    Write-Success "WDigest authentication disabled"
-    Write-Info "Credentials are now protected from Mimikatz-style attacks"
-    Write-Warning "NOTE: This blocks Digest authentication (rarely used, legacy protocol)"
+    Write-Success "$(Get-LocalizedString 'AdvancedWDigestDisabled')"
+    Write-Info "$(Get-LocalizedString 'AdvancedWDigestProtected')"
+    Write-Warning "$(Get-LocalizedString 'AdvancedWDigestNote')"
 }
 
 #endregion
@@ -495,7 +495,7 @@ function Disable-EFSRPC {
     
     Write-Section "EFS RPC Blocking (Auth Coercion Protection)"
     
-    Write-Info "Disabling EFS RPC to prevent NTLM relay attacks..."
+    Write-Info "$(Get-LocalizedString 'AdvancedEFSDisabling')"
     
     # Block EFS RPC Interface
     $efsPath = "HKLM:\SYSTEM\CurrentControlSet\Services\EFS"
@@ -507,9 +507,9 @@ function Disable-EFSRPC {
     Set-RegistryValue -Path $efsDriverPath -Name "Disabled" -Value 1 -Type DWord `
         -Description "EFS Driver disabled"
     
-    Write-Success "EFS RPC disabled (auth coercion protection)"
-    Write-Info "BitLocker is NOT affected (different system)"
-    Write-Warning "NOTE: Legacy EFS encryption will not work (BitLocker recommended)"
+    Write-Success "$(Get-LocalizedString 'AdvancedEFSDisabled')"
+    Write-Info "$(Get-LocalizedString 'AdvancedEFSBitLockerOK')"
+    Write-Warning "$(Get-LocalizedString 'AdvancedEFSNote')"
 }
 
 #endregion
@@ -540,7 +540,7 @@ function Disable-WebClient {
     
     Write-Section "WebClient/WebDAV Service Blocking (Auth Coercion Protection)"
     
-    Write-Info "Disabling WebClient service to prevent auth coercion attacks..."
+    Write-Info "$(Get-LocalizedString 'AdvancedWebClientDisabling')"
     
     try {
         # Stop WebClient service
@@ -549,23 +549,23 @@ function Disable-WebClient {
         if ($service) {
             if ($service.Status -eq 'Running') {
                 Stop-Service -Name WebClient -Force -ErrorAction Stop
-                Write-Verbose "WebClient service stopped"
+                Write-Verbose "$(Get-LocalizedString 'AdvancedWebClientStopped')"
             }
             
             # Disable service
             Set-Service -Name WebClient -StartupType Disabled -ErrorAction Stop
-            Write-Success "WebClient service disabled"
+            Write-Success "$(Get-LocalizedString 'AdvancedWebClientDisabled')"
         } else {
-            Write-Info "WebClient service not found (may not be installed)"
+            Write-Info "$(Get-LocalizedString 'AdvancedWebClientNotFound')"
         }
     }
     catch {
-        Write-Warning "Could not disable WebClient service: $_"
+        Write-Warning (Get-LocalizedString 'AdvancedWebClientError' $_)
     }
     
-    Write-Info "WebDAV network redirector disabled"
-    Write-Info "Modern cloud services (OneDrive, Dropbox, etc.) NOT affected"
-    Write-Warning "NOTE: \\server\davwwwroot\ UNC paths will NOT work"
+    Write-Info "$(Get-LocalizedString 'AdvancedWebClientRedirector')"
+    Write-Info "$(Get-LocalizedString 'AdvancedWebClientCloudOK')"
+    Write-Warning "$(Get-LocalizedString 'AdvancedWebClientNote')"
 }
 
 #endregion
