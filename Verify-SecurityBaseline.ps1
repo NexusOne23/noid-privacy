@@ -937,7 +937,7 @@ Test-BaselineCheck -Category "Power" -Name "Lock Screen Password Required (Machi
     } `
     -Expected "1"
 
-Test-BaselineCheck -Category "Power" -Name "Hibernate Enabled" -Impact "Medium" `
+Test-BaselineCheck -Category "Power" -Name "Hibernate Enabled (if hardware supports)" -Impact "Info" `
     -Test { 
         # Check both English and German, and look for "available" not "unavailable"
         $sleepStates = powercfg /availablesleepstates 2>&1 | Out-String
@@ -949,9 +949,11 @@ Test-BaselineCheck -Category "Power" -Name "Hibernate Enabled" -Impact "Medium" 
 
 Test-BaselineCheck -Category "Power" -Name "Display Timeout = 10 min (AC)" -Impact "Low" `
     -Test { 
-        $query = powercfg /q 2>&1 | Out-String
-        if ($query -match '(Turn off display after|Bildschirm ausschalten nach)[\s\S]*?Current AC Power Setting Index: 0x([0-9a-f]+)') {
-            $seconds = [Convert]::ToInt32($matches[2], 16)
+        # Use GUID-based query (more reliable than text matching)
+        $activeScheme = (powercfg /getactivescheme 2>&1 | Out-String) -replace '.*GUID[:\s]+([a-f0-9\-]+).*', '$1'
+        $displayQuery = powercfg /q $activeScheme 7516b95f-f776-4464-8c53-06167f40cc99 3c0bc021-c8a8-4e07-a973-6b14cbcb2b7e 2>&1 | Out-String
+        if ($displayQuery -match 'Current AC Power Setting Index[:\s]+0x([0-9a-f]+)') {
+            $seconds = [Convert]::ToInt32($matches[1], 16)
             $minutes = $seconds / 60  # powercfg stores in seconds, convert to minutes
             $minutes
         } else { $null }
@@ -960,9 +962,11 @@ Test-BaselineCheck -Category "Power" -Name "Display Timeout = 10 min (AC)" -Impa
 
 Test-BaselineCheck -Category "Power" -Name "Hibernate Timeout = 30 min (AC)" -Impact "Medium" `
     -Test { 
-        $query = powercfg /q 2>&1 | Out-String
-        if ($query -match '(Hibernate after|Ruhezustand nach)[\s\S]*?Current AC Power Setting Index: 0x([0-9a-f]+)') {
-            $seconds = [Convert]::ToInt32($matches[2], 16)
+        # Use GUID-based query (more reliable than text matching)
+        $activeScheme = (powercfg /getactivescheme 2>&1 | Out-String) -replace '.*GUID[:\s]+([a-f0-9\-]+).*', '$1'
+        $hibernateQuery = powercfg /q $activeScheme 238c9fa8-0aad-41ed-83f4-97be242c8f20 9d7815a6-7ee4-497e-8888-515a05f02364 2>&1 | Out-String
+        if ($hibernateQuery -match 'Current AC Power Setting Index[:\s]+0x([0-9a-f]+)') {
+            $seconds = [Convert]::ToInt32($matches[1], 16)
             $minutes = $seconds / 60  # powercfg stores in seconds, convert to minutes
             $minutes
         } else { $null }
