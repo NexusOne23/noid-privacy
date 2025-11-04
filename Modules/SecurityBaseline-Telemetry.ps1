@@ -816,12 +816,12 @@ function Disable-CameraAndMicrophone {
     
     Write-Verbose "$(Get-LocalizedString 'TelemetryDeviceTogglesComplete')"
     
-    # Verification: Check if values were really set
+    # Verification: Check if HKLM values were really set (Privacy by Default)
     Start-Sleep -Milliseconds 500  # Kurze Pause damit Registry committed
     
-    # CRITICAL: Check property existence to prevent PropertyNotFoundException
-    $camItem = Get-ItemProperty -Path $cameraPathHKCU -ErrorAction SilentlyContinue
-    $micItem = Get-ItemProperty -Path $microphonePathHKCU -ErrorAction SilentlyContinue
+    # CRITICAL: Check HKLM (not HKCU!) - we only set defaults now
+    $camItem = Get-ItemProperty -Path $cameraPathHKLM -ErrorAction SilentlyContinue
+    $micItem = Get-ItemProperty -Path $microphonePathHKLM -ErrorAction SilentlyContinue
     $camValue = if ($camItem -and ($camItem.PSObject.Properties.Name -contains "Value")) { $camItem.Value } else { $null }
     $micValue = if ($micItem -and ($micItem.PSObject.Properties.Name -contains "Value")) { $micItem.Value } else { $null }
     
@@ -851,8 +851,8 @@ function Disable-CameraAndMicrophone {
     # ADDITIONAL FIX: Flush Registry Cache
     Write-Verbose "$(Get-LocalizedString 'TelemetryFlushRegistryCache')"
     try {
-        # Force registry write to disk
-        $null = Invoke-Command {reg.exe query HKCU\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\webcam 2>&1}
+        # Force registry write to disk (HKLM - we only set defaults now)
+        $null = Invoke-Command {reg.exe query HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\webcam 2>&1}
         Start-Sleep -Milliseconds 200
         Write-Verbose "$(Get-LocalizedString 'TelemetryRegistryCacheFlushed')"
     }
