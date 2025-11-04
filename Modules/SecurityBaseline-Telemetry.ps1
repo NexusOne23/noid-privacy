@@ -731,38 +731,9 @@ function Disable-CameraAndMicrophone {
     
     # ===== KAMERA (WEBCAM) =====
     
-    # HKCU (aktueller User - wirkt SOFORT!)
-    $cameraPathHKCU = "HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\webcam"
-    try {
-        if (-not (Test-Path $cameraPathHKCU)) {
-            $null = New-Item -Path $cameraPathHKCU -Force -ErrorAction Stop
-        }
-        Set-ItemProperty -Path $cameraPathHKCU -Name "Value" -Value "Deny" -Type String -Force -ErrorAction Stop
-        Write-Verbose "$(Get-LocalizedString 'TelemetryCameraHKCUValue')"
-        
-        # Sub-keys also set to Deny
-        try {
-            $cameraApps = Get-ChildItem -Path $cameraPathHKCU -ErrorAction SilentlyContinue
-            if ($cameraApps) {
-                foreach ($app in $cameraApps) {
-                    try {
-                        Set-ItemProperty -Path $app.PSPath -Name "Value" -Value "Deny" -Type String -Force -ErrorAction Stop
-                    }
-                    catch {
-                        Write-Verbose "$(Get-LocalizedString 'TelemetryCameraAppError' $app.PSChildName $_)"
-                    }
-                }
-            }
-        }
-        catch {
-            Write-Verbose "$(Get-LocalizedString 'TelemetryCameraAppsEnumError' $_)"
-        }
-    }
-    catch {
-        Write-Warning "$(Get-LocalizedString 'TelemetryCameraHKCUError' $_)"
-    }
-    
-    # HKLM (new users - default)
+    # HKLM ONLY (Privacy by Default WITH Prompts!)
+    # Changed from HKCU to HKLM: Apps will ask user for permission
+    # User keeps control - no silent blocking!
     $cameraPathHKLM = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\webcam"
     try {
         if (-not (Test-Path $cameraPathHKLM)) {
@@ -777,38 +748,9 @@ function Disable-CameraAndMicrophone {
     
     # ===== MIKROFON (MICROPHONE) =====
     
-    # HKCU (aktueller User - wirkt SOFORT!)
-    $microphonePathHKCU = "HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\microphone"
-    try {
-        if (-not (Test-Path $microphonePathHKCU)) {
-            $null = New-Item -Path $microphonePathHKCU -Force -ErrorAction Stop
-        }
-        Set-ItemProperty -Path $microphonePathHKCU -Name "Value" -Value "Deny" -Type String -Force -ErrorAction Stop
-        Write-Verbose "$(Get-LocalizedString 'TelemetryMicrophoneHKCUValue')"
-        
-        # Sub-keys also set to Deny
-        try {
-            $microphoneApps = Get-ChildItem -Path $microphonePathHKCU -ErrorAction SilentlyContinue
-            if ($microphoneApps) {
-                foreach ($app in $microphoneApps) {
-                    try {
-                        Set-ItemProperty -Path $app.PSPath -Name "Value" -Value "Deny" -Type String -Force -ErrorAction Stop
-                    }
-                    catch {
-                        Write-Verbose "$(Get-LocalizedString 'TelemetryMicrophoneAppError' $app.PSChildName $_)"
-                    }
-                }
-            }
-        }
-        catch {
-            Write-Verbose "$(Get-LocalizedString 'TelemetryMicrophoneAppsEnumError' $_)"
-        }
-    }
-    catch {
-        Write-Warning "$(Get-LocalizedString 'TelemetryMicrophoneHKCUError' $_)"
-    }
-    
-    # HKLM (new users - default)
+    # HKLM ONLY (Privacy by Default WITH Prompts!)
+    # Changed from HKCU to HKLM: Apps will ask user for permission
+    # User keeps control - no silent blocking!
     $microphonePathHKLM = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\microphone"
     try {
         if (-not (Test-Path $microphonePathHKLM)) {
@@ -1042,39 +984,9 @@ function Set-LocationServicesDefault {
     $sensorPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\LocationAndSensors"
     Set-RegistryValue -Path $sensorPath -Name "DisableLocation" -Value 1 -Type DWord -Description "Standortdienste deaktivieren"
     
-    # CRITICAL FIX v1.7.10: HKCU for current user (ONLY Value!)
-    Write-Verbose "$(Get-LocalizedString 'TelemetryLocationSettingHKCU')"
-    $locationPathHKCU = "HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location"
-    try {
-        if (-not (Test-Path $locationPathHKCU)) {
-            $null = New-Item -Path $locationPathHKCU -Force -ErrorAction Stop
-        }
-        # ONLY set Value - Windows manages LastUsedTime* itself!
-        Set-ItemProperty -Path $locationPathHKCU -Name "Value" -Value "Deny" -Type String -Force -ErrorAction Stop
-        Write-Verbose "$(Get-LocalizedString 'TelemetryLocationHKCUValue')"
-        
-        # Sub-keys also set to Deny
-        try {
-            $locationApps = Get-ChildItem -Path $locationPathHKCU -ErrorAction SilentlyContinue
-            if ($locationApps) {
-                foreach ($app in $locationApps) {
-                    try {
-                        Set-ItemProperty -Path $app.PSPath -Name "Value" -Value "Deny" -Type String -Force -ErrorAction Stop
-                    }
-                    catch {
-                        Write-Verbose "$(Get-LocalizedString 'TelemetryLocationAppError' $app.PSChildName $_)"
-                    }
-                }
-            }
-        }
-        catch {
-            Write-Verbose "$(Get-LocalizedString 'TelemetryLocationAppsEnumError' $_)"
-        }
-    }
-    catch {
-        Write-Warning "$(Get-LocalizedString 'TelemetryLocationHKCUError' $_)"
-    }
-    
+    # HKLM ONLY (Privacy by Default WITH Prompts!)
+    # Changed from HKCU to HKLM: Apps will ask user for permission
+    # User keeps control - no silent blocking!
     Write-Success "$(Get-LocalizedString 'TelemetryLocationComplete')"
     Write-Info "$(Get-LocalizedString 'TelemetryLocationMasterToggle')"
 }

@@ -2311,22 +2311,8 @@ $script:RegistryChanges = @(
         Description = 'Cortana Consent (User) deaktivieren'
         File = 'SecurityBaseline-Telemetry.ps1'
     },
-    @{
-        Path = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\webcam'
-        Name = 'Value'
-        Type = 'String'
-        ApplyValue = 'Deny'
-        Description = ''
-        File = 'SecurityBaseline-Telemetry.ps1'
-    },
-    @{
-        Path = '$app.PSPath'
-        Name = 'Value'
-        Type = 'String'
-        ApplyValue = 'Deny'
-        Description = ''
-        File = 'SecurityBaseline-Telemetry.ps1'
-    },
+    # REMOVED: Camera HKCU entries (Privacy by Default WITH Prompts!)
+    # Only HKLM remains - apps will ask user for permission
     @{
         Path = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\webcam'
         Name = 'Value'
@@ -2335,22 +2321,8 @@ $script:RegistryChanges = @(
         Description = ''
         File = 'SecurityBaseline-Telemetry.ps1'
     },
-    @{
-        Path = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\microphone'
-        Name = 'Value'
-        Type = 'String'
-        ApplyValue = 'Deny'
-        Description = ''
-        File = 'SecurityBaseline-Telemetry.ps1'
-    },
-    @{
-        Path = '$app.PSPath'
-        Name = 'Value'
-        Type = 'String'
-        ApplyValue = 'Deny'
-        Description = ''
-        File = 'SecurityBaseline-Telemetry.ps1'
-    },
+    # REMOVED: Microphone HKCU entries (Privacy by Default WITH Prompts!)
+    # Only HKLM remains - apps will ask user for permission
     @{
         Path = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\microphone'
         Name = 'Value'
