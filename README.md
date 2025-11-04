@@ -468,6 +468,35 @@ Edit module files in `/Modules/` to adjust settings:
 2. Ensure 256 GB+ free space
 3. Manual activation: Control Panel → BitLocker
 
+#### 🎮 Gaming & Multiplayer Issues
+
+**Symptom:** Online multiplayer game won't connect / NAT issues / "Can't join friends"
+
+**Try this first (Security-First approach):**
+1. Keep **Strict Mode** (Option 1) - works for 90% of games!
+2. Add game to Windows Firewall exceptions manually:
+   - Settings → Privacy & Security → Windows Security → Firewall
+   - Allow an app → Browse → Select game executable
+   - Check both Private and Public → Add
+3. Most games work fine with this!
+
+**If still not working:**
+1. Re-run Apply script
+2. Choose **Option 2 (Allow Remote + Services)** in Remote Access menu
+3. This fixes 95% of remaining issues
+
+**Why this order?**
+- Most games only need **outbound** connections (work with Strict Mode)
+- Only **hosting games yourself** or **P2P modes** need inbound
+- Router/NAT issues are more common than firewall issues
+- Security-First: Try minimal change before opening firewall
+
+**Examples:**
+- ✅ **Fortnite, Valorant, Apex Legends:** Work with Strict Mode (Option 1)
+- ✅ **Call of Duty, Diablo IV, Overwatch:** Work with Strict Mode (Option 1)
+- ⚠️ **Minecraft Server (hosting):** Needs Option 2
+- ⚠️ **P2P Games (hosting sessions):** Needs Option 2
+
 #### ⚠️ ShellHost.exe "Stack Buffer Overflow" Warning
 **Symptom:** After running Wireless Display module, when user clicks "Cast" button (Windows + K or Quick Settings → Cast), Windows shows:  
 *"Das System hat in dieser Anwendung den Überlauf eines stapelbasierten Puffers ermittelt..."*

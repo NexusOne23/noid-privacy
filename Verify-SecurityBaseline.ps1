@@ -803,24 +803,25 @@ Test-BaselineCheck -Category "Firewall" -Name "Public Log Max Size = 16384 KB" -
     -Test { (Get-NetFirewallProfile -Name Public).LogMaxSizeKilobytes } `
     -Expected 16384
 
-# AllowLocalFirewallRules: Optional since v1.7.16 (Standard Mode for Gaming/Docker)
-# False = Strict (Max Security, breaks Steam on Public WiFi), True = Standard (Gaming/Docker OK)
+# AllowLocalFirewallRules: Optional since v1.7.16 (Strict vs Standard mode)
+# False = Strict (Max security, can break Steam / some games on public WiFi),
+# True  = Standard (more compatible; Steam/gaming/Docker usually OK)
 $publicAllowLocalFW = (Get-NetFirewallProfile -Name Public).AllowLocalFirewallRules
 if ($publicAllowLocalFW -eq 'False') {
     Write-Host "  [OK] Public Block Local Firewall Rules (Strict Mode)" -ForegroundColor Green
     $script:passCount++
 } else {
-    Write-Host "  [!] Public Allow Local Firewall Rules (Standard Mode - Gaming/Docker OK)" -ForegroundColor Yellow
+    Write-Host "  [!] Public Allow Local Firewall Rules (Standard Mode - more compatible for Steam/gaming/Docker)" -ForegroundColor Yellow
     $script:passCount++
 }
 
-# AllowLocalIPsecRules: Optional since v1.7.16 (Standard Mode for Gaming/Docker)
+# AllowLocalIPsecRules: Optional since v1.7.16 (Strict vs Standard mode)
 $publicAllowLocalIPsec = (Get-NetFirewallProfile -Name Public).AllowLocalIPsecRules
 if ($publicAllowLocalIPsec -eq 'False') {
     Write-Host "  [OK] Public Block Local IPsec Rules (Strict Mode)" -ForegroundColor Green
     $script:passCount++
 } else {
-    Write-Host "  [!] Public Allow Local IPsec Rules (Standard Mode - Gaming/Docker OK)" -ForegroundColor Yellow
+    Write-Host "  [!] Public Allow Local IPsec Rules (Standard Mode - more compatible for Steam/gaming/Docker)" -ForegroundColor Yellow
     $script:passCount++
 }
 
