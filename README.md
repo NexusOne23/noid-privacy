@@ -669,9 +669,17 @@ The authors are not responsible for any damage or data loss caused by this scrip
 - ✅ **Gaming Recommendations Improved** - Removed "Gamer = Option 2" statements, Security-First approach
 - ✅ **All Instructions Localized** - VBS, BitLocker, CPU-Check messages now fully DE+EN (72 strings)
 - ✅ **Gaming Troubleshooting Added** - Step-by-step guide in README for multiplayer issues
+
+<details>
+<summary><b>Previous Updates (click to expand)</b></summary>
+
+### v1.7.18
+- ✅ **CRITICAL: Outlook Email Search Fixed** - Removed SetupCompletedSuccessfully key that broke Windows Search indexer
+- ✅ **CRITICAL: Restore-Script Compatibility** - Old backups now filtered, buggy key won't be re-introduced
+- ✅ **Fix-OutlookSearch.ps1 Added** - Manual fix script for users already affected by v1.7.17
 - ✅ **Registry Count Corrected** - 391 keys (was 392) - SetupCompletedSuccessfully removed
 
-### Previous Updates (v1.7.17)
+### v1.7.17
 - ✅ **CRITICAL: Registry Count Corrected** - Final count is 391 keys (not 394) - 3 problematic entries removed for 100% accuracy
 - ✅ **CRITICAL: Internet Zone Download Bug Fixed** - Removed 1803 blocking (Chrome/Edge downloads work again, CVE-2025-9491 protection maintained)
 - ✅ **CRITICAL: Device-Level App Permissions Backup Re-Added** - Backup now includes webcam/microphone EnabledByUser keys (Backup/Restore gap closed!)
@@ -684,9 +692,6 @@ The authors are not responsible for any damage or data loss caused by this scrip
 - ✅ **Code Quality: PSObject.Properties Pattern** - Property access safety in Restore script (StrictMode compatible)
 - ✅ **Complete Localization** - Advanced/ASR/DNS modules, Restore script (36 strings), 100% German/English support
 - ✅ **Verify Script: Firewall Checks Mode-Aware** - No false failures for Standard Mode users
-
-<details>
-<summary><b>Previous Updates (click to expand)</b></summary>
 
 ### v1.7.16
 - ✅ **Optional Remote Access Mode** - Configure RDP and Firewall based on use-case (Desktop vs Remote Server/Development)
