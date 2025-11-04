@@ -924,6 +924,57 @@ Test-BaselineCheck -Category "UAC" -Name "EPP Mode Configured (Future-Ready)" -I
     -Expected 2
 
 # ===========================
+# POWER MANAGEMENT & SCREEN LOCK - 5 SETTINGS
+# ===========================
+
+Write-Host "`n=== POWER MANAGEMENT & SCREEN LOCK - 5 SETTINGS ===" -ForegroundColor Yellow
+
+$lockScreenPolicyPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Control Panel\Desktop"
+
+Test-BaselineCheck -Category "Power" -Name "Lock Screen Password Required (Machine Policy)" -Impact "Critical" `
+    -Test { 
+        Get-RegistryValueSafe $lockScreenPolicyPath "ScreenSaverIsSecure"
+    } `
+    -Expected "1"
+
+Test-BaselineCheck -Category "Power" -Name "Hibernate Enabled" -Impact "Medium" `
+    -Test { 
+        $hibernateCheck = powercfg /availablesleepstates 2>&1 | Select-String "Hibernate" -Quiet
+        [bool]$hibernateCheck
+    } `
+    -Expected $true
+
+Test-BaselineCheck -Category "Power" -Name "Display Timeout = 10 min (AC)" -Impact "Low" `
+    -Test { 
+        $query = powercfg /q 2>&1 | Out-String
+        if ($query -match 'Turn off display after[\s\S]*?Current AC Power Setting Index: 0x([0-9a-f]+)') {
+            $minutes = [Convert]::ToInt32($matches[1], 16)
+            $minutes
+        } else { $null }
+    } `
+    -Expected 10
+
+Test-BaselineCheck -Category "Power" -Name "Hibernate Timeout = 30 min (AC)" -Impact "Medium" `
+    -Test { 
+        $query = powercfg /q 2>&1 | Out-String
+        if ($query -match 'Hibernate after[\s\S]*?Current AC Power Setting Index: 0x([0-9a-f]+)') {
+            $minutes = [Convert]::ToInt32($matches[1], 16)
+            $minutes
+        } else { $null }
+    } `
+    -Expected 30
+
+Test-BaselineCheck -Category "Power" -Name "Require Password on Wake (CONSOLELOCK)" -Impact "High" `
+    -Test { 
+        $query = powercfg /q 2>&1 | Out-String
+        if ($query -match 'Require a password on wakeup[\s\S]*?Current AC Power Setting Index: 0x([0-9a-f]+)') {
+            $value = [Convert]::ToInt32($matches[1], 16)
+            $value
+        } else { $null }
+    } `
+    -Expected 1
+
+# ===========================
 # LSA PROTECTION (ANTI-MIMIKATZ) - 3 SETTINGS
 # ===========================
 

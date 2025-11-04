@@ -1496,6 +1496,9 @@ try {
         # Windows Hello PIN Complexity (Optional - requires TPM 2.0)
         Enable-WindowsHelloPINComplexity
         
+        # Power Management & Screen Lock (Physical Access Protection)
+        Set-SecurePowerManagement
+        
         Write-Host "[OK] $(Get-LocalizedString 'SuccessAdvanced')" -ForegroundColor Green
     }
     

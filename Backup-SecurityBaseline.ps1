@@ -331,7 +331,7 @@ Write-Host "[i] $(Get-LocalizedString 'BackupCreating')" -ForegroundColor Cyan
 Write-Host ""
 
 #region DNS Settings Backup
-Write-Host "[1/15] $(Get-LocalizedString 'BackupDNS')" -ForegroundColor Yellow
+Write-Host "[1/16] $(Get-LocalizedString 'BackupDNS')" -ForegroundColor Yellow
 
 $adapters = Get-NetAdapter | Where-Object { $_.Status -eq 'Up' }
 
@@ -377,7 +377,7 @@ Write-Host "[OK] $dnsMsg`n" -ForegroundColor Green
 #endregion
 
 #region Hosts File Backup
-Write-Host "[2/15] $(Get-LocalizedString 'BackupHosts')" -ForegroundColor Yellow
+Write-Host "[2/16] $(Get-LocalizedString 'BackupHosts')" -ForegroundColor Yellow
 
 $hostsPath = "$env:SystemRoot\System32\drivers\etc\hosts"
 if (Test-Path $hostsPath) {
@@ -395,7 +395,7 @@ else {
 #endregion
 
 #region Installed Apps Backup (WITH PROVISIONED PACKAGES!)
-Write-Host "[3/15] $(Get-LocalizedString 'BackupApps')" -ForegroundColor Yellow
+Write-Host "[3/16] $(Get-LocalizedString 'BackupApps')" -ForegroundColor Yellow
 
 # User Apps (with timeout protection)
 $installedApps = @()
@@ -482,7 +482,7 @@ Write-Host ""
 #endregion
 
 #region Services Backup (ALL SERVICES!)
-Write-Host "[4/15] $(Get-LocalizedString 'BackupServices')" -ForegroundColor Yellow
+Write-Host "[4/16] $(Get-LocalizedString 'BackupServices')" -ForegroundColor Yellow
 
 # BACKUP ALL SERVICES (not just the ones we change!)
 $allServices = Get-Service -ErrorAction SilentlyContinue
@@ -511,7 +511,7 @@ Write-Host ""
 #endregion
 
 #region Windows Optional Features Backup
-Write-Host "[5/15] Backing up Windows Optional Features..." -ForegroundColor Yellow
+Write-Host "[5/16] Backing up Windows Optional Features..." -ForegroundColor Yellow
 
 $windowsFeaturesBackup = @()
 try {
@@ -555,7 +555,7 @@ Write-Host ""
 #endregion
 
 #region Scheduled Tasks Backup (ALL TASKS!)
-Write-Host "[6/15] $(Get-LocalizedString 'BackupScheduledTasks')" -ForegroundColor Yellow
+Write-Host "[6/16] $(Get-LocalizedString 'BackupScheduledTasks')" -ForegroundColor Yellow
 
 # BACKUP ALL SCHEDULED TASKS (not just the ones we change!)
 $allTasks = Get-ScheduledTask -ErrorAction SilentlyContinue
@@ -584,7 +584,7 @@ Write-Host ""
 #endregion
 
 #region Firewall Rules Backup (ALL RULES!)
-Write-Host "[7/15] $(Get-LocalizedString 'BackupFirewall')" -ForegroundColor Yellow
+Write-Host "[7/16] $(Get-LocalizedString 'BackupFirewall')" -ForegroundColor Yellow
 
 # BACKUP ALL FIREWALL RULES (not just custom!)
 $allFirewallRules = Get-NetFirewallRule -ErrorAction SilentlyContinue
@@ -616,7 +616,7 @@ Write-Host ""
 #endregion
 
 #region User Accounts Backup
-Write-Host "[8/15] $(Get-LocalizedString 'BackupUsers')" -ForegroundColor Yellow
+Write-Host "[8/16] $(Get-LocalizedString 'BackupUsers')" -ForegroundColor Yellow
 
 $localUsers = Get-LocalUser -ErrorAction SilentlyContinue
 
@@ -641,7 +641,7 @@ Write-Host ""
 #endregion
 
 #region Registry Keys Backup (v2.0 - OPTIMIZED)
-Write-Host "[9/15] $(Get-LocalizedString 'BackupRegistry')" -ForegroundColor Yellow
+Write-Host "[9/16] $(Get-LocalizedString 'BackupRegistry')" -ForegroundColor Yellow
 
 # NEW v2.0: Specific registry backup (20-30x faster!)
 # Only backs up the 391 registry keys that Apply actually modifies
@@ -671,7 +671,7 @@ Write-Host ""
 #endregion
 
 #region ASR Rules Backup (Attack Surface Reduction)
-Write-Host "[10/15] $(Get-LocalizedString 'BackupASRTitle')" -ForegroundColor Yellow
+Write-Host "[10/16] $(Get-LocalizedString 'BackupASRTitle')" -ForegroundColor Yellow
 
 $asrBackup = @{
     Rules = @()
@@ -709,7 +709,7 @@ Write-Host ""
 #endregion
 
 #region Exploit Protection Backup (Set-ProcessMitigation)
-Write-Host "[11/15] $(Get-LocalizedString 'BackupExploitTitle')" -ForegroundColor Yellow
+Write-Host "[11/16] $(Get-LocalizedString 'BackupExploitTitle')" -ForegroundColor Yellow
 
 $exploitProtectionBackup = @{
     SystemMitigations = @()
@@ -756,7 +756,7 @@ Write-Host ""
 #endregion
 
 #region DoH Configuration Backup (DNS over HTTPS)
-Write-Host "[12/15] $(Get-LocalizedString 'BackupDohTitle')" -ForegroundColor Yellow
+Write-Host "[12/16] $(Get-LocalizedString 'BackupDohTitle')" -ForegroundColor Yellow
 
 $dohBackup = @{
     Servers = @()
@@ -820,7 +820,7 @@ Write-Host ""
 #endregion
 
 #region DoH Encryption Preferences Backup (Adapter-specific DohFlags)
-Write-Host "[13/15] $(Get-LocalizedString 'BackupDohEncryptionTitle')" -ForegroundColor Yellow
+Write-Host "[13/16] $(Get-LocalizedString 'BackupDohEncryptionTitle')" -ForegroundColor Yellow
 
 $dohEncryptionBackup = @{
     Adapters = @()
@@ -924,7 +924,7 @@ Write-Host ""
 #endregion
 
 #region Firewall Profile Settings Backup
-Write-Host "[14/15] $(Get-LocalizedString 'BackupFirewallProfilesTitle')" -ForegroundColor Yellow
+Write-Host "[14/16] $(Get-LocalizedString 'BackupFirewallProfilesTitle')" -ForegroundColor Yellow
 
 $firewallProfileBackup = @{
     Profiles = @()
@@ -978,7 +978,7 @@ Write-Host ""
 #endregion
 
 #region Device-Level App Permissions Backup
-Write-Host "[15/15] Backing up Device-Level App Permissions..." -ForegroundColor Yellow
+Write-Host "[15/16] Backing up Device-Level App Permissions..." -ForegroundColor Yellow
 
 # CRITICAL FIX v1.7.17: Re-add Device-Level backup WITH ownership management
 # Previous version removed this backup claiming "TrustedInstaller-protected"
@@ -1038,6 +1038,86 @@ catch {
 }
 
 $backup.Settings.DeviceLevelApps = $deviceLevelBackup
+Write-Host ""
+#endregion
+
+#region Power Management Settings Backup
+Write-Host "[16/16] Backing up Power Management Settings..." -ForegroundColor Yellow
+
+$powerBackup = @{
+    Settings = @{}
+    Enabled = $false
+}
+
+try {
+    # Get current active power scheme GUID
+    $activeScheme = powercfg /getactivescheme
+    if ($activeScheme -match '([0-9a-f-]{36})') {
+        $powerBackup.Settings.ActiveSchemeGUID = $matches[1]
+        
+        # Query detailed settings for the active scheme
+        $query = powercfg /query $($powerBackup.Settings.ActiveSchemeGUID)
+        
+        # Parse Monitor Timeout (AC)
+        if ($query -match 'Turn off display after[\s\S]*?Current AC Power Setting Index: 0x([0-9a-f]+)') {
+            $powerBackup.Settings.MonitorTimeoutAC = [Convert]::ToInt32($matches[1], 16)
+        }
+        
+        # Parse Monitor Timeout (DC/Battery)
+        if ($query -match 'Turn off display after[\s\S]*?Current DC Power Setting Index: 0x([0-9a-f]+)') {
+            $powerBackup.Settings.MonitorTimeoutDC = [Convert]::ToInt32($matches[1], 16)
+        }
+        
+        # Parse Sleep/Standby Timeout (AC)
+        if ($query -match 'Sleep after[\s\S]*?Current AC Power Setting Index: 0x([0-9a-f]+)') {
+            $powerBackup.Settings.StandbyTimeoutAC = [Convert]::ToInt32($matches[1], 16)
+        }
+        
+        # Parse Sleep/Standby Timeout (DC)
+        if ($query -match 'Sleep after[\s\S]*?Current DC Power Setting Index: 0x([0-9a-f]+)') {
+            $powerBackup.Settings.StandbyTimeoutDC = [Convert]::ToInt32($matches[1], 16)
+        }
+        
+        # Parse Hibernate Timeout (AC)
+        if ($query -match 'Hibernate after[\s\S]*?Current AC Power Setting Index: 0x([0-9a-f]+)') {
+            $powerBackup.Settings.HibernateTimeoutAC = [Convert]::ToInt32($matches[1], 16)
+        }
+        
+        # Parse Hibernate Timeout (DC)
+        if ($query -match 'Hibernate after[\s\S]*?Current DC Power Setting Index: 0x([0-9a-f]+)') {
+            $powerBackup.Settings.HibernateTimeoutDC = [Convert]::ToInt32($matches[1], 16)
+        }
+        
+        # Parse CONSOLELOCK (Require password on wake) - AC
+        if ($query -match 'Require a password on wakeup[\s\S]*?Current AC Power Setting Index: 0x([0-9a-f]+)') {
+            $powerBackup.Settings.ConsoleLockAC = [Convert]::ToInt32($matches[1], 16)
+        }
+        
+        # Parse CONSOLELOCK (Require password on wake) - DC
+        if ($query -match 'Require a password on wakeup[\s\S]*?Current DC Power Setting Index: 0x([0-9a-f]+)') {
+            $powerBackup.Settings.ConsoleLockDC = [Convert]::ToInt32($matches[1], 16)
+        }
+        
+        # Check if Hibernate is enabled
+        $hibernateStatus = powercfg /availablesleepstates
+        $powerBackup.Settings.HibernateEnabled = $hibernateStatus -match 'Hibernate'
+        
+        $powerBackup.Enabled = $true
+        Write-Host "  [OK] Power settings backed up (Scheme: $($powerBackup.Settings.ActiveSchemeGUID))" -ForegroundColor Green
+        Write-Verbose "    Monitor Timeout AC: $($powerBackup.Settings.MonitorTimeoutAC) min"
+        Write-Verbose "    Hibernate Timeout AC: $($powerBackup.Settings.HibernateTimeoutAC) min"
+    }
+    else {
+        Write-Host "  [WARNING] Could not detect active power scheme" -ForegroundColor Yellow
+        $powerBackup.Enabled = $false
+    }
+}
+catch {
+    Write-Warning "Could not backup power settings: $_"
+    $powerBackup.Enabled = $false
+}
+
+$backup.Settings.PowerManagement = $powerBackup
 Write-Host ""
 #endregion
 
@@ -1159,6 +1239,7 @@ try {
     Write-Host "  - DoH Servers: $dohServersSummary" -ForegroundColor Gray
     Write-Host "  - DoH Encryption: $dohAdaptersSummary Adapter" -ForegroundColor Gray
     Write-Host "  - Firewall Profiles: $fwProfilesSummary" -ForegroundColor Gray
+    Write-Host "  - Power Management: $($backup.Settings.PowerManagement.Enabled)" -ForegroundColor Gray
     Write-Host ""
     Write-Host "$(Get-LocalizedString 'BackupNote')" -ForegroundColor Yellow
     Write-Host ""

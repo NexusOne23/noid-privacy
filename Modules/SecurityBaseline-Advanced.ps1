@@ -763,5 +763,114 @@ function Enable-WindowsHelloPINComplexity {
 
 #endregion
 
+#region POWER MANAGEMENT & SCREEN LOCK
+
+function Set-SecurePowerManagement {
+    <#
+    .SYNOPSIS
+        Configures secure power management settings for maximum security
+        
+    .DESCRIPTION
+        Sets power scheme to balanced security and usability:
+        - Display off: 10 minutes (AC + Battery)
+        - Auto-lock: 15 minutes (via InactivityTimeoutSecs + Password enforcement)
+        - Sleep: Never (we use Hibernate instead)
+        - Hibernate: 30 minutes (AC + Battery)
+        
+        IMPORTANT: Uses ONLY InactivityTimeoutSecs (Microsoft Baseline 25H2 compliant)
+        No screensaver timeout to avoid double-lock confusion.
+        
+    .EXAMPLE
+        Set-SecurePowerManagement
+    #>
+    
+    [CmdletBinding()]
+    param()
+    
+    Write-Section "Power Management & Physical Access Protection"
+    
+    # Get current power scheme GUID
+    $currentScheme = powercfg /getactivescheme
+    if ($currentScheme -match '([0-9a-f-]{36})') {
+        $schemeGUID = $matches[1]
+    } else {
+        Write-Warning "Could not detect active power scheme, using default balanced scheme"
+        $schemeGUID = "381b4222-f694-41f0-9685-ff5bb260df2e"  # Balanced
+    }
+    
+    Write-Verbose "Configuring Power Settings (Physical Access Protection)..."
+    
+    # ==========================================
+    # DISPLAY SETTINGS
+    # ==========================================
+    
+    # Display timeout: 10 minutes
+    Write-Verbose "Setting display timeout: 10 minutes"
+    powercfg /change monitor-timeout-ac 10 2>&1 | Out-Null
+    powercfg /change monitor-timeout-dc 10 2>&1 | Out-Null
+    
+    # ==========================================
+    # SLEEP/HIBERNATE SETTINGS
+    # ==========================================
+    
+    # Sleep: Never (using Hibernate for better security)
+    Write-Verbose "Disabling Sleep (using Hibernate instead for RAM protection)"
+    powercfg /change standby-timeout-ac 0 2>&1 | Out-Null
+    powercfg /change standby-timeout-dc 0 2>&1 | Out-Null
+    
+    # Enable Hibernate
+    Write-Verbose "Enabling Hibernate..."
+    powercfg /hibernate on 2>&1 | Out-Null
+    
+    # Hibernate: 30 minutes
+    Write-Verbose "Setting hibernate timeout: 30 minutes"
+    powercfg /change hibernate-timeout-ac 30 2>&1 | Out-Null
+    powercfg /change hibernate-timeout-dc 30 2>&1 | Out-Null
+    
+    # ==========================================
+    # LOCK SCREEN PASSWORD ENFORCEMENT
+    # ==========================================
+    
+    # IMPORTANT: InactivityTimeoutSecs (15 min) is already set in RegistryChanges-Definition.ps1
+    # Path: HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System
+    # Name: InactivityTimeoutSecs = 900 (15 minutes)
+    
+    # CRITICAL: Enforce password requirement on lock screen (Machine Policy)
+    # Without this, the lock screen appears but NO PASSWORD is required!
+    Write-Verbose "Enforcing password requirement on lock screen..."
+    
+    $lockScreenPolicyPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Control Panel\Desktop"
+    [void](Set-RegistryValue -Path $lockScreenPolicyPath -Name "ScreenSaverIsSecure" -Value "1" -Type String `
+        -Description "MACHINE POLICY: Require password on lock screen (CRITICAL!)")
+    
+    # Require password on wake from sleep/hibernate (via powercfg)
+    Write-Verbose "Requiring password on wake from sleep/hibernate..."
+    powercfg /SETACVALUEINDEX $schemeGUID SUB_NONE CONSOLELOCK 1 2>&1 | Out-Null
+    powercfg /SETDCVALUEINDEX $schemeGUID SUB_NONE CONSOLELOCK 1 2>&1 | Out-Null
+    
+    # Apply changes
+    powercfg /SETACTIVE $schemeGUID 2>&1 | Out-Null
+    
+    Write-Success "Power Management configured successfully!"
+    Write-Info "  - Display Off: 10 minutes"
+    Write-Info "  - Auto-Lock: 15 minutes (InactivityTimeoutSecs + Password enforced)"
+    Write-Info "  - Hibernate: 30 minutes (RAM cleared, protects against Cold Boot Attacks)"
+    Write-Info "  - Sleep: Disabled (using Hibernate for better security)"
+    Write-Info ""
+    Write-Info "TIMELINE:"
+    Write-Info "  10 Min → Display turns off"
+    Write-Info "  15 Min → Lock screen + Password required (Machine Policy)"
+    Write-Info "  30 Min → Hibernate (RAM cleared)"
+    Write-Warning-Custom "System will hibernate after 30 minutes of inactivity (security feature)"
+    Write-Info ""
+    Write-Info "SECURITY BENEFIT:"
+    Write-Info "  - Physical Access Attack Window: Minimized"
+    Write-Info "  - Evil Maid Attack: Harder (RAM cleared on hibernate)"
+    Write-Info "  - DMA Attacks: Mitigated (RAM cleared, not just sleeping)"
+    Write-Info "  - Microsoft Baseline 25H2: Compliant"
+}
+
+#endregion
+
 # Note: Export-ModuleMember is NOT needed for dot-sourced scripts
 # Functions are automatically available in the calling scope

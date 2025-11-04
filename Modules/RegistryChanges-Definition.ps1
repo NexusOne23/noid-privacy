@@ -2924,6 +2924,14 @@ $script:RegistryChanges = @(
         File = 'SecurityBaseline-UAC.ps1'
     },
     @{
+        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\Control Panel\Desktop'
+        Name = 'ScreenSaverIsSecure'
+        Type = 'String'
+        ApplyValue = '1'
+        Description = 'MACHINE POLICY: Require password on lock screen (CRITICAL!)'
+        File = 'SecurityBaseline-Advanced.ps1'
+    },
+    @{
         Path = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System'
         Name = 'ConsentPromptBehaviorAdminInEPPMode'
         Type = 'DWord'

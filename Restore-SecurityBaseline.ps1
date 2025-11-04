@@ -397,7 +397,7 @@ $restoreStats = @{
 }
 
 #region Restore DNS Settings
-Write-Host "[1/17] $(Get-LocalizedString 'RestoreDNS')" -ForegroundColor Yellow
+Write-Host "[1/18] $(Get-LocalizedString 'RestoreDNS')" -ForegroundColor Yellow
 
 $dnsRestoredCount = 0
 $dnsFailedCount = 0
@@ -507,7 +507,7 @@ Write-Host ""
 #endregion
 
 #region Restore Hosts File
-Write-Host "[2/17] $(Get-LocalizedString 'RestoreHosts')" -ForegroundColor Yellow
+Write-Host "[2/18] $(Get-LocalizedString 'RestoreHosts')" -ForegroundColor Yellow
 
 if ($backup.Settings.HostsFile) {
     $hostsPath = "$env:SystemRoot\System32\drivers\etc\hosts"
@@ -538,7 +538,7 @@ Write-Host ""
 #endregion
 
 #region Restore Services
-Write-Host "[3/17] $(Get-LocalizedString 'RestoreServices')" -ForegroundColor Yellow
+Write-Host "[3/18] $(Get-LocalizedString 'RestoreServices')" -ForegroundColor Yellow
 
 # CRITICAL: Protected Services List
 # ROOT CAUSE: These services are protected by TrustedInstaller/SYSTEM
@@ -637,7 +637,7 @@ Write-Host ""
 #endregion
 
 #region Restore Windows Optional Features
-Write-Host "[4/17] Restoring Windows Optional Features..." -ForegroundColor Yellow
+Write-Host "[4/18] Restoring Windows Optional Features..." -ForegroundColor Yellow
 
 $featuresCount = if ($backup.Settings.WindowsFeatures) { @($backup.Settings.WindowsFeatures).Count } else { 0 }
 if ($featuresCount -gt 0) {
@@ -758,7 +758,7 @@ Write-Host ""
 #endregion
 
 #region Restore Scheduled Tasks
-Write-Host "[5/17] Restore Scheduled Tasks..." -ForegroundColor Yellow
+Write-Host "[5/18] Restore Scheduled Tasks..." -ForegroundColor Yellow
 
 # CRITICAL: Check if Task Scheduler service is available
 # ROOT CAUSE: Schedule service is protected (TrustedInstaller/SYSTEM)
@@ -925,7 +925,7 @@ Write-Host ""
 #endregion
 
 #region Restore Firewall Rules
-Write-Host "[6/17] $(Get-LocalizedString 'RestoreFirewall')" -ForegroundColor Yellow
+Write-Host "[6/18] $(Get-LocalizedString 'RestoreFirewall')" -ForegroundColor Yellow
 
 Write-Host "  [i] $(Get-LocalizedString 'RestoreFirewallDeleting')" -ForegroundColor Cyan
 $customRules = Get-NetFirewallRule -DisplayName "NoID-*" -ErrorAction SilentlyContinue
@@ -1022,7 +1022,7 @@ Write-Host ""
 #endregion
 
 #region Restore Registry Keys (v2.0 - OPTIMIZED)
-Write-Host "[7/17] $(Get-LocalizedString 'RestoreRegistry')" -ForegroundColor Yellow
+Write-Host "[7/18] $(Get-LocalizedString 'RestoreRegistry')" -ForegroundColor Yellow
 
 # NEW v2.0: Specific registry restore (10-15x faster!)
 # Only restores the 383 registry keys that Apply actually modifies
@@ -1240,7 +1240,7 @@ Write-Host ""
 #endregion
 
 #region Restore User Accounts
-Write-Host "[8/17] $(Get-LocalizedString 'RestoreUsers')" -ForegroundColor Yellow
+Write-Host "[8/18] $(Get-LocalizedString 'RestoreUsers')" -ForegroundColor Yellow
 
 # Find the renamed Administrator account (with SID *-500)
 $currentAdminAccount = Get-LocalUser -ErrorAction SilentlyContinue | Where-Object { $_.SID -like "*-500" }
@@ -1424,7 +1424,7 @@ Write-Host ""
 #endregion
 
 #region Restore Apps
-Write-Host "[9/17] $(Get-LocalizedString 'RestoreApps')" -ForegroundColor Yellow
+Write-Host "[9/18] $(Get-LocalizedString 'RestoreApps')" -ForegroundColor Yellow
 
 $currentApps = Get-AppxPackage -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Name
 $missingApps = $backup.Settings.InstalledApps | Where-Object { $currentApps -notcontains $_.Name }
@@ -1712,7 +1712,7 @@ Write-Host ""
 
 #region Restore ASR Rules
 Write-Host ""
-Write-Host "[10/17] Restore ASR Rules..." -ForegroundColor Yellow
+Write-Host "[10/18] Restore ASR Rules..." -ForegroundColor Yellow
 
 if ($backup.Settings.ASRRules -and $backup.Settings.ASRRules.Enabled) {
     try {
@@ -1750,7 +1750,7 @@ else {
 
 #region Restore Exploit Protection
 Write-Host ""
-Write-Host "[11/17] Restore Exploit Protection..." -ForegroundColor Yellow
+Write-Host "[11/18] Restore Exploit Protection..." -ForegroundColor Yellow
 
 if ($backup.Settings.ExploitProtection -and $backup.Settings.ExploitProtection.Enabled) {
     try {
@@ -1903,7 +1903,7 @@ else {
 
 #region Restore DoH Configuration
 Write-Host ""
-Write-Host "[12/17] Restore DoH Configuration..." -ForegroundColor Yellow
+Write-Host "[12/18] Restore DoH Configuration..." -ForegroundColor Yellow
 
 # STRATEGY: TRUE RESTORE - restore to state BEFORE Apply script
 # If backup HAD DoH → restore with BACKUP settings (not hardcoded strict!)
@@ -2036,7 +2036,7 @@ else {
 
 #region Restore DoH Encryption Preferences (Adapter-specific DohFlags)
 Write-Host ""
-Write-Host "[13/17] Restore DoH Encryption Preferences (Adapter-specific)..." -ForegroundColor Yellow
+Write-Host "[13/18] Restore DoH Encryption Preferences (Adapter-specific)..." -ForegroundColor Yellow
 
 if ($backup.Settings.DohEncryption -and $backup.Settings.DohEncryption.Enabled) {
     try {
@@ -2128,7 +2128,7 @@ else {
 
 #region Restore Firewall Profile Settings
 Write-Host ""
-Write-Host "[14/17] Restore Firewall Profile Settings..." -ForegroundColor Yellow
+Write-Host "[14/18] Restore Firewall Profile Settings..." -ForegroundColor Yellow
 
 if ($backup.Settings.FirewallProfiles -and $backup.Settings.FirewallProfiles.Enabled) {
     try {
@@ -2177,7 +2177,7 @@ else {
 
 #region Restore Device-Level App Permissions
 Write-Host ""
-Write-Host "[15/17] Restore Device-Level App Permissions..." -ForegroundColor Yellow
+Write-Host "[15/18] Restore Device-Level App Permissions..." -ForegroundColor Yellow
 
 # CRITICAL FIX: Check property existence BEFORE access (StrictMode compatibility)
 # ROOT CAUSE: Direct property access crashes under StrictMode if property doesn't exist
@@ -2278,9 +2278,92 @@ else {
 }
 #endregion
 
+#region Restore Power Management Settings
+Write-Host ""
+Write-Host "[16/18] Restore Power Management Settings..." -ForegroundColor Yellow
+
+if ($backup.Settings.PSObject.Properties.Name -contains 'PowerManagement' -and $backup.Settings.PowerManagement.Enabled) {
+    Write-Host "  [i] Restoring power settings from backup..." -ForegroundColor Cyan
+    
+    try {
+        $power = $backup.Settings.PowerManagement.Settings
+        
+        # Get current active scheme GUID
+        $activeScheme = powercfg /getactivescheme
+        if ($activeScheme -match '([0-9a-f-]{36})') {
+            $schemeGUID = $matches[1]
+            
+            # Restore Monitor Timeout
+            if ($null -ne $power.MonitorTimeoutAC) {
+                Write-Verbose "  Restoring Monitor Timeout AC: $($power.MonitorTimeoutAC) min"
+                powercfg /change monitor-timeout-ac $power.MonitorTimeoutAC 2>&1 | Out-Null
+            }
+            if ($null -ne $power.MonitorTimeoutDC) {
+                Write-Verbose "  Restoring Monitor Timeout DC: $($power.MonitorTimeoutDC) min"
+                powercfg /change monitor-timeout-dc $power.MonitorTimeoutDC 2>&1 | Out-Null
+            }
+            
+            # Restore Sleep/Standby Timeout
+            if ($null -ne $power.StandbyTimeoutAC) {
+                Write-Verbose "  Restoring Standby Timeout AC: $($power.StandbyTimeoutAC) min"
+                powercfg /change standby-timeout-ac $power.StandbyTimeoutAC 2>&1 | Out-Null
+            }
+            if ($null -ne $power.StandbyTimeoutDC) {
+                Write-Verbose "  Restoring Standby Timeout DC: $($power.StandbyTimeoutDC) min"
+                powercfg /change standby-timeout-dc $power.StandbyTimeoutDC 2>&1 | Out-Null
+            }
+            
+            # Restore Hibernate Timeout
+            if ($null -ne $power.HibernateTimeoutAC) {
+                Write-Verbose "  Restoring Hibernate Timeout AC: $($power.HibernateTimeoutAC) min"
+                powercfg /change hibernate-timeout-ac $power.HibernateTimeoutAC 2>&1 | Out-Null
+            }
+            if ($null -ne $power.HibernateTimeoutDC) {
+                Write-Verbose "  Restoring Hibernate Timeout DC: $($power.HibernateTimeoutDC) min"
+                powercfg /change hibernate-timeout-dc $power.HibernateTimeoutDC 2>&1 | Out-Null
+            }
+            
+            # Restore Hibernate Enabled State
+            if ($power.HibernateEnabled -eq $false) {
+                Write-Verbose "  Disabling Hibernate (was disabled in backup)"
+                powercfg /hibernate off 2>&1 | Out-Null
+            }
+            elseif ($power.HibernateEnabled -eq $true) {
+                Write-Verbose "  Enabling Hibernate (was enabled in backup)"
+                powercfg /hibernate on 2>&1 | Out-Null
+            }
+            
+            # Restore CONSOLELOCK (Require password on wake)
+            if ($null -ne $power.ConsoleLockAC) {
+                Write-Verbose "  Restoring CONSOLELOCK AC: $($power.ConsoleLockAC)"
+                powercfg /SETACVALUEINDEX $schemeGUID SUB_NONE CONSOLELOCK $power.ConsoleLockAC 2>&1 | Out-Null
+            }
+            if ($null -ne $power.ConsoleLockDC) {
+                Write-Verbose "  Restoring CONSOLELOCK DC: $($power.ConsoleLockDC)"
+                powercfg /SETDCVALUEINDEX $schemeGUID SUB_NONE CONSOLELOCK $power.ConsoleLockDC 2>&1 | Out-Null
+            }
+            
+            # Apply changes
+            powercfg /SETACTIVE $schemeGUID 2>&1 | Out-Null
+            
+            Write-Host "  [OK] Power settings restored successfully" -ForegroundColor Green
+        }
+        else {
+            Write-Host "  [!] Could not detect active power scheme - skipping restore" -ForegroundColor Yellow
+        }
+    }
+    catch {
+        Write-Host "  [!] Power settings restore failed: $_" -ForegroundColor Yellow
+    }
+}
+else {
+    Write-Host "  [i] No power settings in backup - skipping" -ForegroundColor DarkYellow
+}
+#endregion
+
 # DNS Cache leeren
 Write-Host ""
-Write-Host "[16/17] $(Get-LocalizedString 'RestoreDNSClear')" -ForegroundColor Cyan
+Write-Host "[17/18] $(Get-LocalizedString 'RestoreDNSClear')" -ForegroundColor Cyan
 try {
     $job = Start-Job -ScriptBlock { ipconfig /flushdns 2>&1 }
     $job | Wait-Job -Timeout 10 | Out-Null
@@ -2303,7 +2386,7 @@ catch {
 # RESTORE: GP-Cache aktualisieren + Settings-App-Cache killen
 # ====================================================================
 Write-Host ""
-Write-Host "[17/17] Updating Group Policy cache..." -ForegroundColor Cyan
+Write-Host "[18/18] Updating Group Policy cache..." -ForegroundColor Cyan
 try {
     $job = Start-Job -ScriptBlock {
         # Damit die Settings-App es SOFORT merkt:
