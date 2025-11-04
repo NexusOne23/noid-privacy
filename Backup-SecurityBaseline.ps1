@@ -139,7 +139,7 @@ catch {
 # Initialize script-scope variable (defensive programming)
 $script:RegistryChanges = @()
 
-# Load Registry Changes Definition (v2.0 - 392 specific keys)
+# Load Registry Changes Definition (v2.0 - 391 specific keys)
 # IMPORTANT: Temporarily bypass execution policy for unsigned modules
 $savedExecutionPolicy = Get-ExecutionPolicy -Scope Process
 try {
@@ -623,11 +623,11 @@ Write-Host ""
 Write-Host "[9/15] $(Get-LocalizedString 'BackupRegistry')" -ForegroundColor Yellow
 
 # NEW v2.0: Specific registry backup (20-30x faster!)
-# Only backs up the 392 registry keys that Apply actually modifies
+# Only backs up the 391 registry keys that Apply actually modifies
 # Previous version: Complete snapshots (5-15 minutes, 50,000+ keys, 5MB)
-# New version: Specific backup (30 seconds, 392 keys, 100KB)
+# New version: Specific backup (30 seconds, 391 keys, 100KB)
 
-Write-Host "[i] Creating specific registry backup (392 keys)..." -ForegroundColor Cyan
+Write-Host "[i] Creating specific registry backup (391 keys)..." -ForegroundColor Cyan
 $startTime = Get-Date
 
 try {

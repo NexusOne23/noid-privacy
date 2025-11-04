@@ -253,7 +253,7 @@ noid-privacy/
 ---
 
 #### RegistryChanges-Definition.ps1
-**Purpose**: Data-only module containing all 392 registry changes
+**Purpose**: Data-only module containing all 391 registry changes
 
 **Structure**:
 ```powershell
@@ -266,12 +266,12 @@ $script:RegistryChanges = @(
         Description = 'What this key does'
         File = 'SecurityBaseline-AI.ps1'
     },
-    # ... 392 total entries
+    # ... 391 total entries
 )
 ```
 
 **Contains**:
-- 392 registry keys with full metadata
+- 391 registry keys with full metadata
 - Path, Name, Type, ApplyValue, Description, Source File
 - Organized by source module
 - Auto-generated from registry-changes-complete.txt
@@ -292,7 +292,7 @@ $script:RegistryChanges = @(
 **Purpose**: Fast backup/restore functions for specific registry keys
 
 **Exports** (3 functions):
-- `Backup-SpecificRegistryKeys` - Iterates 392 keys, reads current values
+- `Backup-SpecificRegistryKeys` - Iterates 391 keys, reads current values
 - `Restore-SpecificRegistryKeys` - Compares current vs backup, restores changes
 - `Validate-RegistryRestore` - Post-restore verification
 
@@ -307,7 +307,7 @@ $script:RegistryChanges = @(
 
 **Performance**:
 ```
-Backup:  30 seconds for 392 keys
+Backup:  30 seconds for 391 keys
 Restore: 1-2 minutes with validation
 Success Rate: 99%+ (1-2 protected keys may fail)
 ```
@@ -634,7 +634,7 @@ Modules:                19 files (was 17)
 Functions:              105 defined (was 102)
 Dependencies:           Managed via $moduleDependencies hashtable
 Error Handling:         210+ Try-Catch blocks
-Registry Operations:    392 specific keys (was 190+ unique paths)
+Registry Operations:    391 specific keys (was 190+ unique paths)
 Documentation:          ~90 KB
 ```
 

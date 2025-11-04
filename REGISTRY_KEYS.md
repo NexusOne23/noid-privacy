@@ -1,6 +1,6 @@
 # 🔐 Registry Keys Reference
 
-**Complete list of all 392 registry keys modified by NoID Privacy**
+**Complete list of all 391 registry keys modified by NoID Privacy**
 
 
 > Auto-generated from RegistryChanges-Definition.ps1

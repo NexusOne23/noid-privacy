@@ -18,7 +18,7 @@
     [OK] Best Practices: AutoPlay, SmartScreen, Exploit Protection extended
     
     COMPLIANCE:
-    - Microsoft Baseline 25H2: 100% (392 registry keys)
+    - Microsoft Baseline 25H2: 100% (391 registry keys)
     - CIS Benchmark Level 2: 95%
     - Security Settings: 400+ (217 reg keys + 25+ services + 19 ASR + 13 mitigations + more)
     - Privacy Settings: 300+ (158 reg keys + 37 permissions + 30 tasks + 9 AI + 80+ apps + more)

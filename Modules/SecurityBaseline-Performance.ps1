@@ -357,12 +357,10 @@ function Disable-BackgroundActivities {
     
     # ===== WINDOWS SEARCH INDEXING =====
     try {
-        Write-Info "Windows Search wird optimiert (nur wichtige Ordner)..."
+        Write-Info "Windows Search wird optimiert (nur Web-Features deaktiviert)..."
         
-        # Restrict Search Indexing to important folders
-        $searchPath = "HKLM:\SOFTWARE\Microsoft\Windows Search"
-        Set-RegistryValue -Path $searchPath -Name "SetupCompletedSuccessfully" -Value 0 -Type DWord `
-            -Description "Search Setup Reset (fuer Re-Index)"
+        # NOTE: SetupCompletedSuccessfully = 0 was REMOVED (breaks Windows Search and Outlook!)
+        # Windows Search Indexer must remain functional for local file/email search
         
         # Cortana Search reduzieren
         $cortanaPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Search"
