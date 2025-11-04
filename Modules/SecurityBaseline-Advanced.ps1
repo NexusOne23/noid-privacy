@@ -800,32 +800,41 @@ function Set-SecurePowerManagement {
     
     Write-Verbose "Configuring Power Settings (Physical Access Protection)..."
     
+    # Power Scheme GUIDs (constants)
+    $SUB_VIDEO = "7516b95f-f776-4464-8c53-06167f40cc99"        # Display settings
+    $SUB_SLEEP = "238c9fa8-0aad-41ed-83f4-97be242c8f20"        # Sleep/Hibernate settings
+    $SUB_NONE = "fea3413e-7e05-4911-9a71-700331f1c294"         # Global settings
+    $VIDEOIDLE = "3c0bc021-c8a8-4e07-a973-6b14cbcb2b7e"        # Monitor timeout
+    $STANDBYIDLE = "29f6c1db-86da-48c5-9fdb-f2b67b1f44da"      # Sleep timeout
+    $HIBERNATEIDLE = "9d7815a6-7ee4-497e-8888-515a05f02364"    # Hibernate timeout
+    $CONSOLELOCK = "0e796bdb-100d-47d6-a2d5-f7d2daa51f51"      # Password on wake
+    
     # ==========================================
     # DISPLAY SETTINGS
     # ==========================================
     
-    # Display timeout: 10 minutes
+    # Display timeout: 10 minutes (600 seconds)
     Write-Verbose "Setting display timeout: 10 minutes"
-    powercfg /change monitor-timeout-ac 10 2>&1 | Out-Null
-    powercfg /change monitor-timeout-dc 10 2>&1 | Out-Null
+    powercfg /SETACVALUEINDEX $schemeGUID $SUB_VIDEO $VIDEOIDLE 600 2>&1 | Out-Null
+    powercfg /SETDCVALUEINDEX $schemeGUID $SUB_VIDEO $VIDEOIDLE 600 2>&1 | Out-Null
     
     # ==========================================
     # SLEEP/HIBERNATE SETTINGS
     # ==========================================
     
-    # Sleep: Never (using Hibernate for better security)
+    # Sleep: Never (0 = disabled, using Hibernate for better security)
     Write-Verbose "Disabling Sleep (using Hibernate instead for RAM protection)"
-    powercfg /change standby-timeout-ac 0 2>&1 | Out-Null
-    powercfg /change standby-timeout-dc 0 2>&1 | Out-Null
+    powercfg /SETACVALUEINDEX $schemeGUID $SUB_SLEEP $STANDBYIDLE 0 2>&1 | Out-Null
+    powercfg /SETDCVALUEINDEX $schemeGUID $SUB_SLEEP $STANDBYIDLE 0 2>&1 | Out-Null
     
     # Enable Hibernate
     Write-Verbose "Enabling Hibernate..."
     powercfg /hibernate on 2>&1 | Out-Null
     
-    # Hibernate: 30 minutes
+    # Hibernate: 30 minutes (1800 seconds)
     Write-Verbose "Setting hibernate timeout: 30 minutes"
-    powercfg /change hibernate-timeout-ac 30 2>&1 | Out-Null
-    powercfg /change hibernate-timeout-dc 30 2>&1 | Out-Null
+    powercfg /SETACVALUEINDEX $schemeGUID $SUB_SLEEP $HIBERNATEIDLE 1800 2>&1 | Out-Null
+    powercfg /SETDCVALUEINDEX $schemeGUID $SUB_SLEEP $HIBERNATEIDLE 1800 2>&1 | Out-Null
     
     # ==========================================
     # LOCK SCREEN PASSWORD ENFORCEMENT
@@ -845,8 +854,8 @@ function Set-SecurePowerManagement {
     
     # Require password on wake from sleep/hibernate (via powercfg)
     Write-Verbose "Requiring password on wake from sleep/hibernate..."
-    powercfg /SETACVALUEINDEX $schemeGUID SUB_NONE CONSOLELOCK 1 2>&1 | Out-Null
-    powercfg /SETDCVALUEINDEX $schemeGUID SUB_NONE CONSOLELOCK 1 2>&1 | Out-Null
+    powercfg /SETACVALUEINDEX $schemeGUID $SUB_NONE $CONSOLELOCK 1 2>&1 | Out-Null
+    powercfg /SETDCVALUEINDEX $schemeGUID $SUB_NONE $CONSOLELOCK 1 2>&1 | Out-Null
     
     # Apply changes
     powercfg /SETACTIVE $schemeGUID 2>&1 | Out-Null
