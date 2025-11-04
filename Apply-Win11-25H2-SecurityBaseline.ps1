@@ -1497,7 +1497,8 @@ try {
         Enable-WindowsHelloPINComplexity
         
         # Power Management & Screen Lock (Physical Access Protection)
-        Set-SecurePowerManagement
+        # Pass DisableRDP parameter to control Hibernate behavior
+        Set-SecurePowerManagement -DisableRDP $script:DisableRDP
         
         Write-Host "[OK] $(Get-LocalizedString 'SuccessAdvanced')" -ForegroundColor Green
     }

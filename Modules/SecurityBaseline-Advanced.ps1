@@ -775,17 +775,29 @@ function Set-SecurePowerManagement {
         - Display off: 10 minutes (AC + Battery)
         - Auto-lock: 15 minutes (via InactivityTimeoutSecs + Password enforcement)
         - Sleep: Never (we use Hibernate instead)
-        - Hibernate: 30 minutes (AC + Battery)
+        - Hibernate: 30 minutes (AC + Battery) - BUT only if RDP is disabled!
         
         IMPORTANT: Uses ONLY InactivityTimeoutSecs (Microsoft Baseline 25H2 compliant)
         No screensaver timeout to avoid double-lock confusion.
         
+        REMOTE ACCESS MODE:
+        If RDP/Remote Access is enabled (Docker/LLM/Services), Hibernate is DISABLED!
+        Reason: Hibernate clears RAM → Services stop → Remote access breaks
+        
+    .PARAMETER DisableRDP
+        If $true: RDP is disabled → Hibernate enabled (default security)
+        If $false: RDP is enabled → Hibernate disabled (services keep running)
+        
     .EXAMPLE
-        Set-SecurePowerManagement
+        Set-SecurePowerManagement -DisableRDP $true   # Desktop Mode
+        Set-SecurePowerManagement -DisableRDP $false  # Server/Remote Mode
     #>
     
     [CmdletBinding()]
-    param()
+    param(
+        [Parameter(Mandatory=$false)]
+        [bool]$DisableRDP = $true  # Default: Maximum Security (Hibernate ON)
+    )
     
     Write-Section "Power Management & Physical Access Protection"
     
@@ -827,14 +839,28 @@ function Set-SecurePowerManagement {
     powercfg /SETACVALUEINDEX $schemeGUID $SUB_SLEEP $STANDBYIDLE 0 2>&1 | Out-Null
     powercfg /SETDCVALUEINDEX $schemeGUID $SUB_SLEEP $STANDBYIDLE 0 2>&1 | Out-Null
     
-    # Enable Hibernate
-    Write-Verbose "Enabling Hibernate..."
-    powercfg /hibernate on 2>&1 | Out-Null
-    
-    # Hibernate: 30 minutes (1800 seconds)
-    Write-Verbose "Setting hibernate timeout: 30 minutes"
-    powercfg /SETACVALUEINDEX $schemeGUID $SUB_SLEEP $HIBERNATEIDLE 1800 2>&1 | Out-Null
-    powercfg /SETDCVALUEINDEX $schemeGUID $SUB_SLEEP $HIBERNATEIDLE 1800 2>&1 | Out-Null
+    # Hibernate configuration based on Remote Access mode
+    if ($DisableRDP) {
+        # DESKTOP MODE: Hibernate enabled for security (RAM cleared)
+        Write-Verbose "Desktop Mode: Enabling Hibernate for security..."
+        powercfg /hibernate on 2>&1 | Out-Null
+        
+        # Hibernate: 30 minutes (1800 seconds)
+        Write-Verbose "Setting hibernate timeout: 30 minutes"
+        powercfg /SETACVALUEINDEX $schemeGUID $SUB_SLEEP $HIBERNATEIDLE 1800 2>&1 | Out-Null
+        powercfg /SETDCVALUEINDEX $schemeGUID $SUB_SLEEP $HIBERNATEIDLE 1800 2>&1 | Out-Null
+    }
+    else {
+        # REMOTE/SERVER MODE: Hibernate disabled (keeps services running)
+        Write-Verbose "Remote Access Mode: Disabling Hibernate (services must stay running)..."
+        
+        # Set hibernate timeout to 0 (never)
+        powercfg /SETACVALUEINDEX $schemeGUID $SUB_SLEEP $HIBERNATEIDLE 0 2>&1 | Out-Null
+        powercfg /SETDCVALUEINDEX $schemeGUID $SUB_SLEEP $HIBERNATEIDLE 0 2>&1 | Out-Null
+        
+        # Note: We don't disable hibernate feature itself (powercfg /hibernate off)
+        # because it's needed for Fast Startup. We just set timeout to 0 (never).
+    }
     
     # ==========================================
     # LOCK SCREEN PASSWORD ENFORCEMENT
@@ -863,18 +889,37 @@ function Set-SecurePowerManagement {
     Write-Success "Power Management configured successfully!"
     Write-Info "  - Display Off: 10 minutes"
     Write-Info "  - Auto-Lock: 15 minutes (InactivityTimeoutSecs + Password enforced)"
-    Write-Info "  - Hibernate: 30 minutes (RAM cleared, protects against Cold Boot Attacks)"
-    Write-Info "  - Sleep: Disabled (using Hibernate for better security)"
+    
+    if ($DisableRDP) {
+        Write-Info "  - Hibernate: 30 minutes (RAM cleared, protects against Cold Boot Attacks)"
+        Write-Info "  - Sleep: Disabled (using Hibernate for better security)"
+    }
+    else {
+        Write-Info "  - Hibernate: DISABLED (Remote Access Mode - services must stay running)"
+        Write-Info "  - Sleep: Disabled"
+        Write-Warning "Remote Access Mode: System will NOT hibernate automatically!"
+        Write-Info "  Good for: Docker, LLM, WSL, local servers, RDP/Tailscale hosts"
+    }
     Write-Host ""
     Write-Info "TIMELINE:"
     Write-Info "  10 Min → Display turns off"
     Write-Info "  15 Min → Lock screen + Password required (Machine Policy)"
-    Write-Info "  30 Min → Hibernate (RAM cleared)"
-    Write-Warning-Custom "System will hibernate after 30 minutes of inactivity (security feature)"
+    
+    if ($DisableRDP) {
+        Write-Info "  30 Min → Hibernate (RAM cleared)"
+        Write-Warning-Custom "System will hibernate after 30 minutes of inactivity (security feature)"
+    }
+    else {
+        Write-Info "  30 Min → System stays ON (no hibernate in Remote Access Mode)"
+    }
+    
     Write-Host ""
     Write-Info "SECURITY BENEFIT:"
     Write-Info "  - Physical Access Attack Window: Minimized"
-    Write-Info "  - Evil Maid Attack: Harder (RAM cleared on hibernate)"
+    
+    if ($DisableRDP) {
+        Write-Info "  - Evil Maid Attack: Harder (RAM cleared on hibernate)"
+    }
     Write-Info "  - DMA Attacks: Mitigated (RAM cleared, not just sleeping)"
     Write-Info "  - Microsoft Baseline 25H2: Compliant"
 }
