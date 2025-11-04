@@ -264,46 +264,11 @@ function Disable-IE11COMAutomation {
     Write-Success (Get-LocalizedString 'CoreIE11Disabled')
 }
 
-function Set-ExplorerZoneHardening {
-    <#
-    .SYNOPSIS
-        Hardens Windows Explorer Internet/Intranet Zone execution policies
-    .DESCRIPTION
-        Blocks launching applications and opening files from Internet/Intranet zones.
-        Critical protection against .lnk, .scf, .url attacks (CVE-2025-9491, PlugX).
-        Forces users to save files locally first before execution.
-    .EXAMPLE
-        Set-ExplorerZoneHardening
-    #>
-    [CmdletBinding()]
-    [OutputType([void])]
-    param()
-    
-    Write-Section "Explorer Internet Zone Hardening"
-    
-    Write-Info "Blocking execution from Internet/Intranet zones (.lnk/.scf/.url protection)..."
-    
-    # Internet Zone (Zone 3) - UNTRUSTED
-    $internetZonePath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\3"
-    
-    # Block: Launching applications and unsafe files (CVE-2025-9491)
-    [void](Set-RegistryValue -Path $internetZonePath -Name "1806" -Value 3 -Type DWord `
-        -Description "Internet Zone: Disable launching applications")
-    
-    # NOTE: 1803 (File download) is NOT blocked!
-    # REASON: Would break Chrome/Edge downloads ("blocked by your organization")
-    # SECURITY: Files from Internet Zone can be downloaded but NOT executed (1806 blocks execution)
-    # RESULT: Users must save file locally first, then open → CVE-2025-9491 protection maintained!
-    
-    # Intranet Zone (Zone 1) - ALSO HARDEN (compromised internal servers)
-    $intranetZonePath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\1"
-    
-    [void](Set-RegistryValue -Path $intranetZonePath -Name "1806" -Value 3 -Type DWord `
-        -Description "Intranet Zone: Disable launching applications")
-    
-    Write-Success "Explorer Zone Hardening enabled"
-    Write-Info "Users must save files locally before opening (CVE-2025-9491 protection)"
-}
+# REMOVED: Set-ExplorerZoneHardening
+# REASON: Policy 1806 = 3 breaks Chrome/Edge downloads ("blocked by your organization")
+# IMPACT: Even without 1803, setting 1806 = 3 at HKLM policy level blocks downloads
+# SECURITY: Protection maintained via SRP (Software Restriction Policies) below
+# CVE-2025-9491: Still protected via Set-FileExecutionRestrictions (.lnk/.scf/.url blocking)
 
 function Set-FileExecutionRestrictions {
     <#

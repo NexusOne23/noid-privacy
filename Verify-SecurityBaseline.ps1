@@ -1240,25 +1240,10 @@ Test-BaselineCheck -Category "APT-Protection" -Name "LDAP Channel Binding = Alwa
     } `
     -Expected 2
 
-$internetZonePath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\3"
-
-Test-BaselineCheck -Category "APT-Protection" -Name "Internet Zone: Block Launching Apps (3)" -Impact "Critical" `
-    -Test { 
-        Get-RegistryValueSafe $internetZonePath "1806"
-    } `
-    -Expected 3
-
-# NOTE: 1803 (Block Auto Downloads) test removed
-# REASON: Blocking downloads (1803=3) breaks Chrome/Edge ("blocked by your organization")
-# SECURITY: Still protected via 1806 (blocks execution) - users must save locally before opening
-
-$intranetZonePath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\1"
-
-Test-BaselineCheck -Category "APT-Protection" -Name "Intranet Zone: Block Launching Apps (3)" -Impact "High" `
-    -Test { 
-        Get-RegistryValueSafe $intranetZonePath "1806"
-    } `
-    -Expected 3
+# REMOVED: Internet Zone 1806 and Intranet Zone 1806 checks
+# REASON: Policy 1806 = 3 breaks Chrome/Edge downloads ("blocked by your organization")
+# SECURITY: Protection maintained via SRP (Software Restriction Policies)
+# CVE-2025-9491: Still protected via .lnk/.scf/.url blocking in SRP rules
 
 $efsServicePath = "HKLM:\SYSTEM\CurrentControlSet\Services\EFS"
 

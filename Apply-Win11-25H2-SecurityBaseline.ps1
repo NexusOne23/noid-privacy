@@ -1387,7 +1387,7 @@ try {
         Set-NetBIOSDisabled
         Set-ProcessAuditingWithCommandLine
         Disable-IE11COMAutomation
-        Set-ExplorerZoneHardening
+        # REMOVED: Set-ExplorerZoneHardening - Policy 1806=3 breaks Chrome/Edge downloads
         Set-FileExecutionRestrictions
         Set-PrintSpoolerUserRights
         Disable-InternetPrintingClient

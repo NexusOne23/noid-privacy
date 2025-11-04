@@ -3067,24 +3067,10 @@ $script:RegistryChanges = @(
         Description = 'Prevent Wireless Media Streaming'
         File = 'SecurityBaseline-WirelessDisplay.ps1'
     },
-    @{
-        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\3'
-        Name = '1806'
-        Type = 'DWord'
-        ApplyValue = 3
-        Description = 'Internet Zone: Disable launching applications'
-        File = 'SecurityBaseline-Core.ps1'
-    },
-    # NOTE: 1803 (File download) was removed - would break Chrome/Edge downloads
-    # Security maintained via 1806 (execution block) + local save requirement
-    @{
-        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\1'
-        Name = '1806'
-        Type = 'DWord'
-        ApplyValue = 3
-        Description = 'Intranet Zone: Disable launching applications'
-        File = 'SecurityBaseline-Core.ps1'
-    },
+    # REMOVED: Internet Zone 1806 and Intranet Zone 1806
+    # REASON: Policy 1806 = 3 breaks Chrome/Edge downloads ("blocked by your organization")
+    # SECURITY: Protection maintained via SRP (Set-FileExecutionRestrictions)
+    # CVE-2025-9491: Still protected via .lnk/.scf/.url blocking in SRP
     @{
         Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\Safer\CodeIdentifiers'
         Name = 'DefaultLevel'
