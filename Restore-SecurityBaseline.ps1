@@ -1028,8 +1028,40 @@ if ($backup.Settings.RegistryBackup) {
     # Initialize failed keys array (used by Restore-SpecificRegistryKeys for error tracking)
     $script:FailedRegistryKeys = @()
     
+    # CRITICAL SAFEGUARD v1.7.18: Filter out SetupCompletedSuccessfully from old backups
+    # This key was removed in v1.7.18 because it breaks Windows Search and Outlook email search
+    # Old backups (v1.7.17) may still contain this key with value=0 which would re-introduce the bug
+    $filteredBackup = @()
+    $filteredCount = 0
+    
+    foreach ($entry in $backup.Settings.RegistryBackup) {
+        if ($entry.Path -eq 'HKLM:\SOFTWARE\Microsoft\Windows Search' -and $entry.Name -eq 'SetupCompletedSuccessfully') {
+            Write-Host "[!] WARNING: Filtered out buggy key from old backup: SetupCompletedSuccessfully" -ForegroundColor Yellow
+            Write-Host "    This key was removed in v1.7.18 (breaks Windows Search and Outlook)" -ForegroundColor Gray
+            Write-Host "    Setting correct value (=1) instead..." -ForegroundColor Gray
+            
+            # Set correct value instead of restoring buggy value
+            try {
+                Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows Search' -Name 'SetupCompletedSuccessfully' -Value 1 -Type DWord -ErrorAction Stop
+                Write-Host "    [OK] Windows Search fixed (SetupCompletedSuccessfully = 1)" -ForegroundColor Green
+            }
+            catch {
+                Write-Host "    [WARNING] Could not set correct value: $_" -ForegroundColor Yellow
+            }
+            
+            $filteredCount++
+            continue
+        }
+        
+        $filteredBackup += $entry
+    }
+    
+    if ($filteredCount -gt 0) {
+        Write-Host "[i] Filtered $filteredCount problematic key(s) from backup" -ForegroundColor Cyan
+    }
+    
     try {
-        $result = Restore-SpecificRegistryKeys -BackupData $backup.Settings.RegistryBackup -UseOwnership $true
+        $result = Restore-SpecificRegistryKeys -BackupData $filteredBackup -UseOwnership $true
         
         $elapsed = ((Get-Date) - $startTime).TotalSeconds
         
