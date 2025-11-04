@@ -5,7 +5,7 @@
 [![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-blue.svg)](https://github.com/PowerShell/PowerShell)
 [![Windows 11](https://img.shields.io/badge/Windows%2011-25H2-0078D4.svg)](https://www.microsoft.com/windows/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-1.7.17-blue.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.7.18-blue.svg)](CHANGELOG.md)
 
 ---
 
@@ -632,11 +632,17 @@ The authors are not responsible for any damage or data loss caused by this scrip
 
 ## 📈 Project Status
 
-**Current Version:** 1.7.17  
-**Last Updated:** November 3, 2025  
+**Current Version:** 1.7.18  
+**Last Updated:** November 4, 2025  
 **Status:** Production-Ready ✅
 
-### Recent Updates (v1.7.17)
+### Recent Updates (v1.7.18)
+- ✅ **CRITICAL: Outlook Email Search Fixed** - Removed SetupCompletedSuccessfully key that broke Windows Search indexer
+- ✅ **CRITICAL: Restore-Script Compatibility** - Old backups now filtered, buggy key won't be re-introduced
+- ✅ **Fix-OutlookSearch.ps1 Added** - Manual fix script for users already affected by v1.7.17
+- ✅ **Registry Count Corrected** - 391 keys (was 392) - SetupCompletedSuccessfully removed
+
+### Previous Updates (v1.7.17)
 - ✅ **CRITICAL: Registry Count Corrected** - Final count is 391 keys (not 394) - 3 problematic entries removed for 100% accuracy
 - ✅ **CRITICAL: Internet Zone Download Bug Fixed** - Removed 1803 blocking (Chrome/Edge downloads work again, CVE-2025-9491 protection maintained)
 - ✅ **CRITICAL: Device-Level App Permissions Backup Re-Added** - Backup now includes webcam/microphone EnabledByUser keys (Backup/Restore gap closed!)

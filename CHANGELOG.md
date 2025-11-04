@@ -5,6 +5,51 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.18] - 2025-11-04
+
+### Fixed
+- **CRITICAL: Outlook Email Search Broken** - Windows Search indexer disabled
+  - **Bug**: SetupCompletedSuccessfully = 0 broke Windows Search indexer
+  - **Impact**: Outlook email search completely non-functional (no indexing)
+  - **Root Cause**: Performance module set registry key to "Setup not completed"
+  - **Scope**: Affects ALL Windows Search features (File Explorer, Start Menu, Outlook)
+  - **Fix**: Removed SetupCompletedSuccessfully key from Performance module
+  - **Files**: SecurityBaseline-Performance.ps1, RegistryChanges-Definition.ps1
+  - **Result**: Windows Search indexer works correctly, Outlook search functional
+  - **Commit**: `e06c549`
+
+- **CRITICAL: Restore-Script Compatibility** - Old backups could re-introduce bug
+  - **Issue**: v1.7.17 backups contain buggy SetupCompletedSuccessfully = 0
+  - **Risk**: Restoring old backup would re-break Windows Search and Outlook
+  - **Fix**: Restore-Script now filters SetupCompletedSuccessfully from old backups
+  - **Behavior**: Detects key in backup, filters it out, sets correct value (= 1) instead
+  - **Output**: Clear warning message when filtering occurs
+  - **Result**: Old backups safe to restore, bug won't be re-introduced
+  - **Commit**: `732509c`
+
+### Added
+- **Fix-OutlookSearch.ps1** - Manual fix script for affected users
+  - **Purpose**: Fix Windows Search for users who already applied v1.7.17
+  - **Actions**: Sets SetupCompletedSuccessfully = 1, restarts WSearch service
+  - **Guidance**: Includes instructions for Outlook index rebuild
+  - **Usage**: Run as Administrator, automatic fix + manual steps
+  - **Commit**: `dd9ef13`
+
+### Changed
+- **Registry Key Count Updated** - 391 keys (was 392)
+  - **Removed**: SetupCompletedSuccessfully (breaks Windows Search)
+  - **Previously removed**: 2 DohFlags entries (never set)
+  - **Total removed**: 3 problematic entries
+  - **Updated files**: Apply, Backup, Restore, README, FEATURES, PROJECT_STRUCTURE, REGISTRY_KEYS, all modules
+  - **Reason**: Maintain 100% accuracy in documentation
+  - **Commit**: `e06c549`
+
+### Notes
+- **Affected Users**: Anyone who ran v1.7.17 Apply
+- **Symptoms**: Outlook email search not working, File Explorer search slow/broken
+- **Quick Fix**: Run Fix-OutlookSearch.ps1 script (as Administrator)
+- **Prevention**: v1.7.18 won't set buggy key, Restore filters it from old backups
+
 ## [1.7.17] - 2025-11-03
 
 ### Added
