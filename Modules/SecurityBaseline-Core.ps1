@@ -2893,87 +2893,87 @@ function Test-BitLockerEncryptionMethod {
             # AMD Server: Opteron (before Bulldozer 2011)
             if ($cpuName -match "Core 2|Pentium(?! Gold)|Celeron|Atom") {
                 Write-Host ""
-                Write-Host "    [!] YOUR CPU:" -ForegroundColor Red
-                Write-Host "        - Supports ONLY AES-128 (no AES-NI support)" -ForegroundColor Red
-                Write-Host "        - AES-256 would be too slow on this hardware" -ForegroundColor Red
+                Write-Host "    $(Get-LocalizedString 'BitLockerCPUOldTitle')" -ForegroundColor Red
+                Write-Host "        $(Get-LocalizedString 'BitLockerCPUOldLine1')" -ForegroundColor Red
+                Write-Host "        $(Get-LocalizedString 'BitLockerCPUOldLine2')" -ForegroundColor Red
                 Write-Host ""
-                Write-Host "    [RECOMMENDATION] KEEP AES-128!" -ForegroundColor Yellow
-                Write-Host "                 (Optimal for your hardware)" -ForegroundColor Yellow
+                Write-Host "    $(Get-LocalizedString 'BitLockerCPUOldRecommend')" -ForegroundColor Yellow
+                Write-Host "                 $(Get-LocalizedString 'BitLockerCPUOldRecommendSub')" -ForegroundColor Yellow
                 Write-Host ""
-                Write-Info "AES-128 is secure! No upgrade needed on old hardware."
+                Write-Info "$(Get-LocalizedString 'BitLockerCPUOldInfo')"
                 return  # Exit function - do not show upgrade instructions!
             }
             # Intel Server old CPUs - Xeon 5500 and older
             elseif ($cpuName -match "Xeon.*(5[0-5]\d{2}|3[0-4]\d{2}|7[0-4]\d{2})") {
                 Write-Host ""
-                Write-Host "    [!] YOUR CPU:" -ForegroundColor Red
-                Write-Host "        - Supports ONLY AES-128 (no AES-NI support)" -ForegroundColor Red
+                Write-Host "    $(Get-LocalizedString 'BitLockerCPUOldTitle')" -ForegroundColor Red
+                Write-Host "        $(Get-LocalizedString 'BitLockerCPUOldLine1')" -ForegroundColor Red
                 Write-Host "        - Alter Intel Xeon (vor Westmere 2010)" -ForegroundColor Red
                 Write-Host ""
-                Write-Host "    [RECOMMENDATION] KEEP AES-128!" -ForegroundColor Yellow
-                Write-Host "                 (Optimal for your hardware)" -ForegroundColor Yellow
+                Write-Host "    $(Get-LocalizedString 'BitLockerCPUOldRecommend')" -ForegroundColor Yellow
+                Write-Host "                 $(Get-LocalizedString 'BitLockerCPUOldRecommendSub')" -ForegroundColor Yellow
                 Write-Host ""
-                Write-Info "AES-128 is secure! No upgrade needed on old hardware."
+                Write-Info "$(Get-LocalizedString 'BitLockerCPUOldInfo')"
                 return
             }
             # AMD Desktop old CPUs - explicit models
             elseif ($cpuName -match "Athlon 64|Athlon FX|Athlon II|Phenom") {
                 Write-Host ""
-                Write-Host "    [!] YOUR CPU:" -ForegroundColor Red
-                Write-Host "        - Supports ONLY AES-128 (no AES-NI support)" -ForegroundColor Red
-                Write-Host "        - AES-256 would be too slow on this hardware" -ForegroundColor Red
+                Write-Host "    $(Get-LocalizedString 'BitLockerCPUOldTitle')" -ForegroundColor Red
+                Write-Host "        $(Get-LocalizedString 'BitLockerCPUOldLine1')" -ForegroundColor Red
+                Write-Host "        $(Get-LocalizedString 'BitLockerCPUOldLine2')" -ForegroundColor Red
                 Write-Host ""
-                Write-Host "    [RECOMMENDATION] KEEP AES-128!" -ForegroundColor Yellow
-                Write-Host "                 (Optimal for your hardware)" -ForegroundColor Yellow
+                Write-Host "    $(Get-LocalizedString 'BitLockerCPUOldRecommend')" -ForegroundColor Yellow
+                Write-Host "                 $(Get-LocalizedString 'BitLockerCPUOldRecommendSub')" -ForegroundColor Yellow
                 Write-Host ""
-                Write-Info "AES-128 is secure! No upgrade needed on old hardware."
-                return  # Exit function - do not show upgrade instructions!
+                Write-Info "$(Get-LocalizedString 'BitLockerCPUOldInfo')"
+                return
             }
             # AMD Server old CPUs - Opteron (before Bulldozer 2011)
             elseif ($cpuName -match "Opteron" -and $cpuName -notmatch "Opteron.*(62|63|64|65|66|67|68|69)\d{2}") {
                 Write-Host ""
-                Write-Host "    [!] YOUR CPU:" -ForegroundColor Red
-                Write-Host "        - Supports ONLY AES-128 (no AES-NI support)" -ForegroundColor Red
+                Write-Host "    $(Get-LocalizedString 'BitLockerCPUOldTitle')" -ForegroundColor Red
+                Write-Host "        $(Get-LocalizedString 'BitLockerCPUOldLine1')" -ForegroundColor Red
                 Write-Host "        - Alter AMD Opteron (vor Bulldozer 2011)" -ForegroundColor Red
                 Write-Host ""
-                Write-Host "    [RECOMMENDATION] KEEP AES-128!" -ForegroundColor Yellow
-                Write-Host "                 (Optimal for your hardware)" -ForegroundColor Yellow
+                Write-Host "    $(Get-LocalizedString 'BitLockerCPUOldRecommend')" -ForegroundColor Yellow
+                Write-Host "                 $(Get-LocalizedString 'BitLockerCPUOldRecommendSub')" -ForegroundColor Yellow
                 Write-Host ""
-                Write-Info "AES-128 is secure! No upgrade needed on old hardware."
+                Write-Info "$(Get-LocalizedString 'BitLockerCPUOldInfo')"
                 return
             }
             # AMD generic Athlon (old without 64/II/FX), BUT NOT modern (Zen-based)
             elseif ($cpuName -match "\bAthlon\b" -and 
                     $cpuName -notmatch "Athlon\s+(Gold|Silver|[0-9]{3,4}[GU])") {
                 Write-Host ""
-                Write-Host "    [!] YOUR CPU:" -ForegroundColor Red
-                Write-Host "        - Supports ONLY AES-128 (no AES-NI support)" -ForegroundColor Red
+                Write-Host "    $(Get-LocalizedString 'BitLockerCPUOldTitle')" -ForegroundColor Red
+                Write-Host "        $(Get-LocalizedString 'BitLockerCPUOldLine1')" -ForegroundColor Red
                 Write-Host "        - Old AMD Athlon CPU" -ForegroundColor Red
                 Write-Host ""
-                Write-Host "    [RECOMMENDATION] KEEP AES-128!" -ForegroundColor Yellow
-                Write-Host "                 (Optimal for your hardware)" -ForegroundColor Yellow
+                Write-Host "    $(Get-LocalizedString 'BitLockerCPUOldRecommend')" -ForegroundColor Yellow
+                Write-Host "                 $(Get-LocalizedString 'BitLockerCPUOldRecommendSub')" -ForegroundColor Yellow
                 Write-Host ""
-                Write-Info "AES-128 is secure! No upgrade needed on old hardware."
+                Write-Info "$(Get-LocalizedString 'BitLockerCPUOldInfo')"
                 return
             }
             # Intel Core i Gen 2 (Sandy Bridge 2011) - last without AES-NI
             elseif ($cpuName -match "Core i[357]-2\d{3}(?!\d)") {
                 Write-Host ""
-                Write-Host "    [!] YOUR CPU:" -ForegroundColor Red
-                Write-Host "        - Supports ONLY AES-128 (no AES-NI support)" -ForegroundColor Red
+                Write-Host "    $(Get-LocalizedString 'BitLockerCPUOldTitle')" -ForegroundColor Red
+                Write-Host "        $(Get-LocalizedString 'BitLockerCPUOldLine1')" -ForegroundColor Red
                 Write-Host "        - Intel Sandy Bridge Gen 2 (2011)" -ForegroundColor Red
                 Write-Host ""
-                Write-Host "    [RECOMMENDATION] KEEP AES-128!" -ForegroundColor Yellow
-                Write-Host "                 (Optimal for your hardware)" -ForegroundColor Yellow
+                Write-Host "    $(Get-LocalizedString 'BitLockerCPUOldRecommend')" -ForegroundColor Yellow
+                Write-Host "                 $(Get-LocalizedString 'BitLockerCPUOldRecommendSub')" -ForegroundColor Yellow
                 Write-Host ""
-                Write-Info "AES-128 is secure! No upgrade needed on old hardware."
+                Write-Info "$(Get-LocalizedString 'BitLockerCPUOldInfo')"
                 return
             }
             else {
                 Write-Host ""
-                Write-Host "    [OK] YOUR CPU:" -ForegroundColor Green
-                Write-Host "         - Supports AES-256 (has AES-NI support)" -ForegroundColor Green
-                Write-Host "         - Modern hardware - AES-256 upgrade recommended!" -ForegroundColor Green
+                Write-Host "    $(Get-LocalizedString 'BitLockerCPUModernTitle')" -ForegroundColor Green
+                Write-Host "         $(Get-LocalizedString 'BitLockerCPUModernLine1')" -ForegroundColor Green
+                Write-Host "         $(Get-LocalizedString 'BitLockerCPUModernLine2')" -ForegroundColor Green
                 Write-Host ""
             }
         }
@@ -3016,10 +3016,10 @@ function Test-BitLockerEncryptionMethod {
         Write-Host "    $(Get-LocalizedString 'BitLockerUpgradeAltCmd2')" -ForegroundColor Gray
         Write-Host "    $(Get-LocalizedString 'BitLockerUpgradeAltCmd3')" -ForegroundColor Gray
         Write-Host ""
-        Write-Host "  NOTE:" -ForegroundColor Cyan
-        Write-Host "    Re-Encryption takes 30-90 minutes (depending on size)" -ForegroundColor White
-        Write-Host "    Connect laptop to power supply!" -ForegroundColor White
-        Write-Host "    For old CPUs: KEEP AES-128 (better performance)!" -ForegroundColor White
+        Write-Host "  $(Get-LocalizedString 'BitLockerUpgradeNoteTitle')" -ForegroundColor Cyan
+        Write-Host "    $(Get-LocalizedString 'BitLockerUpgradeNoteLine1')" -ForegroundColor White
+        Write-Host "    $(Get-LocalizedString 'BitLockerUpgradeNoteLine2')" -ForegroundColor White
+        Write-Host "    $(Get-LocalizedString 'BitLockerUpgradeNoteLine3')" -ForegroundColor White
         Write-Host ""
     }
     catch {

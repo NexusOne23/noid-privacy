@@ -1495,6 +1495,25 @@ $Global:Strings = @{
         BitLockerUpgradeAltCmd2 = "manage-bde -off C:           # Disable (takes time!)"
         BitLockerUpgradeAltCmd3 = "manage-bde -on C: -UsedSpaceOnly  # Enable with AES-256"
         
+        # BitLocker CPU Check - Old CPU Warning
+        BitLockerCPUOldTitle = "[!] YOUR CPU:"
+        BitLockerCPUOldLine1 = "- Supports ONLY AES-128 (no AES-NI support)"
+        BitLockerCPUOldLine2 = "- AES-256 would be too slow on this hardware"
+        BitLockerCPUOldRecommend = "[RECOMMENDATION] KEEP AES-128!"
+        BitLockerCPUOldRecommendSub = "(Optimal for your hardware)"
+        BitLockerCPUOldInfo = "AES-128 is secure! No upgrade needed on old hardware."
+        
+        # BitLocker CPU Check - Modern CPU
+        BitLockerCPUModernTitle = "[OK] YOUR CPU:"
+        BitLockerCPUModernLine1 = "- Supports AES-256 (has AES-NI support)"
+        BitLockerCPUModernLine2 = "- Modern hardware - AES-256 upgrade recommended!"
+        
+        # BitLocker Upgrade NOTE
+        BitLockerUpgradeNoteTitle = "NOTE:"
+        BitLockerUpgradeNoteLine1 = "Re-Encryption takes 30-90 minutes (depending on size)"
+        BitLockerUpgradeNoteLine2 = "Connect laptop to power supply!"
+        BitLockerUpgradeNoteLine3 = "For old CPUs: KEEP AES-128 (better performance)!"
+        
         # DNS Provider Menu
         DNSMenuTitle = "DNS PROVIDER SELECTION (DNS over HTTPS)"
         DNSMenuPrompt = "Choose your DNS-over-HTTPS provider:"
@@ -2997,6 +3016,25 @@ $Global:Strings = @{
         BitLockerUpgradeAltCmd1 = "manage-bde -status C:        # Status pruefen"
         BitLockerUpgradeAltCmd2 = "manage-bde -off C:           # Deaktivieren (dauert!)"
         BitLockerUpgradeAltCmd3 = "manage-bde -on C: -UsedSpaceOnly  # Aktivieren mit AES-256"
+        
+        # BitLocker CPU Check - Old CPU Warning
+        BitLockerCPUOldTitle = "[!] IHRE CPU:"
+        BitLockerCPUOldLine1 = "- Unterstuetzt NUR AES-128 (keine AES-NI Unterstuetzung)"
+        BitLockerCPUOldLine2 = "- AES-256 waere zu langsam auf dieser Hardware"
+        BitLockerCPUOldRecommend = "[EMPFEHLUNG] AES-128 BEIBEHALTEN!"
+        BitLockerCPUOldRecommendSub = "(Optimal fuer Ihre Hardware)"
+        BitLockerCPUOldInfo = "AES-128 ist sicher! Kein Upgrade noetig bei alter Hardware."
+        
+        # BitLocker CPU Check - Modern CPU
+        BitLockerCPUModernTitle = "[OK] IHRE CPU:"
+        BitLockerCPUModernLine1 = "- Unterstuetzt AES-256 (hat AES-NI Unterstuetzung)"
+        BitLockerCPUModernLine2 = "- Moderne Hardware - AES-256 Upgrade empfohlen!"
+        
+        # BitLocker Upgrade NOTE
+        BitLockerUpgradeNoteTitle = "HINWEIS:"
+        BitLockerUpgradeNoteLine1 = "Neu-Verschluesselung dauert 30-90 Minuten (abhaengig von Groesse)"
+        BitLockerUpgradeNoteLine2 = "Laptop an Netzteil anschliessen!"
+        BitLockerUpgradeNoteLine3 = "Fuer alte CPUs: AES-128 BEIBEHALTEN (bessere Performance)!"
         
         # DNS Provider Menu
         DNSMenuTitle = "DNS-ANBIETER AUSWAHL (DNS over HTTPS)"
