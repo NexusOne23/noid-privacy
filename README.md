@@ -5,7 +5,7 @@
 [![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-blue.svg)](https://github.com/PowerShell/PowerShell)
 [![Windows 11](https://img.shields.io/badge/Windows%2011-25H2-0078D4.svg)](https://www.microsoft.com/windows/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-1.7.18-blue.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.7.19-blue.svg)](CHANGELOG.md)
 
 ---
 
@@ -661,14 +661,14 @@ The authors are not responsible for any damage or data loss caused by this scrip
 
 ## 📈 Project Status
 
-**Current Version:** 1.7.18  
+**Current Version:** 1.7.19  
 **Last Updated:** November 4, 2025  
 **Status:** Production-Ready ✅
 
-### Recent Updates (v1.7.18)
-- ✅ **CRITICAL: Outlook Email Search Fixed** - Removed SetupCompletedSuccessfully key that broke Windows Search indexer
-- ✅ **CRITICAL: Restore-Script Compatibility** - Old backups now filtered, buggy key won't be re-introduced
-- ✅ **Fix-OutlookSearch.ps1 Added** - Manual fix script for users already affected by v1.7.17
+### Recent Updates (v1.7.19)
+- ✅ **Gaming Recommendations Improved** - Removed "Gamer = Option 2" statements, Security-First approach
+- ✅ **All Instructions Localized** - VBS, BitLocker, CPU-Check messages now fully DE+EN (72 strings)
+- ✅ **Gaming Troubleshooting Added** - Step-by-step guide in README for multiplayer issues
 - ✅ **Registry Count Corrected** - 391 keys (was 392) - SetupCompletedSuccessfully removed
 
 ### Previous Updates (v1.7.17)

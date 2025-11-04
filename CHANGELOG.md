@@ -5,6 +5,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.19] - 2025-11-04
+
+### Improved
+- **Gaming Recommendations Refined** - Removed pauschal "Gamer = Option 2" statements
+  - **Issue**: Remote-Menu suggested Option 2 (less strict) for ALL gamers
+  - **Reality**: 90% of multiplayer games only need outbound (work with Strict Mode)
+  - **Fix**: Präzise Formulierungen - "only if you explicitly need inbound connections"
+  - **Change**: Empfehlung jetzt "If unsure → Option 1" (Security-First!)
+  - **Affected**: Localization.ps1 (Remote Menu strings DE+EN), Verify-Script, DNS-Module
+  - **Result**: Keine pauschalen Gaming-Empfehlungen, bewusste Entscheidung für User
+  - **User Feedback**: Gaming recommendations too broad, security-first approach needed
+  - **Commits**: `70b9173`, `990ac76`
+
+### Added
+- **All Instructions Fully Localized** - VBS, BitLocker, CPU-Check messages (72 strings)
+  - **VBS POST-REBOOT Verification**: 10 strings (DE+EN) - Anleitung nach Neustart
+  - **BitLocker NOT ACTIVE Warning**: 11 strings (DE+EN) - Manuelle Aktivierung
+  - **BitLocker AES-256 Upgrade**: 33 strings (DE+EN) - 3 Methoden + PowerShell Alternative
+  - **CPU-Check Messages**: 18 strings (DE+EN) - Old CPU warnings + Modern CPU + NOTE
+  - **Files**: SecurityBaseline-Localization.ps1, SecurityBaseline-Core.ps1
+  - **Result**: Alle wichtigen Anleitungen jetzt sprachunabhängig (DE/EN)
+  - **Total**: 72 neue Strings, 231 code insertions
+  - **Commits**: `990ac76`, `78afd3e`
+
+- **Gaming Troubleshooting Section** - README.md
+  - **New Section**: "🎮 Gaming & Multiplayer Issues" in Troubleshooting
+  - **Content**: Security-First approach, step-by-step guide, game examples
+  - **Explains**: Try Strict Mode first (works for 90%), Option 2 only if needed
+  - **Examples**: Fortnite/Valorant/CoD work with Strict, Minecraft hosting needs Option 2
+  - **Commit**: `70b9173`
+
 ## [1.7.18] - 2025-11-04
 
 ### Fixed

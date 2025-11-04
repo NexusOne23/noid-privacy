@@ -24,7 +24,7 @@
     - Privacy Settings: 300+ (158 reg keys + 37 permissions + 30 tasks + 9 AI + 80+ apps + more)
     
 .NOTES
-    Version:        1.7.18
+    Version:        1.7.19
     Baseline:       Microsoft Security Baseline 25H2 (September 30, 2025)
     Author:         NoID Privacy Project
     Last Updated:   November 4, 2025
@@ -1329,7 +1329,7 @@ Write-Host "               Maximum Security + Privacy + Performance" -Foreground
 Write-Host "" -ForegroundColor Cyan
 Write-Host "=============================================================================" -ForegroundColor Cyan
 Write-Host ""
-Write-Host "  Version: 1.7.18 | Modus: $Mode" -ForegroundColor Cyan
+Write-Host "  Version: 1.7.19 | Modus: $Mode" -ForegroundColor Cyan
 if ($Interactive) {
     Write-Host "  Mode: Interactive Menu" -ForegroundColor Cyan
 }

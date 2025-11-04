@@ -1028,9 +1028,9 @@ if ($backup.Settings.RegistryBackup) {
     # Initialize failed keys array (used by Restore-SpecificRegistryKeys for error tracking)
     $script:FailedRegistryKeys = @()
     
-    # CRITICAL SAFEGUARD v1.7.18: Filter out SetupCompletedSuccessfully from old backups
+    # CRITICAL SAFEGUARD v1.7.18+: Filter out SetupCompletedSuccessfully from old backups
     # This key was removed in v1.7.18 because it breaks Windows Search and Outlook email search
-    # Old backups (v1.7.17) may still contain this key with value=0 which would re-introduce the bug
+    # Old backups (v1.7.17 and earlier) may still contain this key with value=0 which would re-introduce the bug
     $filteredBackup = @()
     $filteredCount = 0
     
