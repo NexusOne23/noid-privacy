@@ -58,14 +58,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - **Result**: Old backups safe to restore, bug won't be re-introduced
   - **Commit**: `732509c`
 
-### Added
-- **Fix-OutlookSearch.ps1** - Manual fix script for affected users
-  - **Purpose**: Fix Windows Search for users who already applied v1.7.17
-  - **Actions**: Sets SetupCompletedSuccessfully = 1, restarts WSearch service
-  - **Guidance**: Includes instructions for Outlook index rebuild
-  - **Usage**: Run as Administrator, automatic fix + manual steps
-  - **Commit**: `dd9ef13`
-
 ### Changed
 - **Registry Key Count Updated** - 391 keys (was 392)
   - **Removed**: SetupCompletedSuccessfully (breaks Windows Search)
@@ -78,7 +70,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Notes
 - **Affected Users**: Anyone who ran v1.7.17 Apply
 - **Symptoms**: Outlook email search not working, File Explorer search slow/broken
-- **Quick Fix**: Run Fix-OutlookSearch.ps1 script (as Administrator)
 - **Prevention**: v1.7.18 won't set buggy key, Restore filters it from old backups
 
 ## [1.7.17] - 2025-11-03

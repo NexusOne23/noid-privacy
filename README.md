@@ -676,7 +676,6 @@ The authors are not responsible for any damage or data loss caused by this scrip
 ### v1.7.18
 - ✅ **CRITICAL: Outlook Email Search Fixed** - Removed SetupCompletedSuccessfully key that broke Windows Search indexer
 - ✅ **CRITICAL: Restore-Script Compatibility** - Old backups now filtered, buggy key won't be re-introduced
-- ✅ **Fix-OutlookSearch.ps1 Added** - Manual fix script for users already affected by v1.7.17
 - ✅ **Registry Count Corrected** - 391 keys (was 392) - SetupCompletedSuccessfully removed
 
 ### v1.7.17
