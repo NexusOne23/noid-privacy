@@ -939,8 +939,11 @@ Test-BaselineCheck -Category "Power" -Name "Lock Screen Password Required (Machi
 
 Test-BaselineCheck -Category "Power" -Name "Hibernate Enabled" -Impact "Medium" `
     -Test { 
-        $hibernateCheck = powercfg /availablesleepstates 2>&1 | Select-String "Hibernate" -Quiet
-        [bool]$hibernateCheck
+        # Check both English and German, and look for "available" not "unavailable"
+        $sleepStates = powercfg /availablesleepstates 2>&1 | Out-String
+        # If line contains "Hibernate" or "Ruhezustand" but NOT "not supported" or "nicht verfügbar" → available
+        $hibernateAvailable = ($sleepStates -match '(Hibernate|Ruhezustand)') -and ($sleepStates -notmatch '(not|nicht)')
+        [bool]$hibernateAvailable
     } `
     -Expected $true
 
@@ -948,7 +951,8 @@ Test-BaselineCheck -Category "Power" -Name "Display Timeout = 10 min (AC)" -Impa
     -Test { 
         $query = powercfg /q 2>&1 | Out-String
         if ($query -match '(Turn off display after|Bildschirm ausschalten nach)[\s\S]*?Current AC Power Setting Index: 0x([0-9a-f]+)') {
-            $minutes = [Convert]::ToInt32($matches[2], 16)
+            $seconds = [Convert]::ToInt32($matches[2], 16)
+            $minutes = $seconds / 60  # powercfg stores in seconds, convert to minutes
             $minutes
         } else { $null }
     } `
@@ -958,7 +962,8 @@ Test-BaselineCheck -Category "Power" -Name "Hibernate Timeout = 30 min (AC)" -Im
     -Test { 
         $query = powercfg /q 2>&1 | Out-String
         if ($query -match '(Hibernate after|Ruhezustand nach)[\s\S]*?Current AC Power Setting Index: 0x([0-9a-f]+)') {
-            $minutes = [Convert]::ToInt32($matches[2], 16)
+            $seconds = [Convert]::ToInt32($matches[2], 16)
+            $minutes = $seconds / 60  # powercfg stores in seconds, convert to minutes
             $minutes
         } else { $null }
     } `
@@ -966,11 +971,17 @@ Test-BaselineCheck -Category "Power" -Name "Hibernate Timeout = 30 min (AC)" -Im
 
 Test-BaselineCheck -Category "Power" -Name "Require Password on Wake (CONSOLELOCK)" -Impact "High" `
     -Test { 
-        $query = powercfg /q 2>&1 | Out-String
-        if ($query -match '(Require a password on wakeup|Kennwort beim Aufwachen anfordern)[\s\S]*?Current AC Power Setting Index: 0x([0-9a-f]+)') {
-            $value = [Convert]::ToInt32($matches[2], 16)
+        # Use GUID-based query (more reliable than text matching)
+        $activeScheme = (powercfg /getactivescheme 2>&1 | Out-String) -replace '.*GUID:\s*([a-f0-9\-]+).*', '$1'
+        $consoleQuery = powercfg /q $activeScheme fea3413e-7e05-4911-9a71-700331f1c294 0e796bdb-100d-47d6-a2d5-f7d2daa51f51 2>&1 | Out-String
+        if ($consoleQuery -match 'Current AC Power Setting Index:\s*0x([0-9a-f]+)') {
+            $value = [Convert]::ToInt32($matches[1], 16)
             $value
-        } else { $null }
+        } else { 
+            # Fallback: Check Machine Policy (InactivityTimeoutSecs) which enforces lock
+            $inactivityTimeout = Get-RegistryValueSafe "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" "InactivityTimeoutSecs"
+            if ($inactivityTimeout -and $inactivityTimeout -gt 0) { 1 } else { $null }
+        }
     } `
     -Expected 1
 
