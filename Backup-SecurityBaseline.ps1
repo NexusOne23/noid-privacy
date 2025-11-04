@@ -1058,44 +1058,44 @@ try {
         # Query detailed settings for the active scheme
         $query = powercfg /query $($powerBackup.Settings.ActiveSchemeGUID)
         
-        # Parse Monitor Timeout (AC)
-        if ($query -match 'Turn off display after[\s\S]*?Current AC Power Setting Index: 0x([0-9a-f]+)') {
-            $powerBackup.Settings.MonitorTimeoutAC = [Convert]::ToInt32($matches[1], 16)
+        # Parse Monitor Timeout (AC) - Support both English and German
+        if ($query -match '(Turn off display after|Bildschirm ausschalten nach)[\s\S]*?Current AC Power Setting Index: 0x([0-9a-f]+)') {
+            $powerBackup.Settings.MonitorTimeoutAC = [Convert]::ToInt32($matches[2], 16)
         }
         
-        # Parse Monitor Timeout (DC/Battery)
-        if ($query -match 'Turn off display after[\s\S]*?Current DC Power Setting Index: 0x([0-9a-f]+)') {
-            $powerBackup.Settings.MonitorTimeoutDC = [Convert]::ToInt32($matches[1], 16)
+        # Parse Monitor Timeout (DC/Battery) - Support both English and German
+        if ($query -match '(Turn off display after|Bildschirm ausschalten nach)[\s\S]*?Current DC Power Setting Index: 0x([0-9a-f]+)') {
+            $powerBackup.Settings.MonitorTimeoutDC = [Convert]::ToInt32($matches[2], 16)
         }
         
-        # Parse Sleep/Standby Timeout (AC)
-        if ($query -match 'Sleep after[\s\S]*?Current AC Power Setting Index: 0x([0-9a-f]+)') {
-            $powerBackup.Settings.StandbyTimeoutAC = [Convert]::ToInt32($matches[1], 16)
+        # Parse Sleep/Standby Timeout (AC) - Support both English and German
+        if ($query -match '(Sleep after|Energie sparen nach|Standbymodus nach)[\s\S]*?Current AC Power Setting Index: 0x([0-9a-f]+)') {
+            $powerBackup.Settings.StandbyTimeoutAC = [Convert]::ToInt32($matches[2], 16)
         }
         
-        # Parse Sleep/Standby Timeout (DC)
-        if ($query -match 'Sleep after[\s\S]*?Current DC Power Setting Index: 0x([0-9a-f]+)') {
-            $powerBackup.Settings.StandbyTimeoutDC = [Convert]::ToInt32($matches[1], 16)
+        # Parse Sleep/Standby Timeout (DC) - Support both English and German
+        if ($query -match '(Sleep after|Energie sparen nach|Standbymodus nach)[\s\S]*?Current DC Power Setting Index: 0x([0-9a-f]+)') {
+            $powerBackup.Settings.StandbyTimeoutDC = [Convert]::ToInt32($matches[2], 16)
         }
         
-        # Parse Hibernate Timeout (AC)
-        if ($query -match 'Hibernate after[\s\S]*?Current AC Power Setting Index: 0x([0-9a-f]+)') {
-            $powerBackup.Settings.HibernateTimeoutAC = [Convert]::ToInt32($matches[1], 16)
+        # Parse Hibernate Timeout (AC) - Support both English and German
+        if ($query -match '(Hibernate after|Ruhezustand nach)[\s\S]*?Current AC Power Setting Index: 0x([0-9a-f]+)') {
+            $powerBackup.Settings.HibernateTimeoutAC = [Convert]::ToInt32($matches[2], 16)
         }
         
-        # Parse Hibernate Timeout (DC)
-        if ($query -match 'Hibernate after[\s\S]*?Current DC Power Setting Index: 0x([0-9a-f]+)') {
-            $powerBackup.Settings.HibernateTimeoutDC = [Convert]::ToInt32($matches[1], 16)
+        # Parse Hibernate Timeout (DC) - Support both English and German
+        if ($query -match '(Hibernate after|Ruhezustand nach)[\s\S]*?Current DC Power Setting Index: 0x([0-9a-f]+)') {
+            $powerBackup.Settings.HibernateTimeoutDC = [Convert]::ToInt32($matches[2], 16)
         }
         
-        # Parse CONSOLELOCK (Require password on wake) - AC
-        if ($query -match 'Require a password on wakeup[\s\S]*?Current AC Power Setting Index: 0x([0-9a-f]+)') {
-            $powerBackup.Settings.ConsoleLockAC = [Convert]::ToInt32($matches[1], 16)
+        # Parse CONSOLELOCK (Require password on wake) - AC - Support both English and German
+        if ($query -match '(Require a password on wakeup|Kennwort beim Aufwachen anfordern)[\s\S]*?Current AC Power Setting Index: 0x([0-9a-f]+)') {
+            $powerBackup.Settings.ConsoleLockAC = [Convert]::ToInt32($matches[2], 16)
         }
         
-        # Parse CONSOLELOCK (Require password on wake) - DC
-        if ($query -match 'Require a password on wakeup[\s\S]*?Current DC Power Setting Index: 0x([0-9a-f]+)') {
-            $powerBackup.Settings.ConsoleLockDC = [Convert]::ToInt32($matches[1], 16)
+        # Parse CONSOLELOCK (Require password on wake) - DC - Support both English and German
+        if ($query -match '(Require a password on wakeup|Kennwort beim Aufwachen anfordern)[\s\S]*?Current DC Power Setting Index: 0x([0-9a-f]+)') {
+            $powerBackup.Settings.ConsoleLockDC = [Convert]::ToInt32($matches[2], 16)
         }
         
         # Check if Hibernate is enabled
@@ -1104,8 +1104,15 @@ try {
         
         $powerBackup.Enabled = $true
         Write-Host "  [OK] Power settings backed up (Scheme: $($powerBackup.Settings.ActiveSchemeGUID))" -ForegroundColor Green
-        Write-Verbose "    Monitor Timeout AC: $($powerBackup.Settings.MonitorTimeoutAC) min"
-        Write-Verbose "    Hibernate Timeout AC: $($powerBackup.Settings.HibernateTimeoutAC) min"
+        
+        # Safe property access for verbose output
+        $props = $powerBackup.Settings.PSObject.Properties.Name
+        if ('MonitorTimeoutAC' -in $props) {
+            Write-Verbose "    Monitor Timeout AC: $($powerBackup.Settings.MonitorTimeoutAC) min"
+        }
+        if ('HibernateTimeoutAC' -in $props) {
+            Write-Verbose "    Hibernate Timeout AC: $($powerBackup.Settings.HibernateTimeoutAC) min"
+        }
     }
     else {
         Write-Host "  [WARNING] Could not detect active power scheme" -ForegroundColor Yellow

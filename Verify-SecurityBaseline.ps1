@@ -947,8 +947,8 @@ Test-BaselineCheck -Category "Power" -Name "Hibernate Enabled" -Impact "Medium" 
 Test-BaselineCheck -Category "Power" -Name "Display Timeout = 10 min (AC)" -Impact "Low" `
     -Test { 
         $query = powercfg /q 2>&1 | Out-String
-        if ($query -match 'Turn off display after[\s\S]*?Current AC Power Setting Index: 0x([0-9a-f]+)') {
-            $minutes = [Convert]::ToInt32($matches[1], 16)
+        if ($query -match '(Turn off display after|Bildschirm ausschalten nach)[\s\S]*?Current AC Power Setting Index: 0x([0-9a-f]+)') {
+            $minutes = [Convert]::ToInt32($matches[2], 16)
             $minutes
         } else { $null }
     } `
@@ -957,8 +957,8 @@ Test-BaselineCheck -Category "Power" -Name "Display Timeout = 10 min (AC)" -Impa
 Test-BaselineCheck -Category "Power" -Name "Hibernate Timeout = 30 min (AC)" -Impact "Medium" `
     -Test { 
         $query = powercfg /q 2>&1 | Out-String
-        if ($query -match 'Hibernate after[\s\S]*?Current AC Power Setting Index: 0x([0-9a-f]+)') {
-            $minutes = [Convert]::ToInt32($matches[1], 16)
+        if ($query -match '(Hibernate after|Ruhezustand nach)[\s\S]*?Current AC Power Setting Index: 0x([0-9a-f]+)') {
+            $minutes = [Convert]::ToInt32($matches[2], 16)
             $minutes
         } else { $null }
     } `
@@ -967,8 +967,8 @@ Test-BaselineCheck -Category "Power" -Name "Hibernate Timeout = 30 min (AC)" -Im
 Test-BaselineCheck -Category "Power" -Name "Require Password on Wake (CONSOLELOCK)" -Impact "High" `
     -Test { 
         $query = powercfg /q 2>&1 | Out-String
-        if ($query -match 'Require a password on wakeup[\s\S]*?Current AC Power Setting Index: 0x([0-9a-f]+)') {
-            $value = [Convert]::ToInt32($matches[1], 16)
+        if ($query -match '(Require a password on wakeup|Kennwort beim Aufwachen anfordern)[\s\S]*?Current AC Power Setting Index: 0x([0-9a-f]+)') {
+            $value = [Convert]::ToInt32($matches[2], 16)
             $value
         } else { $null }
     } `
