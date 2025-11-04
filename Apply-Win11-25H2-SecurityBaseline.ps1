@@ -1305,7 +1305,7 @@ if ($Interactive -and -not (Test-HasSelectedModules)) {
 
 # CRITICAL FIX: Set transcript path before starting transcript!
 $timestamp = Get-Date -Format 'yyyyMMdd-HHmmss'
-$script:transcriptPath = Join-Path $LogPath "SecurityBaseline-$Mode-$timestamp.log"
+$script:transcriptPath = Join-Path $LogPath "Apply-$Mode-$timestamp.log"
 
 try {
     # Best Practice 25H2: Unique filenames prevent accidental overwrites

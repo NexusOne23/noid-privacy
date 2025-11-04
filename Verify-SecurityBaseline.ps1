@@ -87,7 +87,7 @@ if (-not (Test-Path $LogPath)) {
 }
 
 $timestamp = Get-Date -Format 'yyyyMMdd-HHmmss'
-$script:transcriptPath = Join-Path $LogPath "Verify-SecurityBaseline-$timestamp.log"
+$script:transcriptPath = Join-Path $LogPath "Verify-$timestamp.log"
 
 try {
     Start-Transcript -Path $script:transcriptPath -ErrorAction Stop
