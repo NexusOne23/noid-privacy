@@ -105,6 +105,17 @@ catch {
 $script:transcriptPath = ""
 $script:transcriptStarted = $false
 
+# Load Localization Module FIRST (needed for transcript messages!)
+$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+try {
+    . "$scriptDir\Modules\SecurityBaseline-Localization.ps1"
+}
+catch {
+    Write-Warning "Could not load localization module: $_"
+    # Fallback to English
+    $Global:CurrentLanguage = 'en'
+}
+
 if (-not (Test-Path $LogPath)) {
     $null = New-Item -Path $LogPath -ItemType Directory -Force
 }
@@ -114,21 +125,11 @@ $script:transcriptPath = Join-Path $LogPath "Restore-$timestamp.log"
 try {
     Start-Transcript -Path $script:transcriptPath -ErrorAction Stop
     $script:transcriptStarted = $true
-    Write-Verbose "Transcript started: $script:transcriptPath"
+    Write-Verbose "$(Get-LocalizedString 'VerboseTranscriptStarted' $script:transcriptPath)"
 }
 catch {
-    Write-Warning "Could not start transcript: $_"
-}
-
-# Load Localization Module
-$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
-try {
-    . "$scriptDir\Modules\SecurityBaseline-Localization.ps1"
-}
-catch {
-    Write-Warning "Could not load localization module: $_"
-    # Fallback to English
-    $Global:CurrentLanguage = 'en'
+    Write-Warning "$(Get-LocalizedString 'WarningTranscriptFailed' $_)"
+    Write-Warning "$(Get-LocalizedString 'WarningTranscriptContinue')"
 }
 
 # Load Optimized Registry Backup Functions (v2.0)
@@ -206,20 +207,6 @@ Write-Host "`n==================================================================
 Write-Host "           $(Get-LocalizedString 'RestoreBanner')" -ForegroundColor Yellow
 Write-Host "============================================================================`n" -ForegroundColor Yellow
 
-# Create log directory
-if (-not (Test-Path $LogPath)) {
-    $null = New-Item -Path $LogPath -ItemType Directory -Force
-}
-
-# Start transcript
-$transcriptPath = Join-Path $LogPath "Restore-$timestamp.log"
-try {
-    Start-Transcript -Path $transcriptPath -Append -ErrorAction Stop
-}
-catch {
-    Write-Warning "Transcript konnte nicht gestartet werden: $_"
-}
-
 #region Backup File Selection
 if (-not $BackupFile) {
     Write-Host "[i] $(Get-LocalizedString 'RestoreSearching')" -ForegroundColor Cyan
@@ -234,7 +221,10 @@ if (-not $BackupFile) {
             Write-Host "[ERROR] $(Get-LocalizedString 'RestoreNoneFound') $backupPath" -ForegroundColor Red
             Write-Host ""
             Write-Host "$(Get-LocalizedString 'RestoreCreateFirst')" -ForegroundColor Yellow
-            Stop-Transcript -ErrorAction SilentlyContinue
+            
+            if ($script:transcriptStarted) {
+                try { Stop-Transcript -ErrorAction SilentlyContinue } catch { }
+            }
             exit 1
         }
         
@@ -293,7 +283,10 @@ if (-not $BackupFile) {
         
         if ($selection -eq '0' -or [string]::IsNullOrWhiteSpace($selection)) {
             Write-Host "$(Get-LocalizedString 'RestoreCancelled')" -ForegroundColor Yellow
-            Stop-Transcript -ErrorAction SilentlyContinue
+            
+            if ($script:transcriptStarted) {
+                try { Stop-Transcript -ErrorAction SilentlyContinue } catch { }
+            }
             exit 0
         }
         
@@ -303,20 +296,29 @@ if (-not $BackupFile) {
         }
         else {
             Write-Host "[ERROR] $(Get-LocalizedString 'RestoreInvalidSelection')" -ForegroundColor Red
-            Stop-Transcript -ErrorAction SilentlyContinue
+            
+            if ($script:transcriptStarted) {
+                try { Stop-Transcript -ErrorAction SilentlyContinue } catch { }
+            }
             exit 1
         }
     }
     else {
         Write-Host "[ERROR] $(Get-LocalizedString 'RestoreNoneFound') $backupPath" -ForegroundColor Red
-        Stop-Transcript -ErrorAction SilentlyContinue
+        
+        if ($script:transcriptStarted) {
+            try { Stop-Transcript -ErrorAction SilentlyContinue } catch { }
+        }
         exit 1
     }
 }
 
 if (-not (Test-Path $BackupFile)) {
     Write-Host "[ERROR] $(Get-LocalizedString 'RestoreNotFound') $BackupFile" -ForegroundColor Red
-    Stop-Transcript -ErrorAction SilentlyContinue
+    
+    if ($script:transcriptStarted) {
+        try { Stop-Transcript -ErrorAction SilentlyContinue } catch { }
+    }
     exit 1
 }
 #endregion
@@ -346,7 +348,10 @@ catch {
     Write-Host "  - $(Get-LocalizedString 'RestoreLoadInvalid')" -ForegroundColor Gray
     Write-Host "  - $(Get-LocalizedString 'RestoreLoadModified')" -ForegroundColor Gray
     Write-Host ""
-    Stop-Transcript -ErrorAction SilentlyContinue
+    
+    if ($script:transcriptStarted) {
+        try { Stop-Transcript -ErrorAction SilentlyContinue } catch { }
+    }
     exit 1
 }
 
@@ -374,7 +379,10 @@ $confirm = Read-Host
 
 if ($confirm -ne 'J' -and $confirm -ne 'j' -and $confirm -ne 'Y' -and $confirm -ne 'y') {
     Write-Host "$(Get-LocalizedString 'RestoreCancelled')" -ForegroundColor Yellow
-    Stop-Transcript -ErrorAction SilentlyContinue
+    
+    if ($script:transcriptStarted) {
+        try { Stop-Transcript -ErrorAction SilentlyContinue } catch { }
+    }
     exit 0
 }
 
@@ -1764,7 +1772,6 @@ if ($backup.Settings.ExploitProtection -and $backup.Settings.ExploitProtection.E
             }
             else {
                 $mitigationsSet = 0
-                $mitigationsFailed = 0
                 
                 # Helper function to restore a mitigation based on backup state
                 $restoreMitigation = {

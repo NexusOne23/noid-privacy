@@ -197,6 +197,27 @@ else {
     Write-Verbose "Language from parent script: $Global:CurrentLanguage"
 }
 
+# ===== START TRANSCRIPT LOGGING (Best Practice 25H2) =====
+$script:transcriptPath = ""
+$script:transcriptStarted = $false
+
+$logDir = "$env:ProgramData\SecurityBaseline\Logs"
+if (-not (Test-Path $logDir)) {
+    $null = New-Item -Path $logDir -ItemType Directory -Force
+}
+
+$script:transcriptPath = Join-Path $logDir "Backup-$timestamp.log"
+
+try {
+    Start-Transcript -Path $script:transcriptPath -Force -ErrorAction Stop
+    $script:transcriptStarted = $true
+    Write-Verbose "$(Get-LocalizedString 'VerboseTranscriptStarted' $script:transcriptPath)"
+}
+catch {
+    Write-Warning "$(Get-LocalizedString 'WarningTranscriptFailed' $_)"
+    Write-Warning "$(Get-LocalizedString 'WarningTranscriptContinue')"
+}
+
 Write-Host "`n============================================================================" -ForegroundColor Cyan
 Write-Host "           $(Get-LocalizedString 'BackupBanner')" -ForegroundColor Cyan
 Write-Host "============================================================================`n" -ForegroundColor Cyan
@@ -1241,6 +1262,17 @@ try {
     Write-Host "[OK] $(Get-LocalizedString 'BackupConfirmed')" -ForegroundColor Green
     Write-Host ""
     
+    # Stop transcript logging
+    if ($script:transcriptStarted) {
+        try {
+            Stop-Transcript -ErrorAction SilentlyContinue | Out-Null
+            Write-Host "[i] Log saved: $script:transcriptPath" -ForegroundColor Cyan
+        }
+        catch {
+            # Ignore transcript stop errors
+        }
+    }
+    
     # Set exit code and return (for dot-sourcing)
     $Global:LASTEXITCODE = 0
     return
@@ -1284,6 +1316,18 @@ catch {
         Write-Host "$(Get-LocalizedString 'BackupErrorUserContinues')" -ForegroundColor Yellow
         Write-Host "$(Get-LocalizedString 'BackupErrorNoSafetyNet')" -ForegroundColor Yellow
         Write-Host ""
+        
+        # Stop transcript logging
+        if ($script:transcriptStarted) {
+            try {
+                Stop-Transcript -ErrorAction SilentlyContinue | Out-Null
+                Write-Host "[i] Log saved: $script:transcriptPath" -ForegroundColor Cyan
+            }
+            catch {
+                # Ignore transcript stop errors
+            }
+        }
+        
         # Set exit code and return (for dot-sourcing)
         $Global:LASTEXITCODE = 0
         return
@@ -1292,6 +1336,18 @@ catch {
         Write-Host "$(Get-LocalizedString 'BackupErrorUserAborted')" -ForegroundColor Green
         Write-Host "$(Get-LocalizedString 'BackupErrorWillNotContinue')" -ForegroundColor Green
         Write-Host ""
+        
+        # Stop transcript logging
+        if ($script:transcriptStarted) {
+            try {
+                Stop-Transcript -ErrorAction SilentlyContinue | Out-Null
+                Write-Host "[i] Log saved: $script:transcriptPath" -ForegroundColor Cyan
+            }
+            catch {
+                # Ignore transcript stop errors
+            }
+        }
+        
         # Set exit code and return (for dot-sourcing)
         $Global:LASTEXITCODE = 1
         return

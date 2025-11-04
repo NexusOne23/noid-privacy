@@ -69,6 +69,17 @@ catch {
 $script:transcriptPath = ""
 $script:transcriptStarted = $false
 
+# Load Localization Module FIRST (needed for transcript messages!)
+$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+try {
+    . "$scriptDir\Modules\SecurityBaseline-Localization.ps1"
+}
+catch {
+    Write-Warning "Could not load localization module: $_"
+    # Fallback to English
+    $Global:CurrentLanguage = 'en'
+}
+
 # Start Transcript for audit trail
 $LogPath = "$env:ProgramData\SecurityBaseline\Logs"
 if (-not (Test-Path $LogPath)) {
@@ -81,10 +92,11 @@ $script:transcriptPath = Join-Path $LogPath "Verify-SecurityBaseline-$timestamp.
 try {
     Start-Transcript -Path $script:transcriptPath -ErrorAction Stop
     $script:transcriptStarted = $true
-    Write-Verbose "Transcript started: $script:transcriptPath"
+    Write-Verbose "$(Get-LocalizedString 'VerboseTranscriptStarted' $script:transcriptPath)"
 }
 catch {
-    Write-Warning "Could not start transcript: $_"
+    Write-Warning "$(Get-LocalizedString 'WarningTranscriptFailed' $_)"
+    Write-Warning "$(Get-LocalizedString 'WarningTranscriptContinue')"
 }
 
 Write-Host "`n================================================================" -ForegroundColor Cyan
