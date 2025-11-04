@@ -367,8 +367,8 @@ function Disable-BackgroundActivities {
         Set-RegistryValue -Path $cortanaPath -Name "AllowCortana" -Value 0 -Type DWord `
             -Description "Cortana deaktivieren"
         
-        Set-RegistryValue -Path $cortanaPath -Name "DisableWebSearch" -Value 1 -Type DWord `
-            -Description "Web-Suche deaktivieren (nur lokal)"
+        # REMOVED: DisableWebSearch = 1 (blocks Settings app search!)
+        # Web is still blocked by ConnectedSearchUseWeb in Telemetry module
         
         Set-RegistryValue -Path $cortanaPath -Name "ConnectedSearchUseWeb" -Value 0 -Type DWord `
             -Description "Connected Search Web deaktivieren"

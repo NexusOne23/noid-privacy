@@ -1923,14 +1923,8 @@ $script:RegistryChanges = @(
         Description = 'Cortana deaktivieren'
         File = 'SecurityBaseline-Performance.ps1'
     },
-    @{
-        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Search'
-        Name = 'DisableWebSearch'
-        Type = 'DWord'
-        ApplyValue = 1
-        Description = 'Web-Suche deaktivieren (nur lokal)'
-        File = 'SecurityBaseline-Performance.ps1'
-    },
+    # REMOVED: DisableWebSearch (blocks Settings app search!)
+    # Web search still blocked by: ConnectedSearchUseWeb, BingSearchEnabled, AllowCloudSearch
     @{
         Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Search'
         Name = 'ConnectedSearchUseWeb'
@@ -2259,14 +2253,8 @@ $script:RegistryChanges = @(
         Description = 'Cortana deaktivieren'
         File = 'SecurityBaseline-Telemetry.ps1'
     },
-    @{
-        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Search'
-        Name = 'DisableWebSearch'
-        Type = 'DWord'
-        ApplyValue = 1
-        Description = 'Web-Suche deaktivieren'
-        File = 'SecurityBaseline-Telemetry.ps1'
-    },
+    # REMOVED: DisableWebSearch (blocks Settings app search!)
+    # Web search still blocked by: ConnectedSearchUseWeb, BingSearchEnabled, AllowCloudSearch
     @{
         Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Search'
         Name = 'ConnectedSearchUseWeb'

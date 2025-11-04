@@ -666,7 +666,8 @@ function Disable-WindowsSearchWebFeatures {
     $searchPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Search"
     
     Set-RegistryValue -Path $searchPath -Name "AllowCortana" -Value 0 -Type DWord -Description "Cortana deaktivieren"
-    Set-RegistryValue -Path $searchPath -Name "DisableWebSearch" -Value 1 -Type DWord -Description "Web-Suche deaktivieren"
+    # REMOVED: DisableWebSearch = 1 (blocks Settings app search!)
+    # Web search is still blocked by: ConnectedSearchUseWeb, BingSearchEnabled, AllowCloudSearch
     Set-RegistryValue -Path $searchPath -Name "ConnectedSearchUseWeb" -Value 0 -Type DWord -Description "Connected Search Web deaktivieren"
     Set-RegistryValue -Path $searchPath -Name "BingSearchEnabled" -Value 0 -Type DWord -Description "Bing-Integration deaktivieren"
     Set-RegistryValue -Path $searchPath -Name "EnableDynamicContentInWSB" -Value 0 -Type DWord -Description "Search Highlights deaktivieren"
