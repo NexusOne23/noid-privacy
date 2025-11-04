@@ -2288,83 +2288,93 @@ if ($backup.Settings.PSObject.Properties.Name -contains 'PowerManagement' -and $
     try {
         $power = $backup.Settings.PowerManagement.Settings
         
-        # Get current active scheme GUID
-        $activeScheme = powercfg /getactivescheme
-        if ($activeScheme -match '([0-9a-f-]{36})') {
-            $schemeGUID = $matches[1]
+        # CRITICAL: Check if Settings object exists and has properties
+        if (-not $power -or -not $power.PSObject.Properties) {
+            Write-Host "  [i] Power settings empty in backup (not configured before Apply)" -ForegroundColor Gray
+            Write-Host "  [OK] Skipping power settings restore (nothing to restore)" -ForegroundColor Green
+        }
+        else {
+            # Get property list for safe access (prevent PropertyNotFoundException)
+            $powerProps = $power.PSObject.Properties.Name
             
-            # Power Scheme GUIDs (constants - same as Apply script)
-            $SUB_VIDEO = "7516b95f-f776-4464-8c53-06167f40cc99"        # Display settings
-            $SUB_SLEEP = "238c9fa8-0aad-41ed-83f4-97be242c8f20"        # Sleep/Hibernate settings
-            $SUB_NONE = "fea3413e-7e05-4911-9a71-700331f1c294"         # Global settings
-            $VIDEOIDLE = "3c0bc021-c8a8-4e07-a973-6b14cbcb2b7e"        # Monitor timeout
-            $STANDBYIDLE = "29f6c1db-86da-48c5-9fdb-f2b67b1f44da"      # Sleep timeout
-            $HIBERNATEIDLE = "9d7815a6-7ee4-497e-8888-515a05f02364"    # Hibernate timeout
-            $CONSOLELOCK = "0e796bdb-100d-47d6-a2d5-f7d2daa51f51"      # Password on wake
-            
-            # Restore Monitor Timeout
-            if ($null -ne $power.MonitorTimeoutAC) {
+            # Get current active scheme GUID
+            $activeScheme = powercfg /getactivescheme
+            if ($activeScheme -match '([0-9a-f-]{36})') {
+                $schemeGUID = $matches[1]
+                
+                # Power Scheme GUIDs (constants - same as Apply script)
+                $SUB_VIDEO = "7516b95f-f776-4464-8c53-06167f40cc99"        # Display settings
+                $SUB_SLEEP = "238c9fa8-0aad-41ed-83f4-97be242c8f20"        # Sleep/Hibernate settings
+                $SUB_NONE = "fea3413e-7e05-4911-9a71-700331f1c294"         # Global settings
+                $VIDEOIDLE = "3c0bc021-c8a8-4e07-a973-6b14cbcb2b7e"        # Monitor timeout
+                $STANDBYIDLE = "29f6c1db-86da-48c5-9fdb-f2b67b1f44da"      # Sleep timeout
+                $HIBERNATEIDLE = "9d7815a6-7ee4-497e-8888-515a05f02364"    # Hibernate timeout
+                $CONSOLELOCK = "0e796bdb-100d-47d6-a2d5-f7d2daa51f51"      # Password on wake
+                
+                # Restore Monitor Timeout (SAFE property access)
+                if (('MonitorTimeoutAC' -in $powerProps) -and ($null -ne $power.MonitorTimeoutAC)) {
                 Write-Verbose "  Restoring Monitor Timeout AC: $($power.MonitorTimeoutAC) min"
                 $seconds = $power.MonitorTimeoutAC * 60
                 powercfg /SETACVALUEINDEX $schemeGUID $SUB_VIDEO $VIDEOIDLE $seconds 2>&1 | Out-Null
+                }
+                if (('MonitorTimeoutDC' -in $powerProps) -and ($null -ne $power.MonitorTimeoutDC)) {
+                    Write-Verbose "  Restoring Monitor Timeout DC: $($power.MonitorTimeoutDC) min"
+                    $seconds = $power.MonitorTimeoutDC * 60
+                    powercfg /SETDCVALUEINDEX $schemeGUID $SUB_VIDEO $VIDEOIDLE $seconds 2>&1 | Out-Null
+                }
+                
+                # Restore Sleep/Standby Timeout (SAFE property access)
+                if (('StandbyTimeoutAC' -in $powerProps) -and ($null -ne $power.StandbyTimeoutAC)) {
+                    Write-Verbose "  Restoring Standby Timeout AC: $($power.StandbyTimeoutAC) min"
+                    $seconds = $power.StandbyTimeoutAC * 60
+                    powercfg /SETACVALUEINDEX $schemeGUID $SUB_SLEEP $STANDBYIDLE $seconds 2>&1 | Out-Null
+                }
+                if (('StandbyTimeoutDC' -in $powerProps) -and ($null -ne $power.StandbyTimeoutDC)) {
+                    Write-Verbose "  Restoring Standby Timeout DC: $($power.StandbyTimeoutDC) min"
+                    $seconds = $power.StandbyTimeoutDC * 60
+                    powercfg /SETDCVALUEINDEX $schemeGUID $SUB_SLEEP $STANDBYIDLE $seconds 2>&1 | Out-Null
+                }
+                
+                # Restore Hibernate Timeout (SAFE property access)
+                if (('HibernateTimeoutAC' -in $powerProps) -and ($null -ne $power.HibernateTimeoutAC)) {
+                    Write-Verbose "  Restoring Hibernate Timeout AC: $($power.HibernateTimeoutAC) min"
+                    $seconds = $power.HibernateTimeoutAC * 60
+                    powercfg /SETACVALUEINDEX $schemeGUID $SUB_SLEEP $HIBERNATEIDLE $seconds 2>&1 | Out-Null
+                }
+                if (('HibernateTimeoutDC' -in $powerProps) -and ($null -ne $power.HibernateTimeoutDC)) {
+                    Write-Verbose "  Restoring Hibernate Timeout DC: $($power.HibernateTimeoutDC) min"
+                    $seconds = $power.HibernateTimeoutDC * 60
+                    powercfg /SETDCVALUEINDEX $schemeGUID $SUB_SLEEP $HIBERNATEIDLE $seconds 2>&1 | Out-Null
+                }
+                
+                # Restore Hibernate Enabled State (SAFE property access)
+                if (('HibernateEnabled' -in $powerProps) -and ($power.HibernateEnabled -eq $false)) {
+                    Write-Verbose "  Disabling Hibernate (was disabled in backup)"
+                    powercfg /hibernate off 2>&1 | Out-Null
+                }
+                elseif (('HibernateEnabled' -in $powerProps) -and ($power.HibernateEnabled -eq $true)) {
+                    Write-Verbose "  Enabling Hibernate (was enabled in backup)"
+                    powercfg /hibernate on 2>&1 | Out-Null
+                }
+                
+                # Restore CONSOLELOCK (Require password on wake) - SAFE property access
+                if (('ConsoleLockAC' -in $powerProps) -and ($null -ne $power.ConsoleLockAC)) {
+                    Write-Verbose "  Restoring CONSOLELOCK AC: $($power.ConsoleLockAC)"
+                    powercfg /SETACVALUEINDEX $schemeGUID $SUB_NONE $CONSOLELOCK $power.ConsoleLockAC 2>&1 | Out-Null
+                }
+                if (('ConsoleLockDC' -in $powerProps) -and ($null -ne $power.ConsoleLockDC)) {
+                    Write-Verbose "  Restoring CONSOLELOCK DC: $($power.ConsoleLockDC)"
+                    powercfg /SETDCVALUEINDEX $schemeGUID $SUB_NONE $CONSOLELOCK $power.ConsoleLockDC 2>&1 | Out-Null
+                }
+                
+                # Apply changes
+                powercfg /SETACTIVE $schemeGUID 2>&1 | Out-Null
+                
+                Write-Host "  [OK] Power settings restored successfully" -ForegroundColor Green
             }
-            if ($null -ne $power.MonitorTimeoutDC) {
-                Write-Verbose "  Restoring Monitor Timeout DC: $($power.MonitorTimeoutDC) min"
-                $seconds = $power.MonitorTimeoutDC * 60
-                powercfg /SETDCVALUEINDEX $schemeGUID $SUB_VIDEO $VIDEOIDLE $seconds 2>&1 | Out-Null
+            else {
+                Write-Host "  [!] Could not detect active power scheme - skipping restore" -ForegroundColor Yellow
             }
-            
-            # Restore Sleep/Standby Timeout
-            if ($null -ne $power.StandbyTimeoutAC) {
-                Write-Verbose "  Restoring Standby Timeout AC: $($power.StandbyTimeoutAC) min"
-                $seconds = $power.StandbyTimeoutAC * 60
-                powercfg /SETACVALUEINDEX $schemeGUID $SUB_SLEEP $STANDBYIDLE $seconds 2>&1 | Out-Null
-            }
-            if ($null -ne $power.StandbyTimeoutDC) {
-                Write-Verbose "  Restoring Standby Timeout DC: $($power.StandbyTimeoutDC) min"
-                $seconds = $power.StandbyTimeoutDC * 60
-                powercfg /SETDCVALUEINDEX $schemeGUID $SUB_SLEEP $STANDBYIDLE $seconds 2>&1 | Out-Null
-            }
-            
-            # Restore Hibernate Timeout
-            if ($null -ne $power.HibernateTimeoutAC) {
-                Write-Verbose "  Restoring Hibernate Timeout AC: $($power.HibernateTimeoutAC) min"
-                $seconds = $power.HibernateTimeoutAC * 60
-                powercfg /SETACVALUEINDEX $schemeGUID $SUB_SLEEP $HIBERNATEIDLE $seconds 2>&1 | Out-Null
-            }
-            if ($null -ne $power.HibernateTimeoutDC) {
-                Write-Verbose "  Restoring Hibernate Timeout DC: $($power.HibernateTimeoutDC) min"
-                $seconds = $power.HibernateTimeoutDC * 60
-                powercfg /SETDCVALUEINDEX $schemeGUID $SUB_SLEEP $HIBERNATEIDLE $seconds 2>&1 | Out-Null
-            }
-            
-            # Restore Hibernate Enabled State
-            if ($power.HibernateEnabled -eq $false) {
-                Write-Verbose "  Disabling Hibernate (was disabled in backup)"
-                powercfg /hibernate off 2>&1 | Out-Null
-            }
-            elseif ($power.HibernateEnabled -eq $true) {
-                Write-Verbose "  Enabling Hibernate (was enabled in backup)"
-                powercfg /hibernate on 2>&1 | Out-Null
-            }
-            
-            # Restore CONSOLELOCK (Require password on wake)
-            if ($null -ne $power.ConsoleLockAC) {
-                Write-Verbose "  Restoring CONSOLELOCK AC: $($power.ConsoleLockAC)"
-                powercfg /SETACVALUEINDEX $schemeGUID $SUB_NONE $CONSOLELOCK $power.ConsoleLockAC 2>&1 | Out-Null
-            }
-            if ($null -ne $power.ConsoleLockDC) {
-                Write-Verbose "  Restoring CONSOLELOCK DC: $($power.ConsoleLockDC)"
-                powercfg /SETDCVALUEINDEX $schemeGUID $SUB_NONE $CONSOLELOCK $power.ConsoleLockDC 2>&1 | Out-Null
-            }
-            
-            # Apply changes
-            powercfg /SETACTIVE $schemeGUID 2>&1 | Out-Null
-            
-            Write-Host "  [OK] Power settings restored successfully" -ForegroundColor Green
-        }
-        else {
-            Write-Host "  [!] Could not detect active power scheme - skipping restore" -ForegroundColor Yellow
         }
     }
     catch {
