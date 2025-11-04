@@ -2491,22 +2491,22 @@ function Enable-CredentialGuard {
     # CRITICAL: Verify VBS/Credential Guard activation post-reboot
     # These features can fail silently if hardware requirements are not met
     Write-Host ""
-    Write-Host "  [!] POST-REBOOT VERIFICATION REQUIRED:" -ForegroundColor Yellow
+    Write-Host "  $(Get-LocalizedString 'VBSPostRebootTitle')" -ForegroundColor Yellow
     Write-Host ""
-    Write-Host "  After reboot, verify that VBS/Credential Guard are ACTUALLY running:" -ForegroundColor White
+    Write-Host "  $(Get-LocalizedString 'VBSPostRebootDesc')" -ForegroundColor White
     Write-Host ""
-    Write-Host "  PowerShell Command:" -ForegroundColor Cyan
+    Write-Host "  $(Get-LocalizedString 'VBSPostRebootCommand')" -ForegroundColor Cyan
     Write-Host '    $vbs = Get-CimInstance -ClassName Win32_DeviceGuard -Namespace root\Microsoft\Windows\DeviceGuard' -ForegroundColor Gray
     Write-Host '    $vbs.SecurityServicesRunning' -ForegroundColor Gray
     Write-Host ""
-    Write-Host "  Expected Output: 1 or 2 (Credential Guard running)" -ForegroundColor Green
-    Write-Host "  If Output is empty or 0: VBS/Credential Guard FAILED to start!" -ForegroundColor Yellow
+    Write-Host "  $(Get-LocalizedString 'VBSPostRebootExpected')" -ForegroundColor Green
+    Write-Host "  $(Get-LocalizedString 'VBSPostRebootFailed')" -ForegroundColor Yellow
     Write-Host ""
-    Write-Host "  Common Causes of Failure:" -ForegroundColor Yellow
-    Write-Host "    - TPM 2.0 not present or not enabled" -ForegroundColor White
-    Write-Host "    - Virtualization disabled in BIOS/UEFI" -ForegroundColor White
-    Write-Host "    - Incompatible CPU (Intel <8th Gen, AMD <Ryzen 2000)" -ForegroundColor White
-    Write-Host "    - Incompatible Hypervisor (VMware, VirtualBox without nested VT)" -ForegroundColor White
+    Write-Host "  $(Get-LocalizedString 'VBSPostRebootCauses')" -ForegroundColor Yellow
+    Write-Host "    $(Get-LocalizedString 'VBSPostRebootCause1')" -ForegroundColor White
+    Write-Host "    $(Get-LocalizedString 'VBSPostRebootCause2')" -ForegroundColor White
+    Write-Host "    $(Get-LocalizedString 'VBSPostRebootCause3')" -ForegroundColor White
+    Write-Host "    $(Get-LocalizedString 'VBSPostRebootCause4')" -ForegroundColor White
     Write-Host ""
 }
 
@@ -2797,23 +2797,23 @@ function Enable-BitLockerPolicies {
         # CRITICAL WARNING: BitLocker policies are configured but NOT active!
         # This can create false sense of security - user MUST manually enable it
         Write-Host ""
-        Write-Host "  !!! CRITICAL: BITLOCKER IS NOT ACTIVE !!!" -ForegroundColor Yellow
+        Write-Host "  $(Get-LocalizedString 'BitLockerNotActiveTitle')" -ForegroundColor Yellow
         Write-Host ""
-        Write-Host "  Policies are configured, but BitLocker is NOT enabled!" -ForegroundColor Yellow
-        Write-Host "  Your drive is NOT encrypted - data can be stolen if device is lost!" -ForegroundColor Yellow
+        Write-Host "  $(Get-LocalizedString 'BitLockerNotActiveLine1')" -ForegroundColor Yellow
+        Write-Host "  $(Get-LocalizedString 'BitLockerNotActiveLine2')" -ForegroundColor Yellow
         Write-Host ""
-        Write-Host "  YOU MUST MANUALLY ENABLE BITLOCKER:" -ForegroundColor Yellow
+        Write-Host "  $(Get-LocalizedString 'BitLockerNotActiveMustEnable')" -ForegroundColor Yellow
         Write-Host ""
-        Write-Host "  Option 1: Control Panel" -ForegroundColor Cyan
-        Write-Host "    1. Open Control Panel" -ForegroundColor White
-        Write-Host "    2. Navigate to: System and Security -> BitLocker Drive Encryption" -ForegroundColor White
-        Write-Host "    3. Click 'Turn on BitLocker' for C: drive" -ForegroundColor White
-        Write-Host "    4. Save Recovery Key to Microsoft Account (recommended)" -ForegroundColor White
+        Write-Host "  $(Get-LocalizedString 'BitLockerNotActiveOption1')" -ForegroundColor Cyan
+        Write-Host "    $(Get-LocalizedString 'BitLockerNotActiveOption1Step1')" -ForegroundColor White
+        Write-Host "    $(Get-LocalizedString 'BitLockerNotActiveOption1Step2')" -ForegroundColor White
+        Write-Host "    $(Get-LocalizedString 'BitLockerNotActiveOption1Step3')" -ForegroundColor White
+        Write-Host "    $(Get-LocalizedString 'BitLockerNotActiveOption1Step4')" -ForegroundColor White
         Write-Host ""
-        Write-Host "  Option 2: PowerShell (requires admin)" -ForegroundColor Cyan
-        Write-Host '    Enable-BitLocker -MountPoint "C:" -EncryptionMethod XtsAes256' -ForegroundColor Gray
+        Write-Host "  $(Get-LocalizedString 'BitLockerNotActiveOption2')" -ForegroundColor Cyan
+        Write-Host "    $(Get-LocalizedString 'BitLockerNotActiveOption2Cmd')" -ForegroundColor Gray
         Write-Host ""
-        Write-Host "  !!! WITHOUT BITLOCKER ENABLED, YOUR DATA IS NOT ENCRYPTED !!!" -ForegroundColor Yellow
+        Write-Host "  $(Get-LocalizedString 'BitLockerNotActiveFooter')" -ForegroundColor Yellow
         Write-Host ""
     }
 }
@@ -2983,38 +2983,38 @@ function Test-BitLockerEncryptionMethod {
             Write-Host ""
         }
         
-        Write-Host "  HOW TO UPGRADE TO AES-256 (IN WINDOWS):" -ForegroundColor Green
+        Write-Host "  $(Get-LocalizedString 'BitLockerUpgradeTitle')" -ForegroundColor Green
         Write-Host ""
-        Write-Host "    METHOD 1 - Windows Start Menu (EASIEST):" -ForegroundColor Cyan
+        Write-Host "    $(Get-LocalizedString 'BitLockerUpgradeMethod1')" -ForegroundColor Cyan
         Write-Host ""
-        Write-Host "      1. Press Windows key" -ForegroundColor White
-        Write-Host "      2. Type: BitLocker manage" -ForegroundColor White
-        Write-Host "      3. Press Enter" -ForegroundColor White
-        Write-Host "      4. Click on 'Disable BitLocker'" -ForegroundColor White
-        Write-Host "         (WARNING: Takes 30-90 min!)" -ForegroundColor Yellow
-        Write-Host "      5. Wait until 'BitLocker disabled' is shown" -ForegroundColor White
-        Write-Host "      6. Click on 'Enable BitLocker'" -ForegroundColor White
-        Write-Host "         (Our Policy applies = AES-256!)" -ForegroundColor Green
-        Write-Host "      7. <IMPORTANT> SAVE Recovery Key (MS Account recommended)" -ForegroundColor Yellow
+        Write-Host "      $(Get-LocalizedString 'BitLockerUpgradeMethod1Step1')" -ForegroundColor White
+        Write-Host "      $(Get-LocalizedString 'BitLockerUpgradeMethod1Step2')" -ForegroundColor White
+        Write-Host "      $(Get-LocalizedString 'BitLockerUpgradeMethod1Step3')" -ForegroundColor White
+        Write-Host "      $(Get-LocalizedString 'BitLockerUpgradeMethod1Step4')" -ForegroundColor White
+        Write-Host "         $(Get-LocalizedString 'BitLockerUpgradeMethod1Step4Warn')" -ForegroundColor Yellow
+        Write-Host "      $(Get-LocalizedString 'BitLockerUpgradeMethod1Step5')" -ForegroundColor White
+        Write-Host "      $(Get-LocalizedString 'BitLockerUpgradeMethod1Step6')" -ForegroundColor White
+        Write-Host "         $(Get-LocalizedString 'BitLockerUpgradeMethod1Step6Info')" -ForegroundColor Green
+        Write-Host "      $(Get-LocalizedString 'BitLockerUpgradeMethod1Step7')" -ForegroundColor Yellow
         Write-Host ""
-        Write-Host "    METHOD 2 - Control Panel:" -ForegroundColor Cyan
+        Write-Host "    $(Get-LocalizedString 'BitLockerUpgradeMethod2')" -ForegroundColor Cyan
         Write-Host ""
-        Write-Host "      1. Open Control Panel" -ForegroundColor White
-        Write-Host "      2. System and Security" -ForegroundColor White
-        Write-Host "      3. BitLocker Drive Encryption" -ForegroundColor White
-        Write-Host "      4. Continue as Method 1 (Steps 4-7)" -ForegroundColor White
+        Write-Host "      $(Get-LocalizedString 'BitLockerUpgradeMethod2Step1')" -ForegroundColor White
+        Write-Host "      $(Get-LocalizedString 'BitLockerUpgradeMethod2Step2')" -ForegroundColor White
+        Write-Host "      $(Get-LocalizedString 'BitLockerUpgradeMethod2Step3')" -ForegroundColor White
+        Write-Host "      $(Get-LocalizedString 'BitLockerUpgradeMethod2Step4')" -ForegroundColor White
         Write-Host ""
-        Write-Host "    METHOD 3 - File Explorer:" -ForegroundColor Cyan
+        Write-Host "    $(Get-LocalizedString 'BitLockerUpgradeMethod3')" -ForegroundColor Cyan
         Write-Host ""
-        Write-Host "      1. Open File Explorer (Win + E)" -ForegroundColor White
-        Write-Host "      2. Right-click on Drive C:" -ForegroundColor White
-        Write-Host "      3. Click on 'Disable BitLocker'" -ForegroundColor White
-        Write-Host "      4. Continue as Method 1 (Steps 5-7)" -ForegroundColor White
+        Write-Host "      $(Get-LocalizedString 'BitLockerUpgradeMethod3Step1')" -ForegroundColor White
+        Write-Host "      $(Get-LocalizedString 'BitLockerUpgradeMethod3Step2')" -ForegroundColor White
+        Write-Host "      $(Get-LocalizedString 'BitLockerUpgradeMethod3Step3')" -ForegroundColor White
+        Write-Host "      $(Get-LocalizedString 'BitLockerUpgradeMethod3Step4')" -ForegroundColor White
         Write-Host ""
-        Write-Host "  ALTERNATIVE (POWERSHELL):" -ForegroundColor Cyan
-        Write-Host "    manage-bde -status C:        # Check status" -ForegroundColor Gray
-        Write-Host "    manage-bde -off C:           # Disable (takes time!)" -ForegroundColor Gray
-        Write-Host "    manage-bde -on C: -UsedSpaceOnly  # Enable with AES-256" -ForegroundColor Gray
+        Write-Host "  $(Get-LocalizedString 'BitLockerUpgradeAlt')" -ForegroundColor Cyan
+        Write-Host "    $(Get-LocalizedString 'BitLockerUpgradeAltCmd1')" -ForegroundColor Gray
+        Write-Host "    $(Get-LocalizedString 'BitLockerUpgradeAltCmd2')" -ForegroundColor Gray
+        Write-Host "    $(Get-LocalizedString 'BitLockerUpgradeAltCmd3')" -ForegroundColor Gray
         Write-Host ""
         Write-Host "  NOTE:" -ForegroundColor Cyan
         Write-Host "    Re-Encryption takes 30-90 minutes (depending on size)" -ForegroundColor White
