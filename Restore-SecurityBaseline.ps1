@@ -880,15 +880,16 @@ else {
                                 $restoreStats.Skipped++
                             }
                             else {
-                                # Real error - log it
-                                Write-Verbose "Failed to change task state: $($taskConfig.TaskPath)$($taskConfig.TaskName) - $($lastError.Exception.Message)"
+                                # Real error - show it to user
+                                Write-Host "    [X] Task '$($taskConfig.TaskPath)$($taskConfig.TaskName)' failed: $($lastError.Exception.Message)" -ForegroundColor Red
                                 $restoreStats.Failed++
                             }
                         }
                         else {
-                            # No error in $Error array - treat as failure
-                            Write-Verbose "Failed to change task state: $($taskConfig.TaskPath)$($taskConfig.TaskName) - Unknown error (no details in `$Error array)"
-                            $restoreStats.Failed++
+                            # No error in $Error array - likely task is busy/locked (not a real failure)
+                            # Don't count as Failed since this is a transient state issue
+                            Write-Host "    [!] Task '$($taskConfig.TaskPath)$($taskConfig.TaskName)' could not be changed (possibly busy/locked)" -ForegroundColor Yellow
+                            $restoreStats.Skipped++
                         }
                     }
                 }
@@ -2020,7 +2021,7 @@ else {
         $restoreStats.Success++
     }
     catch {
-        Write-Verbose "Failed to remove DoH configuration: $_"
+        Write-Host "  [X] Failed to remove DoH configuration: $_" -ForegroundColor Red
         $restoreStats.Failed++
     }
 }
