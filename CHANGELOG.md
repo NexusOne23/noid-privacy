@@ -5,6 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.21] - 2025-11-05
+
+### Fixed
+- **Power Management Verification**: Fixed Hibernate Enabled check (array cast to prevent .Count error)
+- **Remote Access Menu**: Fixed line breaks and alignment in German/English versions
+- **Backup Descriptions**: Updated domain count (80,101) to match README and hosts file header
+- **Restore Script**: DNS InterfaceIndex errors now filtered (not real failures)
+
+### Changed
+- **Version Bump**: All documentation and scripts updated to v1.7.21
+- **Minor refinements**: Code quality improvements and comment updates
+
+---
+
 ## [1.7.20] - 2025-11-05
 
 ### 🎯 Major Feature: Privacy by Default WITH User Control

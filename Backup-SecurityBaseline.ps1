@@ -63,8 +63,8 @@
     - HKCU:\SOFTWARE\Policies\Microsoft\Edge\SmartScreenPuaEnabled
     
 .NOTES
-    Version:        1.5.0
-    Last Updated:   November 2, 2025
+    Version:        1.7.21
+    Last Updated:   November 5, 2025
     Author:         NoID Privacy Team
     
 .PARAMETER BackupPath
