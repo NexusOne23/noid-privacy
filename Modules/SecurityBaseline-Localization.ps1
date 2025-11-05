@@ -1442,7 +1442,7 @@ $Global:Strings = @{
         RemoteMenuOption2Pro2 = "Pro: Multiplayer games with inbound connections work more reliably"
         RemoteMenuOption2Pro3 = "Pro: No automatic sleep/hibernate (servers, NAS, always-on services)"
         RemoteMenuOption2Con = "Con: Larger attack surface + Higher power consumption"
-        RemoteMenuRecommendation = "[Recommendation: If you are unsure, choose option 1. Use option 2 only if you explicitly need remote access/local services or if specific games stop working with option 1.]"
+        RemoteMenuRecommendation = "[Recommendation: If unsure, choose option 1.`n                             Use option 2 only if you need remote access/local services or if games don't work with option 1.]"
         RemoteMenuPrompt = "Your choice (1-2)"
         
         # VBS/Credential Guard POST-REBOOT Verification
@@ -2967,7 +2967,7 @@ $Global:Strings = @{
         RemoteMenuOption2Pro2 = "Pro: Multiplayer-Spiele mit eingehenden Verbindungen funktionieren zuverlaessiger"
         RemoteMenuOption2Pro3 = "Pro: Kein automatischer Standby/Ruhezustand (Server, NAS, Always-On-Dienste)"
         RemoteMenuOption2Con = "Contra: Groessere Angriffsflaeche + Hoeherer Stromverbrauch"
-        RemoteMenuRecommendation = "[Empfehlung: Wenn Sie unsicher sind, Option 1 waehlen. Option 2 nur nutzen, wenn Sie explizit Remote-Zugriff/lokale Dienste brauchen oder wenn bestimmte Spiele mit Option 1 nicht funktionieren.]"
+        RemoteMenuRecommendation = "[Empfehlung: Bei Unsicherheit Option 1 waehlen.`n                             Option 2 nur nutzen, wenn Remote-Zugriff/lokale Dienste benoetigt werden oder Spiele mit Option 1 nicht funktionieren.]"
         RemoteMenuPrompt = "Ihre Auswahl (1-2)"
         
         # VBS/Credential Guard POST-REBOOT Verification
