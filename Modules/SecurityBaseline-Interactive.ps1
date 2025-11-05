@@ -87,7 +87,7 @@ function Show-MainMenu {
     Write-Host "  [1] $menuAudit" -ForegroundColor White
     
     $menuAuditDesc = Get-LocalizedString 'MainMenuAuditDesc'
-    if (-not $menuAuditDesc) { $menuAuditDesc = "Check only, no changes" }
+    if (-not $menuAuditDesc) { $menuAuditDesc = "Apply full baseline, ASR in audit (no blocking)" }
     Write-Host "         $menuAuditDesc" -ForegroundColor Gray
     Write-Host ""
     
@@ -610,19 +610,19 @@ function Invoke-AuditMode {
     Write-Host "  $whatHappens" -ForegroundColor Cyan
     
     $step1 = Get-LocalizedString 'AuditModeStep1'
-    if (-not $step1) { $step1 = "1. All settings will be checked ONLY (no changes)" }
+    if (-not $step1) { $step1 = "1. Full security baseline will be applied (Core, Advanced, DNS, ...)" }
     Write-Host "    $step1" -ForegroundColor White
     
     $step2 = Get-LocalizedString 'AuditModeStep2'
-    if (-not $step2) { $step2 = "2. ASR Rules will be activated in Audit mode:" }
+    if (-not $step2) { $step2 = "2. ASR Rules run in AUDIT mode:" }
     Write-Host "    $step2" -ForegroundColor White
     
     $step2a = Get-LocalizedString 'AuditModeStep2a'
-    if (-not $step2a) { $step2a = "- Log events (what WOULD be blocked)" }
+    if (-not $step2a) { $step2a = "- Events are logged" }
     Write-Host "       $step2a" -ForegroundColor Gray
     
     $step2b = Get-LocalizedString 'AuditModeStep2b'
-    if (-not $step2b) { $step2b = "- But block NOTHING" }
+    if (-not $step2b) { $step2b = "- But NOT blocked" }
     Write-Host "       $step2b" -ForegroundColor Gray
     
     $step2c = Get-LocalizedString 'AuditModeStep2c'
@@ -635,11 +635,11 @@ function Invoke-AuditMode {
     Write-Host "  $important " -NoNewline -ForegroundColor Yellow
     
     $importantMsg = Get-LocalizedString 'AuditModeImportantMsg'
-    if (-not $importantMsg) { $importantMsg = "Only ASR Rules will be activated (logging-only)." }
+    if (-not $importantMsg) { $importantMsg = "Audit Mode affects ONLY ASR Rules." }
     Write-Host "$importantMsg" -ForegroundColor Yellow
     
     $unchanged = Get-LocalizedString 'AuditModeUnchanged'
-    if (-not $unchanged) { $unchanged = "All other settings remain unchanged!" }
+    if (-not $unchanged) { $unchanged = "All other security settings are applied normally (ENFORCE)." }
     Write-Host "           $unchanged" -ForegroundColor Yellow
     Write-Host ""
     
