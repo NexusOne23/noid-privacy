@@ -1671,6 +1671,7 @@ function Show-RemoteAccessMenu {
     Write-Host "      - $(Get-LocalizedString 'RemoteMenuOption1Desc1')" -ForegroundColor Gray
     Write-Host "      - $(Get-LocalizedString 'RemoteMenuOption1Desc2')" -ForegroundColor Gray
     Write-Host "      - $(Get-LocalizedString 'RemoteMenuOption1Desc3')" -ForegroundColor Gray
+    Write-Host "      - $(Get-LocalizedString 'RemoteMenuOption1Desc4')" -ForegroundColor Gray
     Write-Host "      - $(Get-LocalizedString 'RemoteMenuOption1Pro')" -ForegroundColor Green
     Write-Host "      - $(Get-LocalizedString 'RemoteMenuOption1Con')" -ForegroundColor Yellow
     Write-Host "      - $(Get-LocalizedString 'RemoteMenuOption1Warning1')" -ForegroundColor Yellow
@@ -1682,8 +1683,10 @@ function Show-RemoteAccessMenu {
     Write-Host "      - $(Get-LocalizedString 'RemoteMenuOption2Desc1')" -ForegroundColor Gray
     Write-Host "      - $(Get-LocalizedString 'RemoteMenuOption2Desc2')" -ForegroundColor Gray
     Write-Host "      - $(Get-LocalizedString 'RemoteMenuOption2Desc3')" -ForegroundColor Gray
+    Write-Host "      - $(Get-LocalizedString 'RemoteMenuOption2Desc4')" -ForegroundColor Gray
     Write-Host "      - $(Get-LocalizedString 'RemoteMenuOption2Pro1')" -ForegroundColor Green
     Write-Host "      - $(Get-LocalizedString 'RemoteMenuOption2Pro2')" -ForegroundColor Green
+    Write-Host "      - $(Get-LocalizedString 'RemoteMenuOption2Pro3')" -ForegroundColor Green
     Write-Host "      - $(Get-LocalizedString 'RemoteMenuOption2Con')" -ForegroundColor Yellow
     Write-Host ""
     
