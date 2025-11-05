@@ -83,15 +83,38 @@ function Install-DNSBlocklist {
     Write-Warning "$(Get-LocalizedString 'DNSBitdefenderWarning')"
     Write-Warning "$(Get-LocalizedString 'DNSInternetBlock')"
     
-    # Check if Steven Black's Hosts is already installed (idempotency)
+    # Check if Steven Black's Hosts is already installed (with version check!)
     $hostsPath = "$env:SystemRoot\System32\drivers\etc\hosts"
     $currentHosts = Get-Content $hostsPath -ErrorAction SilentlyContinue
-    $alreadyInstalled = $currentHosts | Select-String "# Title: StevenBlack/hosts"
     
-    if ($alreadyInstalled) {
-        Write-Info "$(Get-LocalizedString 'DNSAlreadyInstalled')"
-        Write-Verbose "$(Get-LocalizedString 'DNSSkipDownload')"
-        return
+    # Check if Steven Black's hosts is installed
+    $hasHeader = $currentHosts | Select-String "# Title: StevenBlack/hosts"
+    
+    if ($hasHeader) {
+        # Already installed - but check if it's the LATEST version!
+        $currentDomainLine = $currentHosts | Where-Object { $_ -match '# Number of unique domains:\s*(\d[\d,]*)' }
+        
+        if ($currentDomainLine -and $matches[1]) {
+            $currentDomainCount = $matches[1] -replace ',', ''
+            
+            # Expected domain count (from project hosts file)
+            # Update this when you update the hosts file!
+            $expectedDomainCount = 107772
+            
+            if ([int]$currentDomainCount -ge $expectedDomainCount) {
+                Write-Info "$(Get-LocalizedString 'DNSAlreadyInstalled')"
+                Write-Verbose "Current version: $currentDomainCount domains (up-to-date!)"
+                return
+            }
+            else {
+                Write-Info "Updating hosts file: $currentDomainCount → $expectedDomainCount domains (+$($expectedDomainCount - [int]$currentDomainCount) new blocks)"
+                # Continue with installation (update to newer version)
+            }
+        }
+        else {
+            # Has header but no domain count - assume old version, update it
+            Write-Verbose "Existing hosts file has no domain count - updating to latest version"
+        }
     }
     
     # Backup current hosts file
