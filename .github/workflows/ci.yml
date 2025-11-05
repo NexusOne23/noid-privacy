@@ -70,7 +70,8 @@ jobs:
       
       - name: Publish Test Results
         uses: EnricoMi/publish-unit-test-result-action/windows@v2
-        if: always() && hashFiles('./TestResults.xml') != ''
+        if: always()
+        continue-on-error: true
         with:
           files: './TestResults.xml'
           check_name: 'Test Results (PS 5.1)'
@@ -137,7 +138,8 @@ jobs:
       
       - name: Publish Test Results
         uses: EnricoMi/publish-unit-test-result-action/windows@v2
-        if: always() && hashFiles('./TestResults.xml') != ''
+        if: always()
+        continue-on-error: true
         with:
           files: './TestResults.xml'
           check_name: 'Test Results (PS 7.4)'
@@ -210,9 +212,11 @@ jobs:
       
       - name: Upload PSSA Results
         if: always()
+        continue-on-error: true
         uses: actions/upload-artifact@v4
         with:
           name: pssa-results
           path: |
             **/*.sarif
           retention-days: 30
+          if-no-files-found: warn
