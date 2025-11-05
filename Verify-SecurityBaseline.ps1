@@ -943,13 +943,15 @@ Test-BaselineCheck -Category "Power" -Name "Hibernate Enabled (if hardware suppo
         # Prevents false negatives when other sleep states show "not supported"
         $sleepStates = powercfg /availablesleepstates 2>&1
 
-        # Filter to Hibernate-specific lines only
-        $hibernateLines = $sleepStates | Where-Object { $_ -match '(Hibernate|Ruhezustand)' }
+        # Filter to Hibernate-specific lines only (force array cast to avoid .Count errors)
+        $hibernateLines = @($sleepStates | Where-Object { $_ -match '(Hibernate|Ruhezustand)' })
 
-        if (-not $hibernateLines) { return $false }
+        if ($hibernateLines.Count -eq 0) { return $false }
 
-        # Hibernate available if its lines DON'T contain "not/nicht"
-        $unsupported = $hibernateLines | Where-Object { $_ -match '(not|nicht)' }
+        # Check for "not available/supported" patterns (force array cast)
+        $notPattern = '(nicht verfügbar|not available|nicht unterstützt|not supported)'
+        $unsupported = @($hibernateLines | Where-Object { $_ -match $notPattern })
+
         return ($unsupported.Count -eq 0)
     } `
     -Expected $true
