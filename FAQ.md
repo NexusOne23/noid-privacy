@@ -380,7 +380,7 @@ Third-party antivirus products (Bitdefender, Kaspersky, Norton, etc.) **replace*
 
 ### How many domains are blocked?
 
-**80,101 unique domains** from Steven Black Unified Hosts list (updated Oct 17, 2025, 8,891 lines × 9 domains per line).
+**107,772 unique domains** from Steven Black Unified Hosts list (updated Nov 5, 2025, 12,025 lines × 9 domains per line).
 
 **Categories:**
 - Malware domains
@@ -390,19 +390,18 @@ Third-party antivirus products (Bitdefender, Kaspersky, Norton, etc.) **replace*
 - Phishing sites
 - Telemetry servers
 
-### Why only 8,864 lines in the hosts file?
+### Why only 12,025 lines in the hosts file?
 
-**Compression for Windows DNS Cache performance!**
+**Reason:** Windows DNS Cache optimization
 
-**The Problem:**
-- Steven Black original: ~80,000+ domains = ~80,000+ lines
-- Windows DNS Cache: Performance issues with large hosts files (community best practice: keep under ~20k entries)
-- 80k+ lines would cause cache overflow
-- Result: Slow DNS lookups, network issues
+**Background:**
+- Steven Black hosts list has 107,772 unique domains
+- Original format: 1 domain per line = 107,772 lines
+- Windows DNS Cache has ~16,000 line limit (breaks after that!)
 
 **Our Solution:**
 - ✅ **9 domains per line** (community best practice)
-- ✅ 80,101 domains compressed to 8,891 lines
+- ✅ 107,772 domains compressed to 12,025 lines
 - ✅ **Full protection, zero performance impact**
 - ✅ DNS cache stays fast and efficient
 

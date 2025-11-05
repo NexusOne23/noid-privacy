@@ -54,19 +54,19 @@ function Install-DNSBlocklist {
     .SYNOPSIS
         Install DNS-based blocklist via Windows HOSTS file
     .DESCRIPTION
-        Installs Steven Black's unified hosts file (80K+ domains) from local project directory.
+        Installs Steven Black's unified hosts file (107K+ domains) from local project directory.
         The hosts file is included with the script - no internet connection needed!
         Blocks malware, tracking, advertising domains at DNS level.
         
         LOGIC (SIMPLE!):
         1. Check if already installed (idempotency)
         2. Backup original hosts file
-        3. Copy local hosts file (80K+ domains) to System32
+        3. Copy local hosts file (107K+ domains) to System32
         4. Flush DNS Cache
         5. DONE!
         
         Source: https://github.com/StevenBlack/hosts
-        Last Update: 17 October 2025 (80,101 Domains)
+        Last Update: 5 November 2025 (107,772 Domains)
     #>
     [CmdletBinding()]
     [OutputType([void])]
