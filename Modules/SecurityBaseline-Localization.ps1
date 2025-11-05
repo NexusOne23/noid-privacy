@@ -22,10 +22,10 @@ $Global:Strings = @{
         
         # Main Menu
         MainMenuTitle = "MAIN MENU"
-        MainMenuAudit = "Audit Mode"
-        MainMenuAuditDesc = "Check only, change NOTHING (recommended for testing)"
-        MainMenuEnforce = "Enforce Mode"
-        MainMenuEnforceDesc = "Apply EVERYTHING (full hardening)"
+        MainMenuAudit = "Audit Mode (ONLY ASR on Audit)"
+        MainMenuAuditDesc = "Apply EVERYTHING, but ASR rules only log violations"
+        MainMenuEnforce = "Enforce Mode (ASR Enforce)"
+        MainMenuEnforceDesc = "Apply EVERYTHING including ASR enforcement"
         MainMenuEnforceFollow = "-> DNS, OneDrive & Remote Access configuration follows"
         MainMenuCustom = "Custom Mode"
         MainMenuCustomDesc = "Select modules individually"
@@ -1547,10 +1547,10 @@ $Global:Strings = @{
         
         # Main Menu
         MainMenuTitle = "HAUPT-MENUE"
-        MainMenuAudit = "Audit-Modus"
-        MainMenuAuditDesc = "Nur pruefen, NICHTS aendern (empfohlen fuer Tests)"
-        MainMenuEnforce = "Enforce-Modus"
-        MainMenuEnforceDesc = "ALLES anwenden (volle Haertung)"
+        MainMenuAudit = "Audit-Modus (NUR ASR auf Audit)"
+        MainMenuAuditDesc = "ALLES anwenden, aber ASR nur loggen"
+        MainMenuEnforce = "Enforce-Modus (ASR Enforce)"
+        MainMenuEnforceDesc = "ALLES anwenden inkl. ASR blockieren"
         MainMenuEnforceFollow = "-> DNS, OneDrive & Remote-Access-Konfiguration folgt"
         MainMenuCustom = "Angepasster Modus"
         MainMenuCustomDesc = "Module einzeln auswaehlen"

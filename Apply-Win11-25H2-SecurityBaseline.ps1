@@ -103,9 +103,23 @@
     - 1.5.0: Mutex/Transcript finally-blocks + Input validation + Service-Stop fix
     
 .PARAMETER Mode
-    Specifies the enforcement mode for ASR (Attack Surface Reduction) rules.
-    - Audit:   Only log rule violations (default, safe for testing)
-    - Enforce: Actively block violations (full protection)
+    Specifies ONLY the ASR (Attack Surface Reduction) enforcement mode.
+    
+    ⚠️ IMPORTANT: This parameter affects ONLY the 19 ASR rules!
+    ALL OTHER SETTINGS are ALWAYS applied regardless of this parameter:
+    - 391 Registry keys (Security + Privacy)
+    - Services configuration
+    - Bloatware removal (80+ apps)
+    - Telemetry & AI features disabled
+    - Firewall rules
+    - And all other modules
+    
+    ASR Mode Options:
+    - Audit (Default):  ASR rules log violations only (safe for testing app compatibility)
+    - Enforce:          ASR rules actively block violations (maximum protection)
+    
+    Use Audit mode first to test if ASR rules would block your applications.
+    Check Event Viewer logs, then switch to Enforce mode for full protection.
 
 .PARAMETER Interactive
     Starts the script in interactive mode with a menu-driven interface.
@@ -1329,11 +1343,33 @@ Write-Host "               Maximum Security + Privacy + Performance" -Foreground
 Write-Host "" -ForegroundColor Cyan
 Write-Host "=============================================================================" -ForegroundColor Cyan
 Write-Host ""
-Write-Host "  Version: 1.7.21 | Modus: $Mode" -ForegroundColor Cyan
+Write-Host "  Version: 1.7.21 | ASR Mode: $Mode" -ForegroundColor Cyan
 if ($Interactive) {
-    Write-Host "  Mode: Interactive Menu" -ForegroundColor Cyan
+    Write-Host "  Interface: Interactive Menu" -ForegroundColor Cyan
 }
 Write-Host ""
+
+# IMPORTANT NOTICE: Clarify what -Mode parameter actually does
+if ($Mode -eq 'Audit') {
+    Write-Host "  ⚠️  IMPORTANT NOTICE - AUDIT MODE" -ForegroundColor Yellow
+    Write-Host "  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Yellow
+    Write-Host "  This parameter controls ONLY the 19 ASR (Attack Surface Reduction) rules!" -ForegroundColor White
+    Write-Host "  " -ForegroundColor White
+    Write-Host "  ✅ ALL OTHER CHANGES WILL BE APPLIED:" -ForegroundColor Green
+    Write-Host "     • 391 Registry keys (Security + Privacy)" -ForegroundColor Gray
+    Write-Host "     • Services configuration" -ForegroundColor Gray
+    Write-Host "     • Bloatware removal (80+ apps)" -ForegroundColor Gray
+    Write-Host "     • Telemetry & AI features disabled" -ForegroundColor Gray
+    Write-Host "     • Firewall rules" -ForegroundColor Gray
+    Write-Host "     • And all other modules" -ForegroundColor Gray
+    Write-Host "  " -ForegroundColor White
+    Write-Host "  ⚠️  ONLY ASR rules will be in AUDIT mode (logging only)" -ForegroundColor Yellow
+    Write-Host "  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Yellow
+    Write-Host ""
+    Write-Host "  Press CTRL+C within 10 seconds to cancel..." -ForegroundColor Cyan
+    Start-Sleep -Seconds 10
+    Write-Host ""
+}
 
 try {
     # WhatIf/ShouldProcess Support

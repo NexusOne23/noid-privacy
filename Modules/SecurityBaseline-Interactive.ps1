@@ -733,8 +733,13 @@ function Invoke-CustomMode {
     Write-Host ""
     Write-Host "  SCHRITT 2: Waehlen Sie den Modus fuer ASR-Regeln:" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "  [1] Audit Mode   - ASR Rules nur loggen (empfohlen fuer Test)" -ForegroundColor White
-    Write-Host "  [2] Enforce Mode - ASR Rules aktiv blockieren (Production)" -ForegroundColor White
+    Write-Host "  [1] Audit Mode   (NUR ASR auf Audit, alles andere Enforce)" -ForegroundColor White
+    Write-Host "      • ASR Rules nur loggen (empfohlen fuer Test)" -ForegroundColor Gray
+    Write-Host "      • Registry, Services, Apps etc. werden trotzdem angewendet" -ForegroundColor Gray
+    Write-Host ""
+    Write-Host "  [2] Enforce Mode (ALLES wird enforce inkl. ASR)" -ForegroundColor White
+    Write-Host "      • ASR Rules aktiv blockieren (Production)" -ForegroundColor Gray
+    Write-Host "      • Maximum Protection" -ForegroundColor Gray
     Write-Host ""
     
     $asrMode = Get-UserChoice -Prompt "ASR-Modus" -ValidChoices @('1', '2')
