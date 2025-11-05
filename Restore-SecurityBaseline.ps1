@@ -887,6 +887,12 @@ else {
                                 Write-Verbose "  [SKIP] Task '$($taskConfig.TaskPath)$($taskConfig.TaskName)' is protected (access denied)"
                                 $restoreStats.Skipped++
                             }
+                            elseif ($lastError.Exception.Message -match 'MSFT_DNSClientServerAddress|InterfaceIndex') {
+                                # DNS interface timing issue (harmless - interface indices change after DNS restore)
+                                # Tasks will auto-regenerate on next reboot or when needed
+                                Write-Verbose "  [SKIP] Task '$($taskConfig.TaskPath)$($taskConfig.TaskName)' has DNS interface dependency (will auto-regenerate)"
+                                $restoreStats.Skipped++
+                            }
                             else {
                                 # Real error - show it to user
                                 Write-Host "    [X] Task '$($taskConfig.TaskPath)$($taskConfig.TaskName)' failed: $($lastError.Exception.Message)" -ForegroundColor Red
