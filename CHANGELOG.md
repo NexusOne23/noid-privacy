@@ -5,6 +5,121 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.7.20] - 2025-11-05
+
+### 🎯 Major Feature: Privacy by Default WITH User Control
+
+#### **Camera/Microphone/Location Permissions Rebalanced** 🔥
+- **BREAKING CHANGE**: Apps can now request Camera/Mic/Location permissions again
+  - **Previous Behavior**: HKCU hard-blocked (no prompts, apps silently denied)
+  - **New Behavior**: HKLM defaults only (Windows asks user for permission)
+  - **Impact**: Zoom/Teams/Discord/Maps now functional after user approval
+  - **Result**: Privacy by Default + User Control = Best of Both Worlds! 🎉
+  - **Why**: Forum feedback - "Apps kaputt ohne Grund", frustrating for home users
+  - **Security**: Still denied by default, but user can allow trusted apps
+  - **Files**: SecurityBaseline-Telemetry.ps1, RegistryChanges-Definition.ps1 (-132 lines)
+  - **Registry**: 388 → 384 entries (-4 HKCU entries removed)
+  - **Commits**: `c62d300`, `acae656`
+
+### Added
+
+- **Hibernate Mode Linked to Remote Access Choice** 🚀
+  - **Desktop Mode (RDP OFF)**: Hibernate enabled (30 min timeout)
+  - **Remote Server Mode (RDP ON)**: Hibernate disabled (prevents RDP disconnects)
+  - **Logic**: Remote servers need 24/7 availability, desktops can hibernate
+  - **Integration**: Remote Access menu now controls hibernate behavior
+  - **Security**: RAM cleared on hibernate (Cold Boot Attack protection)
+  - **Files**: SecurityBaseline-Advanced.ps1, Apply-Win11-25H2-SecurityBaseline.ps1
+  - **Commit**: `29eff59`
+
+- **Power Management Full Backup/Restore Support** ⚡
+  - **Backup**: All power settings now saved (timeouts, hibernate, CONSOLELOCK)
+  - **Restore**: Complete restoration of original power configuration
+  - **German Support**: Works on German Windows (powercfg localization fix)
+  - **Settings**: Display timeout, Sleep, Hibernate, Password on wake
+  - **Files**: Backup-SecurityBaseline.ps1, Restore-SecurityBaseline.ps1
+  - **Commits**: `9eecdc6`, `36b948a`
+
+### Fixed
+
+- **CRITICAL: Windows Settings App Search Broken** 🔥
+  - **Bug**: DisableWebSearch registry key blocked Settings app search
+  - **Impact**: "Network", "Update", "Privacy" searches returned nothing
+  - **Root Cause**: Key too broad - blocked Windows internal search
+  - **Fix**: Removed DisableWebSearch from Telemetry + Performance modules
+  - **Result**: Settings search works, Bing/Web still blocked by other keys
+  - **Files**: SecurityBaseline-Telemetry.ps1, SecurityBaseline-Performance.ps1
+  - **Commit**: `c8950f8`
+
+- **CRITICAL: Chrome/Edge Downloads Blocked by Policy 1806** 🔥
+  - **Bug**: Internet/Intranet Zone 1806 broke browser downloads
+  - **Symptom**: "blocked by your organization" on legitimate downloads
+  - **Root Cause**: 1806 = "Disable launching apps" too aggressive for modern browsers
+  - **Fix**: Removed 1806 policy from Core module (1803 = Download blocking sufficient)
+  - **Result**: Downloads work normally, CVE-2025-9491 protection maintained
+  - **Files**: SecurityBaseline-Core.ps1, RegistryChanges-Definition.ps1
+  - **User Report**: Forum user "Niko" - downloads completely broken
+  - **Commit**: `263225a`
+
+- **Verify Script: 4 Power Management False Negatives**
+  - **Bug #1**: Display Timeout check failed (text parsing unreliable)
+  - **Bug #2**: Hibernate Timeout check failed (wrong regex pattern)
+  - **Bug #3**: Hibernate Enabled shown as ERROR (should be INFO - hardware dependent)
+  - **Bug #4**: Registry count 388 vs 345 misunderstood (BY DESIGN, not bug!)
+  - **Fix**: GUID-based powercfg queries (100% reliable), Impact level adjusted
+  - **Result**: Verify now shows 119/121 PASS (98.3%) - only 2 hardware-dependent failures
+  - **Files**: Verify-SecurityBaseline.ps1, Backup-SecurityBaseline.ps1
+  - **Commits**: `ba21402`, `271f972`
+
+- **Restore Script: PropertyNotFoundException on Power Settings**
+  - **Bug**: Crash when restoring backups without power management data
+  - **Symptom**: "MonitorTimeoutAC" property not found → script terminated
+  - **Root Cause**: Direct property access without PSObject.Properties check
+  - **Fix**: Defensive property access pattern (check existence BEFORE access)
+  - **Pattern**: `if ('Property' -in $obj.PSObject.Properties.Name) { ... }`
+  - **Result**: Graceful skip when no power settings in backup
+  - **Files**: Restore-SecurityBaseline.ps1
+  - **Commit**: `e17dba0`
+
+- **Power Management: Persistent Settings Not Applied**
+  - **Bug**: Power settings reset after reboot (`powercfg /change` not persistent)
+  - **Fix**: Use `/SETACVALUEINDEX` and `/SETDCVALUEINDEX` instead
+  - **Result**: Settings survive reboots and power scheme changes
+  - **Files**: SecurityBaseline-Advanced.ps1, Restore-SecurityBaseline.ps1
+  - **Commits**: `7fba4e5`, `80e2d49`
+
+### Changed
+
+- **Repository Cleanup** - 6 obsolete files removed
+  - Removed: `Fix-OutlookSearch.ps1`, `ATTACK-VECTORS-REMAINING.md`, `PENTEST-LEARNINGS.md`
+  - Removed: `Fix-1806-ChromeEdge-Downloads.reg`, `Test-SearchFunctionality.ps1`
+  - Removed: `Modules/SecurityBaseline-UAC.ps1` (merged into Core)
+  - Reason: Features integrated into main codebase, standalone scripts obsolete
+  - Docs: All references cleaned from README, CHANGELOG
+  - Commits: `ffc6ee2`, `e55e460`
+
+### Technical Details
+
+- **Total Changes**: 20 commits, ~500 lines modified
+- **Critical Fixes**: 6 (Settings Search, Downloads, Power Management, Camera/Mic)
+- **New Features**: 2 (Hibernate Integration, Power Backup/Restore)
+- **Registry Keys**: 388 → 384 entries (more user-friendly)
+- **Quality**: Root cause analysis for ALL bugs (no quick fixes!)
+- **Testing**: Verified on German Windows VM, backup/restore cycle tested
+
+### Upgrade Notes
+
+- **Camera/Mic/Location**: Apps will now ASK for permission (expected behavior)
+  - If you want hard-block: Manually set HKCU registry keys
+  - Default: Privacy by Default + User prompts ✅
+  
+- **Hibernate**: Now linked to Remote Access choice
+  - Desktop Mode: ON (saves power, clears RAM)
+  - Remote Server Mode: OFF (24/7 availability)
+  
+- **Power Settings**: Fully backed up and restorable
+  - Old backups compatible (graceful handling)
+
 ## [1.7.19] - 2025-11-04
 
 ### Improved
