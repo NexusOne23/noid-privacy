@@ -8,27 +8,22 @@ name: CI - PowerShell Quality Checks
   workflow_dispatch:
 
 jobs:
-  test:
-    name: Test on PowerShell ${{ matrix.psVersion }}
+  test-ps5:
+    name: Test on PowerShell 5.1
     runs-on: windows-latest
-    
-    strategy:
-      fail-fast: false
-      matrix:
-        psVersion: ['5.1', '7.4']
     
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
       
       - name: Display PowerShell version
-        shell: ${{ matrix.psVersion == '5.1' && 'powershell' || 'pwsh' }}
+        shell: powershell
         run: |
           Write-Host "PowerShell Version:" -ForegroundColor Cyan
           $PSVersionTable
       
       - name: Install Pester
-        shell: ${{ matrix.psVersion == '5.1' && 'powershell' || 'pwsh' }}
+        shell: powershell
         run: |
           if (!(Get-Module -ListAvailable -Name Pester | Where-Object Version -ge '5.0.0')) {
             Install-Module -Name Pester -MinimumVersion 5.0.0 -Force -SkipPublisherCheck
@@ -37,7 +32,7 @@ jobs:
           Get-Module Pester
       
       - name: Run Pester Tests
-        shell: ${{ matrix.psVersion == '5.1' && 'powershell' || 'pwsh' }}
+        shell: powershell
         run: |
           # Check if Tests directory exists and has test files
           if (!(Test-Path './Tests')) {
@@ -78,7 +73,74 @@ jobs:
         if: always()
         with:
           files: './TestResults.xml'
-          check_name: 'Test Results (PS ${{ matrix.psVersion }})'
+          check_name: 'Test Results (PS 5.1)'
+  
+  test-ps7:
+    name: Test on PowerShell 7.4
+    runs-on: windows-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Display PowerShell version
+        shell: pwsh
+        run: |
+          Write-Host "PowerShell Version:" -ForegroundColor Cyan
+          $PSVersionTable
+      
+      - name: Install Pester
+        shell: pwsh
+        run: |
+          if (!(Get-Module -ListAvailable -Name Pester | Where-Object Version -ge '5.0.0')) {
+            Install-Module -Name Pester -MinimumVersion 5.0.0 -Force -SkipPublisherCheck
+          }
+          Import-Module Pester -MinimumVersion 5.0.0
+          Get-Module Pester
+      
+      - name: Run Pester Tests
+        shell: pwsh
+        run: |
+          # Check if Tests directory exists and has test files
+          if (!(Test-Path './Tests')) {
+            Write-Host "No Tests directory found - skipping tests" -ForegroundColor Yellow
+            exit 0
+          }
+          
+          $testFiles = Get-ChildItem -Path './Tests' -Filter '*.Tests.ps1' -Recurse
+          if ($testFiles.Count -eq 0) {
+            Write-Host "No test files found (*.Tests.ps1) - skipping tests" -ForegroundColor Yellow
+            exit 0
+          }
+          
+          Write-Host "Found $($testFiles.Count) test file(s)" -ForegroundColor Cyan
+          
+          $config = New-PesterConfiguration
+          $config.Run.Path = './Tests'
+          $config.Run.PassThru = $true
+          $config.CodeCoverage.Enabled = $false
+          $config.TestResult.Enabled = $true
+          $config.TestResult.OutputFormat = 'NUnitXml'
+          $config.TestResult.OutputPath = './TestResults.xml'
+          $config.Output.Verbosity = 'Detailed'
+          
+          $result = Invoke-Pester -Configuration $config
+          
+          if ($result.FailedCount -gt 0) {
+            Write-Host ""
+            Write-Host "FAILED: $($result.FailedCount) test(s) failed!" -ForegroundColor Red
+            exit 1
+          }
+          
+          Write-Host ""
+          Write-Host "SUCCESS: All $($result.PassedCount) test(s) passed!" -ForegroundColor Green
+      
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action/windows@v2
+        if: always()
+        with:
+          files: './TestResults.xml'
+          check_name: 'Test Results (PS 7.4)'
   
   analyze:
     name: PSScriptAnalyzer
