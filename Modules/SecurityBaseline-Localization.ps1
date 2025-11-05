@@ -79,9 +79,6 @@ $Global:Strings = @{
         
         # Module Selection
         ModuleSelectionTitle = "MODULE SELECTION (Custom Mode)"
-        ModuleSelectionInstructions = "Use UP/DOWN to navigate, SPACE to enable/disable"
-        ModuleSelectionConfirm = "ENTER to confirm and start"
-        ModuleMandatory = "(Mandatory)"
         ModuleSelectionControls = "CONTROLS:"
         ModuleSelectionArrows = "[Arrow Keys Up/Down]  - Move cursor"
         ModuleSelectionSpace = "[SPACE]                - Enable/disable module (not for mandatory modules)"
@@ -1662,9 +1659,6 @@ $Global:Strings = @{
         
         # Module Selection
         ModuleSelectionTitle = "MODULE AUSWAHL (Custom Mode)"
-        ModuleSelectionInstructions = "Verwenden Sie Pfeiltasten zum Navigieren, SPACE zum Aktivieren/Deaktivieren"
-        ModuleSelectionConfirm = "ENTER zum Bestaetigen und Starten"
-        ModuleMandatory = "(Pflicht)"
         ModuleSelectionControls = "STEUERUNG:"
         ModuleSelectionArrows = "[Pfeiltasten Hoch/Runter]  - Cursor bewegen"
         ModuleSelectionSpace = "[SPACE]                    - Modul aktivieren/deaktivieren (nicht bei Pflicht-Modulen)"
