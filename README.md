@@ -690,9 +690,9 @@ The authors are not responsible for any damage or data loss caused by this scrip
 <details>
 <summary><b>Previous Updates (click to expand)</b></summary>
 
-## v1.7.20
+### v1.7.20
 
-### 🎯 Major Feature: Privacy by Default WITH User Control
+#### 🎯 Major Feature: Privacy by Default WITH User Control
 
 #### **Camera/Microphone/Location Permissions Rebalanced** 🔥
 - **BREAKING CHANGE**: Apps can now request Camera/Mic/Location permissions again
@@ -706,7 +706,7 @@ The authors are not responsible for any damage or data loss caused by this scrip
   - **Registry**: 388 → 384 entries (-4 HKCU entries removed)
   - **Commits**: `c62d300`, `acae656`
 
-### Added
+#### Added
 
 - **Hibernate Mode Linked to Remote Access Choice** 🚀
   - **Desktop Mode (RDP OFF)**: Hibernate enabled (30 min timeout)
@@ -725,7 +725,7 @@ The authors are not responsible for any damage or data loss caused by this scrip
   - **Files**: Backup-SecurityBaseline.ps1, Restore-SecurityBaseline.ps1
   - **Commits**: `9eecdc6`, `36b948a`
 
-### Fixed
+#### Fixed
 
 - **CRITICAL: Windows Settings App Search Broken** 🔥
   - **Bug**: DisableWebSearch registry key blocked Settings app search
@@ -773,7 +773,7 @@ The authors are not responsible for any damage or data loss caused by this scrip
   - **Files**: SecurityBaseline-Advanced.ps1, Restore-SecurityBaseline.ps1
   - **Commits**: `7fba4e5`, `80e2d49`
 
-### Changed
+#### Changed
 
 - **Repository Cleanup** - 6 obsolete files removed
   - Removed: `Fix-OutlookSearch.ps1`, `ATTACK-VECTORS-REMAINING.md`, `PENTEST-LEARNINGS.md`
@@ -783,7 +783,7 @@ The authors are not responsible for any damage or data loss caused by this scrip
   - Docs: All references cleaned from README, CHANGELOG
   - Commits: `ffc6ee2`, `e55e460`
 
-### Technical Details
+#### Technical Details
 
 - **Total Changes**: 20 commits, ~500 lines modified
 - **Critical Fixes**: 6 (Settings Search, Downloads, Power Management, Camera/Mic)
@@ -792,7 +792,7 @@ The authors are not responsible for any damage or data loss caused by this scrip
 - **Quality**: Root cause analysis for ALL bugs (no quick fixes!)
 - **Testing**: Verified on German Windows VM, backup/restore cycle tested
 
-### Upgrade Notes
+#### Upgrade Notes
 
 - **Camera/Mic/Location**: Apps will now ASK for permission (expected behavior)
   - If you want hard-block: Manually set HKCU registry keys
@@ -805,9 +805,9 @@ The authors are not responsible for any damage or data loss caused by this scrip
 - **Power Settings**: Fully backed up and restorable
   - Old backups compatible (graceful handling)
 
-## v1.7.19
+### v1.7.19
 
-### Improved
+#### Improved
 - **Gaming Recommendations Refined** - Removed pauschal "Gamer = Option 2" statements
   - **Issue**: Remote-Menu suggested Option 2 (less strict) for ALL gamers
   - **Reality**: 90% of multiplayer games only need outbound (work with Strict Mode)
@@ -818,7 +818,7 @@ The authors are not responsible for any damage or data loss caused by this scrip
   - **User Feedback**: Gaming recommendations too broad, security-first approach needed
   - **Commits**: `70b9173`, `990ac76`
 
-### Added
+#### Added
 - **All Instructions Fully Localized** - VBS, BitLocker, CPU-Check messages (72 strings)
   - **VBS POST-REBOOT Verification**: 10 strings (DE+EN) - Anleitung nach Neustart
   - **BitLocker NOT ACTIVE Warning**: 11 strings (DE+EN) - Manuelle Aktivierung
