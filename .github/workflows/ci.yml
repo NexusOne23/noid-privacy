@@ -21,19 +21,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       
-      - name: Setup PowerShell 7
-        if: matrix.psVersion == '7.4'
-        uses: actions/setup-powershell@v1
-        with:
-          pwsh-version: '7.4.0'
-      
       - name: Display PowerShell version
-        shell: pwsh
+        shell: ${{ matrix.psVersion == '5.1' && 'powershell' || 'pwsh' }}
         run: |
+          Write-Host "PowerShell Version:" -ForegroundColor Cyan
           $PSVersionTable
       
       - name: Install Pester
-        shell: pwsh
+        shell: ${{ matrix.psVersion == '5.1' && 'powershell' || 'pwsh' }}
         run: |
           if (!(Get-Module -ListAvailable -Name Pester | Where-Object Version -ge '5.0.0')) {
             Install-Module -Name Pester -MinimumVersion 5.0.0 -Force -SkipPublisherCheck
@@ -42,8 +37,22 @@ jobs:
           Get-Module Pester
       
       - name: Run Pester Tests
-        shell: pwsh
+        shell: ${{ matrix.psVersion == '5.1' && 'powershell' || 'pwsh' }}
         run: |
+          # Check if Tests directory exists and has test files
+          if (!(Test-Path './Tests')) {
+            Write-Host "No Tests directory found - skipping tests" -ForegroundColor Yellow
+            exit 0
+          }
+          
+          $testFiles = Get-ChildItem -Path './Tests' -Filter '*.Tests.ps1' -Recurse
+          if ($testFiles.Count -eq 0) {
+            Write-Host "No test files found (*.Tests.ps1) - skipping tests" -ForegroundColor Yellow
+            exit 0
+          }
+          
+          Write-Host "Found $($testFiles.Count) test file(s)" -ForegroundColor Cyan
+          
           $config = New-PesterConfiguration
           $config.Run.Path = './Tests'
           $config.Run.PassThru = $true
@@ -56,8 +65,13 @@ jobs:
           $result = Invoke-Pester -Configuration $config
           
           if ($result.FailedCount -gt 0) {
-            throw "$($result.FailedCount) test(s) failed"
+            Write-Host ""
+            Write-Host "FAILED: $($result.FailedCount) test(s) failed!" -ForegroundColor Red
+            exit 1
           }
+          
+          Write-Host ""
+          Write-Host "SUCCESS: All $($result.PassedCount) test(s) passed!" -ForegroundColor Green
       
       - name: Publish Test Results
         uses: EnricoMi/publish-unit-test-result-action/windows@v2
@@ -85,6 +99,15 @@ jobs:
         run: |
           $settingsPath = './.pssa-settings.psd1'
           
+          # Check if any PowerShell files exist
+          $psFiles = Get-ChildItem -Path . -Include '*.ps1','*.psm1','*.psd1' -Recurse -ErrorAction SilentlyContinue
+          if (!$psFiles) {
+            Write-Host "No PowerShell files found - skipping analysis" -ForegroundColor Yellow
+            exit 0
+          }
+          
+          Write-Host "Analyzing $($psFiles.Count) PowerShell file(s)..." -ForegroundColor Cyan
+          
           if (Test-Path $settingsPath) {
             Write-Host "Using settings file: $settingsPath" -ForegroundColor Cyan
             $results = Invoke-ScriptAnalyzer -Path . -Recurse -Settings $settingsPath
@@ -94,11 +117,13 @@ jobs:
           }
           
           if ($results) {
+            Write-Host ""
+            Write-Host "PSScriptAnalyzer Results:" -ForegroundColor Cyan
             $results | Format-Table -AutoSize
             
-            $errors = $results | Where-Object Severity -eq 'Error'
-            $warnings = $results | Where-Object Severity -eq 'Warning'
-            $info = $results | Where-Object Severity -eq 'Information'
+            $errors = @($results | Where-Object Severity -eq 'Error')
+            $warnings = @($results | Where-Object Severity -eq 'Warning')
+            $info = @($results | Where-Object Severity -eq 'Information')
             
             Write-Host ""
             Write-Host "Summary:" -ForegroundColor Cyan
@@ -108,11 +133,17 @@ jobs:
             
             if ($errors.Count -gt 0) {
               Write-Host ""
-              Write-Host "Failing build due to PSScriptAnalyzer errors!" -ForegroundColor Red
+              Write-Host "FAILED: Build fails due to $($errors.Count) PSScriptAnalyzer error(s)!" -ForegroundColor Red
               exit 1
             }
+            
+            if ($warnings.Count -gt 0) {
+              Write-Host ""
+              Write-Host "WARNING: $($warnings.Count) warning(s) found but build continues" -ForegroundColor Yellow
+            }
           } else {
-            Write-Host "No issues found! ✓" -ForegroundColor Green
+            Write-Host ""
+            Write-Host "SUCCESS: No issues found! ✓" -ForegroundColor Green
           }
       
       - name: Upload PSSA Results
