@@ -1354,10 +1354,10 @@ function Show-BackupPrompt {
         Write-Host "    - DNS Settings + DoH (meist Router-DNS, kein DoH)" -ForegroundColor Gray
         Write-Host "    - Hosts-Datei (Windows-Default ~5 Zeilen, ohne 80K Blocklist)" -ForegroundColor Gray
         Write-Host "    - Installierte Apps (Liste mit Namen, NICHT die Apps selbst)" -ForegroundColor Gray
-        Write-Host "    - Services (150+ Services mit StartType)" -ForegroundColor Gray
-        Write-Host "    - Firewall (500+ Regeln + 3 Profile Domain/Private/Public)" -ForegroundColor Gray
-        Write-Host "    - Scheduled Tasks (300+ Tasks mit State)" -ForegroundColor Gray
-        Write-Host "    - Registry (~475 Keys HKLM+HKCU die Script aendert)" -ForegroundColor Gray
+        Write-Host "    - Services (alle Services mit StartType)" -ForegroundColor Gray
+        Write-Host "    - Firewall (alle System-Regeln + 3 Profile Domain/Private/Public)" -ForegroundColor Gray
+        Write-Host "    - Scheduled Tasks (alle Tasks mit State)" -ForegroundColor Gray
+        Write-Host "    - Registry (384 Keys die Script aendert)" -ForegroundColor Gray
         Write-Host "    - Built-in Admin (Name 'Administrator' + Enabled=$false)" -ForegroundColor Gray
         Write-Host "    - ASR + Exploit Protection (meist LEER, Windows Defaults)" -ForegroundColor Gray
         Write-Host ""
@@ -1445,10 +1445,10 @@ function Show-BackupPrompt {
         Write-Host "  - DNS Settings + DoH (usually Router-DNS, no DoH)" -ForegroundColor Gray
         Write-Host "  - Hosts file (Windows default ~5 lines, without 80K blocklist)" -ForegroundColor Gray
         Write-Host "  - Installed Apps (list with names, NOT the apps themselves)" -ForegroundColor Gray
-        Write-Host "  - Services (150+ services with StartType)" -ForegroundColor Gray
-        Write-Host "  - Firewall (500+ rules + 3 profiles Domain/Private/Public)" -ForegroundColor Gray
-        Write-Host "  - Scheduled Tasks (300+ tasks with state)" -ForegroundColor Gray
-        Write-Host "  - Registry (~475 keys HKLM+HKCU that script changes)" -ForegroundColor Gray
+        Write-Host "  - Services (all services with StartType)" -ForegroundColor Gray
+        Write-Host "  - Firewall (all system rules + 3 profiles Domain/Private/Public)" -ForegroundColor Gray
+        Write-Host "  - Scheduled Tasks (all tasks with state)" -ForegroundColor Gray
+        Write-Host "  - Registry (384 keys that script modifies)" -ForegroundColor Gray
         Write-Host "  - Built-in Admin (name 'Administrator' + Enabled=$false)" -ForegroundColor Gray
         Write-Host "  - ASR + Exploit Protection (usually EMPTY, Windows defaults)" -ForegroundColor Gray
         Write-Host ""

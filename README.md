@@ -28,7 +28,7 @@
 | **100% locally-implementable<br>MS Baseline (213/365)** | **95% Telemetry Reduced** | **30 Tasks Disabled** | **Complete Backup** |
 | 19 ASR Rules (Enforce) | 9 AI Features Locked | Event Logs Optimized | 494 Settings Restored |
 | 13 Exploit Mitigations | 37 App Permissions | No Bloatware | **0 Errors** |
-| Credential Guard + VBS | 79,776 Domains Blocked | Faster Boot | Safe to Experiment |
+| Credential Guard + VBS | 80,101 Domains Blocked | Faster Boot | Safe to Experiment |
 
 **→ [3-Minute Setup](#-quick-start)** · **[See All 400+ Settings](FEATURES.md)** · **[Compare with Others](#-why-noid-privacy)**
 
@@ -115,7 +115,7 @@ cd noid-privacy
 - **AI Lockdown (9 features)** → Windows Recall DISABLED (no screenshots of passwords!), Copilot blocked (4 layers), Click to Do, Paint AI (3), Notepad AI, Settings Agent, Copilot Proactive
 - **App Permission Control** → 37 categories default-DENY (apps can't spy without explicit permission)
 - **Clean System** → 80+ bloatware app patterns checked (Xbox, 3D apps, Candy Crush, Teams Chat, Copilot, Widgets)
-- **79,776 Trackers Blocked** → DNS-level blocking via Steven Black hosts + Cloudflare DoH
+- **80,101 Trackers Blocked** → DNS-level blocking via Steven Black hosts (Oct 2025) + Cloudflare DoH
 
 **Bottom Line:** Telemetry reduced to Security-Essential level (Required Diagnostic Data for Windows Update/Defender)
 
@@ -151,7 +151,7 @@ This project minimizes telemetry via Registry, Services, Firewall, and DNS block
 
 **Multi-Provider DNS-over-HTTPS** → Choose from 4 providers (Cloudflare, AdGuard, NextDNS, Quad9)  
 **100% Strict DoH Enforcement** → No fallback to unencrypted DNS (`autoupgrade=yes`, `udpfallback=no`)  
-**Steven Black Hosts** → 79,776 malicious/tracking domains blocked (cache-optimized)
+**Steven Black Hosts** → 80,101 malicious/tracking domains blocked (updated Oct 2025, cache-optimized)
 
 <details>
 <summary><b>📋 DNS Details (click to expand)</b></summary>
@@ -173,13 +173,13 @@ This project minimizes telemetry via Registry, Services, Firewall, and DNS block
 - ✅ **DNSSEC Validation:** Prevents DNS spoofing/poisoning
 
 **Steven Black Unified Hosts File (Optimized)**
-- ✅ **79,776 malicious/tracking domains blocked** at DNS level (before queries even reach DNS!)
-- ✅ **Compressed to 8,864 lines** (9 domains per line - Windows DNS Cache optimized)
+- ✅ **80,101 malicious/tracking domains blocked** at DNS level (before queries even reach DNS!)
+- ✅ **Compressed to 8,891 lines** (9 domains per line - Windows DNS Cache optimized)
 - ✅ **Zero performance impact** - in-memory lookup
-- ✅ **Updated regularly** from Steven Black repository
+- ✅ **Updated regularly** from Steven Black repository (last: Oct 17, 2025)
 
 **Defense in Depth Architecture:**
-1. **Hosts file** (79K+) → Blocks before DNS query
+1. **Hosts file** (80K+) → Blocks before DNS query
 2. **DoH Provider** → Encrypts queries (ISP can't see)
 3. **DNSSEC** → Validates responses (prevents spoofing)
 4. **Threat Intel** (Quad9) or **Ad Blocking** (AdGuard) → Extra protection
@@ -334,7 +334,7 @@ The project uses a modular architecture with **13 specialized modules**: Core, A
 | **Core** | Security baseline, Defender, Firewall, Services | 25 services disabled, 13 firewall rules, 13 exploit mitigations, Admin/Guest account hardening |
 | **ASR** | Attack Surface Reduction rules | 19 ASR rules (Enforce mode), Smart App Control |
 | **Advanced** | VBS, Credential Guard, LAPS, Auditing | Credential Guard, VBS, HVCI, LSA-PPL, BitLocker policies, Windows LAPS, TLS/SSL hardening |
-| **DNS** | Multi-Provider DoH, DNSSEC, Blocklist | 4 providers (Cloudflare/AdGuard/NextDNS/Quad9), 100% strict enforcement, DNSSEC validation, 79,776 blocked domains, Strict Inbound Firewall |
+| **DNS** | Multi-Provider DoH, DNSSEC, Blocklist | 4 providers (Cloudflare/AdGuard/NextDNS/Quad9), 100% strict enforcement, DNSSEC validation, 80,101 blocked domains, Strict Inbound Firewall |
 | **Bloatware** | App removal, Consumer features | 80+ app patterns, Teams Chat/Copilot/Widgets disabled, Consumer Features blocked |
 | **Telemetry** | Privacy protection, App permissions | 25+ services, 391 registry keys (110 telemetry-specific), 37 app permission categories, Camera/Mic controls |
 | **Performance** | Scheduled tasks, Event logs | 30 tasks disabled, Event log optimization, Windows Search local-only, Prefetch/Superfetch tuning |

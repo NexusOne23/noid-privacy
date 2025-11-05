@@ -380,7 +380,7 @@ Third-party antivirus products (Bitdefender, Kaspersky, Norton, etc.) **replace*
 
 ### How many domains are blocked?
 
-**79,776 unique domains** from Steven Black Unified Hosts list (8,864 lines × 9 domains per line).
+**80,101 unique domains** from Steven Black Unified Hosts list (updated Oct 17, 2025, 8,891 lines × 9 domains per line).
 
 **Categories:**
 - Malware domains
@@ -402,7 +402,7 @@ Third-party antivirus products (Bitdefender, Kaspersky, Norton, etc.) **replace*
 
 **Our Solution:**
 - ✅ **9 domains per line** (community best practice)
-- ✅ 79,776 domains compressed to 8,864 lines
+- ✅ 80,101 domains compressed to 8,891 lines
 - ✅ **Full protection, zero performance impact**
 - ✅ DNS cache stays fast and efficient
 
