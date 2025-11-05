@@ -137,10 +137,9 @@ try {
         throw "Apply script not found in package!"
     }
     
-    # Change to script directory
+    # Get script directory (for unblocking files)
     $scriptDirectory = $applyScript.Directory.FullName
-    Set-Location $scriptDirectory
-    Write-Host "    [OK] Working directory: $scriptDirectory" -ForegroundColor Green
+    Write-Host "    [OK] Script directory: $scriptDirectory" -ForegroundColor Green
     
     # Unblock all PowerShell files (critical for ZIP downloads!)
     Write-Host "    -> Unblocking PowerShell files..." -ForegroundColor Gray
