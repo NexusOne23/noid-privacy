@@ -152,6 +152,61 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
       
+      - name: Validate PowerShell Syntax
+        shell: pwsh
+        run: |
+          Write-Host "=== PowerShell Syntax Validation ===" -ForegroundColor Cyan
+          Write-Host ""
+          
+          # Find all PowerShell files
+          $files = Get-ChildItem -Path . -Include *.ps1,*.psm1 -Recurse -ErrorAction SilentlyContinue | 
+                   Where-Object { $_.FullName -notmatch '\\\.git\\' -and $_.FullName -notmatch '\\node_modules\\' }
+          
+          if (!$files) {
+            Write-Host "No PowerShell files found - skipping validation" -ForegroundColor Yellow
+            exit 0
+          }
+          
+          Write-Host "Validating syntax for $($files.Count) file(s)..." -ForegroundColor Cyan
+          Write-Host ""
+          
+          $errors = @()
+          $success = 0
+          
+          foreach ($file in $files) {
+            try {
+              $null = [System.Management.Automation.Language.Parser]::ParseFile(
+                $file.FullName, 
+                [ref]$null, 
+                [ref]$null
+              )
+              Write-Host "  [OK] $($file.Name)" -ForegroundColor Green
+              $success++
+            }
+            catch {
+              Write-Host "  [FAIL] $($file.Name): $_" -ForegroundColor Red
+              $errors += @{File = $file.FullName; Error = $_.Exception.Message}
+            }
+          }
+          
+          Write-Host ""
+          Write-Host "Summary:" -ForegroundColor Cyan
+          Write-Host "  Valid:   $success" -ForegroundColor Green
+          Write-Host "  Invalid: $($errors.Count)" -ForegroundColor $(if ($errors.Count -gt 0) { 'Red' } else { 'Green' })
+          
+          if ($errors.Count -gt 0) {
+            Write-Host ""
+            Write-Host "FAILED: Syntax errors found in $($errors.Count) file(s)!" -ForegroundColor Red
+            foreach ($err in $errors) {
+              Write-Host "  $($err.File)" -ForegroundColor Red
+              Write-Host "    Error: $($err.Error)" -ForegroundColor Gray
+            }
+            exit 1
+          }
+          
+          Write-Host ""
+          Write-Host "SUCCESS: All $success file(s) have valid PowerShell syntax!" -ForegroundColor Green
+      
       - name: Install PSScriptAnalyzer
         shell: pwsh
         run: |
