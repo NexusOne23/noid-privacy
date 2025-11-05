@@ -250,20 +250,42 @@ function Show-ModuleSelection {
     
     # IMPORTANT: Check if PowerShell ISE (arrow keys do NOT work there!)
     if ($Host.Name -match "ISE") {
+        $title = Get-LocalizedString 'ISEWarningTitle'
+        if (-not $title) { $title = "WARNING: PowerShell ISE NOT SUPPORTED!" }
+        
         Write-Host ""
         Write-Host "============================================================================" -ForegroundColor Red
-        Write-Host "  WARNUNG: PowerShell ISE NICHT UNTERSTUETZT!" -ForegroundColor Red
+        Write-Host "  $title" -ForegroundColor Red
         Write-Host "============================================================================" -ForegroundColor Red
         Write-Host ""
-        Write-Host "  Custom Mode benoetigt Pfeiltasten-Navigation." -ForegroundColor Yellow
-        Write-Host "  Diese funktionieren NICHT in PowerShell ISE!" -ForegroundColor Yellow
+        
+        $message = Get-LocalizedString 'ISEWarningMessage'
+        if (-not $message) { $message = "Custom Mode requires arrow key navigation." }
+        Write-Host "  $message" -ForegroundColor Yellow
+        
+        $notWork = Get-LocalizedString 'ISEWarningNotWork'
+        if (-not $notWork) { $notWork = "This does NOT work in PowerShell ISE!" }
+        Write-Host "  $notWork" -ForegroundColor Yellow
         Write-Host ""
-        Write-Host "  LOESUNG:" -ForegroundColor Cyan
-        Write-Host "  1. Oeffnen Sie eine NORMALE PowerShell Console" -ForegroundColor White
-        Write-Host "  2. Fuehren Sie das Script dort aus" -ForegroundColor White
+        
+        $solution = Get-LocalizedString 'ISEWarningSolution'
+        if (-not $solution) { $solution = "SOLUTION:" }
+        Write-Host "  $solution" -ForegroundColor Cyan
+        
+        $step1 = Get-LocalizedString 'ISEWarningStep1'
+        if (-not $step1) { $step1 = "1. Open a NORMAL PowerShell Console" }
+        Write-Host "  $step1" -ForegroundColor White
+        
+        $step2 = Get-LocalizedString 'ISEWarningStep2'
+        if (-not $step2) { $step2 = "2. Run the script there" }
+        Write-Host "  $step2" -ForegroundColor White
         Write-Host ""
-        Write-Host "  Alternative: Verwenden Sie Audit/Enforce Mode (Option 1/2)" -ForegroundColor Gray
+        
+        $alternative = Get-LocalizedString 'ISEWarningAlternative'
+        if (-not $alternative) { $alternative = "Alternative: Use Audit/Enforce Mode (Option 1/2)" }
+        Write-Host "  $alternative" -ForegroundColor Gray
         Write-Host ""
+        
         $pressKeyMsg = Get-LocalizedString 'PressAnyKeyToReturn'
         if (-not $pressKeyMsg) { $pressKeyMsg = "Press any key to return..." }
         Write-Host "  $pressKeyMsg" -ForegroundColor Gray
@@ -371,20 +393,50 @@ function Show-ModuleSelection {
     while (-not $done) {
         Show-Banner
         
+        $title = Get-LocalizedString 'ModuleSelectionTitle'
+        if (-not $title) { $title = "MODULE SELECTION (Custom Mode)" }
+        
         Write-Host "============================================================================" -ForegroundColor Yellow
-        Write-Host "                        MODULE AUSWAHL (Custom Mode)" -ForegroundColor Yellow
+        Write-Host "                        $title" -ForegroundColor Yellow
         Write-Host "============================================================================" -ForegroundColor Yellow
         Write-Host ""
-        Write-Host "  STEUERUNG:" -ForegroundColor Cyan
-        Write-Host "    [Pfeiltasten Hoch/Runter]  - Cursor bewegen" -ForegroundColor White
-        Write-Host "    [SPACE]                    - Modul aktivieren/deaktivieren (nicht bei Pflicht-Modulen)" -ForegroundColor White
-        Write-Host "    [A]                        - ALLE Module auswaehlen" -ForegroundColor White
-        Write-Host "    [N]                        - Nichts auswaehlen (Pflicht-Module bleiben aktiv)" -ForegroundColor White
-        Write-Host "    [ENTER]                    - Auswahl bestaetigen und starten" -ForegroundColor Green
-        Write-Host "    [ESC]                      - Zurueck zum Hauptmenue (ohne Aenderungen)" -ForegroundColor Yellow
+        
+        $controls = Get-LocalizedString 'ModuleSelectionControls'
+        if (-not $controls) { $controls = "CONTROLS:" }
+        Write-Host "  $controls" -ForegroundColor Cyan
+        
+        $arrows = Get-LocalizedString 'ModuleSelectionArrows'
+        if (-not $arrows) { $arrows = "[Arrow Keys Up/Down]  - Move cursor" }
+        Write-Host "    $arrows" -ForegroundColor White
+        
+        $space = Get-LocalizedString 'ModuleSelectionSpace'
+        if (-not $space) { $space = "[SPACE]                - Enable/disable module (not for mandatory modules)" }
+        Write-Host "    $space" -ForegroundColor White
+        
+        $selectAll = Get-LocalizedString 'ModuleSelectionA'
+        if (-not $selectAll) { $selectAll = "[A]                    - Select ALL modules" }
+        Write-Host "    $selectAll" -ForegroundColor White
+        
+        $selectNone = Get-LocalizedString 'ModuleSelectionN'
+        if (-not $selectNone) { $selectNone = "[N]                    - Select NONE (mandatory modules stay active)" }
+        Write-Host "    $selectNone" -ForegroundColor White
+        
+        $enter = Get-LocalizedString 'ModuleSelectionEnter'
+        if (-not $enter) { $enter = "[ENTER]                - Confirm selection and start" }
+        Write-Host "    $enter" -ForegroundColor Green
+        
+        $esc = Get-LocalizedString 'ModuleSelectionEsc'
+        if (-not $esc) { $esc = "[ESC]                  - Return to main menu (without changes)" }
+        Write-Host "    $esc" -ForegroundColor Yellow
         Write-Host ""
-        Write-Host "  HINWEIS: " -NoNewline -ForegroundColor Yellow
-        Write-Host "GELBE Module sind Pflicht und immer aktiv!" -ForegroundColor Yellow
+        
+        $hint = Get-LocalizedString 'ModuleSelectionHint'
+        if (-not $hint) { $hint = "HINT:" }
+        Write-Host "  $hint " -NoNewline -ForegroundColor Yellow
+        
+        $mandatory = Get-LocalizedString 'ModuleSelectionMandatory'
+        if (-not $mandatory) { $mandatory = "YELLOW modules are mandatory and always active!" }
+        Write-Host "$mandatory" -ForegroundColor Yellow
         Write-Host ""
         
         for ($i = 0; $i -lt $modules.Count; $i++) {
@@ -396,7 +448,9 @@ function Show-ModuleSelection {
                 $checkbox = "[X]"
                 $checkColor = "Yellow"  # Yellow for mandatory!
                 $nameColor = "Yellow"   # Ganzer Name in Gelb
-                $mandatory = " [PFLICHT - KANN NICHT DEAKTIVIERT WERDEN]"
+                $mandatoryTag = Get-LocalizedString 'ModuleSelectionMandatoryTag'
+                if (-not $mandatoryTag) { $mandatoryTag = "[MANDATORY - CANNOT BE DISABLED]" }
+                $mandatory = " $mandatoryTag"
             }
             else {
                 $checkbox = if ($module.Enabled) { "[X]" } else { "[ ]" }
@@ -537,24 +591,61 @@ function Invoke-AuditMode {
     param()
     
     Show-Banner
+    
+    $title = Get-LocalizedString 'AuditModeTitle'
+    if (-not $title) { $title = "Audit Mode" }
+    
     Write-Host "============================================================================" -ForegroundColor Yellow
-    Write-Host "                           Audit Mode" -ForegroundColor Yellow
+    Write-Host "                           $title" -ForegroundColor Yellow
     Write-Host "============================================================================" -ForegroundColor Yellow
     Write-Host ""
-    Write-Host "  AUDIT MODE - SICHERER TEST-MODUS:" -ForegroundColor Green
+    
+    $bannerTitle = Get-LocalizedString 'AuditModeBannerTitle'
+    if (-not $bannerTitle) { $bannerTitle = "AUDIT MODE - SAFE TEST MODE:" }
+    Write-Host "  $bannerTitle" -ForegroundColor Green
     Write-Host ""
-    Write-Host "  Was passiert:" -ForegroundColor Cyan
-    Write-Host "    1. Alle Settings werden NUR geprueft (keine Aenderungen)" -ForegroundColor White
-    Write-Host "    2. ASR Rules werden im Audit-Modus aktiviert:" -ForegroundColor White
-    Write-Host "       - Loggen Ereignisse (was blockiert WUERDE)" -ForegroundColor Gray
-    Write-Host "       - Blockieren aber NICHTS" -ForegroundColor Gray
-    Write-Host "       - Microsoft Best Practice: Erst Audit, dann Enforce!" -ForegroundColor Gray
+    
+    $whatHappens = Get-LocalizedString 'AuditModeWhatHappens'
+    if (-not $whatHappens) { $whatHappens = "What happens:" }
+    Write-Host "  $whatHappens" -ForegroundColor Cyan
+    
+    $step1 = Get-LocalizedString 'AuditModeStep1'
+    if (-not $step1) { $step1 = "1. All settings will be checked ONLY (no changes)" }
+    Write-Host "    $step1" -ForegroundColor White
+    
+    $step2 = Get-LocalizedString 'AuditModeStep2'
+    if (-not $step2) { $step2 = "2. ASR Rules will be activated in Audit mode:" }
+    Write-Host "    $step2" -ForegroundColor White
+    
+    $step2a = Get-LocalizedString 'AuditModeStep2a'
+    if (-not $step2a) { $step2a = "- Log events (what WOULD be blocked)" }
+    Write-Host "       $step2a" -ForegroundColor Gray
+    
+    $step2b = Get-LocalizedString 'AuditModeStep2b'
+    if (-not $step2b) { $step2b = "- But block NOTHING" }
+    Write-Host "       $step2b" -ForegroundColor Gray
+    
+    $step2c = Get-LocalizedString 'AuditModeStep2c'
+    if (-not $step2c) { $step2c = "- Microsoft Best Practice: First Audit, then Enforce!" }
+    Write-Host "       $step2c" -ForegroundColor Gray
     Write-Host ""
-    Write-Host "  WICHTIG: " -NoNewline -ForegroundColor Yellow
-    Write-Host "Nur ASR Rules werden aktiviert (Logging-only)." -ForegroundColor Yellow
-    Write-Host "           Alle anderen Settings bleiben unveraendert!" -ForegroundColor Yellow
+    
+    $important = Get-LocalizedString 'AuditModeImportant'
+    if (-not $important) { $important = "IMPORTANT:" }
+    Write-Host "  $important " -NoNewline -ForegroundColor Yellow
+    
+    $importantMsg = Get-LocalizedString 'AuditModeImportantMsg'
+    if (-not $importantMsg) { $importantMsg = "Only ASR Rules will be activated (logging-only)." }
+    Write-Host "$importantMsg" -ForegroundColor Yellow
+    
+    $unchanged = Get-LocalizedString 'AuditModeUnchanged'
+    if (-not $unchanged) { $unchanged = "All other settings remain unchanged!" }
+    Write-Host "           $unchanged" -ForegroundColor Yellow
     Write-Host ""
-    Write-Host "  Moechten Sie fortfahren? [J/N]: " -NoNewline -ForegroundColor Cyan
+    
+    $continuePrompt = Get-LocalizedString 'AuditModeContinue'
+    if (-not $continuePrompt) { $continuePrompt = "Would you like to continue? [Y/N]:" }
+    Write-Host "  $continuePrompt " -NoNewline -ForegroundColor Cyan
     
     $confirm = Read-Host
     if ($confirm) {
@@ -688,7 +779,10 @@ function Invoke-CustomMode {
     
     if ($enabledModules.Count -eq 0) {
         Show-Banner
-        Write-Host "  Keine Module ausgewaehlt!" -ForegroundColor Red
+        
+        $noModules = Get-LocalizedString 'CustomModeNoModules'
+        if (-not $noModules) { $noModules = "No modules selected!" }
+        Write-Host "  $noModules" -ForegroundColor Red
         Write-Host ""
         $pressKeyMsg = Get-LocalizedString 'PressAnyKey'
         if (-not $pressKeyMsg) { $pressKeyMsg = "Press any key..." }
@@ -719,11 +813,18 @@ function Invoke-CustomMode {
     }
     
     Show-Banner
+    
+    $title = Get-LocalizedString 'CustomModeSummaryTitle'
+    if (-not $title) { $title = "Custom Mode" }
+    
     Write-Host "============================================================================" -ForegroundColor Yellow
-    Write-Host "                          Custom Mode" -ForegroundColor Yellow
+    Write-Host "                          $title" -ForegroundColor Yellow
     Write-Host "============================================================================" -ForegroundColor Yellow
     Write-Host ""
-    Write-Host "  Ausgewaehlte Module:" -ForegroundColor Cyan
+    
+    $selectedModules = Get-LocalizedString 'CustomModeSelectedModules'
+    if (-not $selectedModules) { $selectedModules = "Selected Modules:" }
+    Write-Host "  $selectedModules" -ForegroundColor Cyan
     foreach ($key in $enabledModules) {
         $module = $modules | Where-Object { $_.Key -eq $key }
         Write-Host "  * $($module.Name)" -ForegroundColor Green
@@ -731,7 +832,10 @@ function Invoke-CustomMode {
     Write-Host ""
     Write-Host "============================================================================" -ForegroundColor Yellow
     Write-Host ""
-    Write-Host "  SCHRITT 2: Waehlen Sie den Modus fuer ASR-Regeln:" -ForegroundColor Cyan
+    
+    $step2 = Get-LocalizedString 'CustomModeStep2'
+    if (-not $step2) { $step2 = "STEP 2: Choose mode for ASR rules:" }
+    Write-Host "  $step2" -ForegroundColor Cyan
     Write-Host ""
     Write-Host "  [1] Audit Mode   (NUR ASR auf Audit, alles andere Enforce)" -ForegroundColor White
     Write-Host "      • ASR Rules nur loggen (empfohlen fuer Test)" -ForegroundColor Gray
@@ -748,14 +852,29 @@ function Invoke-CustomMode {
     Write-Host ""
     Write-Host "============================================================================" -ForegroundColor Green
     Write-Host ""
-    Write-Host "  BEREIT ZUM START!" -ForegroundColor Green
+    
+    $ready = Get-LocalizedString 'CustomModeReady'
+    if (-not $ready) { $ready = "READY TO START!" }
+    Write-Host "  $ready" -ForegroundColor Green
     Write-Host ""
-    Write-Host "  Ausgewaehlte Module: $($enabledModules.Count)" -ForegroundColor White
-    Write-Host "  ASR-Modus: $mode" -ForegroundColor White
+    
+    $moduleCount = Get-LocalizedString 'CustomModeModuleCount' $enabledModules.Count
+    if (-not $moduleCount) { $moduleCount = "Selected Modules: $($enabledModules.Count)" }
+    Write-Host "  $moduleCount" -ForegroundColor White
+    
+    $asrMode = Get-LocalizedString 'CustomModeASRMode' $mode
+    if (-not $asrMode) { $asrMode = "ASR Mode: $mode" }
+    Write-Host "  $asrMode" -ForegroundColor White
     Write-Host ""
-    Write-Host "  Das Script wird jetzt mit Ihrer Konfiguration gestartet." -ForegroundColor Yellow
+    
+    $willStart = Get-LocalizedString 'CustomModeWillStart'
+    if (-not $willStart) { $willStart = "The script will now start with your configuration." }
+    Write-Host "  $willStart" -ForegroundColor Yellow
     Write-Host ""
-    Write-Host "  Moechten Sie JETZT starten? [J/N]: " -NoNewline -ForegroundColor Cyan
+    
+    $startNow = Get-LocalizedString 'CustomModeStartNow'
+    if (-not $startNow) { $startNow = "Would you like to start NOW? [Y/N]:" }
+    Write-Host "  $startNow " -NoNewline -ForegroundColor Cyan
     
     $confirm = Read-Host
     if ($confirm) {
@@ -794,14 +913,27 @@ function Invoke-VerifyMode {
     param()
     
     Show-Banner
+    
+    $title = Get-LocalizedString 'VerifyModeTitle'
+    if (-not $title) { $title = "Verify Mode" }
+    
     Write-Host "============================================================================" -ForegroundColor Yellow
-    Write-Host "                          Verify Mode" -ForegroundColor Yellow
+    Write-Host "                          $title" -ForegroundColor Yellow
     Write-Host "============================================================================" -ForegroundColor Yellow
     Write-Host ""
-    Write-Host "  Verify prueft ob die Baseline korrekt angewendet wurde." -ForegroundColor Yellow
-    Write-Host "  Dies ruft das Verify-Skript auf." -ForegroundColor Yellow
+    
+    $message = Get-LocalizedString 'VerifyModeMessage'
+    if (-not $message) { $message = "Verify checks if the baseline was applied correctly." }
+    Write-Host "  $message" -ForegroundColor Yellow
+    
+    $call = Get-LocalizedString 'VerifyModeCall'
+    if (-not $call) { $call = "This calls the Verify script." }
+    Write-Host "  $call" -ForegroundColor Yellow
     Write-Host ""
-    Write-Host "  Moechten Sie fortfahren? [J/N]: " -NoNewline -ForegroundColor Cyan
+    
+    $continuePrompt = Get-LocalizedString 'VerifyModeContinue'
+    if (-not $continuePrompt) { $continuePrompt = "Would you like to continue? [Y/N]:" }
+    Write-Host "  $continuePrompt " -NoNewline -ForegroundColor Cyan
     
     $confirm = Read-Host
     if ($confirm) {
@@ -811,8 +943,13 @@ function Invoke-VerifyMode {
     if ($confirm -in @('J', 'Y')) {
         # $PSCommandPath null check with robust error handling
         if (-not $PSCommandPath) {
-            Write-Host "  [ERROR] Script-Pfad konnte nicht ermittelt werden (dot-sourced script?)" -ForegroundColor Red
-            Write-Host "  Bitte fuehren Sie das Verify-Skript direkt aus." -ForegroundColor Yellow
+            $errorPath = Get-LocalizedString 'VerifyModeErrorPath'
+            if (-not $errorPath) { $errorPath = "[ERROR] Script path could not be determined (dot-sourced script?)" }
+            Write-Host "  $errorPath" -ForegroundColor Red
+            
+            $runManual = Get-LocalizedString 'VerifyModeErrorRunManual'
+            if (-not $runManual) { $runManual = "Please run the Verify script directly." }
+            Write-Host "  $runManual" -ForegroundColor Yellow
         }
         else {
             try {
@@ -830,19 +967,35 @@ function Invoke-VerifyMode {
                 
                 if (Test-Path $verifyScript) {
                     Write-Host ""
-                    Write-Host "  [INFO] Starte Verify-Skript..." -ForegroundColor Cyan
+                    
+                    $starting = Get-LocalizedString 'VerifyModeStarting'
+                    if (-not $starting) { $starting = "[INFO] Starting Verify script..." }
+                    Write-Host "  $starting" -ForegroundColor Cyan
                     & $verifyScript
                     Write-Host ""
-                    Write-Host "  [OK] Verify-Skript abgeschlossen" -ForegroundColor Green
+                    
+                    $complete = Get-LocalizedString 'VerifyModeComplete'
+                    if (-not $complete) { $complete = "[OK] Verify script completed" }
+                    Write-Host "  $complete" -ForegroundColor Green
                 }
                 else {
-                    Write-Host "  [ERROR] Verify-Skript nicht gefunden!" -ForegroundColor Red
-                    Write-Host "  Erwartet: $verifyScript" -ForegroundColor Gray
+                    $notFound = Get-LocalizedString 'VerifyModeErrorNotFound'
+                    if (-not $notFound) { $notFound = "[ERROR] Verify script not found!" }
+                    Write-Host "  $notFound" -ForegroundColor Red
+                    
+                    $expected = Get-LocalizedString 'VerifyModeErrorExpected' $verifyScript
+                    if (-not $expected) { $expected = "Expected: $verifyScript" }
+                    Write-Host "  $expected" -ForegroundColor Gray
                 }
             }
             catch {
-                Write-Host "  [ERROR] Fehler beim Ausfuehren des Verify-Skripts!" -ForegroundColor Red
-                Write-Host "  Details: $_" -ForegroundColor Gray
+                $errorRun = Get-LocalizedString 'VerifyModeErrorRun'
+                if (-not $errorRun) { $errorRun = "[ERROR] Error running Verify script!" }
+                Write-Host "  $errorRun" -ForegroundColor Red
+                
+                $details = Get-LocalizedString 'VerifyModeErrorDetails' $_
+                if (-not $details) { $details = "Details: $_" }
+                Write-Host "  $details" -ForegroundColor Gray
             }
         }
         

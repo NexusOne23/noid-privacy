@@ -1351,20 +1351,20 @@ Write-Host ""
 
 # IMPORTANT NOTICE: Clarify what -Mode parameter actually does
 if ($Mode -eq 'Audit') {
-    Write-Host "  ⚠️  IMPORTANT NOTICE - AUDIT MODE" -ForegroundColor Yellow
-    Write-Host "  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Yellow
+    Write-Host "  [!] IMPORTANT NOTICE - AUDIT MODE" -ForegroundColor Yellow
+    Write-Host "  ========================================================================" -ForegroundColor Yellow
     Write-Host "  This parameter controls ONLY the 19 ASR (Attack Surface Reduction) rules!" -ForegroundColor White
     Write-Host "  " -ForegroundColor White
-    Write-Host "  ✅ ALL OTHER CHANGES WILL BE APPLIED:" -ForegroundColor Green
-    Write-Host "     • 391 Registry keys (Security + Privacy)" -ForegroundColor Gray
-    Write-Host "     • Services configuration" -ForegroundColor Gray
-    Write-Host "     • Bloatware removal (80+ apps)" -ForegroundColor Gray
-    Write-Host "     • Telemetry & AI features disabled" -ForegroundColor Gray
-    Write-Host "     • Firewall rules" -ForegroundColor Gray
-    Write-Host "     • And all other modules" -ForegroundColor Gray
+    Write-Host "  [+] ALL OTHER CHANGES WILL BE APPLIED:" -ForegroundColor Green
+    Write-Host "      - 391 Registry keys (Security + Privacy)" -ForegroundColor Gray
+    Write-Host "      - Services configuration" -ForegroundColor Gray
+    Write-Host "      - Bloatware removal (80+ apps)" -ForegroundColor Gray
+    Write-Host "      - Telemetry & AI features disabled" -ForegroundColor Gray
+    Write-Host "      - Firewall rules" -ForegroundColor Gray
+    Write-Host "      - And all other modules" -ForegroundColor Gray
     Write-Host "  " -ForegroundColor White
-    Write-Host "  ⚠️  ONLY ASR rules will be in AUDIT mode (logging only)" -ForegroundColor Yellow
-    Write-Host "  ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" -ForegroundColor Yellow
+    Write-Host "  [!] ONLY ASR rules will be in AUDIT mode (logging only)" -ForegroundColor Yellow
+    Write-Host "  ========================================================================" -ForegroundColor Yellow
     Write-Host ""
     Write-Host "  Press CTRL+C within 10 seconds to cancel..." -ForegroundColor Cyan
     Start-Sleep -Seconds 10
