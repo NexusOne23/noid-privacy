@@ -164,15 +164,16 @@ Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process -Force
 # - Reboot prompt at end
 ```
 
-#### Mode B: Audit Mode (Safe Testing)
+#### Mode B: Audit Mode (Full Hardening, ASR Log-Only)
 ```powershell
 .\Apply-Win11-25H2-SecurityBaseline.ps1 -Mode Audit -SkipReboot
 
 # Features:
-# - No enforcement, only logging
-# - Safe to test multiple times
+# - ALL settings applied (registry, services, firewall, etc.)
+# - ONLY ASR rules in logging mode (don't block yet)
+# - Test ASR compatibility before enforcement
 # - Review transcript log afterward
-# - No system reboot
+# - No system reboot (due to -SkipReboot flag)
 ```
 
 #### Mode C: Enforce Mode (Full Hardening)

@@ -104,8 +104,8 @@ This tells Windows that these files are safe.
 #### 6. Follow the Menu
 1. **Choose Language**: English or German
 2. **Select Mode**: 
-   - "Audit Mode" (safe testing) ← Start here!
-   - "Enforce Mode" (full hardening)
+   - "Audit Mode" (full hardening, ASR log-only) ← Start here!
+   - "Enforce Mode" (full hardening, ASR enforcement)
    - "Custom" (pick specific features)
 3. **Create Backup**: Choose "Yes"
 4. **Wait**: Script runs (5-10 minutes)
@@ -116,19 +116,19 @@ This tells Windows that these files are safe.
 ## 🎯 What Happens?
 
 ### After Audit Mode
-- ✅ Settings are **logged** but not enforced
-- ✅ You can review what **would** change
-- ✅ No actual changes made
-- ✅ Safe to test
-
-### After Enforce Mode
+- ✅ **ALL settings fully applied** (registry, services, firewall, etc.)
 - ✅ Windows Defender at maximum protection
-- ✅ Firewall hardened (inbound blocked)
 - ✅ Telemetry disabled
 - ✅ Bloatware removed
 - ✅ Privacy settings maximized
 - ✅ BitLocker configured (if TPM available)
 - ✅ VBS/Credential Guard enabled (after reboot)
+- ⚠️ **ONLY DIFFERENCE:** ASR rules log violations (don't block yet)
+
+### After Enforce Mode
+- ✅ **Same as Audit Mode** (all settings applied)
+- ✅ **PLUS:** ASR rules actively block threats
+- ✅ Maximum protection level
 
 ---
 

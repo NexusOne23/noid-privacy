@@ -305,10 +305,10 @@ shutdown /r /t 0
 ### Modes
 
 ```powershell
-# Audit Mode (safe testing - no enforcement)
+# Audit Mode (all settings applied, ASR rules log-only)
 .\Apply-Win11-25H2-SecurityBaseline.ps1 -Mode Audit
 
-# Enforce Mode (full hardening)
+# Enforce Mode (all settings + ASR rules enforcement)
 .\Apply-Win11-25H2-SecurityBaseline.ps1 -Mode Enforce
 
 # Custom modules (interactive selection)
