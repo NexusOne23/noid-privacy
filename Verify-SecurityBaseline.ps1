@@ -952,8 +952,9 @@ Test-BaselineCheck -Category "Power" -Name "Display Timeout = 10 min (AC)" -Impa
         # Use GUID-based query (more reliable than text matching)
         $activeScheme = (powercfg /getactivescheme 2>&1 | Out-String) -replace '.*GUID[:\s]+([a-f0-9\-]+).*', '$1'
         $displayQuery = powercfg /q $activeScheme 7516b95f-f776-4464-8c53-06167f40cc99 3c0bc021-c8a8-4e07-a973-6b14cbcb2b7e 2>&1 | Out-String
-        if ($displayQuery -match 'Current AC Power Setting Index[:\s]+0x([0-9a-f]+)') {
-            $seconds = [Convert]::ToInt32($matches[1], 16)
+        # Match both English and German output
+        if ($displayQuery -match '(Current AC Power Setting Index|Aktueller Wechselstromeinstellungsindex)[:\s]+0x([0-9a-f]+)') {
+            $seconds = [Convert]::ToInt32($matches[2], 16)  # Note: $matches[2] because of the grouped OR
             $minutes = $seconds / 60  # powercfg stores in seconds, convert to minutes
             $minutes
         } else { $null }
@@ -965,8 +966,9 @@ Test-BaselineCheck -Category "Power" -Name "Hibernate Timeout = 30 min (AC)" -Im
         # Use GUID-based query (more reliable than text matching)
         $activeScheme = (powercfg /getactivescheme 2>&1 | Out-String) -replace '.*GUID[:\s]+([a-f0-9\-]+).*', '$1'
         $hibernateQuery = powercfg /q $activeScheme 238c9fa8-0aad-41ed-83f4-97be242c8f20 9d7815a6-7ee4-497e-8888-515a05f02364 2>&1 | Out-String
-        if ($hibernateQuery -match 'Current AC Power Setting Index[:\s]+0x([0-9a-f]+)') {
-            $seconds = [Convert]::ToInt32($matches[1], 16)
+        # Match both English and German output
+        if ($hibernateQuery -match '(Current AC Power Setting Index|Aktueller Wechselstromeinstellungsindex)[:\s]+0x([0-9a-f]+)') {
+            $seconds = [Convert]::ToInt32($matches[2], 16)  # Note: $matches[2] because of the grouped OR
             $minutes = $seconds / 60  # powercfg stores in seconds, convert to minutes
             $minutes
         } else { $null }
@@ -978,8 +980,9 @@ Test-BaselineCheck -Category "Power" -Name "Require Password on Wake (CONSOLELOC
         # Use GUID-based query (more reliable than text matching)
         $activeScheme = (powercfg /getactivescheme 2>&1 | Out-String) -replace '.*GUID:\s*([a-f0-9\-]+).*', '$1'
         $consoleQuery = powercfg /q $activeScheme fea3413e-7e05-4911-9a71-700331f1c294 0e796bdb-100d-47d6-a2d5-f7d2daa51f51 2>&1 | Out-String
-        if ($consoleQuery -match 'Current AC Power Setting Index:\s*0x([0-9a-f]+)') {
-            $value = [Convert]::ToInt32($matches[1], 16)
+        # Match both English and German output
+        if ($consoleQuery -match '(Current AC Power Setting Index|Aktueller Wechselstromeinstellungsindex)[:\s]+0x([0-9a-f]+)') {
+            $value = [Convert]::ToInt32($matches[2], 16)  # Note: $matches[2] because of the grouped OR
             $value
         } else { 
             # Fallback: Check Machine Policy (InactivityTimeoutSecs) which enforces lock
