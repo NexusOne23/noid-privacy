@@ -318,7 +318,7 @@ function Show-ModuleSelection {
         @{
             Name = "DNS Security"
             Key = "DNS"
-            Description = "DNS over HTTPS (DoH), DNSSEC, Malware/Ad Blocklist (80.000+ Domains)"
+            Description = "DNS over HTTPS (DoH), DNSSEC, Malware/Ad Blocklist (107.000+ Domains)"
             Enabled = $true
             Mandatory = $false
         },
