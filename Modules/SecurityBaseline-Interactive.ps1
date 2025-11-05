@@ -1675,7 +1675,7 @@ function Show-RemoteAccessMenu {
     Write-Host "      - $(Get-LocalizedString 'RemoteMenuOption1Pro')" -ForegroundColor Green
     Write-Host "      - $(Get-LocalizedString 'RemoteMenuOption1Con')" -ForegroundColor Yellow
     Write-Host "      - $(Get-LocalizedString 'RemoteMenuOption1Warning1')" -ForegroundColor Yellow
-    Write-Host "                 $(Get-LocalizedString 'RemoteMenuOption1Warning2')" -ForegroundColor Yellow
+    Write-Host "        $(Get-LocalizedString 'RemoteMenuOption1Warning2')" -ForegroundColor Yellow
     Write-Host ""
     
     # Option 2
