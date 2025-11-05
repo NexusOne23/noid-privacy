@@ -3078,7 +3078,7 @@ function New-ComplianceReport {
             @{Category='Encryption'; Control='Credential Guard + VBS'}
             @{Category='Encryption'; Control='BitLocker Policies (XTS-AES-256)'}
             @{Category='DNS Security'; Control='DNSSEC Validation'}
-            @{Category='DNS Security'; Control='DNS Blocklist (80K+ domains)'}
+            @{Category='DNS Security'; Control='DNS Blocklist (107K+ domains)'}
             @{Category='Privacy'; Control='Telemetry Services Disabled'}
             @{Category='Privacy'; Control='Telemetry Registry Keys'}
             @{Category='Privacy'; Control='Telemetry Scheduled Tasks Removed'}
