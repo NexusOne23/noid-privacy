@@ -960,7 +960,7 @@ Test-BaselineCheck -Category "Power" -Name "Display Timeout = 10 min (AC)" -Impa
     } `
     -Expected 10
 
-Test-BaselineCheck -Category "Power" -Name "Hibernate Timeout = 30 min (AC)" -Impact "Medium" `
+Test-BaselineCheck -Category "Power" -Name "Hibernate Timeout = 30 min (AC)" -Impact "Info" `
     -Test { 
         # Use GUID-based query (more reliable than text matching)
         $activeScheme = (powercfg /getactivescheme 2>&1 | Out-String) -replace '.*GUID[:\s]+([a-f0-9\-]+).*', '$1'
