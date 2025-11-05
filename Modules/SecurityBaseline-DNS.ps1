@@ -168,11 +168,18 @@ function Install-DNSBlocklist {
             return
         }
         
-        # Count blocked domains
-        # CRITICAL FIX v1.7.11: hosts file is optimized (9 domains per line)
-        # We count lines and multiply by 9 for actual domain count
+        # Count blocked domains from header (most accurate)
+        # Steven Black hosts file has "Number of unique domains: X" in header
         $allContent = Get-Content $localHostsFile -ErrorAction Stop
-        $blockedDomains = ($allContent | Where-Object { $_ -match '^0\.0\.0\.0\s+' }).Count * 9
+        $domainCountLine = $allContent | Where-Object { $_ -match '# Number of unique domains:\s*(\d[\d,]*)' }
+        
+        if ($domainCountLine -and $matches[1]) {
+            # Parse domain count from header (e.g. "80,101" -> 80101)
+            $blockedDomains = [int]($matches[1] -replace ',', '')
+        } else {
+            # Fallback: Count lines * 9 (compressed format)
+            $blockedDomains = ($allContent | Where-Object { $_ -match '^0\.0\.0\.0\s+' }).Count * 9
+        }
         
         $validatedMsg = Get-LocalizedString 'DNSValidated' $blockedDomains
         Write-Success $validatedMsg
