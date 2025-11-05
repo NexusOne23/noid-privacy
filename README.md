@@ -45,17 +45,32 @@
 
 ## 🚀 Quick Start
 
-### One-Liner Install (Recommended - No Git Required!)
+### One-Liner Install (No Git Required!)
 
 **Step 1:** Open PowerShell as Administrator
 - Press `Win + X` → Click **"Terminal (Admin)"** or **"PowerShell (Admin)"**
 
-**Step 2:** Paste this single line and press ENTER:
+**Step 2:** Choose your installation method:
+
+#### 🚀 Fast Install (Quick & Easy)
 ```powershell
 irm https://raw.githubusercontent.com/NexusOne23/noid-privacy/main/install.ps1 | iex
 ```
 
-> ⚠️ **Important:** This only works in **PowerShell** (not CMD)!
+#### 🔒 Safe Install (Recommended for Security-Conscious Users)
+```powershell
+# Download installer
+irm https://raw.githubusercontent.com/NexusOne23/noid-privacy/main/install.ps1 -OutFile install.ps1
+
+# OPTIONAL: Inspect the file before running
+notepad install.ps1
+
+# Run installer
+.\install.ps1
+```
+
+> ⚠️ **Important:** This only works in **PowerShell** (not CMD)!  
+> 💡 **Why two methods?** Fast install uses `| iex` (pipe to execute) which is convenient but downloads and executes in one step. Safe install lets you inspect the code first.
 
 **What it does:**
 1. **[1/5] Checks Administrator privileges** - Exits with clear message if not admin
@@ -271,9 +286,11 @@ This tool targets **Windows 11 25H2 standalone systems**. Not ideal for: Enterpr
 - **PowerShell:** 5.1 or higher (Windows built-in)
 - **Administrator Rights:** Required for all operations
 - **Internet Connection:** NOT required for script execution
-  - ✅ Hosts file (80K+ domains) included locally in project
+  - ✅ **Hosts file (107K+ domains) included** - compressed to 2.2 MB (from 3 MB original)
   - ✅ DNS-over-HTTPS is only configured (no download needed)
   - ℹ️ Internet only needed for: git clone (initial download)
+  
+> **📦 Note on Repository Size:** The compressed hosts file (~2.2 MB) is included in the repo for offline use. Original uncompressed Steven Black hosts files are excluded via .gitignore to keep the repository lean. The script uses the pre-compressed version for optimal performance.
 
 ---
 

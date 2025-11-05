@@ -1,0 +1,125 @@
+name: CI - PowerShell Quality Checks
+
+'on':
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Test on PowerShell ${{ matrix.psVersion }}
+    runs-on: windows-latest
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        psVersion: ['5.1', '7.4']
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup PowerShell 7
+        if: matrix.psVersion == '7.4'
+        uses: actions/setup-powershell@v1
+        with:
+          pwsh-version: '7.4.0'
+      
+      - name: Display PowerShell version
+        shell: pwsh
+        run: |
+          $PSVersionTable
+      
+      - name: Install Pester
+        shell: pwsh
+        run: |
+          if (!(Get-Module -ListAvailable -Name Pester | Where-Object Version -ge '5.0.0')) {
+            Install-Module -Name Pester -MinimumVersion 5.0.0 -Force -SkipPublisherCheck
+          }
+          Import-Module Pester -MinimumVersion 5.0.0
+          Get-Module Pester
+      
+      - name: Run Pester Tests
+        shell: pwsh
+        run: |
+          $config = New-PesterConfiguration
+          $config.Run.Path = './Tests'
+          $config.Run.PassThru = $true
+          $config.CodeCoverage.Enabled = $false
+          $config.TestResult.Enabled = $true
+          $config.TestResult.OutputFormat = 'NUnitXml'
+          $config.TestResult.OutputPath = './TestResults.xml'
+          $config.Output.Verbosity = 'Detailed'
+          
+          $result = Invoke-Pester -Configuration $config
+          
+          if ($result.FailedCount -gt 0) {
+            throw "$($result.FailedCount) test(s) failed"
+          }
+      
+      - name: Publish Test Results
+        uses: EnricoMi/publish-unit-test-result-action/windows@v2
+        if: always()
+        with:
+          files: './TestResults.xml'
+          check_name: 'Test Results (PS ${{ matrix.psVersion }})'
+  
+  analyze:
+    name: PSScriptAnalyzer
+    runs-on: windows-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Install PSScriptAnalyzer
+        shell: pwsh
+        run: |
+          Install-Module -Name PSScriptAnalyzer -Force -SkipPublisherCheck
+          Import-Module PSScriptAnalyzer
+      
+      - name: Run PSScriptAnalyzer
+        shell: pwsh
+        run: |
+          $settingsPath = './.pssa-settings.psd1'
+          
+          if (Test-Path $settingsPath) {
+            Write-Host "Using settings file: $settingsPath" -ForegroundColor Cyan
+            $results = Invoke-ScriptAnalyzer -Path . -Recurse -Settings $settingsPath
+          } else {
+            Write-Host "No settings file found, using default rules" -ForegroundColor Yellow
+            $results = Invoke-ScriptAnalyzer -Path . -Recurse
+          }
+          
+          if ($results) {
+            $results | Format-Table -AutoSize
+            
+            $errors = $results | Where-Object Severity -eq 'Error'
+            $warnings = $results | Where-Object Severity -eq 'Warning'
+            $info = $results | Where-Object Severity -eq 'Information'
+            
+            Write-Host ""
+            Write-Host "Summary:" -ForegroundColor Cyan
+            Write-Host "  Errors: $($errors.Count)" -ForegroundColor $(if ($errors.Count -gt 0) { 'Red' } else { 'Green' })
+            Write-Host "  Warnings: $($warnings.Count)" -ForegroundColor Yellow
+            Write-Host "  Information: $($info.Count)" -ForegroundColor Gray
+            
+            if ($errors.Count -gt 0) {
+              Write-Host ""
+              Write-Host "Failing build due to PSScriptAnalyzer errors!" -ForegroundColor Red
+              exit 1
+            }
+          } else {
+            Write-Host "No issues found! ✓" -ForegroundColor Green
+          }
+      
+      - name: Upload PSSA Results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: pssa-results
+          path: |
+            **/*.sarif
+          retention-days: 30
