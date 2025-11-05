@@ -948,9 +948,8 @@ Test-BaselineCheck -Category "Power" -Name "Hibernate Enabled (if hardware suppo
 
         if ($hibernateLines.Count -eq 0) { return $false }
 
-        # Check for "not available/supported" patterns (force array cast)
-        $notPattern = '(nicht verfügbar|not available|nicht unterstützt|not supported)'
-        $unsupported = @($hibernateLines | Where-Object { $_ -match $notPattern })
+        # Check for "not/nicht" patterns - simple and robust (force array cast)
+        $unsupported = @($hibernateLines | Where-Object { $_ -match '(not|nicht)' })
 
         return ($unsupported.Count -eq 0)
     } `
