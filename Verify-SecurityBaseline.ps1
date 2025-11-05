@@ -939,39 +939,55 @@ Test-BaselineCheck -Category "Power" -Name "Lock Screen Password Required (Machi
 
 Test-BaselineCheck -Category "Power" -Name "Hibernate Enabled (if hardware supports)" -Impact "Info" `
     -Test { 
-        # Check both English and German, and look for "available" not "unavailable"
-        $sleepStates = powercfg /availablesleepstates 2>&1 | Out-String
-        # If line contains "Hibernate" or "Ruhezustand" but NOT "not supported" or "nicht verfügbar" → available
-        $hibernateAvailable = ($sleepStates -match '(Hibernate|Ruhezustand)') -and ($sleepStates -notmatch '(not|nicht)')
-        [bool]$hibernateAvailable
+        # FIXED: Only check lines containing Hibernate/Ruhezustand (not entire output)
+        # Prevents false negatives when other sleep states show "not supported"
+        $sleepStates = powercfg /availablesleepstates 2>&1
+
+        # Filter to Hibernate-specific lines only
+        $hibernateLines = $sleepStates | Where-Object { $_ -match '(Hibernate|Ruhezustand)' }
+
+        if (-not $hibernateLines) { return $false }
+
+        # Hibernate available if its lines DON'T contain "not/nicht"
+        $unsupported = $hibernateLines | Where-Object { $_ -match '(not|nicht)' }
+        return ($unsupported.Count -eq 0)
     } `
     -Expected $true
 
 Test-BaselineCheck -Category "Power" -Name "Display Timeout = 10 min (AC)" -Impact "Low" `
     -Test { 
-        # Use GUID-based query (more reliable than text matching)
+        # FIXED: Use /GETACVALUEINDEX instead of fragile /q parsing
+        # Language-independent and matches exactly what Apply script sets
+        $SUB_VIDEO = "7516b95f-f776-4464-8c53-06167f40cc99"   # Display settings
+        $VIDEOIDLE = "3c0bc021-c8a8-4e07-a973-6b14cbcb2b7e"   # Monitor timeout
+        
         $activeScheme = (powercfg /getactivescheme 2>&1 | Out-String) -replace '.*GUID[:\s]+([a-f0-9\-]+).*', '$1'
-        $displayQuery = powercfg /q $activeScheme 7516b95f-f776-4464-8c53-06167f40cc99 3c0bc021-c8a8-4e07-a973-6b14cbcb2b7e 2>&1 | Out-String
-        # Match both English and German output
-        if ($displayQuery -match '(Current AC Power Setting Index|Aktueller Wechselstromeinstellungsindex)[:\s]+0x([0-9a-f]+)') {
-            $seconds = [Convert]::ToInt32($matches[2], 16)  # Note: $matches[2] because of the grouped OR
-            $minutes = $seconds / 60  # powercfg stores in seconds, convert to minutes
-            $minutes
-        } else { $null }
+        $output = powercfg /GETACVALUEINDEX $activeScheme $SUB_VIDEO $VIDEOIDLE 2>&1 | Out-String
+
+        if ($output -match '0x([0-9a-f]+)') {
+            $seconds = [Convert]::ToInt32($matches[1], 16)
+            return $seconds / 60  # Convert to minutes
+        }
+        return $null
     } `
     -Expected 10
 
 Test-BaselineCheck -Category "Power" -Name "Hibernate Timeout = 30 min (AC)" -Impact "Info" `
     -Test { 
-        # Use GUID-based query (more reliable than text matching)
+        # FIXED: Use /GETACVALUEINDEX instead of fragile /q parsing
+        # Language-independent and matches exactly what Apply script sets
+        # Note: Apply script sets 0 (never) in Remote/Server mode, 30 min in Desktop mode
+        $SUB_SLEEP     = "238c9fa8-0aad-41ed-83f4-97be242c8f20"   # Sleep/Hibernate settings
+        $HIBERNATEIDLE = "9d7815a6-7ee4-497e-8888-515a05f02364"   # Hibernate timeout
+        
         $activeScheme = (powercfg /getactivescheme 2>&1 | Out-String) -replace '.*GUID[:\s]+([a-f0-9\-]+).*', '$1'
-        $hibernateQuery = powercfg /q $activeScheme 238c9fa8-0aad-41ed-83f4-97be242c8f20 9d7815a6-7ee4-497e-8888-515a05f02364 2>&1 | Out-String
-        # Match both English and German output
-        if ($hibernateQuery -match '(Current AC Power Setting Index|Aktueller Wechselstromeinstellungsindex)[:\s]+0x([0-9a-f]+)') {
-            $seconds = [Convert]::ToInt32($matches[2], 16)  # Note: $matches[2] because of the grouped OR
-            $minutes = $seconds / 60  # powercfg stores in seconds, convert to minutes
-            $minutes
-        } else { $null }
+        $output = powercfg /GETACVALUEINDEX $activeScheme $SUB_SLEEP $HIBERNATEIDLE 2>&1 | Out-String
+
+        if ($output -match '0x([0-9a-f]+)') {
+            $seconds = [Convert]::ToInt32($matches[1], 16)
+            return $seconds / 60  # Convert to minutes
+        }
+        return $null
     } `
     -Expected 30
 
