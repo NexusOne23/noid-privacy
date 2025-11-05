@@ -316,14 +316,14 @@ All apps CANNOT access (unless you allow):
 - ✅ **Windows Native:** Built into Windows DNS client
 
 #### **Steven Black Unified Hosts**
-- ✅ **80,101 domains blocked** at DNS level (before queries even reach DNS!)
+- ✅ **107,772 domains blocked** at DNS level (before queries even reach DNS!)
 - ✅ **Categories:** Malware + Ads + Tracking + Telemetry
 - ✅ **Optimized:** 9 domains per line (DNS cache friendly)
 - ✅ **Performance:** Zero impact (in-memory lookup)
-- ✅ **Updated:** October 17, 2025
+- ✅ **Updated:** November 5, 2025
 
 **Architecture: Defense in Depth**
-1. **Hosts file** blocks known bad domains (80K+) → Never queries DNS
+1. **Hosts file** blocks known bad domains (107K+) → Never queries DNS
 2. **DoH Provider** encrypts queries → ISP can't see or manipulate
 3. **DNSSEC** validates responses → Prevents spoofing
 4. **Threat Intel** (Quad9) or **Ad Blocking** (AdGuard) → Extra protection
@@ -882,7 +882,7 @@ Solitaire, Candy Crush, Bubble Witch
 - Rule enabled/disabled state
 
 **5. File Backups**
-- Original hosts file (before 80K blocklist)
+- Original hosts file (before 107K blocklist)
 - PowerShell profiles (if modified)
 - Configuration files
 - DNS settings
@@ -1074,7 +1074,7 @@ Solitaire, Candy Crush, Bubble Witch
 | **Services Disabled** | 25+ | DiagTrack, WerSvc, Diagnostics, etc. |
 | **Tasks Disabled** | 30 | CEIP, Appraiser, Data Collection |
 | **Registry Keys** | 391 | Security, Privacy, Network, Performance (see REGISTRY_KEYS.md) |
-| **Domains Blocked** | 80,101 | Malware + Ads + Tracking (hosts) |
+| **Domains Blocked** | 107,772 | Malware + Ads + Tracking (hosts) |
 | **Apps Removed** | 80+ | Bloatware, Xbox, 3D, Games |
 | **Windows Update** | 6 settings | Auto-update config + Delivery Optimization |
 | **ASR Rules** | 19 | Attack Surface Reduction |
@@ -1092,7 +1092,7 @@ Solitaire, Candy Crush, Bubble Witch
 → Defender (11 layers) + ASR (19 rules) + BitLocker + Exploit Protection (13 mitigations) + System Hardening (15 protections)
 
 **Want Maximum Privacy?**
-→ Telemetry OFF (25+ services + 30 tasks + 391 keys) + App Permissions (37 categories) + AI Lockdown (9 features) + 80,101 domains blocked
+→ Telemetry OFF (25+ services + 30 tasks + 391 keys) + App Permissions (37 categories) + AI Lockdown (9 features) + 107,772 domains blocked
 
 **Want Ransomware Protection?**
 → ASR Rules + Controlled Folder Access + AutoPlay OFF + Network Protection

@@ -174,7 +174,7 @@ function Install-DNSBlocklist {
         $domainCountLine = $allContent | Where-Object { $_ -match '# Number of unique domains:\s*(\d[\d,]*)' }
         
         if ($domainCountLine -and $matches[1]) {
-            # Parse domain count from header (e.g. "80,101" -> 80101)
+            # Parse domain count from header (e.g. "107,772" -> 107772)
             $blockedDomains = [int]($matches[1] -replace ',', '')
         } else {
             # Fallback: Count lines * 9 (compressed format)
