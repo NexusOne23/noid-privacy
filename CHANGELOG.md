@@ -225,7 +225,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - New file: ANTIVIRUS_COMPATIBILITY.md (413 lines)
   - Coverage: Bitdefender, Kaspersky, Norton, ESET, Avast, McAfee, Avira, and more
   - Details: Expected behavior, false positives, whitelisting instructions
-  - Special focus: Bitdefender hosts file scanning issue (80K+ entries)
+  - All AVs scan hosts file after installation (80K+ entries, normal temporary behavior)
   - User feedback addressed: "Why is my antivirus flagging the script?"
 
 - **Complete Code Quality Audit** - Systematic analysis of all 8 critical areas

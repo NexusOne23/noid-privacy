@@ -268,8 +268,10 @@ Found a bug not listed here? Please report it:
 ### Quick Summary
 
 **Common Issues:**
-- ⚠️ **Bitdefender:** False positive on `RestrictRemoteSAM` registry key (`Heur.BZC.Boxter.151.7C4B21F2`)
-  - **Solution:** Add registry key to exclusions (Bitdefender → Protection → Vulnerability → Settings → Exclusions)
+- ⚠️ **Third-Party Antivirus (especially Bitdefender):** False positive on `RestrictRemoteSAM` registry key
+  - **Detection:** `Heur.BZC.Boxter.151.7C4B21F2` (Bitdefender), similar heuristics in Norton/Avast
+  - **Solution:** Add registry key to AV exclusions
+  - **Example (Bitdefender):** Protection → Vulnerability → Settings → Exclusions → Add Registry Key
   - **Key:** `HKLM\SYSTEM\CurrentControlSet\Control\Lsa\RestrictRemoteSAM`
   - **⚠️ DO NOT REMOVE THIS KEY!** It protects against Pass-the-Hash attacks
 
@@ -283,14 +285,14 @@ Found a bug not listed here? Please report it:
 - **Why This Is OK:** Third-party AV provides equivalent protection features
 
 **Tested & Working:**
-- ✅ Bitdefender (needs RestrictRemoteSAM exclusion)
+- ✅ Bitdefender (RestrictRemoteSAM exclusion recommended)
 - ✅ Kaspersky
-- ✅ Norton/Symantec
+- ✅ Norton/Symantec (may flag PowerShell/RestrictRemoteSAM)
 - ✅ ESET NOD32
 - ✅ Malwarebytes
 
 **📖 For detailed information including:**
-- Step-by-step Bitdefender exclusion guide with screenshots
+- Step-by-step AV exclusion guides (Bitdefender, Norton, Kaspersky examples)
 - Driver installation workarounds (Intel, NVIDIA, AMD)
 - PowerShell cmdlet behavior with third-party AV
 - Complete feature comparison table

@@ -257,7 +257,7 @@ function Set-AttackSurfaceReductionRules {
         $verifyMpPrefs = Get-MpPreference -ErrorAction SilentlyContinue
         
         # Check if property exists before accessing Count (Third-Party AV compatibility)
-        # CRITICAL: Check $verifyMpPrefs is not null first (Bitdefender returns $null)
+        # CRITICAL: Check $verifyMpPrefs is not null first (third-party AVs return $null when active)
         if ($verifyMpPrefs -and 
             $verifyMpPrefs.PSObject.Properties.Name -contains 'AttackSurfaceReductionRules_Ids' -and 
             $verifyMpPrefs.PSObject.Properties['AttackSurfaceReductionRules_Ids'] -and 

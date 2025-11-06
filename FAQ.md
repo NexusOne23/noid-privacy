@@ -278,16 +278,16 @@ Third-party antivirus products (Bitdefender, Kaspersky, Norton, etc.) **replace*
 
 ---
 
-**✅ Tested & Working:**
-- ✅ **Bitdefender** - 98/121 PASS (see [ANTIVIRUS_COMPATIBILITY.md](ANTIVIRUS_COMPATIBILITY.md))
+**✅ Tested & Working (Third-Party AVs):**
+- ✅ **Windows Defender** (native) - 120/121 PASS
+- ✅ **Bitdefender** - 98/121 PASS (RestrictRemoteSAM exclusion recommended)
 - ✅ **Kaspersky** - ~100/121 PASS
 - ✅ **Norton/Symantec** - ~100/121 PASS
 - ✅ **ESET NOD32** - ~100/121 PASS
-- ✅ **Windows Defender** (native) - 120/121 PASS
 
 **⚠️ May Require Exclusions:**
-- Bitdefender: RestrictRemoteSAM false positive (whitelist registry key)
-- Norton/Avast: May flag PowerShell execution (add script to exclusions)
+- Third-party AVs (especially Bitdefender): RestrictRemoteSAM false positive (add registry key to exclusions)
+- Norton/Avast: May flag PowerShell execution (add script folder to exclusions)
 
 **📖 Full Documentation:** See [ANTIVIRUS_COMPATIBILITY.md](ANTIVIRUS_COMPATIBILITY.md) for detailed workarounds and solutions
 
