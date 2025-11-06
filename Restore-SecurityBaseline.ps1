@@ -2322,7 +2322,7 @@ else {
 
 #region Restore Security Template (secedit)
 Write-Host ""
-Write-Host "[16/19] Restore Security Template (secedit)..." -ForegroundColor Yellow
+Write-Host "[16/18] Restore Security Template (secedit)..." -ForegroundColor Yellow
 
 if ($backup.Settings.PSObject.Properties.Name -contains 'SecurityTemplate' -and $backup.Settings.SecurityTemplate.Enabled) {
     Write-Host "  [SKIP] Skipping secedit restore (known Windows limitation)" -ForegroundColor Cyan
@@ -2372,7 +2372,7 @@ else {
 
 #region Restore Power Management Settings
 Write-Host ""
-Write-Host "[17/19] Restore Power Management Settings..." -ForegroundColor Yellow
+Write-Host "[17/18] Restore Power Management Settings..." -ForegroundColor Yellow
 
 if ($backup.Settings.PSObject.Properties.Name -contains 'PowerManagement' -and $backup.Settings.PowerManagement.Enabled) {
     Write-Host "  [i] Restoring power settings from backup..." -ForegroundColor Cyan
@@ -2480,7 +2480,7 @@ else {
 
 # DNS Cache leeren
 Write-Host ""
-Write-Host "[17/18] $(Get-LocalizedString 'RestoreDNSClear')" -ForegroundColor Cyan
+Write-Host "[18/18] $(Get-LocalizedString 'RestoreDNSClear')" -ForegroundColor Cyan
 try {
     $job = Start-Job -ScriptBlock { ipconfig /flushdns 2>&1 }
     $job | Wait-Job -Timeout 10 | Out-Null
@@ -2503,7 +2503,7 @@ catch {
 # RESTORE: GP-Cache aktualisieren + Settings-App-Cache killen
 # ====================================================================
 Write-Host ""
-Write-Host "[18/19] Updating Group Policy cache..." -ForegroundColor Cyan
+Write-Host "       Updating Group Policy cache..." -ForegroundColor Cyan
 try {
     $job = Start-Job -ScriptBlock {
         # Damit die Settings-App es SOFORT merkt:
