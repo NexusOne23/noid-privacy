@@ -1142,7 +1142,7 @@ try {
     $tempSecTemplate = Join-Path $env:TEMP "SecurityTemplate_Backup_$(Get-Random).inf"
     
     Write-Verbose "Exporting Security Template via secedit..."
-    $exportResult = & secedit.exe /export /cfg $tempSecTemplate /quiet 2>&1
+    $null = & secedit.exe /export /cfg $tempSecTemplate /quiet 2>&1
     
     if ($LASTEXITCODE -eq 0 -and (Test-Path $tempSecTemplate)) {
         # Read the .inf file content
