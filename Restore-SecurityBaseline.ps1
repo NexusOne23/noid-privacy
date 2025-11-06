@@ -29,8 +29,8 @@
     - DoH Configuration Restore (DNS over HTTPS)
     
 .NOTES
-    Version:        1.5.0
-    Last Updated:   November 2, 2025
+    Version:        1.8.0
+    Last Updated:   November 6, 2025
     Author:         NoID Privacy Team
     
 .PARAMETER BackupFile
