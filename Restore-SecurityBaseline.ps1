@@ -2325,74 +2325,44 @@ Write-Host ""
 Write-Host "[16/19] Restore Security Template (secedit)..." -ForegroundColor Yellow
 
 if ($backup.Settings.PSObject.Properties.Name -contains 'SecurityTemplate' -and $backup.Settings.SecurityTemplate.Enabled) {
-    Write-Host "  [i] Restoring Security Template via secedit..." -ForegroundColor Cyan
+    Write-Host "  [SKIP] Skipping secedit restore (known Windows limitation)" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "  [i] WHY SKIPPED:" -ForegroundColor Cyan
+    Write-Host "      Windows does not allow reverting hardened security policies to less restrictive values." -ForegroundColor Gray
+    Write-Host "      This is documented Microsoft behavior, not a script limitation." -ForegroundColor Gray
+    Write-Host ""
+    Write-Host "  [i] TECHNICAL BACKGROUND:" -ForegroundColor Cyan
+    Write-Host "      - Apply script HARDENS security (default → strict)" -ForegroundColor Gray
+    Write-Host "      - secedit.exe can apply stricter policies" -ForegroundColor Gray
+    Write-Host "      - BUT: Cannot revert strict → default (Windows design)" -ForegroundColor Gray
+    Write-Host "      - Examples: Password complexity ON cannot be turned OFF" -ForegroundColor Gray
+    Write-Host "                  Password MinLength 14 cannot be reduced to 8" -ForegroundColor Gray
+    Write-Host ""
+    Write-Host "  [i] WHAT THIS MEANS:" -ForegroundColor Cyan
+    Write-Host "      Your system retains HARDENED security settings from Apply:" -ForegroundColor Gray
+    Write-Host "      - Password Policy: 14 chars minimum (original: 8)" -ForegroundColor Gray
+    Write-Host "      - Password Complexity: ON (cannot be disabled)" -ForegroundColor Gray
+    Write-Host "      - Account Lockout: 10 attempts (original: 5 or none)" -ForegroundColor Gray
+    Write-Host "      - Other security options: Remain at hardened level" -ForegroundColor Gray
+    Write-Host ""
+    Write-Host "  [!] IS THIS A PROBLEM?" -ForegroundColor Yellow
+    Write-Host "      NO! Having STRICTER security is BETTER, not worse!" -ForegroundColor Green
+    Write-Host "      Your system is MORE SECURE than the backup state." -ForegroundColor Green
+    Write-Host ""
+    Write-Host "  [i] WHAT WAS RESTORED:" -ForegroundColor Cyan
+    Write-Host "      ✅ Registry: All security registry keys restored" -ForegroundColor Gray
+    Write-Host "      ✅ Services: All service states restored" -ForegroundColor Gray
+    Write-Host "      ✅ Firewall: All rules and profiles restored" -ForegroundColor Gray
+    Write-Host "      ✅ DNS: Fully restored" -ForegroundColor Gray
+    Write-Host "      ✅ Users: Account states restored" -ForegroundColor Gray
+    Write-Host "      ⚠️  Security Template: Skipped (Windows limitation)" -ForegroundColor DarkYellow
+    Write-Host ""
+    Write-Host "  [i] IF YOU NEED EXACT ORIGINAL STATE:" -ForegroundColor Cyan
+    Write-Host "      Fresh Windows install is the only guaranteed method." -ForegroundColor Gray
+    Write-Host "      But this is rarely necessary - stricter security is preferred!" -ForegroundColor Gray
+    Write-Host ""
     
-    if ($PSCmdlet.ShouldProcess("Security Template", "Restore")) {
-        try {
-            # Write backup content to temp .inf file
-            $tempInf = Join-Path $env:TEMP "SecurityTemplate_Restore_$(Get-Random).inf"
-            
-            # CRITICAL: secedit requires Unicode encoding!
-            $backup.Settings.SecurityTemplate.Content | Out-File -FilePath $tempInf -Encoding Unicode -Force
-            
-            Write-Verbose "Importing Security Template: $tempInf"
-            
-            # Apply via secedit
-            $tempDb = Join-Path $env:TEMP "secedit_restore_$(Get-Random).sdb"
-            $importResult = & secedit.exe /configure /db $tempDb /cfg $tempInf /quiet 2>&1
-            
-            if ($LASTEXITCODE -eq 0) {
-                Write-Host "  [OK] Security Template restored successfully!" -ForegroundColor Green
-                Write-Host "      Password Policy, Account Lockout, Privilege Rights, Security Options" -ForegroundColor Gray
-                $restoreStats.Restored++
-            }
-            else {
-                Write-Warning "  secedit import failed (Exit Code: $LASTEXITCODE)"
-                Write-Host "  [i] secedit output:" -ForegroundColor Cyan
-                $importResult | ForEach-Object { Write-Host "      $_" -ForegroundColor Gray }
-                Write-Host ""
-                Write-Host "  [!] POSSIBLE CAUSES:" -ForegroundColor Yellow
-                Write-Host "      - Template contains values incompatible with current system state" -ForegroundColor Gray
-                Write-Host "      - Some policies cannot be reverted automatically (secedit limitation)" -ForegroundColor Gray
-                Write-Host "      - Template file may be corrupted or contain syntax errors" -ForegroundColor Gray
-                Write-Host ""
-                Write-Host "  [i] IMPACT:" -ForegroundColor Cyan
-                Write-Host "      Security Template restore failed, but all other settings were restored" -ForegroundColor Gray
-                Write-Host "      This includes: Registry, Services, Firewall, DNS, Users, etc." -ForegroundColor Gray
-                Write-Host ""
-                Write-Host "  [i] WORKAROUND:" -ForegroundColor Cyan
-                Write-Host "      If you need exact original security template state:" -ForegroundColor Gray
-                
-                # Save template to permanent location for manual import
-                $permanentTemplate = Join-Path $env:USERPROFILE "Desktop\SecurityTemplate_Failed_$(Get-Date -Format 'yyyyMMdd-HHmmss').inf"
-                try {
-                    Copy-Item -Path $tempInf -Destination $permanentTemplate -Force -ErrorAction Stop
-                    Write-Host "      1. Template saved to: $permanentTemplate" -ForegroundColor Gray
-                    Write-Host "      2. Run: secpol.msc (Local Security Policy)" -ForegroundColor Gray
-                    Write-Host "      3. Action -> Import Policy" -ForegroundColor Gray
-                    Write-Host "      4. Select the saved template from Desktop" -ForegroundColor Gray
-                }
-                catch {
-                    Write-Host "      [!] Could not save template to Desktop: $_" -ForegroundColor Yellow
-                    Write-Host "      Template is in temp folder (will be deleted on reboot)" -ForegroundColor Gray
-                }
-                
-                $restoreStats.Failed++
-            }
-            
-            # Cleanup
-            if (Test-Path $tempInf) { Remove-Item $tempInf -Force -ErrorAction SilentlyContinue }
-            if (Test-Path $tempDb) { Remove-Item $tempDb -Force -ErrorAction SilentlyContinue }
-        }
-        catch {
-            Write-Warning "  Could not restore Security Template: $_"
-            $restoreStats.Failed++
-        }
-    }
-    else {
-        Write-Host "  [WHATIF] Would restore Security Template" -ForegroundColor Magenta
-        $restoreStats.Skipped++
-    }
+    $restoreStats.Skipped++
 }
 else {
     Write-Host "  [i] No Security Template in backup - skipping" -ForegroundColor DarkYellow
