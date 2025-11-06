@@ -6,7 +6,7 @@
     Comprehensive verification of Microsoft Security Baseline 25H2 implementation.
     
     BATCH 1 EXPANSION (Oct 30, 2025):
-    - Microsoft Defender Antivirus: 17 settings
+    - Microsoft Defender Antivirus: 19 settings (added Tamper Protection, EDR Block Mode)
     - Attack Surface Reduction: 19 rules (individual checks)
     - Exploit Protection: 8 mitigations
     
@@ -23,7 +23,7 @@
     - Windows LAPS: 3 settings
     - Kerberos Security: 2 settings
     
-    Total Checks: ~125+ (from ~30)
+    Total Checks: ~127+ (from ~30)
     
     CHANGELOG (Oct 31, 2025):
     - Added transcript logging for audit trail and debugging
@@ -213,10 +213,10 @@ Test-BaselineCheck -Category "System" -Name "Secure Boot Enabled" -Impact "High"
 
 # ===========================
 # DEFENDER ANTIVIRUS - COMPLETE VERIFICATION
-# Microsoft Security Baseline 25H2: 17 Settings
+# Microsoft Security Baseline 25H2: 19 Settings
 # ===========================
 
-Write-Host "`n=== MICROSOFT DEFENDER ANTIVIRUS (17 SETTINGS) ===" -ForegroundColor Yellow
+Write-Host "`n=== MICROSOFT DEFENDER ANTIVIRUS (19 SETTINGS) ===" -ForegroundColor Yellow
 
 # 1. Real-Time Protection
 Test-BaselineCheck -Category "Defender" -Name "Real-Time Monitoring Enabled" -Impact "Critical" `
@@ -413,6 +413,23 @@ Test-BaselineCheck -Category "Defender" -Name "SmartScreen Warn -> Block Mode" -
     -Test { 
         $value = Get-RegistryValueSafe "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System" "ShellSmartScreenLevel" -DefaultValue ""
         $value -eq "Block"
+    } `
+    -Expected $true
+
+# 18. Tamper Protection (prevents malware from disabling Defender)
+Test-BaselineCheck -Category "Defender" -Name "Tamper Protection Enabled" -Impact "Critical" `
+    -Test { 
+        $value = Get-RegistryValueSafe "HKLM:\SOFTWARE\Microsoft\Windows Defender\Features" "TamperProtection" -DefaultValue 0
+        # Value 4 = Local admin control, Value 5 = Cloud-managed, both are valid
+        $value -ge 4
+    } `
+    -Expected $true
+
+# 19. EDR in Block Mode (Endpoint Detection and Response)
+Test-BaselineCheck -Category "Defender" -Name "EDR in Block Mode Enabled" -Impact "High" `
+    -Test { 
+        $value = Get-RegistryValueSafe "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Features" "EnableEDRInBlockMode" -DefaultValue 0
+        $value -eq 1
     } `
     -Expected $true
 

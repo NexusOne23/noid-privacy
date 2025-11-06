@@ -334,12 +334,15 @@ function Set-InternetZoneSecurity {
 function Set-FileExecutionRestrictions {
     <#
     .SYNOPSIS
-        Blocks dangerous file types from untrusted paths using Software Restriction Policies
+        Blocks dangerous file types from Downloads folder using Software Restriction Policies
     .DESCRIPTION
         Implements SRP (Software Restriction Policies) to block execution of:
-        - .lnk files from Downloads/Temp/Network paths
+        - .lnk files from Downloads folder (CVE-2025-9491 protection)
         - .scf files (Shell Command Files)
         - .url files (Internet Shortcuts with NTLM leak)
+        
+        Conservative approach: Only Downloads folder blocked.
+        Temp and Network shares NOT blocked for installer/corporate compatibility.
         
         Works on ALL Windows editions (Home/Pro/Enterprise) via Registry.
         
@@ -348,6 +351,7 @@ function Set-FileExecutionRestrictions {
     .NOTES
         Requires: Restart or 'gpupdate /force' for activation
         SRP is legacy but universally supported
+        Temp/Network: Not blocked (99% of attacks come from Downloads anyway)
     .EXAMPLE
         Set-FileExecutionRestrictions
     #>
@@ -385,18 +389,12 @@ function Set-FileExecutionRestrictions {
     }
     
     # Define dangerous file patterns to block
+    # Conservative approach: Only block Downloads (main attack vector)
+    # Removed: %TEMP% (breaks some installers), Network shares (breaks corporate environments)
     $dangerousPatterns = @(
         @{
             Path = "%USERPROFILE%\Downloads\*.lnk"
             Description = "Block .lnk from Downloads (CVE-2025-9491 PlugX protection)"
-        },
-        @{
-            Path = "%TEMP%\*.lnk"
-            Description = "Block .lnk from Temp folder"
-        },
-        @{
-            Path = "\\*\*.lnk"
-            Description = "Block .lnk from network shares"
         },
         @{
             Path = "%USERPROFILE%\Downloads\*.scf"
@@ -433,9 +431,10 @@ function Set-FileExecutionRestrictions {
     }
     
     Write-Success "File execution restrictions configured ($ruleCount rules)"
-    Write-Info "Protected file types: .lnk, .scf, .url from untrusted paths"
+    Write-Info "Protected file types: .lnk, .scf, .url from Downloads folder"
+    Write-Info "Temp and Network shares: NOT blocked (installer/corporate compatibility)"
     Write-Warning "ACTIVATION: Restart required (or run: gpupdate /force)"
-    Write-Info "Workaround for legitimate files: Move to C:\Temp or Desktop first"
+    Write-Info "Workaround for legitimate files: Move to Desktop or C:\Temp first"
 }
 
 function Set-PrintSpoolerUserRights {
@@ -916,6 +915,20 @@ function Set-DefenderBaselineSettings {
     }
     else {
         Write-Verbose "EDR Block Mode: Error setting value"
+    }
+    
+    # Tamper Protection (prevents malware from disabling Defender)
+    # IMPORTANT: Value 4 = Local Admin can disable (user keeps control!)
+    # Alternative: Value 5 = Cloud-managed (only MS Account/Intune can disable - too restrictive!)
+    # For standalone/power-user systems: Value 4 is recommended (security + flexibility)
+    $tamperResult = Set-RegistryValueSmart -Path $edrPath -Name "TamperProtection" -Value 4 -Type DWord `
+        -Description "Tamper Protection: Enabled (local admin control)"
+    
+    if ($tamperResult) {
+        Write-Verbose "Tamper Protection: Successfully activated (Value 4 - user retains control)"
+    }
+    else {
+        Write-Verbose "Tamper Protection: Error setting value"
     }
     
     # 2. Network Inspection: Convert Warn to Block

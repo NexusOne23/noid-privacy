@@ -4,13 +4,13 @@
 # Enable Strict Mode for better error detection
 Set-StrictMode -Version Latest
 
-# Parsed 391 entries, 391 valid (removed 3 problematic entries)
+# Parsed 394 entries, 394 valid (removed 3 problematic entries, added 3 Defender Features)
 <#
 .SYNOPSIS
     Registry Changes Definition
     
 .DESCRIPTION
-    Contains all 391 registry changes that the Security Baseline applies.
+    Contains all 394 registry changes that the Security Baseline applies.
     Used by Backup and Restore scripts for specific (fast) backup/restore.
     
     This file was AUTO-GENERATED from registry-changes-complete.txt
@@ -19,8 +19,9 @@ Set-StrictMode -Version Latest
 .NOTES
     Generated: 2025-10-31 17:15:00
     Updated: 2025-11-04 (Removed SetupCompletedSuccessfully - breaks Outlook search)
-    Total Entries: 391
-    Source: registry-changes-complete.txt
+    Updated: 2025-11-06 (Added 3 Defender Features: EnableAppInstallControl, EnableEDRInBlockMode, TamperProtection)
+    Total Entries: 394
+    Source: registry-changes-complete.txt + manual additions
 #>
 
 # Registry changes that Security Baseline applies
@@ -3434,6 +3435,38 @@ $script:RegistryChanges = @(
         ApplyValue = 1
         Description = 'Windows Hello: Enhanced anti-spoofing for face recognition'
         File = 'SecurityBaseline-Advanced.ps1'
+    },
+    
+    # ===========================
+    # DEFENDER FEATURES (TRUSTEDINSTALLER-PROTECTED KEYS)
+    # ===========================
+    # NOTE: These keys require TrustedInstaller ownership to modify
+    # Backup: Can read with Admin rights (Get-ItemProperty)
+    # Restore: Requires Set-RegistryValueSmart (automatic ownership management)
+    
+    @{
+        Path = 'HKLM:\SOFTWARE\Microsoft\Windows Defender\Features'
+        Name = 'EnableAppInstallControl'
+        Type = 'DWord'
+        ApplyValue = 1
+        Description = 'PUA: Block apps (Checkbox) - TrustedInstaller protected'
+        File = 'SecurityBaseline-Core.ps1'
+    },
+    @{
+        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Features'
+        Name = 'EnableEDRInBlockMode'
+        Type = 'DWord'
+        ApplyValue = 1
+        Description = 'EDR in Block Mode (Endpoint Detection & Response)'
+        File = 'SecurityBaseline-Core.ps1'
+    },
+    @{
+        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Features'
+        Name = 'TamperProtection'
+        Type = 'DWord'
+        ApplyValue = 4
+        Description = 'Tamper Protection: Enabled (local admin control, Value 4)'
+        File = 'SecurityBaseline-Core.ps1'
     }
 
 )
