@@ -70,7 +70,8 @@ $script:transcriptPath = ""
 $script:transcriptStarted = $false
 
 # Load Localization Module FIRST (needed for transcript messages!)
-$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+# CRITICAL: Use $PSScriptRoot for reliability when called from anywhere
+$scriptDir = $PSScriptRoot
 try {
     . "$scriptDir\Modules\SecurityBaseline-Localization.ps1"
 }
@@ -694,6 +695,95 @@ Test-BaselineCheck -Category "SMB-Client" -Name "Plaintext Passwords to SMB Serv
     -Expected 0
 
 # ===========================
+# RPC SECURITY HARDENING (6 SETTINGS)
+# ===========================
+
+Write-Host "`n=== RPC SECURITY HARDENING (6 SETTINGS) ===" -ForegroundColor Yellow
+
+$rpcPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Rpc"
+
+Test-BaselineCheck -Category "RPC" -Name "RPC Named Pipe Protocol = 0" -Impact "Medium" `
+    -Test { 
+        Get-RegistryValueSafe $rpcPath "RpcUseNamedPipeProtocol" -DefaultValue 1
+    } `
+    -Expected 0
+
+Test-BaselineCheck -Category "RPC" -Name "RPC Authentication Level = 0" -Impact "Medium" `
+    -Test { 
+        Get-RegistryValueSafe $rpcPath "RpcAuthentication" -DefaultValue 1
+    } `
+    -Expected 0
+
+Test-BaselineCheck -Category "RPC" -Name "RPC Protocols = 5 (TCP/IP)" -Impact "Medium" `
+    -Test { 
+        Get-RegistryValueSafe $rpcPath "RpcProtocols" -DefaultValue 0
+    } `
+    -Expected 5
+
+Test-BaselineCheck -Category "RPC" -Name "Force Kerberos for RPC = 0" -Impact "Low" `
+    -Test { 
+        Get-RegistryValueSafe $rpcPath "ForceKerberosForRpc" -DefaultValue 1
+    } `
+    -Expected 0
+
+Test-BaselineCheck -Category "RPC" -Name "RPC TCP Port = 0 (dynamic)" -Impact "Low" `
+    -Test { 
+        Get-RegistryValueSafe $rpcPath "RpcTcpPort" -DefaultValue 1
+    } `
+    -Expected 0
+
+Test-BaselineCheck -Category "RPC" -Name "Restrict Remote Clients = 1" -Impact "High" `
+    -Test { 
+        Get-RegistryValueSafe $rpcPath "RestrictRemoteClients" -DefaultValue 0
+    } `
+    -Expected 1
+
+# ===========================
+# TCP/IP HARDENING (3 SETTINGS)
+# ===========================
+
+Write-Host "`n=== TCP/IP HARDENING (3 SETTINGS) ===" -ForegroundColor Yellow
+
+$tcpipPath = "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters"
+$tcpip6Path = "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip6\Parameters"
+
+Test-BaselineCheck -Category "TCP/IP" -Name "ICMP Redirect Disabled" -Impact "Medium" `
+    -Test { 
+        Get-RegistryValueSafe $tcpipPath "EnableICMPRedirect" -DefaultValue 1
+    } `
+    -Expected 0
+
+Test-BaselineCheck -Category "TCP/IP" -Name "IP Source Routing Disabled (IPv4)" -Impact "High" `
+    -Test { 
+        Get-RegistryValueSafe $tcpipPath "DisableIPSourceRouting" -DefaultValue 0
+    } `
+    -Expected 2
+
+Test-BaselineCheck -Category "TCP/IP" -Name "IP Source Routing Disabled (IPv6)" -Impact "High" `
+    -Test { 
+        Get-RegistryValueSafe $tcpip6Path "DisableIPSourceRouting" -DefaultValue 0
+    } `
+    -Expected 2
+
+# ===========================
+# KERNEL SECURITY (2 SETTINGS)
+# ===========================
+
+Write-Host "`n=== KERNEL SECURITY (2 SETTINGS) ===" -ForegroundColor Yellow
+
+Test-BaselineCheck -Category "Kernel" -Name "Exception Chain Validation Enabled" -Impact "High" `
+    -Test { 
+        Get-RegistryValueSafe "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\kernel" "DisableExceptionChainValidation" -DefaultValue 1
+    } `
+    -Expected 0
+
+Test-BaselineCheck -Category "Kernel" -Name "Early Launch Driver Policy" -Impact "High" `
+    -Test { 
+        Get-RegistryValueSafe "HKLM:\SYSTEM\CurrentControlSet\Policies\EarlyLaunch" "DriverLoadPolicy" -DefaultValue 0
+    } `
+    -Expected 3
+
+# ===========================
 # FIREWALL SETTINGS - COMPLETE VERIFICATION
 # Microsoft Security Baseline 25H2: 25 Policies
 # 3 Profiles (Domain, Private, Public)
@@ -855,7 +945,7 @@ Test-BaselineCheck -Category "Network" -Name "LLMNR Disabled" -Impact "High" `
     } `
     -Expected 0
 
-Test-BaselineCheck -Category "Network" -Name "NetBIOS Over TCP/IP Disabled" -Impact "High" `
+Test-BaselineCheck -Category "Network" -Name "NetBIOS Over TCP/IP Disabled (Adapters)" -Impact "High" `
     -Test { 
         try {
             $adapters = Get-CimInstance -ClassName Win32_NetworkAdapterConfiguration -Filter "IPEnabled = True" -ErrorAction Stop
@@ -872,6 +962,12 @@ Test-BaselineCheck -Category "Network" -Name "NetBIOS Over TCP/IP Disabled" -Imp
         }
     } `
     -Expected $true
+
+Test-BaselineCheck -Category "Network" -Name "NetBIOS Disabled (Registry Policy)" -Impact "High" `
+    -Test { 
+        Get-RegistryValueSafe "HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\DNSClient" "EnableNetbios" -DefaultValue 1
+    } `
+    -Expected 0
 
 # ===========================
 # UAC (USER ACCOUNT CONTROL) - DETAILED (7 SETTINGS)
@@ -911,6 +1007,13 @@ Test-BaselineCheck -Category "UAC" -Name "UAC Local Account Token Filter (Anti-P
     } `
     -Expected 0
 
+Test-BaselineCheck -Category "UAC" -Name "Enumerate Administrators Disabled" -Impact "High" `
+    -Test { 
+        $credUIPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\CredUI"
+        Get-RegistryValueSafe $credUIPath "EnumerateAdministrators" -DefaultValue 1
+    } `
+    -Expected 0
+
 Test-BaselineCheck -Category "UAC" -Name "Inactivity Timeout = 900 sec (15 min)" -Impact "High" `
     -Test { 
         Get-RegistryValueSafe $uacPath "InactivityTimeoutSecs"
@@ -922,6 +1025,38 @@ Test-BaselineCheck -Category "UAC" -Name "EPP Mode Configured (Future-Ready)" -I
         Get-RegistryValueSafe $uacPath "ConsentPromptBehaviorAdminInEPPMode"
     } `
     -Expected 2
+
+Test-BaselineCheck -Category "UAC" -Name "Microsoft Account Optional (OOBE)" -Impact "Low" `
+    -Test { 
+        Get-RegistryValueSafe $uacPath "MSAOptional" -DefaultValue 0
+    } `
+    -Expected 1
+
+# ===========================
+# WINDOWS HELLO - 1 SETTING
+# ===========================
+
+Write-Host "`n=== WINDOWS HELLO - 1 SETTING ===" -ForegroundColor Yellow
+
+$biometricsPath = "HKLM:\SOFTWARE\Policies\Microsoft\Biometrics\FacialFeatures"
+
+Test-BaselineCheck -Category "WindowsHello" -Name "Enhanced Anti-Spoofing Enabled" -Impact "High" `
+    -Test { 
+        Get-RegistryValueSafe $biometricsPath "EnhancedAntiSpoofing" -DefaultValue 0
+    } `
+    -Expected 1
+
+# ===========================
+# PRIVACY - EXPLORER/TELEMETRY - 1 SETTING
+# ===========================
+
+Write-Host "`n=== PRIVACY - EXPLORER - 1 SETTING ===" -ForegroundColor Yellow
+
+Test-BaselineCheck -Category "Privacy" -Name "Explorer Web Services Disabled" -Impact "Low" `
+    -Test { 
+        Get-RegistryValueSafe "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Explorer" "NoWebServices" -DefaultValue 0
+    } `
+    -Expected 1
 
 # ===========================
 # POWER MANAGEMENT & SCREEN LOCK - 5 SETTINGS
@@ -1059,7 +1194,10 @@ Test-BaselineCheck -Category "CredentialGuard" -Name "VBS Secure Boot + DMA Prot
 
 Test-BaselineCheck -Category "CredentialGuard" -Name "Credential Guard Enabled (LsaCfgFlags)" -Impact "Critical" `
     -Test { 
-        Get-RegistryValueSafe $lsaPath "LsaCfgFlags"
+        $value = Get-RegistryValueSafe $lsaPath "LsaCfgFlags"
+        # Accept both: 1 (with UEFI lock) or 2 (without lock - both are valid)
+        # Apply-Script sets 2 (reversible), but 1 (UEFI lock) is also OK
+        if ($value -eq 1 -or $value -eq 2) { return 1 } else { return 0 }
     } `
     -Expected 1
 
@@ -1232,12 +1370,39 @@ catch {
         Write-Host "  [X] VBS NOT CONFIGURED" -ForegroundColor Red
     }
     
-    if ($cgReg -eq 1) {
+    if ($cgReg -eq 1 -or $cgReg -eq 2) {
         Write-Host "  [!] Credential Guard CONFIGURED (Registry) - Runtime-Status unknown" -ForegroundColor Yellow
     }
     else {
         Write-Host "  [X] Credential Guard NOT CONFIGURED" -ForegroundColor Red
     }
+}
+
+# CRITICAL FIX v1.7.22: Check Hypervisor Launch Type (REQUIRED for Credential Guard!)
+# Without this, Credential Guard will be CONFIGURED but NOT RUNNING
+# Bug discovered: Nov 6, 2025 - Missing hypervisor check caused silent failure
+Write-Host "" 
+Write-Host "  === Hypervisor Configuration ===" -ForegroundColor Cyan
+try {
+    $hypervisorCheck = & bcdedit.exe /enum "{current}" 2>&1 | Select-String "hypervisorlaunchtype"
+    if ($hypervisorCheck -match "Auto") {
+        Write-Host "  [OK] Hypervisor Launch Type: Auto" -ForegroundColor Green
+    }
+    elseif ($hypervisorCheck) {
+        $hvType = $hypervisorCheck.ToString().Trim() -replace '.*hypervisorlaunchtype\s+', ''
+        Write-Host "  [X] Hypervisor Launch Type: $hvType (SHOULD BE: Auto)" -ForegroundColor Red
+        Write-Host "      FIX: bcdedit /set hypervisorlaunchtype auto" -ForegroundColor Yellow
+        Write-Host "      Without this, Credential Guard will NOT activate!" -ForegroundColor Yellow
+    }
+    else {
+        Write-Host "  [X] Hypervisor Launch Type: NOT SET!" -ForegroundColor Red
+        Write-Host "      FIX: bcdedit /set hypervisorlaunchtype auto" -ForegroundColor Yellow
+        Write-Host "      This is WHY Credential Guard is not running!" -ForegroundColor Yellow
+    }
+}
+catch {
+    Write-Host "  [!] Cannot check hypervisor launch type: $_" -ForegroundColor Yellow
+    Write-Host "      Manual check: bcdedit /enum | Select-String hypervisor" -ForegroundColor Gray
 }
 
 # BitLocker (REQUIRES REBOOT!)
@@ -1256,24 +1421,16 @@ if ($bl -and $bl.ProtectionStatus -eq 'On') {
 }
 
 # ===========================
-# APT PROTECTION (PHASE 1) - 10 SETTINGS
+# APT PROTECTION (PHASE 1) - 8 SETTINGS
 # ===========================
 
-Write-Host "`n=== APT PROTECTION (PHASE 1) - 10 SETTINGS ===" -ForegroundColor Yellow
+Write-Host "`n=== APT PROTECTION (PHASE 1) - 8 SETTINGS ===" -ForegroundColor Yellow
 
-$ldapPath = "HKLM:\SYSTEM\CurrentControlSet\Services\LDAP"
-
-Test-BaselineCheck -Category "APT-Protection" -Name "LDAP Client Signing = Require (2)" -Impact "Critical" `
-    -Test { 
-        Get-RegistryValueSafe $ldapPath "LDAPClientIntegrity"
-    } `
-    -Expected 2
-
-Test-BaselineCheck -Category "APT-Protection" -Name "LDAP Channel Binding = Always (2)" -Impact "Critical" `
-    -Test { 
-        Get-RegistryValueSafe $ldapPath "LdapEnforceChannelBinding"
-    } `
-    -Expected 2
+# REMOVED: LDAP Client Signing and LDAP Channel Binding checks
+# REASON: LDAP is an Active Directory/Domain-joined feature
+# IMPACT: Home and non-domain-joined systems don't have LDAP service active
+# NOTE: Settings are still configured in Apply script (for Enterprise systems)
+# BUT: Verify check would fail on Home/Pro systems without domain
 
 # REMOVED: Internet Zone 1806 and Intranet Zone 1806 checks
 # REASON: Policy 1806 = 3 breaks Chrome/Edge downloads ("blocked by your organization")

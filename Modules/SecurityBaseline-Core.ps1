@@ -141,6 +141,11 @@ function Set-NetBIOSDisabled {
     [void](Set-RegistryValue -Path $regPath -Name "NodeType" -Value 2 -Type DWord `
         -Description "NetBT auf P-Node (nur WINS)")
     
+    # NetBT: Prevent name release on demand (MS Baseline 25H2)
+    # Prevents attackers from forcing NetBT name release
+    [void](Set-RegistryValue -Path $regPath -Name "NoNameReleaseOnDemand" -Value 1 -Type DWord `
+        -Description "NetBT: Prevent name release on demand (security)")
+    
     # Per Adapter
     try {
         # Best Practice 25H2: @() wrapper prevents Count error with null/single item
@@ -264,11 +269,67 @@ function Disable-IE11COMAutomation {
     Write-Success (Get-LocalizedString 'CoreIE11Disabled')
 }
 
-# REMOVED: Set-ExplorerZoneHardening
-# REASON: Policy 1806 = 3 breaks Chrome/Edge downloads ("blocked by your organization")
-# IMPACT: Even without 1803, setting 1806 = 3 at HKLM policy level blocks downloads
-# SECURITY: Protection maintained via SRP (Software Restriction Policies) below
-# CVE-2025-9491: Still protected via Set-FileExecutionRestrictions (.lnk/.scf/.url blocking)
+function Set-InternetZoneSecurity {
+    <#
+    .SYNOPSIS
+        Configures Internet Explorer/Edge Zone Security (MS Baseline 25H2)
+    .DESCRIPTION
+        Sets security policies for Internet Zones:
+        - Zone 3 (Internet): 1806 = 1 (Launching apps WITH PROMPT - allows downloads)
+        - Zone 4 (Restricted): 1803 = 3 + 1806 = 3 (Disable downloads/apps completely)
+        
+        CRITICAL: Zone 3 must allow downloads (1806 = 1, not 3!)
+        Setting Zone 3 1806 = 3 breaks Chrome/Edge downloads!
+        
+        MS Baseline 25H2 Policy Numbers:
+        - 1803 = File Download
+        - 1806 = Launching applications and unsafe files
+        
+        Zone Values:
+        - 0 = Enable
+        - 1 = Prompt
+        - 3 = Disable
+    .EXAMPLE
+        Set-InternetZoneSecurity
+    #>
+    [CmdletBinding()]
+    [OutputType([void])]
+    param()
+    
+    Write-Section "Configure Internet Zone Security (MS Baseline 25H2)"
+    
+    $zonesPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CurrentVersion\Internet Settings\Zones"
+    
+    # ===========================
+    # ZONE 3 - INTERNET (Normal browsing)
+    # ===========================
+    # CRITICAL: 1806 = 1 (Prompt) - NOT 3 (Disable)!
+    # Value 3 breaks Chrome/Edge downloads ("blocked by your organization")
+    
+    Write-Info "Configuring Internet Zone (Zone 3) - allow downloads with prompt..."
+    $zone3Path = "$zonesPath\3"
+    
+    [void](Set-RegistryValue -Path $zone3Path -Name "1806" -Value 1 -Type DWord `
+        -Description "Internet Zone: Launching apps/files with prompt (allow downloads)")
+    
+    # ===========================
+    # ZONE 4 - RESTRICTED SITES (Explicitly blocked sites)
+    # ===========================
+    # Complete lockdown - no downloads, no app launching
+    
+    Write-Info "Configuring Restricted Sites Zone (Zone 4) - complete lockdown..."
+    $zone4Path = "$zonesPath\4"
+    
+    [void](Set-RegistryValue -Path $zone4Path -Name "1803" -Value 3 -Type DWord `
+        -Description "Restricted Zone: Disable file downloads completely")
+    
+    [void](Set-RegistryValue -Path $zone4Path -Name "1806" -Value 3 -Type DWord `
+        -Description "Restricted Zone: Disable launching apps/files completely")
+    
+    Write-Success "Internet Zone Security configured (MS Baseline 25H2)"
+    Write-Info "Zone 3 (Internet): Downloads allowed with prompt"
+    Write-Info "Zone 4 (Restricted): Complete lockdown (no downloads/apps)"
+}
 
 function Set-FileExecutionRestrictions {
     <#
@@ -485,8 +546,25 @@ SeImpersonatePrivilege = *S-1-5-19,*S-1-5-20,*S-1-5-32-544,*S-1-5-99-0-0-0-0-0
     [void](Set-RegistryValue -Path $pointAndPrintPath -Name "RestrictDriverInstallationToAdministrators" -Value 1 -Type DWord `
         -Description "Point-and-Print: Only admins can install drivers")
     
+    # ===========================
+    # ADDITIONAL PRINTER SECURITY (MS Baseline 25H2)
+    # ===========================
+    
+    # 1. Disable Web-based Printer Driver Download
+    [void](Set-RegistryValue -Path $spoolerPath -Name "DisableWebPnPDownload" -Value 1 -Type DWord `
+        -Description "Printer: Disable web-based driver download (security)")
+    
+    # 2. Redirection Guard Policy (prevent printer redirection abuse)
+    [void](Set-RegistryValue -Path $spoolerPath -Name "RedirectionGuardPolicy" -Value 1 -Type DWord `
+        -Description "Printer: Redirection guard enabled")
+    
+    # 3. Copy Files Policy (restrict printer driver file operations)
+    [void](Set-RegistryValue -Path $spoolerPath -Name "CopyFilesPolicy" -Value 1 -Type DWord `
+        -Description "Printer: Restrict driver file copy operations")
+    
     Write-Success (Get-LocalizedString 'CorePrintNightmare')
     Write-Info "Point-and-Print secured (admin-only driver installation)"
+    Write-Info "Additional printer security: Web download disabled, redirection guarded"
 }
 
 function Disable-InternetPrintingClient {
@@ -865,6 +943,27 @@ function Set-DefenderBaselineSettings {
         -Description "Report dynamic signature dropped events"
     
     # ===========================
+    # DEFENDER ADMIN POLICIES (Microsoft Baseline 25H2)
+    # ===========================
+    
+    # 1. Disable Local Admin Merge (MS Baseline 25H2: Value 0)
+    # Value 0 = Local Admins CAN set exclusions (needed for standalone systems)
+    # Value 1 = Only Domain/GP exclusions (too restrictive for standalone)
+    Set-RegistryValue -Path $defenderPath -Name "DisableLocalAdminMerge" -Value 0 -Type DWord `
+        -Description "Defender: Local admins can set exclusions (baseline recommendation)"
+    
+    # 2. Hide Exclusions from Local Admins
+    # Prevents local admins from viewing exclusion lists (security)
+    Set-RegistryValue -Path $defenderPath -Name "HideExclusionsFromLocalAdmins" -Value 1 -Type DWord `
+        -Description "Defender: Hide exclusions from local admins"
+    
+    # 3. Disable Routinely Taking Action (MS Baseline 25H2: Value 0)
+    # Value 0 = Defender auto-cleans threats (user-friendly, recommended)
+    # Value 1 = Manual review required (too complex for normal users)
+    Set-RegistryValue -Path $defenderPath -Name "DisableRoutinelyTakingAction" -Value 0 -Type DWord `
+        -Description "Defender: Auto-clean threats enabled (baseline recommendation)"
+    
+    # ===========================
     # ADDITIONAL DEFENDER SETTINGS - LOW PRIORITY (Microsoft Baseline 25H2)
     # ===========================
     
@@ -879,6 +978,40 @@ function Set-DefenderBaselineSettings {
     
     # Quick Scan: Include Exclusions (already have ScanExcludedFilesInQuickScan above)
     # This is essentially covered by policy #5 above
+    
+    # ===========================
+    # DEFENDER FINE-TUNING (MS Baseline 25H2 - Explicit for 100% Compliance)
+    # ===========================
+    # All = 0 (Features ENABLED) - Windows defaults are correct, but set explicitly
+    # for documentation, compliance audits, and defense-in-depth
+    
+    # Real-Time Protection Path
+    $rtpPath = "$defenderPath\Real-Time Protection"
+    
+    # 1. IOAV Protection (IE/Office Anti-Virus for downloads)
+    Set-RegistryValue -Path $rtpPath -Name "DisableIOAVProtection" -Value 0 -Type DWord `
+        -Description "Defender: IOAV Protection enabled (IE/Office downloads)"
+    
+    # 2. Script Scanning (PowerShell, VBS, JavaScript)
+    Set-RegistryValue -Path $rtpPath -Name "DisableScriptScanning" -Value 0 -Type DWord `
+        -Description "Defender: Script scanning enabled (PS1/VBS/JS)"
+    
+    # 3. Behavior Monitoring (Heuristics)
+    Set-RegistryValue -Path $rtpPath -Name "DisableBehaviorMonitoring" -Value 0 -Type DWord `
+        -Description "Defender: Behavior monitoring enabled (heuristics)"
+    
+    # 4. On-Access Protection (Real-time file scanning)
+    Set-RegistryValue -Path $rtpPath -Name "DisableOnAccessProtection" -Value 0 -Type DWord `
+        -Description "Defender: On-access protection enabled (realtime scan)"
+    
+    # 5. Scan on Realtime Enable (Initial scan when RT protection starts)
+    Set-RegistryValue -Path $rtpPath -Name "DisableScanOnRealtimeEnable" -Value 0 -Type DWord `
+        -Description "Defender: Scan on RT enable (initial scan)"
+    
+    # 6. Block at First Seen (Cloud-based zero-day protection)
+    $spynetPath = "$defenderPath\Spynet"
+    Set-RegistryValue -Path $spynetPath -Name "DisableBlockAtFirstSeen" -Value 0 -Type DWord `
+        -Description "Defender: Block at first seen enabled (cloud zero-day)"
     
     # ===========================
     # ADDITIONAL DEFENDER SETTINGS - SCANNING (Email + USB)
@@ -976,7 +1109,8 @@ function Enable-ControlledFolderAccess {
             if ($mpPrefs.EnableControlledFolderAccess -eq 1) {
                 Write-Success (Get-LocalizedString 'CoreCFAActivated')
                 Write-Info (Get-LocalizedString 'CoreCFAProtected')
-                Write-Warning-Custom (Get-LocalizedString 'CoreCFAWhitelist')
+                Write-Info (Get-LocalizedString 'CoreCFAWhitelist')
+                Write-Info (Get-LocalizedString 'CoreCFAWhitelistApps')
             }
             else {
                 Write-Warning (Get-LocalizedString 'CoreCFANotActivated')
@@ -1154,6 +1288,16 @@ function Disable-AutoPlayAndAutoRun {
     # Disable AutoRun completely (ignore autorun.inf)
     [void](Set-RegistryValue -Path $explorerPathMachine -Name "NoAutorun" -Value 1 -Type DWord `
         -Description "AutoRun global deaktiviert (autorun.inf ignoriert)")
+    
+    # Disable AutoPlay for non-volume devices (MS Baseline 25H2)
+    # Affects MTP devices, cameras, phones, etc.
+    [void](Set-RegistryValue -Path $explorerPathMachine -Name "NoAutoplayfornonVolume" -Value 1 -Type DWord `
+        -Description "AutoPlay for non-volume devices disabled (MTP/Camera/Phone)")
+    
+    # Enable Man-on-The-Wire Protection (MS Baseline 25H2)
+    # Value 0 = Protection ENABLED (warns on insecure path copy)
+    [void](Set-RegistryValue -Path $explorerPathMachine -Name "DisableMotWOnInsecurePathCopy" -Value 0 -Type DWord `
+        -Description "Man-on-The-Wire protection enabled (network copy warning)")
     
     # User-Level (HKCU) - Current User
     $explorerPathUser = "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer"
@@ -1445,7 +1589,107 @@ function Set-SMBHardening {
     $llmnrPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\DNSClient"
     [void](Set-RegistryValue -Path $llmnrPath -Name "EnableMulticast" -Value 0 -Type DWord -Description "LLMNR deaktivieren")
     
-    Write-Success "SMB/NTLM/LLMNR hardened"
+    # NetBIOS over TCP/IP OFF (MS Baseline 25H2)
+    # Defense-in-depth: Registry + Firewall-Regeln (bereits in Disable-NetworkLegacyProtocols)
+    [void](Set-RegistryValue -Path $llmnrPath -Name "EnableNetbios" -Value 0 -Type DWord -Description "NetBIOS ueber TCP/IP deaktivieren")
+    
+    Write-Success "SMB/NTLM/LLMNR/NetBIOS hardened"
+}
+
+function Set-RPCHardening {
+    <#
+    .SYNOPSIS
+        Hardens RPC (Remote Procedure Call) Security Settings
+    
+    .DESCRIPTION
+        Implements Microsoft Security Baseline 25H2 RPC hardening policies.
+        Restricts RPC authentication, protocols, and remote access.
+        
+        Policies configured:
+        - RPC Named Pipe Protocol restrictions
+        - RPC Authentication level
+        - RPC Protocol restrictions
+        - Kerberos enforcement
+        - TCP Port restrictions
+        - Remote Client restrictions
+        
+    .EXAMPLE
+        Set-RPCHardening
+    #>
+    
+    Write-Info "Configuring RPC (Remote Procedure Call) Security..."
+    
+    $rpcPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Rpc"
+    
+    # 1. Use Named Pipe Protocol for RPC
+    Set-RegistryValue -Path $rpcPath -Name "RpcUseNamedPipeProtocol" -Value 0 -Type DWord `
+        -Description "RPC: Don't restrict to Named Pipes only (compatibility)"
+    
+    # 2. RPC Authentication Level
+    Set-RegistryValue -Path $rpcPath -Name "RpcAuthentication" -Value 0 -Type DWord `
+        -Description "RPC: Default authentication level (System-controlled)"
+    
+    # 3. RPC Protocols (5 = ncacn_ip_tcp)
+    Set-RegistryValue -Path $rpcPath -Name "RpcProtocols" -Value 5 -Type DWord `
+        -Description "RPC: Enable TCP/IP protocol (ncacn_ip_tcp)"
+    
+    # 4. Force Kerberos for RPC
+    Set-RegistryValue -Path $rpcPath -Name "ForceKerberosForRpc" -Value 0 -Type DWord `
+        -Description "RPC: Don't force Kerberos only (standalone compatibility)"
+    
+    # 5. RPC TCP Port (0 = dynamic, baseline recommendation)
+    Set-RegistryValue -Path $rpcPath -Name "RpcTcpPort" -Value 0 -Type DWord `
+        -Description "RPC: Use dynamic port allocation (0 = default)"
+    
+    # 6. Restrict Remote Clients
+    Set-RegistryValue -Path $rpcPath -Name "RestrictRemoteClients" -Value 1 -Type DWord `
+        -Description "RPC: Restrict unauthenticated remote clients"
+    
+    Write-Success "RPC Security hardened (6 policies applied)"
+    Write-Info "Remote RPC access restricted to authenticated clients only"
+}
+
+function Set-TCPIPHardening {
+    <#
+    .SYNOPSIS
+        Hardens TCP/IP Stack Security Settings
+    
+    .DESCRIPTION
+        Implements Microsoft Security Baseline 25H2 TCP/IP hardening policies.
+        Protects against ICMP redirect attacks and IP source routing attacks.
+        
+        Policies configured:
+        - ICMP Redirect protection (IPv4)
+        - IP Source Routing disabled (IPv4)
+        - IP Source Routing disabled (IPv6)
+        
+    .EXAMPLE
+        Set-TCPIPHardening
+    #>
+    
+    Write-Info "Configuring TCP/IP Security Hardening..."
+    
+    $tcpipPath = "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters"
+    $tcpip6Path = "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip6\Parameters"
+    
+    # 1. Enable ICMP Redirect Protection (IPv4)
+    # Prevents attackers from redirecting traffic via malicious ICMP messages
+    Set-RegistryValue -Path $tcpipPath -Name "EnableICMPRedirect" -Value 0 -Type DWord `
+        -Description "TCP/IP: Disable ICMP Redirect (attack protection)"
+    
+    # 2. Disable IP Source Routing (IPv4)
+    # Prevents attackers from specifying packet routes (man-in-the-middle attacks)
+    # 0 = Allow, 1 = Drop forward, 2 = Drop all (strictest)
+    Set-RegistryValue -Path $tcpipPath -Name "DisableIPSourceRouting" -Value 2 -Type DWord `
+        -Description "TCP/IP: Disable IP Source Routing IPv4 (highest protection)"
+    
+    # 3. Disable IP Source Routing (IPv6)
+    Set-RegistryValue -Path $tcpip6Path -Name "DisableIPSourceRouting" -Value 2 -Type DWord `
+        -Description "TCP/IP: Disable IP Source Routing IPv6 (highest protection)"
+    
+    Write-Success "TCP/IP Security hardened (3 policies applied)"
+    Write-Info "ICMP Redirect attacks: Protected"
+    Write-Info "IP Source Routing attacks: Blocked (IPv4 + IPv6)"
 }
 
 function Disable-AnonymousSIDEnumeration {
@@ -1882,6 +2126,11 @@ function Disable-AdministrativeShares {
     # Remote host allows delegation of non-exportable credentials
     [void](Set-RegistryValue -Path "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\CredentialsDelegation" -Name "AllowDefCredentialsWhenNTLMOnly" -Value 0 -Type DWord `
         -Description "Do NOT allow delegation of credentials when NTLM only")
+    
+    # Allow Protected Credentials (MS Baseline 25H2)
+    # Enables RDP Restricted Admin Mode credential delegation
+    [void](Set-RegistryValue -Path "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\CredentialsDelegation" -Name "AllowProtectedCreds" -Value 1 -Type DWord `
+        -Description "Allow credential delegation with Restricted Admin Mode (RDP security)")
     
     # ===========================
     # WINDOWS INSTALLER SECURITY (Microsoft Baseline 25H2)
@@ -2428,12 +2677,29 @@ function Enable-CredentialGuard {
     $dgPath = "HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard"
     $lsaPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Lsa"
     
+    # ===========================
+    # KERNEL SECURITY HARDENING (MS Baseline 25H2)
+    # ===========================
+    
+    # 1. Exception Chain Validation (Exploit Mitigation)
+    $kernelPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\kernel"
+    [void](Set-RegistryValue -Path $kernelPath -Name "DisableExceptionChainValidation" -Value 0 -Type DWord `
+        -Description "Kernel: Enable Exception Chain Validation (exploit mitigation)")
+    
+    # 2. Early Launch Anti-Malware Driver Policy
+    $earlyLaunchPath = "HKLM:\SYSTEM\CurrentControlSet\Policies\EarlyLaunch"
+    [void](Set-RegistryValue -Path $earlyLaunchPath -Name "DriverLoadPolicy" -Value 3 -Type DWord `
+        -Description "Kernel: Good + Unknown drivers only (Early Launch AM)")
+    
     # VBS
     [void](Set-RegistryValue -Path $dgPath -Name "EnableVirtualizationBasedSecurity" -Value 1 -Type DWord -Description "VBS aktivieren")
     [void](Set-RegistryValue -Path $dgPath -Name "RequirePlatformSecurityFeatures" -Value 3 -Type DWord -Description "VBS: Secure Boot + DMA")
     
-    # Credential Guard (UEFI Lock)
-    [void](Set-RegistryValue -Path $lsaPath -Name "LsaCfgFlags" -Value 1 -Type DWord -Description "Credential Guard (UEFI Lock)")
+    # Credential Guard (WITHOUT UEFI Lock - Reversible!)
+    # Value 1 = UEFI Lock (permanent, hard to reverse)
+    # Value 2 = Enabled without lock (reversible via Registry)
+    # For standalone systems: Value 2 is recommended (same security, but reversible)
+    [void](Set-RegistryValue -Path $lsaPath -Name "LsaCfgFlags" -Value 2 -Type DWord -Description "Credential Guard (ohne UEFI Lock - reversibel)")
     
     # CRITICAL FIX v1.7.6: Windows 11 25H2 requires ADDITIONAL Scenarios keys!
     # Credential Guard Scenario (REQUIRED for Windows 11 25H2!)
@@ -2450,7 +2716,31 @@ function Enable-CredentialGuard {
     # LSA Protection
     [void](Set-RegistryValue -Path $lsaPath -Name "RunAsPPL" -Value 1 -Type DWord -Description "LSA als PPL")
     
-    Write-Success "Credential Guard, VBS, HVCI, LSA-PPL configured"
+    # Block Custom Security Support Providers (MS Baseline 25H2)
+    # Prevents malware from loading credential-stealing SSPs
+    $systemPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System"
+    [void](Set-RegistryValue -Path $systemPath -Name "AllowCustomSSPsAPs" -Value 0 -Type DWord `
+        -Description "Block custom SSPs/APs (credential theft protection)")
+    
+    # CRITICAL FIX v1.7.22: Set Hypervisor Launch Type (REQUIRED for Credential Guard!)
+    # Without this, Credential Guard will be CONFIGURED but NOT RUNNING
+    # Bug discovered: Nov 6, 2025 - Credential Guard was configured but hypervisor not set
+    try {
+        $hypervisorResult = & bcdedit.exe /set hypervisorlaunchtype auto 2>&1
+        if ($LASTEXITCODE -eq 0) {
+            Write-Verbose "Hypervisor launch type set to auto"
+        }
+        else {
+            Write-Warning "Failed to set hypervisor launch type: $hypervisorResult"
+            Write-Info "Credential Guard may not activate after reboot - check BIOS virtualization settings"
+        }
+    }
+    catch {
+        Write-Warning "Exception setting hypervisor: $_"
+        Write-Info "Manual fix: bcdedit /set hypervisorlaunchtype auto"
+    }
+    
+    Write-Success "Credential Guard, VBS, HVCI, LSA-PPL, SSP-Block configured"
     Write-Warning-Custom "Reboot required!"
     
     # CRITICAL: Verify VBS/Credential Guard activation post-reboot
@@ -2473,6 +2763,108 @@ function Enable-CredentialGuard {
     Write-Host "    $(Get-LocalizedString 'VBSPostRebootCause3')" -ForegroundColor White
     Write-Host "    $(Get-LocalizedString 'VBSPostRebootCause4')" -ForegroundColor White
     Write-Host ""
+}
+
+function Import-SecurityTemplate {
+    <#
+    .SYNOPSIS
+        Imports MS Security Baseline 25H2 Security Template via secedit.exe
+    .DESCRIPTION
+        Automatically applies the Security Template (.inf) from MS Baseline 25H2.
+        This includes 67 settings:
+        - Password Policy (MinimumPasswordLength=14, Complexity, History)
+        - Account Lockout Policy
+        - Privilege Rights (23 settings)
+        - LSA/SMB Security Options
+        
+        Uses secedit.exe which is built into Windows 11.
+        
+        IMPORTANT: Requires Administrator privileges!
+    .PARAMETER InfPath
+        Path to the Security Template .inf file
+        Default: Audit\Baseline\Win11_25H2_Baseline_SecTemplate.inf
+    .EXAMPLE
+        Import-SecurityTemplate
+    .EXAMPLE
+        Import-SecurityTemplate -InfPath "C:\Custom\Template.inf"
+    #>
+    [CmdletBinding()]
+    [OutputType([bool])]
+    param(
+        [Parameter(Mandatory=$false)]
+        [string]$InfPath
+    )
+    
+    Write-Section "Apply Security Template (MS Baseline 25H2)"
+    
+    # Default path if not specified
+    if (-not $InfPath) {
+        $scriptRoot = Split-Path -Parent $PSScriptRoot
+        $InfPath = Join-Path $scriptRoot "Win11_25H2_Baseline_SecTemplate.inf"
+    }
+    
+    # Check if file exists
+    if (-not (Test-Path $InfPath)) {
+        Write-Error-Custom "Security Template not found: $InfPath"
+        Write-Warning-Custom "Security Template will NOT be applied!"
+        return $false
+    }
+    
+    Write-Info "Using Security Template: $InfPath"
+    Write-Info "This includes 67 settings: Password Policy, Account Lockout, Privilege Rights, LSA/SMB..."
+    
+    # Create temp database
+    $dbPath = Join-Path $env:TEMP "secedit_baseline_$(Get-Random).sdb"
+    
+    try {
+        Write-Info "Applying Security Template via secedit.exe..."
+        Write-Verbose "Command: secedit.exe /configure /db `"$dbPath`" /cfg `"$InfPath`""
+        Write-Verbose "Template contains 67 settings (Password Policy, Account Lockout, Privilege Rights, Security Options)"
+        
+        # Apply the security template
+        $process = Start-Process -FilePath "secedit.exe" `
+            -ArgumentList "/configure", "/db", "`"$dbPath`"", "/cfg", "`"$InfPath`"", "/quiet" `
+            -Wait -PassThru -NoNewWindow
+        
+        Write-Verbose "secedit.exe Exit Code: $($process.ExitCode)"
+        
+        if ($process.ExitCode -eq 0) {
+            Write-Success "Security Template applied successfully!"
+            Write-Info "  - Password Policy: MinimumPasswordLength=14, Complexity ON"
+            Write-Info "  - Account Lockout: 10 attempts, 10 min duration"
+            Write-Info "  - Privilege Rights: 23 settings configured"
+            Write-Info "  - LSA/SMB Security: NTLMv2, 128-bit encryption"
+            Write-Info "  - Total: 67 security settings from MS Baseline 25H2"
+            Write-Host ""
+            Write-Warning-Custom "IMPORTANT: Password Policy applies ONLY to LOCAL ACCOUNTS!"
+            Write-Info "  - Microsoft Accounts: Password rules managed by Microsoft Cloud"
+            Write-Info "  - Local Accounts: Password rules now enforced (14 chars, complexity, history)"
+            Write-Info "  - Most Win11 users use Microsoft Accounts (not affected by this policy)"
+            
+            # Cleanup temp database
+            if (Test-Path $dbPath) {
+                Remove-Item $dbPath -Force -ErrorAction SilentlyContinue
+            }
+            
+            return $true
+        }
+        else {
+            Write-Error-Custom "secedit.exe failed with exit code: $($process.ExitCode)"
+            Write-Warning-Custom "Security Template may NOT have been applied correctly!"
+            return $false
+        }
+    }
+    catch {
+        Write-Error-Custom "Failed to apply Security Template: $_"
+        Write-Warning-Custom "Security Template will NOT be applied!"
+        return $false
+    }
+    finally {
+        # Cleanup temp database
+        if (Test-Path $dbPath) {
+            Remove-Item $dbPath -Force -ErrorAction SilentlyContinue
+        }
+    }
 }
 
 function Disable-NearbySharing {
