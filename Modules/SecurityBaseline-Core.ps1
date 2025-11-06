@@ -2730,7 +2730,10 @@ function Enable-CredentialGuard {
         if ($LASTEXITCODE -eq 0) {
             # CRITICAL: Verify it was actually set (VM may silently fail!)
             $verifyResult = & bcdedit.exe /enum "{current}" 2>&1 | Select-String "hypervisorlaunchtype"
-            if ($verifyResult -match "Auto") {
+            
+            # Check if line contains "hypervisorlaunchtype" AND value is "Auto"
+            # Line format: "hypervisorlaunchtype    Auto"
+            if ($verifyResult -and $verifyResult.ToString() -match "hypervisorlaunchtype\s+Auto") {
                 Write-Success "Hypervisor launch type: Auto (verified)"
             }
             else {
