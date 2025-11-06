@@ -1358,9 +1358,27 @@ if ($currentAdminAccount) {
                         }
                     }
                     elseif ($pwChoice -eq '2') {
-                        $securePasswordInput = Read-Host "  New Password" -AsSecureString
-                        Set-LocalUser -Name $originalAdmin.Name -Password $securePasswordInput -ErrorAction Stop
-                        Write-Host "  [OK] $(Get-LocalizedString 'RestoreUsersPasswordSet')" -ForegroundColor Green
+                        Write-Host ""
+                        Write-Host "  [i] Password Policy Requirements:" -ForegroundColor Cyan
+                        Write-Host "      - Minimum 14 characters" -ForegroundColor Gray
+                        Write-Host "      - Complexity ON (uppercase, lowercase, number, special char)" -ForegroundColor Gray
+                        Write-Host ""
+                        
+                        try {
+                            $securePasswordInput = Read-Host "  New Password" -AsSecureString
+                            Set-LocalUser -Name $originalAdmin.Name -Password $securePasswordInput -ErrorAction Stop
+                            Write-Host "  [OK] $(Get-LocalizedString 'RestoreUsersPasswordSet')" -ForegroundColor Green
+                        }
+                        catch [Microsoft.PowerShell.Commands.InvalidPasswordException] {
+                            Write-Host "  [X] Password does NOT meet policy requirements!" -ForegroundColor Red
+                            Write-Host "      Password Policy (set by Apply-Script):" -ForegroundColor Yellow
+                            Write-Host "      - Minimum Length: 14 characters" -ForegroundColor Yellow
+                            Write-Host "      - Complexity: Must contain uppercase, lowercase, number, and special character" -ForegroundColor Yellow
+                            Write-Host "      - Password NOT changed - account keeps old password!" -ForegroundColor Yellow
+                        }
+                        catch {
+                            Write-Host "  [X] Failed to set password: $_" -ForegroundColor Red
+                        }
                     }
                     else {
                         Write-Host "  [!] $(Get-LocalizedString 'RestoreUsersPasswordSkipped')" -ForegroundColor Yellow
