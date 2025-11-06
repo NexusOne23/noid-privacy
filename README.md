@@ -15,7 +15,7 @@
 📌 **How?** → PowerShell: **Apply** → **Verify** → **Restore** (fully reversible!)  
 📌 **For whom?** → SMB, freelancers, power users **without Intune/Active Directory**
 
-**425 Registry Keys · 19 ASR Rules · 135 Verification Checks · Complete Backup/Restore**
+**425 Registry Keys · 19 ASR Rules · 133 Verification Checks · Complete Backup/Restore**
 
 ---
 
@@ -213,7 +213,7 @@ This project minimizes telemetry via Registry, Services, Firewall, and DNS block
 |---------|--------------|------------------|-----------------|---------------------|----------------|
 | **MS Baseline 25H2** | ✅ 100% of locally-implementable (370/429) | ⚠️ ~70% | ❌ ~20% | ⚠️ ~40% | ⚠️ ~30% |
 | **Full Backup/Restore** | ✅ All (Registry, Services, Tasks, Firewall, DNS) | ❌ Registry only | ❌ None | ❌ None | ⚠️ Profiles only |
-| **Verification** | ✅ 135 checks | ⚠️ Limited | ❌ None | ❌ None | ❌ None |
+| **Verification** | ✅ 133 checks | ⚠️ Limited | ❌ None | ❌ None | ❌ None |
 | **CISA KEV Coverage** | ✅ 85% (17/20 config-mitigable, not patch-only) | ⚠️ ~50% | ❌ ~10% | ⚠️ ~30% | ❌ Minimal |
 | **Privacy/AI Lockdown** | ✅ 9 AI features + 37 app permissions | ✅ Yes | ✅ Yes | ✅ Yes | ✅ Yes |
 | **Requires Intune/AD** | ❌ No | ❌ No | ❌ No | ❌ No | ❌ No |
@@ -302,7 +302,7 @@ This tool targets **Windows 11 25H2 standalone systems**. Not ideal for: Enterpr
 # 1. Apply hardening (Interactive Mode recommended)
 .\Apply-Win11-25H2-SecurityBaseline.ps1 -Interactive
 
-# 2. Verify settings (135 checks)
+# 2. Verify settings (133 checks)
 .\Verify-SecurityBaseline.ps1
 
 # 3. Reboot (for VBS, Credential Guard, BitLocker)

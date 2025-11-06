@@ -279,8 +279,8 @@ Found a bug not listed here? Please report it:
   - **Solution:** Add script folder to exclusions
 
 **Expected Verify Results with Third-Party AV:**
-- ✅ **Native Windows Defender:** 120-121/135 PASS
-- ✅ **Bitdefender/Kaspersky/Norton/ESET:** 98-102/135 PASS (expected!)
+- ✅ **Native Windows Defender:** 118-119/133 PASS
+- ✅ **Bitdefender/Kaspersky/Norton/ESET:** 96-100/133 PASS (expected!)
 - ❌ Failed checks: ASR Rules (19x), Network Protection, Cloud Protection, PUA
 - **Why This Is OK:** Third-party AV provides equivalent protection features
 

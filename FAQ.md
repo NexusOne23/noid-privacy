@@ -251,8 +251,8 @@ Third-party antivirus products (Bitdefender, Kaspersky, Norton, etc.) **replace*
 
 | Antivirus Type | PASS Count | Percentage | Status |
 |----------------|-----------|------------|--------|
-| **Windows Defender** | 120/121 | 99% | ✅ Excellent |
-| **Third-Party AV** | 98-102/121 | 81-84% | ✅ **Expected!** |
+| **Windows Defender** | 118-119/133 | 89% | ✅ Excellent |
+| **Third-Party AV** | 96-100/133 | 72-75% | ✅ **Expected!** |
 
 ---
 
@@ -279,11 +279,11 @@ Third-party antivirus products (Bitdefender, Kaspersky, Norton, etc.) **replace*
 ---
 
 **✅ Tested & Working (Third-Party AVs):**
-- ✅ **Windows Defender** (native) - 120/121 PASS
-- ✅ **Bitdefender** - 98/121 PASS (RestrictRemoteSAM exclusion recommended)
-- ✅ **Kaspersky** - ~100/121 PASS
-- ✅ **Norton/Symantec** - ~100/121 PASS
-- ✅ **ESET NOD32** - ~100/121 PASS
+- ✅ **Windows Defender** (native) - 118-119/133 PASS
+- ✅ **Bitdefender** - 96/133 PASS (RestrictRemoteSAM exclusion recommended)
+- ✅ **Kaspersky** - ~98/133 PASS
+- ✅ **Norton/Symantec** - ~98/133 PASS
+- ✅ **ESET NOD32** - ~98/133 PASS
 
 **⚠️ May Require Exclusions:**
 - Third-party AVs (especially Bitdefender): RestrictRemoteSAM false positive (add registry key to exclusions)
