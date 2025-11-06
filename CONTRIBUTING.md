@@ -356,7 +356,7 @@ finally {
 
 ### Recognition
 Contributors will be:
-- Listed in [CONTRIBUTORS.md](CONTRIBUTORS.md)
+- Listed on [GitHub Contributors Page](https://github.com/NexusOne23/noid-privacy/graphs/contributors)
 - Mentioned in release notes
 - Credited in relevant documentation
 

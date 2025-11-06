@@ -107,7 +107,7 @@ function Enable-AdvancedAuditing {
     # Error 0x00000057 = ERROR_INVALID_PARAMETER with wrong names
     $auditCategories = @(
         @{ Name = "Logon"; GUID = "{0CCE9215-69AE-11D9-BED3-505054503030}" },
-        @{ Name = "Logoff"; GUID = "{0CCE9216-69AE-11D9-BED3-505054503030}" },
+        @{ Name = "Other Logon/Logoff Events"; GUID = "{0CCE921C-69AE-11D9-BED3-505054503030}" },
         @{ Name = "Account Lockout"; GUID = "{0CCE9217-69AE-11D9-BED3-505054503030}" },
         @{ Name = "Special Logon"; GUID = "{0CCE921B-69AE-11D9-BED3-505054503030}" },
         @{ Name = "File Share"; GUID = "{0CCE9224-69AE-11D9-BED3-505054503030}" },
@@ -116,9 +116,9 @@ function Enable-AdvancedAuditing {
         @{ Name = "Audit Policy Change"; GUID = "{0CCE922F-69AE-11D9-BED3-505054503030}" },
         @{ Name = "Authentication Policy Change"; GUID = "{0CCE9230-69AE-11D9-BED3-505054503030}" },
         @{ Name = "Sensitive Privilege Use"; GUID = "{0CCE9228-69AE-11D9-BED3-505054503030}" },
-        @{ Name = "Security State Change"; GUID = "{0CCE9218-69AE-11D9-BED3-505054503030}" },
-        @{ Name = "Security System Extension"; GUID = "{0CCE9219-69AE-11D9-BED3-505054503030}" },
-        @{ Name = "System Integrity"; GUID = "{0CCE921A-69AE-11D9-BED3-505054503030}" },
+        @{ Name = "Security State Change"; GUID = "{0CCE9210-69AE-11D9-BED3-505054503030}" },
+        @{ Name = "Security System Extension"; GUID = "{0CCE9211-69AE-11D9-BED3-505054503030}" },
+        @{ Name = "System Integrity"; GUID = "{0CCE9212-69AE-11D9-BED3-505054503030}" },
         @{ Name = "User Account Management"; GUID = "{0CCE9235-69AE-11D9-BED3-505054503030}" },
         @{ Name = "Security Group Management"; GUID = "{0CCE9237-69AE-11D9-BED3-505054503030}" },
         @{ Name = "Directory Service Access"; GUID = "{0CCE923B-69AE-11D9-BED3-505054503030}" },
@@ -747,6 +747,12 @@ function Enable-WindowsHelloPINComplexity {
         # PIN History: Remember last 5
         [void](Set-RegistryValue -Path $pinPath -Name "History" -Value 5 -Type DWord `
             -Description "Windows Hello: Remember last 5 PINs")
+        
+        # Enhanced Anti-Spoofing for Facial Recognition (MS Baseline 25H2)
+        # Prevents spoofing attacks against Windows Hello facial recognition
+        $biometricsPath = "HKLM:\SOFTWARE\Policies\Microsoft\Biometrics\FacialFeatures"
+        [void](Set-RegistryValue -Path $biometricsPath -Name "EnhancedAntiSpoofing" -Value 1 -Type DWord `
+            -Description "Windows Hello: Enhanced anti-spoofing for face recognition")
         
         Write-Success (Get-LocalizedString 'AdvancedPINConfigured')
         Write-Info (Get-LocalizedString 'AdvancedPINVBSProtected')

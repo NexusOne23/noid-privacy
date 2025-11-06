@@ -106,7 +106,8 @@ $script:transcriptPath = ""
 $script:transcriptStarted = $false
 
 # Load Localization Module FIRST (needed for transcript messages!)
-$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+# CRITICAL: Use $PSScriptRoot for reliability when called from anywhere
+$scriptDir = $PSScriptRoot
 try {
     . "$scriptDir\Modules\SecurityBaseline-Localization.ps1"
 }
@@ -2284,9 +2285,61 @@ else {
 }
 #endregion
 
+#region Restore Security Template (secedit)
+Write-Host ""
+Write-Host "[16/19] Restore Security Template (secedit)..." -ForegroundColor Yellow
+
+if ($backup.Settings.PSObject.Properties.Name -contains 'SecurityTemplate' -and $backup.Settings.SecurityTemplate.Enabled) {
+    Write-Host "  [i] Restoring Security Template via secedit..." -ForegroundColor Cyan
+    
+    if ($PSCmdlet.ShouldProcess("Security Template", "Restore")) {
+        try {
+            # Write backup content to temp .inf file
+            $tempInf = Join-Path $env:TEMP "SecurityTemplate_Restore_$(Get-Random).inf"
+            
+            # CRITICAL: secedit requires Unicode encoding!
+            $backup.Settings.SecurityTemplate.Content | Out-File -FilePath $tempInf -Encoding Unicode -Force
+            
+            Write-Verbose "Importing Security Template: $tempInf"
+            
+            # Apply via secedit
+            $tempDb = Join-Path $env:TEMP "secedit_restore_$(Get-Random).sdb"
+            $importResult = & secedit.exe /configure /db $tempDb /cfg $tempInf /quiet 2>&1
+            
+            if ($LASTEXITCODE -eq 0) {
+                Write-Host "  [OK] Security Template restored successfully!" -ForegroundColor Green
+                Write-Host "      Password Policy, Account Lockout, Privilege Rights, Security Options" -ForegroundColor Gray
+                $restoreStats.Restored++
+            }
+            else {
+                Write-Warning "  secedit import failed (Exit Code: $LASTEXITCODE)"
+                Write-Verbose "Output: $importResult"
+                $restoreStats.Failed++
+            }
+            
+            # Cleanup
+            if (Test-Path $tempInf) { Remove-Item $tempInf -Force -ErrorAction SilentlyContinue }
+            if (Test-Path $tempDb) { Remove-Item $tempDb -Force -ErrorAction SilentlyContinue }
+        }
+        catch {
+            Write-Warning "  Could not restore Security Template: $_"
+            $restoreStats.Failed++
+        }
+    }
+    else {
+        Write-Host "  [WHATIF] Would restore Security Template" -ForegroundColor Magenta
+        $restoreStats.Skipped++
+    }
+}
+else {
+    Write-Host "  [i] No Security Template in backup - skipping" -ForegroundColor DarkYellow
+    $restoreStats.Skipped++
+}
+#endregion
+
 #region Restore Power Management Settings
 Write-Host ""
-Write-Host "[16/18] Restore Power Management Settings..." -ForegroundColor Yellow
+Write-Host "[17/19] Restore Power Management Settings..." -ForegroundColor Yellow
 
 if ($backup.Settings.PSObject.Properties.Name -contains 'PowerManagement' -and $backup.Settings.PowerManagement.Enabled) {
     Write-Host "  [i] Restoring power settings from backup..." -ForegroundColor Cyan
@@ -2417,7 +2470,7 @@ catch {
 # RESTORE: GP-Cache aktualisieren + Settings-App-Cache killen
 # ====================================================================
 Write-Host ""
-Write-Host "[18/18] Updating Group Policy cache..." -ForegroundColor Cyan
+Write-Host "[18/19] Updating Group Policy cache..." -ForegroundColor Cyan
 try {
     $job = Start-Job -ScriptBlock {
         # Damit die Settings-App es SOFORT merkt:

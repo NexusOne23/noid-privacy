@@ -17,7 +17,7 @@ Have you checked the following documentation?
 
 - [ ] [README.md](../../README.md)
 - [ ] [INSTALLATION.md](../../INSTALLATION.md)
-- [ ] [PROJECT_STRUCTURE.md](../../PROJECT_STRUCTURE.md)
+- [ ] [FAQ.md](../../FAQ.md)
 - [ ] [CHANGELOG.md](../../CHANGELOG.md)
 - [ ] [Existing Issues](https://github.com/NexusOne23/noid-privacy/issues)
 

@@ -261,6 +261,47 @@ Found a bug not listed here? Please report it:
 
 ---
 
+## 🛡️ Third-Party Antivirus Compatibility
+
+> 📖 **For complete documentation with detailed workarounds, see:** [ANTIVIRUS_COMPATIBILITY.md](ANTIVIRUS_COMPATIBILITY.md)
+
+### Quick Summary
+
+**Common Issues:**
+- ⚠️ **Bitdefender:** False positive on `RestrictRemoteSAM` registry key (`Heur.BZC.Boxter.151.7C4B21F2`)
+  - **Solution:** Add registry key to exclusions (Bitdefender → Protection → Vulnerability → Settings → Exclusions)
+  - **Key:** `HKLM\SYSTEM\CurrentControlSet\Control\Lsa\RestrictRemoteSAM`
+  - **⚠️ DO NOT REMOVE THIS KEY!** It protects against Pass-the-Hash attacks
+
+- ⚠️ **Norton/Avast:** May flag PowerShell script execution
+  - **Solution:** Add script folder to exclusions
+
+**Expected Verify Results with Third-Party AV:**
+- ✅ **Native Windows Defender:** 120-121/135 PASS
+- ✅ **Bitdefender/Kaspersky/Norton/ESET:** 98-102/135 PASS (expected!)
+- ❌ Failed checks: ASR Rules (19x), Network Protection, Cloud Protection, PUA
+- **Why This Is OK:** Third-party AV provides equivalent protection features
+
+**Tested & Working:**
+- ✅ Bitdefender (needs RestrictRemoteSAM exclusion)
+- ✅ Kaspersky
+- ✅ Norton/Symantec
+- ✅ ESET NOD32
+- ✅ Malwarebytes
+
+**📖 For detailed information including:**
+- Step-by-step Bitdefender exclusion guide with screenshots
+- Driver installation workarounds (Intel, NVIDIA, AMD)
+- PowerShell cmdlet behavior with third-party AV
+- Complete feature comparison table
+- How to report false positives
+- Registry key verification commands
+- All supported antivirus products
+
+**→ See [ANTIVIRUS_COMPATIBILITY.md](ANTIVIRUS_COMPATIBILITY.md)**
+
+---
+
 ## ✅ Fixed Issues
 
 See [CHANGELOG.md](CHANGELOG.md) for resolved issues and version history.

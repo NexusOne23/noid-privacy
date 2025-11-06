@@ -67,7 +67,6 @@ Please review and check all that apply:
 - [ ] I have updated the README.md (if needed)
 - [ ] I have updated the CHANGELOG.md
 - [ ] I have added/updated function documentation (comment-based help)
-- [ ] I have updated PROJECT_STRUCTURE.md (if adding new files)
 
 ### Testing
 - [ ] My changes work on Windows 11 25H2

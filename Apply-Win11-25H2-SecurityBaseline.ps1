@@ -289,7 +289,8 @@ $timestamp = Get-Date -Format 'yyyyMMdd-HHmmss'
 # REASON: CTRL+C handler and Mutex error handling use Get-LocalizedString
 # PROBLEM: Localization was loaded much later, causing undefined function errors
 # BEST PRACTICE 25H2: Load essential modules BEFORE they're needed
-$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+# CRITICAL: Use $PSScriptRoot instead of $MyInvocation for reliability when called from anywhere
+$scriptDir = $PSScriptRoot
 
 # Set default language BEFORE loading Localization module
 if (-not (Test-Path Variable:\Global:CurrentLanguage)) {
@@ -1423,7 +1424,7 @@ try {
         Set-NetBIOSDisabled
         Set-ProcessAuditingWithCommandLine
         Disable-IE11COMAutomation
-        # REMOVED: Set-ExplorerZoneHardening - Policy 1806=3 breaks Chrome/Edge downloads
+        Set-InternetZoneSecurity
         Set-FileExecutionRestrictions
         Set-PrintSpoolerUserRights
         Disable-InternetPrintingClient
@@ -1441,6 +1442,8 @@ try {
         
         # 4. SMB/NTLM/Kerberos Haertung
         Set-SMBHardening
+        Set-RPCHardening
+        Set-TCPIPHardening
         Disable-AnonymousSIDEnumeration
         Disable-NetworkLegacyProtocols
         Enable-NetworkStealthMode
@@ -1497,6 +1500,7 @@ try {
         Write-Host "[$currentModule/$moduleCount] $(Get-LocalizedString 'ProgressAdvanced')" -ForegroundColor Cyan
         
         Enable-CredentialGuard
+        Import-SecurityTemplate  # MS Baseline 25H2 Security Template (67 settings via secedit.exe)
         Disable-NearbySharing
         Enable-BitLockerPolicies
         Test-BitLockerEncryptionMethod  # Prueft ob AES-128 aktiv ist und zeigt Upgrade-Anleitung

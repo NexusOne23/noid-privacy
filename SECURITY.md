@@ -88,7 +88,7 @@ We classify security vulnerabilities using the following criteria:
 
 We appreciate security researchers who follow responsible disclosure:
 - Your name (if desired) will be credited in the security advisory
-- You'll be listed in our [SECURITY_HALL_OF_FAME.md](SECURITY_HALL_OF_FAME.md)
+- You'll be listed in the GitHub Security Advisory and release notes
 - We'll link to your website/GitHub profile (with permission)
 
 ### 🚫 What We Consider Security Vulnerabilities

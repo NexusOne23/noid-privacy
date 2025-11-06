@@ -289,7 +289,7 @@ Third-party antivirus products (Bitdefender, Kaspersky, Norton, etc.) **replace*
 - Bitdefender: RestrictRemoteSAM false positive (whitelist registry key)
 - Norton/Avast: May flag PowerShell execution (add script to exclusions)
 
-**📖 Full Documentation:** See [ANTIVIRUS_COMPATIBILITY.md](ANTIVIRUS_COMPATIBILITY.md) for detailed information
+**📖 Full Documentation:** See [ANTIVIRUS_COMPATIBILITY.md](ANTIVIRUS_COMPATIBILITY.md) for detailed workarounds and solutions
 
 ### Does this slow down my PC?
 
@@ -668,7 +668,7 @@ Git-cloned files don't have Zone.Identifier!
 
 ## 🆘 Still Have Questions?
 
-- **Documentation**: [README.md](README.md) | [INSTALLATION.md](INSTALLATION.md) | [PROJECT_STRUCTURE.md](PROJECT_STRUCTURE.md)
+- **Documentation**: [README.md](README.md) | [INSTALLATION.md](INSTALLATION.md) | [FEATURES.md](FEATURES.md)
 - **Issues**: [GitHub Issues](https://github.com/NexusOne23/noid-privacy/issues)
 - **Support**: [support@noid-privacy.com](mailto:support@noid-privacy.com) - General questions and help
 - **Security**: [security@noid-privacy.com](mailto:security@noid-privacy.com) - Security vulnerabilities only

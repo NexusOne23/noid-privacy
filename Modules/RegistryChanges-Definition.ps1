@@ -802,6 +802,46 @@ $script:RegistryChanges = @(
         File = 'SecurityBaseline-Core.ps1'
     },
     @{
+        Path = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer'
+        Name = 'NoAutoplayfornonVolume'
+        Type = 'DWord'
+        ApplyValue = 1
+        Description = 'AutoPlay for non-volume devices disabled (MTP/Camera/Phone)'
+        File = 'SecurityBaseline-Core.ps1'
+    },
+    @{
+        Path = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer'
+        Name = 'DisableMotWOnInsecurePathCopy'
+        Type = 'DWord'
+        ApplyValue = 0
+        Description = 'Man-on-The-Wire protection enabled (network copy warning)'
+        File = 'SecurityBaseline-Core.ps1'
+    },
+    @{
+        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\AppPrivacy'
+        Name = 'LetAppsActivateWithVoiceAboveLock'
+        Type = 'DWord'
+        ApplyValue = 2
+        Description = 'Apps: Voice activation above lock OFF (Privacy + Security)'
+        File = 'SecurityBaseline-Telemetry.ps1'
+    },
+    @{
+        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\CredentialsDelegation'
+        Name = 'AllowProtectedCreds'
+        Type = 'DWord'
+        ApplyValue = 1
+        Description = 'Allow credential delegation with Restricted Admin Mode (RDP security)'
+        File = 'SecurityBaseline-Core.ps1'
+    },
+    @{
+        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\System'
+        Name = 'AllowCustomSSPsAPs'
+        Type = 'DWord'
+        ApplyValue = 0
+        Description = 'Block custom SSPs/APs (credential theft protection)'
+        File = 'SecurityBaseline-Core.ps1'
+    },
+    @{
         Path = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer'
         Name = 'SmartScreenEnabled'
         Type = 'String'
@@ -1087,6 +1127,254 @@ $script:RegistryChanges = @(
         Type = 'DWord'
         ApplyValue = 0
         Description = 'LLMNR deaktivieren'
+        File = 'SecurityBaseline-Core.ps1'
+    },
+    @{
+        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\DNSClient'
+        Name = 'EnableNetbios'
+        Type = 'DWord'
+        ApplyValue = 0
+        Description = 'NetBIOS ueber TCP/IP deaktivieren'
+        File = 'SecurityBaseline-Core.ps1'
+    },
+    @{
+        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Rpc'
+        Name = 'RpcUseNamedPipeProtocol'
+        Type = 'DWord'
+        ApplyValue = 0
+        Description = 'RPC: Don''t restrict to Named Pipes only (compatibility)'
+        File = 'SecurityBaseline-Core.ps1'
+    },
+    @{
+        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Rpc'
+        Name = 'RpcAuthentication'
+        Type = 'DWord'
+        ApplyValue = 0
+        Description = 'RPC: Default authentication level (System-controlled)'
+        File = 'SecurityBaseline-Core.ps1'
+    },
+    @{
+        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Rpc'
+        Name = 'RpcProtocols'
+        Type = 'DWord'
+        ApplyValue = 5
+        Description = 'RPC: Enable TCP/IP protocol (ncacn_ip_tcp)'
+        File = 'SecurityBaseline-Core.ps1'
+    },
+    @{
+        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Rpc'
+        Name = 'ForceKerberosForRpc'
+        Type = 'DWord'
+        ApplyValue = 0
+        Description = 'RPC: Don''t force Kerberos only (standalone compatibility)'
+        File = 'SecurityBaseline-Core.ps1'
+    },
+    @{
+        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Rpc'
+        Name = 'RpcTcpPort'
+        Type = 'DWord'
+        ApplyValue = 0
+        Description = 'RPC: Use dynamic port allocation (0 = default)'
+        File = 'SecurityBaseline-Core.ps1'
+    },
+    @{
+        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Rpc'
+        Name = 'RestrictRemoteClients'
+        Type = 'DWord'
+        ApplyValue = 1
+        Description = 'RPC: Restrict unauthenticated remote clients'
+        File = 'SecurityBaseline-Core.ps1'
+    },
+    @{
+        Path = 'HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters'
+        Name = 'EnableICMPRedirect'
+        Type = 'DWord'
+        ApplyValue = 0
+        Description = 'TCP/IP: Disable ICMP Redirect (attack protection)'
+        File = 'SecurityBaseline-Core.ps1'
+    },
+    @{
+        Path = 'HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters'
+        Name = 'DisableIPSourceRouting'
+        Type = 'DWord'
+        ApplyValue = 2
+        Description = 'TCP/IP: Disable IP Source Routing IPv4 (highest protection)'
+        File = 'SecurityBaseline-Core.ps1'
+    },
+    @{
+        Path = 'HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip6\Parameters'
+        Name = 'DisableIPSourceRouting'
+        Type = 'DWord'
+        ApplyValue = 2
+        Description = 'TCP/IP: Disable IP Source Routing IPv6 (highest protection)'
+        File = 'SecurityBaseline-Core.ps1'
+    },
+    @{
+        Path = 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\kernel'
+        Name = 'DisableExceptionChainValidation'
+        Type = 'DWord'
+        ApplyValue = 0
+        Description = 'Kernel: Enable Exception Chain Validation (exploit mitigation)'
+        File = 'SecurityBaseline-Core.ps1'
+    },
+    @{
+        Path = 'HKLM:\SYSTEM\CurrentControlSet\Policies\EarlyLaunch'
+        Name = 'DriverLoadPolicy'
+        Type = 'DWord'
+        ApplyValue = 3
+        Description = 'Kernel: Good + Unknown drivers only (Early Launch AM)'
+        File = 'SecurityBaseline-Core.ps1'
+    },
+    @{
+        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender'
+        Name = 'DisableLocalAdminMerge'
+        Type = 'DWord'
+        ApplyValue = 0
+        Description = 'Defender: Local admins can set exclusions (baseline recommendation)'
+        File = 'SecurityBaseline-Core.ps1'
+    },
+    @{
+        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender'
+        Name = 'HideExclusionsFromLocalAdmins'
+        Type = 'DWord'
+        ApplyValue = 1
+        Description = 'Defender: Hide exclusions from local admins'
+        File = 'SecurityBaseline-Core.ps1'
+    },
+    @{
+        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender'
+        Name = 'DisableRoutinelyTakingAction'
+        Type = 'DWord'
+        ApplyValue = 0
+        Description = 'Defender: Auto-clean threats enabled (baseline recommendation)'
+        File = 'SecurityBaseline-Core.ps1'
+    },
+    @{
+        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Printers'
+        Name = 'DisableWebPnPDownload'
+        Type = 'DWord'
+        ApplyValue = 1
+        Description = 'Printer: Disable web-based driver download (security)'
+        File = 'SecurityBaseline-Core.ps1'
+    },
+    @{
+        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Printers'
+        Name = 'RedirectionGuardPolicy'
+        Type = 'DWord'
+        ApplyValue = 1
+        Description = 'Printer: Redirection guard enabled'
+        File = 'SecurityBaseline-Core.ps1'
+    },
+    @{
+        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Printers'
+        Name = 'CopyFilesPolicy'
+        Type = 'DWord'
+        ApplyValue = 1
+        Description = 'Printer: Restrict driver file copy operations'
+        File = 'SecurityBaseline-Core.ps1'
+    },
+    @{
+        Path = 'HKLM:\SYSTEM\CurrentControlSet\Services\NetBT\Parameters'
+        Name = 'NoNameReleaseOnDemand'
+        Type = 'DWord'
+        ApplyValue = 1
+        Description = 'NetBT: Prevent name release on demand (security)'
+        File = 'SecurityBaseline-Core.ps1'
+    },
+    @{
+        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\WindowsInkWorkspace'
+        Name = 'AllowWindowsInkWorkspace'
+        Type = 'DWord'
+        ApplyValue = 1
+        Description = 'Windows Ink Workspace: Enabled but accessible'
+        File = 'SecurityBaseline-Telemetry.ps1'
+    },
+    @{
+        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\Explorer'
+        Name = 'NoWebServices'
+        Type = 'DWord'
+        ApplyValue = 1
+        Description = 'Explorer: Disable web services access (privacy)'
+        File = 'SecurityBaseline-Telemetry.ps1'
+    },
+    @{
+        Path = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System'
+        Name = 'MSAOptional'
+        Type = 'DWord'
+        ApplyValue = 1
+        Description = 'Microsoft Account optional (not forced in OOBE)'
+        File = 'SecurityBaseline-UAC.ps1'
+    },
+    @{
+        Path = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System'
+        Name = 'EnableMPR'
+        Type = 'DWord'
+        ApplyValue = 0
+        Description = 'Multiple Provider Router disabled (legacy - NT 4.0 feature)'
+        File = 'SecurityBaseline-UAC.ps1'
+    },
+    @{
+        Path = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System'
+        Name = 'EnableInstallerDetection'
+        Type = 'DWord'
+        ApplyValue = 1
+        Description = 'UAC: Detect installers automatically (heuristic detection)'
+        File = 'SecurityBaseline-UAC.ps1'
+    },
+    @{
+        Path = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System'
+        Name = 'FilterAdministratorToken'
+        Type = 'DWord'
+        ApplyValue = 1
+        Description = 'UAC: Built-in Administrator account uses UAC (not full token by default)'
+        File = 'SecurityBaseline-UAC.ps1'
+    },
+    @{
+        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection'
+        Name = 'DisableIOAVProtection'
+        Type = 'DWord'
+        ApplyValue = 0
+        Description = 'Defender: IOAV Protection enabled (IE/Office downloads)'
+        File = 'SecurityBaseline-Core.ps1'
+    },
+    @{
+        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection'
+        Name = 'DisableScriptScanning'
+        Type = 'DWord'
+        ApplyValue = 0
+        Description = 'Defender: Script scanning enabled (PS1/VBS/JS)'
+        File = 'SecurityBaseline-Core.ps1'
+    },
+    @{
+        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection'
+        Name = 'DisableBehaviorMonitoring'
+        Type = 'DWord'
+        ApplyValue = 0
+        Description = 'Defender: Behavior monitoring enabled (heuristics)'
+        File = 'SecurityBaseline-Core.ps1'
+    },
+    @{
+        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection'
+        Name = 'DisableOnAccessProtection'
+        Type = 'DWord'
+        ApplyValue = 0
+        Description = 'Defender: On-access protection enabled (realtime scan)'
+        File = 'SecurityBaseline-Core.ps1'
+    },
+    @{
+        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection'
+        Name = 'DisableScanOnRealtimeEnable'
+        Type = 'DWord'
+        ApplyValue = 0
+        Description = 'Defender: Scan on RT enable (initial scan)'
+        File = 'SecurityBaseline-Core.ps1'
+    },
+    @{
+        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet'
+        Name = 'DisableBlockAtFirstSeen'
+        Type = 'DWord'
+        ApplyValue = 0
+        Description = 'Defender: Block at first seen enabled (cloud zero-day)'
         File = 'SecurityBaseline-Core.ps1'
     },
     @{
@@ -1517,8 +1805,8 @@ $script:RegistryChanges = @(
         Path = 'HKLM:\SYSTEM\CurrentControlSet\Control\Lsa'
         Name = 'LsaCfgFlags'
         Type = 'DWord'
-        ApplyValue = 1
-        Description = 'Credential Guard (UEFI Lock)'
+        ApplyValue = 2
+        Description = 'Credential Guard (ohne UEFI Lock - reversibel)'
         File = 'SecurityBaseline-Core.ps1'
     },
     @{
@@ -2876,6 +3164,14 @@ $script:RegistryChanges = @(
         File = 'SecurityBaseline-UAC.ps1'
     },
     @{
+        Path = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\CredUI'
+        Name = 'EnumerateAdministrators'
+        Type = 'DWord'
+        ApplyValue = 0
+        Description = 'UAC: Don''t enumerate admin accounts on elevation prompt'
+        File = 'SecurityBaseline-UAC.ps1'
+    },
+    @{
         Path = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System'
         Name = 'InactivityTimeoutSecs'
         Type = 'DWord'
@@ -3027,10 +3323,30 @@ $script:RegistryChanges = @(
         Description = 'Prevent Wireless Media Streaming'
         File = 'SecurityBaseline-WirelessDisplay.ps1'
     },
-    # REMOVED: Internet Zone 1806 and Intranet Zone 1806
-    # REASON: Policy 1806 = 3 breaks Chrome/Edge downloads ("blocked by your organization")
-    # SECURITY: Protection maintained via SRP (Set-FileExecutionRestrictions)
-    # CVE-2025-9491: Still protected via .lnk/.scf/.url blocking in SRP
+    @{
+        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\3'
+        Name = '1806'
+        Type = 'DWord'
+        ApplyValue = 1
+        Description = 'Internet Zone: Launching apps/files with prompt (allow downloads)'
+        File = 'SecurityBaseline-Core.ps1'
+    },
+    @{
+        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\4'
+        Name = '1803'
+        Type = 'DWord'
+        ApplyValue = 3
+        Description = 'Restricted Zone: Disable file downloads completely'
+        File = 'SecurityBaseline-Core.ps1'
+    },
+    @{
+        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\4'
+        Name = '1806'
+        Type = 'DWord'
+        ApplyValue = 3
+        Description = 'Restricted Zone: Disable launching apps/files completely'
+        File = 'SecurityBaseline-Core.ps1'
+    },
     @{
         Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\Safer\CodeIdentifiers'
         Name = 'DefaultLevel'
@@ -3109,6 +3425,14 @@ $script:RegistryChanges = @(
         Type = 'DWord'
         ApplyValue = 5
         Description = 'Windows Hello: Remember last 5 PINs'
+        File = 'SecurityBaseline-Advanced.ps1'
+    },
+    @{
+        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Biometrics\FacialFeatures'
+        Name = 'EnhancedAntiSpoofing'
+        Type = 'DWord'
+        ApplyValue = 1
+        Description = 'Windows Hello: Enhanced anti-spoofing for face recognition'
         File = 'SecurityBaseline-Advanced.ps1'
     }
 

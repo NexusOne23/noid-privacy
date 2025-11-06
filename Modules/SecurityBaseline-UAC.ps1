@@ -67,12 +67,42 @@ function Set-MaximumUAC {
     Set-RegistryValue -Path $securityPath -Name "LocalAccountTokenFilterPolicy" -Value 0 -Type DWord `
         -Description "UAC: Prevent remote UAC bypass for local accounts (anti-PtH)"
     
+    # Credential UI: Enumerate administrator accounts on elevation (MS Baseline 25H2)
+    # Prevents enumeration of admin accounts on UAC prompt (security hardening)
+    $credUIPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\CredUI"
+    Set-RegistryValue -Path $credUIPath -Name "EnumerateAdministrators" -Value 0 -Type DWord `
+        -Description "UAC: Don't enumerate admin accounts on elevation prompt"
+    
     # Interactive logon: Machine inactivity limit (15 minutes = 900 seconds)
     # Automatically locks screen after inactivity
     Set-RegistryValue -Path $securityPath -Name "InactivityTimeoutSecs" -Value 900 -Type DWord `
         -Description "Auto-lock after 15 minutes (900 sec) inactivity"
     
+    # Microsoft Account Optional (MS Baseline 25H2 - Phase 3)
+    # Makes Microsoft Account optional instead of required during OOBE
+    Set-RegistryValue -Path $securityPath -Name "MSAOptional" -Value 1 -Type DWord `
+        -Description "Microsoft Account optional (not forced in OOBE)"
+    
+    # Multiple Provider Router - Legacy (MS Baseline 25H2 - 100% Compliance)
+    # Windows NT 4.0 legacy feature (Novell NetWare support)
+    # Value 0 = Disabled (modern systems don't need this)
+    # Set explicitly for documentation and compliance (even though default = 0)
+    Set-RegistryValue -Path $securityPath -Name "EnableMPR" -Value 0 -Type DWord `
+        -Description "Multiple Provider Router disabled (legacy - NT 4.0 feature)"
+    
+    # UAC: Detect application installations and prompt for elevation (MS Baseline 25H2)
+    # Value: 1 = Enabled (UAC automatically detects installers and prompts)
+    Set-RegistryValue -Path $securityPath -Name "EnableInstallerDetection" -Value 1 -Type DWord `
+        -Description "UAC: Detect installers automatically (heuristic detection)"
+    
+    # UAC: Admin Approval Mode for the built-in Administrator account (MS Baseline 25H2)
+    # Value: 1 = Enabled (built-in Admin account uses UAC like other admins)
+    Set-RegistryValue -Path $securityPath -Name "FilterAdministratorToken" -Value 1 -Type DWord `
+        -Description "UAC: Built-in Administrator account uses UAC (not full token by default)"
+    
     Write-Success "$(Get-LocalizedString 'UACMaximumSet')"
+    Write-Info "  - EnableInstallerDetection: UAC detects installers automatically"
+    Write-Info "  - FilterAdministratorToken: Built-in Admin account uses UAC"
     Write-Info "$(Get-LocalizedString 'UACSliderPosition')"
     Write-Info "$(Get-LocalizedString 'UACEveryActionRequires')"
     Write-Warning "$(Get-LocalizedString 'UACMostSecureSetting')"

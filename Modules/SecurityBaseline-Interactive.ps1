@@ -89,6 +89,10 @@ function Show-MainMenu {
     $menuAuditDesc = Get-LocalizedString 'MainMenuAuditDesc'
     if (-not $menuAuditDesc) { $menuAuditDesc = "Apply full baseline, ASR in audit (no blocking)" }
     Write-Host "         $menuAuditDesc" -ForegroundColor Gray
+    
+    $menuAuditFollow = Get-LocalizedString 'MainMenuAuditFollow'
+    if (-not $menuAuditFollow) { $menuAuditFollow = "-> DNS, OneDrive & Remote Access configuration follows" }
+    Write-Host "         $menuAuditFollow" -ForegroundColor DarkCyan
     Write-Host ""
     
     $menuEnforce = Get-LocalizedString 'MainMenuEnforce'

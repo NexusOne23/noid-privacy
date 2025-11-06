@@ -126,7 +126,8 @@ catch {
 }
 
 # Load Localization Module
-$scriptDir = Split-Path -Parent $MyInvocation.MyCommand.Path
+# CRITICAL: Use $PSScriptRoot for reliability when called from anywhere
+$scriptDir = $PSScriptRoot
 try {
     . "$scriptDir\Modules\SecurityBaseline-Localization.ps1"
 }
@@ -1125,6 +1126,49 @@ catch {
 }
 
 $backup.Settings.PowerManagement = $powerBackup
+Write-Host ""
+#endregion
+
+#region Security Template (secedit)
+Write-Host "$(Get-LocalizedString 'BackupSecurityTemplate')" -ForegroundColor Yellow
+
+$securityTemplateBackup = @{
+    Enabled = $false
+    ExportPath = $null
+    Content = $null
+}
+
+try {
+    $tempSecTemplate = Join-Path $env:TEMP "SecurityTemplate_Backup_$(Get-Random).inf"
+    
+    Write-Verbose "Exporting Security Template via secedit..."
+    $exportResult = & secedit.exe /export /cfg $tempSecTemplate /quiet 2>&1
+    
+    if ($LASTEXITCODE -eq 0 -and (Test-Path $tempSecTemplate)) {
+        # Read the .inf file content
+        $securityTemplateBackup.Content = Get-Content $tempSecTemplate -Raw -Encoding Unicode
+        $securityTemplateBackup.ExportPath = $tempSecTemplate
+        $securityTemplateBackup.Enabled = $true
+        
+        Write-Host "[OK] Security Template exported ($([Math]::Round((Get-Item $tempSecTemplate).Length / 1KB, 2)) KB)" -ForegroundColor Green
+    }
+    else {
+        Write-Warning "Security Template export failed (Exit Code: $LASTEXITCODE)"
+        $securityTemplateBackup.Enabled = $false
+    }
+}
+catch {
+    Write-Warning "Could not backup Security Template: $_"
+    $securityTemplateBackup.Enabled = $false
+}
+finally {
+    # Cleanup temp file (content is already in memory)
+    if (Test-Path $tempSecTemplate -ErrorAction SilentlyContinue) {
+        Remove-Item $tempSecTemplate -Force -ErrorAction SilentlyContinue
+    }
+}
+
+$backup.Settings.SecurityTemplate = $securityTemplateBackup
 Write-Host ""
 #endregion
 

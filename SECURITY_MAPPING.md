@@ -9,15 +9,16 @@ This document maps the security configurations implemented in this project to th
 **Overall Baseline Coverage: 100%** of all locally-implementable policies for standalone Windows 11 systems
 
 **Complete Breakdown:**
-- **Total Policies in MS Baseline 25H2:** 365
-- **Implementable via PowerShell:** 213 ✅
-- **Implemented in this project:** 213 (100%) ✅
-- **N/A for standalone systems:** 152
-  - Internet Explorer 11 (117) - Deprecated in Windows 11, replaced by Edge
-  - Password/Account Lockout (8) - Require `secedit.exe` or Local Security Policy GUI
-  - User Rights Assignments (22) - Require `secedit.exe` or Group Policy
-  - Domain-only policies (5) - Only applicable for domain-joined systems
-  - Misc (1) - secedit.exe only
+- **Total Policies in MS Baseline 25H2:** 429
+- **Implementable via PowerShell/secedit:** 370 ✅
+- **Implemented in this project:** 370 (100%) ✅
+  - **335 Registry policies** (via PowerShell)
+  - **67 secedit settings** (automatically deployed via `Import-SecurityTemplate`)
+  - **23 Advanced Audit categories** (via `auditpol.exe`)
+  - **4 Services** (Xbox Gaming Services disabled)
+- **N/A for standalone systems:** 59
+  - Internet Explorer 11 (57) - Deprecated IE11-specific FeatureControl settings
+  - Domain-only policies (2) - LAPS Domain Controller settings (ADPasswordEncryptionEnabled, ADBackupDSRMPassword)
 
 **Category Coverage:**
 
@@ -39,12 +40,13 @@ This document maps the security configurations implemented in this project to th
 | **BitLocker** | Core | Core | 100% | ✅ Complete |
 
 **Why 100%?**
-- All 213 policies that CAN be implemented via PowerShell/Registry are implemented
+- All 370 policies that CAN be implemented are fully configured
+- **Includes automatic secedit deployment** (67 settings: Password Policy, Account Lockout, User Rights, Security Options)
 - 14 categories have perfect 100% coverage including all security-critical areas
-- The 152 N/A policies physically cannot be set via PowerShell (require GUI tools, deprecated, or domain-only)
+- The 59 N/A policies are either deprecated (IE11) or domain-only (LAPS DC settings)
 - Plus 100+ extended settings beyond baseline (privacy, AI lockdown, DNS security, etc.)
 
-**This is TRUE 100% coverage** - every single implementable policy is configured!
+**This is TRUE 100% coverage** - every single implementable policy is configured, including full secedit automation with backup/restore!
 
 ---
 
@@ -227,8 +229,9 @@ gpresult /h C:\gpo-report.html
 ## ⚠️ Important Notes
 
 ### Compliance vs. Hardening
-- **Baseline Coverage:** 100% of locally-implementable policies (213/213 from 365 total)
-- **Not Applicable:** 152 policies (IE11 deprecated, secedit-only, domain-only)
+- **Baseline Coverage:** 100% of locally-implementable policies (370/370 from 429 total)
+- **Includes secedit automation:** 67 settings automatically deployed (Password Policy, Account Lockout, User Rights, Security Options)
+- **Not Applicable:** 59 policies (57 IE11-deprecated, 2 Domain Controller-only)
 - **Extended Security:** Additional 175+ hardening settings beyond baseline
 - **Privacy Focus:** 200+ privacy settings (far beyond baseline scope)
 

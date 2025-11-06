@@ -120,6 +120,16 @@ function Optimize-ScheduledTasks {
             Optional = $true  # Only on mobile devices
         },
         
+        # ===== XBOX (MS BASELINE 25H2) =====
+        # Defense-in-depth: Service XblGameSave already disabled, but disable task too
+        @{
+            Path = "\Microsoft\XblGameSave"
+            Name = "XblGameSaveTask"
+            Reason = "Xbox Live Game Save Task (MS Baseline 25H2 - Defense-in-depth)"
+            Safe = $true
+            Optional = $false  # Part of Windows 11, should exist
+        },
+        
         # ===== POWER EFFICIENCY (STILL PRESENT) =====
         @{
             Path = "\Microsoft\Windows\Power Efficiency Diagnostics"

@@ -250,7 +250,12 @@ function Set-TelemetryRegistry {
     Set-RegistryValue -Path $noInstrumentPath -Name "NoInstrumentation" -Value 1 -Type DWord `
         -Description "Disable Windows Instrumentation (App Tracking)"
     
-    # Also disable search location (was already here)
+    # Disable Explorer Web Services (MS Baseline 25H2 - Phase 3)
+    # Prevents Explorer from accessing web-based services (privacy + security)
+    Set-RegistryValue -Path $noInstrumentPath -Name "NoWebServices" -Value 1 -Type DWord `
+        -Description "Explorer: Disable web services access (privacy)"
+    
+    Write-Success "$(Get-LocalizedString 'TelemetryAppHistoryOff')"
     $searchImprovePath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Search"
     Set-RegistryValue -Path $searchImprovePath -Name "AllowSearchToUseLocation" -Value 0 -Type DWord `
         -Description "Search darf Location nicht nutzen"
@@ -1170,6 +1175,11 @@ function Disable-AllAppPermissionsDefaults {
     Set-RegistryValue -Path $appDiagPath -Name "LetAppsGetDiagnosticInfo" -Value 2 -Type DWord `
         -Description "Apps: Diagnostics OFF (Value 2 means User Denied)"
     
+    # Voice Activation above Lock Screen (MS Baseline 25H2)
+    # Prevents Cortana/Voice Assistants from activating when locked
+    Set-RegistryValue -Path $appDiagPath -Name "LetAppsActivateWithVoiceAboveLock" -Value 2 -Type DWord `
+        -Description "Apps: Voice activation above lock OFF (Privacy + Security)"
+    
     # ===== NEW: ALL REMAINING CATEGORIES (Windows 11 25H2 Complete) =====
     
     # Activity (Activity History)
@@ -1479,6 +1489,12 @@ function Set-LockScreenSecurity {
     # Personalization: Prevent enabling lock screen slideshow
     Set-RegistryValue -Path $personalizationPath -Name "NoLockScreenSlideshow" -Value 1 -Type DWord `
         -Description "Prevent lock screen slideshow (privacy)"
+    
+    # Windows Ink Workspace Configuration (MS Baseline 25H2)
+    # 0 = Disabled, 1 = Enabled (shows in notification area), 2 = Enabled but hidden
+    $inkWorkspacePath = "HKLM:\SOFTWARE\Policies\Microsoft\WindowsInkWorkspace"
+    Set-RegistryValue -Path $inkWorkspacePath -Name "AllowWindowsInkWorkspace" -Value 1 -Type DWord `
+        -Description "Windows Ink Workspace: Enabled but accessible"
     
     Write-Success "$(Get-LocalizedString 'TelemetryLockScreenComplete')"
 }

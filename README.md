@@ -15,7 +15,7 @@
 📌 **How?** → PowerShell: **Apply** → **Verify** → **Restore** (fully reversible!)  
 📌 **For whom?** → SMB, freelancers, power users **without Intune/Active Directory**
 
-**391 Registry Keys · 19 ASR Rules · 124 Verification Checks · Complete Backup/Restore**
+**425 Registry Keys · 19 ASR Rules · 135 Verification Checks · Complete Backup/Restore**
 
 ---
 
@@ -25,7 +25,7 @@
 
 | 🛡️ **SECURITY** | 🔒 **PRIVACY** | ⚡ **PERFORMANCE** | 🔄 **REVERSIBLE** |
 |:---:|:---:|:---:|:---:|
-| **100% locally-implementable<br>MS Baseline (213/365)** | **95% Telemetry Reduced** | **30 Tasks Disabled** | **Complete Backup** |
+| **100% locally-implementable<br>MS Baseline (370/429)** | **95% Telemetry Reduced** | **30 Tasks Disabled** | **Complete Backup** |
 | 19 ASR Rules (Enforce) | 9 AI Features Locked | Event Logs Optimized | 494 Settings Restored |
 | 13 Exploit Mitigations | 37 App Permissions | No Bloatware | **0 Errors** |
 | Credential Guard + VBS | 107,772 Domains Blocked | Faster Boot | Safe to Experiment |
@@ -126,7 +126,7 @@ cd noid-privacy
 ### 🔒 Privacy Protection - Minimized Telemetry
 
 **Your Privacy is Maximized:**
-- **Telemetry Minimized** → 25+ services + 30 tasks + 391 registry keys configured for minimum data collection
+- **Telemetry Minimized** → 25+ services + 30 tasks + 425 registry keys configured for minimum data collection
 - **AI Lockdown (9 features)** → Windows Recall DISABLED (no screenshots of passwords!), Copilot blocked (4 layers), Click to Do, Paint AI (3), Notepad AI, Settings Agent, Copilot Proactive
 - **App Permission Control** → 37 categories default-DENY (apps can't spy without explicit permission)
 - **Clean System** → 80+ bloatware app patterns checked (Xbox, 3D apps, Candy Crush, Teams Chat, Copilot, Widgets)
@@ -211,9 +211,9 @@ This project minimizes telemetry via Registry, Services, Firewall, and DNS block
 
 | Feature | NoID Privacy | simeononsecurity | W4RH4WK Debloat | ChrisTitus winutil | O&O ShutUp10++ |
 |---------|--------------|------------------|-----------------|---------------------|----------------|
-| **MS Baseline 25H2** | ✅ 100% of locally-implementable (213/365) | ⚠️ ~70% | ❌ ~20% | ⚠️ ~40% | ⚠️ ~30% |
+| **MS Baseline 25H2** | ✅ 100% of locally-implementable (370/429) | ⚠️ ~70% | ❌ ~20% | ⚠️ ~40% | ⚠️ ~30% |
 | **Full Backup/Restore** | ✅ All (Registry, Services, Tasks, Firewall, DNS) | ❌ Registry only | ❌ None | ❌ None | ⚠️ Profiles only |
-| **Verification** | ✅ 124 checks | ⚠️ Limited | ❌ None | ❌ None | ❌ None |
+| **Verification** | ✅ 135 checks | ⚠️ Limited | ❌ None | ❌ None | ❌ None |
 | **CISA KEV Coverage** | ✅ 85% (17/20 config-mitigable, not patch-only) | ⚠️ ~50% | ❌ ~10% | ⚠️ ~30% | ❌ Minimal |
 | **Privacy/AI Lockdown** | ✅ 9 AI features + 37 app permissions | ✅ Yes | ✅ Yes | ✅ Yes | ✅ Yes |
 | **Requires Intune/AD** | ❌ No | ❌ No | ❌ No | ❌ No | ❌ No |
@@ -302,7 +302,7 @@ This tool targets **Windows 11 25H2 standalone systems**. Not ideal for: Enterpr
 # 1. Apply hardening (Interactive Mode recommended)
 .\Apply-Win11-25H2-SecurityBaseline.ps1 -Interactive
 
-# 2. Verify settings (124 checks)
+# 2. Verify settings (135 checks)
 .\Verify-SecurityBaseline.ps1
 
 # 3. Reboot (for VBS, Credential Guard, BitLocker)
@@ -353,7 +353,7 @@ The project uses a modular architecture with **13 specialized modules**: Core, A
 | **Advanced** | VBS, Credential Guard, LAPS, Auditing | Credential Guard, VBS, HVCI, LSA-PPL, BitLocker policies, Windows LAPS, TLS/SSL hardening |
 | **DNS** | Multi-Provider DoH, DNSSEC, Blocklist | 4 providers (Cloudflare/AdGuard/NextDNS/Quad9), 100% strict enforcement, DNSSEC validation, 107,772 blocked domains, Strict Inbound Firewall |
 | **Bloatware** | App removal, Consumer features | 80+ app patterns, Teams Chat/Copilot/Widgets disabled, Consumer Features blocked |
-| **Telemetry** | Privacy protection, App permissions | 25+ services, 391 registry keys (110 telemetry-specific), 37 app permission categories, Camera/Mic controls |
+| **Telemetry** | Privacy protection, App permissions | 25+ services, 425 registry keys (110 telemetry-specific), 37 app permission categories, Camera/Mic controls |
 | **Performance** | Scheduled tasks, Event logs | 30 tasks disabled, Event log optimization, Windows Search local-only, Prefetch/Superfetch tuning |
 | **AI** | Recall, Copilot, AI tracking | 9 AI features disabled: Recall, Copilot (4 layers), Click to Do, Paint AI (3), Notepad AI, Settings Agent, Copilot Proactive |
 | **Edge** | Microsoft Edge security baseline | SmartScreen enforced, Tracking Prevention, DoH automatic, Site Isolation, Extension policies |
@@ -370,7 +370,7 @@ The project uses a modular architecture with **13 specialized modules**: Core, A
 
 | Standard | Coverage | Details |
 |----------|----------|---------|
-| **Microsoft Baseline 25H2** | **100%** | All 213 locally applicable settings for standalone systems (365 total, 152 N/A: IE11 deprecated, secedit-only, domain-only) - **12 categories at perfect 100%** |
+| **Microsoft Baseline 25H2** | **100%** | All 370 locally applicable settings for standalone systems (429 total, 59 N/A: IE11 deprecated, domain-only) - **Includes automatic secedit.exe deployment with 67 settings!** |
 | **CIS Benchmark Level 1** | ~85% | Majority of recommendations (standalone focus) |
 | **CIS Benchmark Level 2** | ~90% | Enhanced security with privacy extensions |
 | **DoD STIG** | ~75% | Core security controls (non-domain environment) |
@@ -380,30 +380,33 @@ The project uses a modular architecture with **13 specialized modules**: Core, A
 
 ### Understanding "100% Microsoft Baseline Coverage"
 
-**100% = All 213 locally-implementable policies fully configured + 100+ additional hardening settings beyond baseline**
+**100% = All 370 locally-implementable policies fully configured + automatic secedit deployment + 100+ additional hardening settings beyond baseline**
 
 <details>
 <summary><b>📋 Coverage Details (click to expand)</b></summary>
 
 **What does 100% mean?**
-- All **213 locally-implementable policies** from Microsoft Security Baseline 25H2 are fully configured
-- 12 security categories have **perfect 100% coverage** (SMB, Firewall, Auditing, Credential Protection, etc.)
+- All **370 locally-implementable policies** from Microsoft Security Baseline 25H2 are fully configured
+- **Includes 67 secedit settings** automatically deployed via `Import-SecurityTemplate` (Password Policy, Account Lockout, User Rights, Security Options)
+- **335 Registry policies** set via PowerShell
+- **23 Advanced Audit policies** configured via `auditpol.exe`
+- **4 Services** disabled (Xbox Gaming Services)
 - Plus 100+ additional hardening settings **beyond** the baseline
 
-**What's NOT included (152 N/A policies)?**
-- **Internet Explorer 11 (117 policies)** - Completely deprecated in Windows 11, replaced by Microsoft Edge
-- **Password/Account Lockout (8 policies)** - Require `secedit.exe` or Local Security Policy GUI (cannot be automated via PowerShell)
-- **User Rights Assignments (22 policies)** - Require `secedit.exe` or Group Policy (cannot be automated via PowerShell)
-- **Domain-only policies (5 policies)** - Only applicable for domain-joined systems
-- **Misc (1 policy)** - Requires secedit.exe
+**What's NOT included (59 N/A policies)?**
+- **Internet Explorer 11 (57 policies)** - Completely deprecated in Windows 11, replaced by Microsoft Edge (IE11-specific FeatureControl settings)
+- **Domain-only policies (2 policies)** - LAPS Domain Controller settings (ADPasswordEncryptionEnabled, ADBackupDSRMPassword)
 
-**Why 365 total but only 213 implementable?**
-- Microsoft Security Baseline 25H2 contains 365 total policies
-- 152 policies physically **cannot** be set via PowerShell/Registry for standalone systems
-- This project implements **100% of what CAN be automated** (213/213)
-- The N/A policies require manual configuration via GUI tools or are deprecated/domain-only
+**Why 429 total but only 370 implementable?**
+- Microsoft Security Baseline 25H2 contains **429 total policies**
+- **59 policies** are N/A for standalone systems (57 IE11-deprecated + 2 Domain Controller-only)
+- This project implements **100% of what CAN be automated** (370/370) including:
+  - ✅ **secedit automation with Backup/Restore** (67 settings)
+  - ✅ **Registry policies** (335 settings)
+  - ✅ **Advanced Audit** (23 categories)
+  - ✅ **Services** (4 Xbox services)
 
-**Bottom line:** You get **every single implementable security policy** from the Microsoft baseline, plus extensive privacy hardening!
+**Bottom line:** You get **every single implementable security policy** from the Microsoft baseline (370/370), including automatic secedit deployment with full backup/restore capability, plus extensive privacy hardening!
 
 </details>
 
@@ -622,8 +625,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
   - Policy-by-policy comparison
   - GPO paths and registry keys
   - Verification commands
-  - **100% coverage** of all locally-implementable policies (213/365)
-  - **12 categories at perfect 100%** (SMB, Firewall, Auditing, Credential Protection, etc.)
+  - **100% coverage** of all locally-implementable policies (370/429)
+  - **Automatic secedit deployment** with 67 settings (Password Policy, User Rights, Security Options)
   - 100+ extended hardening settings beyond baseline
 
 - **[ASR Rules Reference](ASR_RULES.md)** - Attack Surface Reduction rules detailed breakdown
