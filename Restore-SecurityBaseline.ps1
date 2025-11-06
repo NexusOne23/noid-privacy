@@ -2348,7 +2348,35 @@ if ($backup.Settings.PSObject.Properties.Name -contains 'SecurityTemplate' -and 
             }
             else {
                 Write-Warning "  secedit import failed (Exit Code: $LASTEXITCODE)"
-                Write-Verbose "Output: $importResult"
+                Write-Host "  [i] secedit output:" -ForegroundColor Cyan
+                $importResult | ForEach-Object { Write-Host "      $_" -ForegroundColor Gray }
+                Write-Host ""
+                Write-Host "  [!] POSSIBLE CAUSES:" -ForegroundColor Yellow
+                Write-Host "      - Template contains values incompatible with current system state" -ForegroundColor Gray
+                Write-Host "      - Some policies cannot be reverted automatically (secedit limitation)" -ForegroundColor Gray
+                Write-Host "      - Template file may be corrupted or contain syntax errors" -ForegroundColor Gray
+                Write-Host ""
+                Write-Host "  [i] IMPACT:" -ForegroundColor Cyan
+                Write-Host "      Security Template restore failed, but all other settings were restored" -ForegroundColor Gray
+                Write-Host "      This includes: Registry, Services, Firewall, DNS, Users, etc." -ForegroundColor Gray
+                Write-Host ""
+                Write-Host "  [i] WORKAROUND:" -ForegroundColor Cyan
+                Write-Host "      If you need exact original security template state:" -ForegroundColor Gray
+                
+                # Save template to permanent location for manual import
+                $permanentTemplate = Join-Path $env:USERPROFILE "Desktop\SecurityTemplate_Failed_$(Get-Date -Format 'yyyyMMdd-HHmmss').inf"
+                try {
+                    Copy-Item -Path $tempInf -Destination $permanentTemplate -Force -ErrorAction Stop
+                    Write-Host "      1. Template saved to: $permanentTemplate" -ForegroundColor Gray
+                    Write-Host "      2. Run: secpol.msc (Local Security Policy)" -ForegroundColor Gray
+                    Write-Host "      3. Action -> Import Policy" -ForegroundColor Gray
+                    Write-Host "      4. Select the saved template from Desktop" -ForegroundColor Gray
+                }
+                catch {
+                    Write-Host "      [!] Could not save template to Desktop: $_" -ForegroundColor Yellow
+                    Write-Host "      Template is in temp folder (will be deleted on reboot)" -ForegroundColor Gray
+                }
+                
                 $restoreStats.Failed++
             }
             
