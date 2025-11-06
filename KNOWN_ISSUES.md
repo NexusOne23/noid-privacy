@@ -12,9 +12,16 @@ This document tracks known limitations and issues in **NoID Privacy - Windows 11
 - **Issue**: ASR rules cannot always be set via PowerShell script
 - **Symptom**: `AttackSurfaceReductionRules_Ids` property not found
 - **Cause**: Third-party antivirus active, or Defender service not fully available
-- **Workaround**: Manually activate in Windows Security → Virus & threat protection → Manage settings → Attack surface reduction rules
-- **Impact**: Non-critical - script continues with other hardening
-- **Status**: Expected behavior, documented in script output
+- **Why This Happens**: ASR Rules are a **Microsoft Defender exclusive feature** - third-party antivirus products provide their own equivalent protection mechanisms
+- **Third-Party AV Alternatives**:
+  - **Bitdefender**: Advanced Threat Defense, Anti-Exploit
+  - **Kaspersky**: System Watcher, Exploit Prevention
+  - **Norton**: SONAR Behavior Protection
+  - **ESET**: HIPS (Host Intrusion Prevention System)
+  - **Avast/AVG**: Behavior Shield, Ransomware Shield
+- **Workaround**: Manually activate in Windows Security → Virus & threat protection → Manage settings → Attack surface reduction rules (only works with native Defender)
+- **Impact**: Non-critical - third-party AV provides equivalent protection through their own engines
+- **Status**: Expected behavior when third-party AV is installed, documented in script output
 
 **Defender Error 0x800106ba**
 - **Issue**: Transient error when setting MpPreference
@@ -27,9 +34,16 @@ This document tracks known limitations and issues in **NoID Privacy - Windows 11
 **Controlled Folder Access Verification**
 - **Issue**: Cannot verify Controlled Folder Access status programmatically
 - **Cause**: Third-party AV or Defender not fully available
-- **Workaround**: Manual verification in Windows Security
-- **Impact**: Non-critical - feature may still be active
-- **Status**: Expected when third-party AV is present
+- **Why This Happens**: Controlled Folder Access is a **Microsoft Defender exclusive feature** - third-party antivirus products provide their own ransomware protection mechanisms
+- **Third-Party AV Alternatives**:
+  - **Bitdefender**: Ransomware Remediation, Safe Files
+  - **Kaspersky**: Anti-Ransomware
+  - **Norton**: Ransomware Protection
+  - **ESET**: Ransomware Shield
+  - **Avast/AVG**: Ransomware Shield, Remote Access Shield
+- **Workaround**: Manual verification in Windows Security (only works with native Defender)
+- **Impact**: Non-critical - third-party AV provides equivalent ransomware protection
+- **Status**: Expected behavior when third-party AV is installed
 
 ---
 
