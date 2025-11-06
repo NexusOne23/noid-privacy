@@ -1364,20 +1364,37 @@ if ($currentAdminAccount) {
                         Write-Host "      - Complexity ON (uppercase, lowercase, number, special char)" -ForegroundColor Gray
                         Write-Host ""
                         
-                        try {
-                            $securePasswordInput = Read-Host "  New Password" -AsSecureString
-                            Set-LocalUser -Name $originalAdmin.Name -Password $securePasswordInput -ErrorAction Stop
-                            Write-Host "  [OK] $(Get-LocalizedString 'RestoreUsersPasswordSet')" -ForegroundColor Green
-                        }
-                        catch [Microsoft.PowerShell.Commands.InvalidPasswordException] {
-                            Write-Host "  [X] Password does NOT meet policy requirements!" -ForegroundColor Red
-                            Write-Host "      Password Policy (set by Apply-Script):" -ForegroundColor Yellow
-                            Write-Host "      - Minimum Length: 14 characters" -ForegroundColor Yellow
-                            Write-Host "      - Complexity: Must contain uppercase, lowercase, number, and special character" -ForegroundColor Yellow
-                            Write-Host "      - Password NOT changed - account keeps old password!" -ForegroundColor Yellow
-                        }
-                        catch {
-                            Write-Host "  [X] Failed to set password: $_" -ForegroundColor Red
+                        $passwordSet = $false
+                        $attempts = 0
+                        $maxAttempts = 3
+                        
+                        while (-not $passwordSet -and $attempts -lt $maxAttempts) {
+                            $attempts++
+                            
+                            try {
+                                if ($attempts -gt 1) {
+                                    Write-Host "  [!] Attempt $attempts of $maxAttempts - Try again!" -ForegroundColor Yellow
+                                }
+                                
+                                $securePasswordInput = Read-Host "  New Password" -AsSecureString
+                                Set-LocalUser -Name $originalAdmin.Name -Password $securePasswordInput -ErrorAction Stop
+                                Write-Host "  [OK] $(Get-LocalizedString 'RestoreUsersPasswordSet')" -ForegroundColor Green
+                                $passwordSet = $true
+                            }
+                            catch [Microsoft.PowerShell.Commands.InvalidPasswordException] {
+                                Write-Host "  [X] Password does NOT meet requirements!" -ForegroundColor Red
+                                
+                                if ($attempts -ge $maxAttempts) {
+                                    Write-Host ""
+                                    Write-Host "  [!] Maximum attempts reached ($maxAttempts)" -ForegroundColor Yellow
+                                    Write-Host "      Password NOT changed - account keeps old password!" -ForegroundColor Yellow
+                                    Write-Host "      You can change it later in Windows Settings or run Restore again" -ForegroundColor Gray
+                                }
+                            }
+                            catch {
+                                Write-Host "  [X] Failed to set password: $_" -ForegroundColor Red
+                                break  # Exit loop on other errors
+                            }
                         }
                     }
                     else {
