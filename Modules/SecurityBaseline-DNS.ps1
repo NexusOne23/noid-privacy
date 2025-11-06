@@ -78,10 +78,11 @@ function Install-DNSBlocklist {
     Write-Info "$(Get-LocalizedString 'DNSBlocklistOptimization')"
     Write-Info "$(Get-LocalizedString 'DNSBlocklistCompressed')"
     
-    # IMPORTANT: Bitdefender/Antivirus warning
-    Write-Warning "$(Get-LocalizedString 'DNSAntivirusCompatibility')"
-    Write-Warning "$(Get-LocalizedString 'DNSBitdefenderWarning')"
-    Write-Warning "$(Get-LocalizedString 'DNSInternetBlock')"
+    # Antivirus compatibility info (all AVs scan hosts file - normal and temporary)
+    Write-Info "$(Get-LocalizedString 'DNSAntivirusInfo')"
+    Write-Info "$(Get-LocalizedString 'DNSAntivirusScanTime')"
+    Write-Info "$(Get-LocalizedString 'DNSAntivirusException')"
+    Write-Info "$(Get-LocalizedString 'DNSAntivirusSecurity')"
     
     # Check if Steven Black's Hosts is already installed (with version check!)
     $hostsPath = "$env:SystemRoot\System32\drivers\etc\hosts"
