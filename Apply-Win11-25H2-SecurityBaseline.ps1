@@ -1501,6 +1501,13 @@ try {
         
         Enable-CredentialGuard
         Import-SecurityTemplate  # MS Baseline 25H2 Security Template (67 settings via secedit.exe)
+        
+        # CRITICAL FIX: Re-apply LsaCfgFlags AFTER Security Template
+        # Security Template can reset LSA path even if LsaCfgFlags is not in template
+        # This ensures Credential Guard remains enabled
+        $lsaPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Lsa"
+        [void](Set-RegistryValue -Path $lsaPath -Name "LsaCfgFlags" -Value 2 -Type DWord -Description "Credential Guard (re-applied after Security Template)")
+        
         Disable-NearbySharing
         Enable-BitLockerPolicies
         Test-BitLockerEncryptionMethod  # Prueft ob AES-128 aktiv ist und zeigt Upgrade-Anleitung
