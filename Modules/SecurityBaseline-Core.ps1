@@ -2728,7 +2728,17 @@ function Enable-CredentialGuard {
     try {
         $hypervisorResult = & bcdedit.exe /set hypervisorlaunchtype auto 2>&1
         if ($LASTEXITCODE -eq 0) {
-            Write-Verbose "Hypervisor launch type set to auto"
+            # CRITICAL: Verify it was actually set (VM may silently fail!)
+            $verifyResult = & bcdedit.exe /enum "{current}" 2>&1 | Select-String "hypervisorlaunchtype"
+            if ($verifyResult -match "Auto") {
+                Write-Success "Hypervisor launch type: Auto (verified)"
+            }
+            else {
+                Write-Warning "Hypervisor NOT set despite exit code 0!"
+                Write-Warning "This VM may not support Nested Virtualization"
+                Write-Info "Credential Guard will NOT activate after reboot"
+                Write-Info "Solution: Enable Nested-VT in hypervisor settings (VMware/Hyper-V)"
+            }
         }
         else {
             Write-Warning "Failed to set hypervisor launch type: $hypervisorResult"
