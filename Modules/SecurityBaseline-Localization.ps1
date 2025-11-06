@@ -629,6 +629,7 @@ $Global:Strings = @{
         TelemetrySettingsNotifForced = "     Settings notifications: OFF (FORCED)"
         TelemetrySettingsNotifError = "Settings notifications error: {0}"
         TelemetryPrivacyGeneralComplete = "Privacy | General: All 5 toggles are now OFF"
+        TelemetryAppHistoryOff = "[OK] App Launch Tracking: OFF"
         TelemetryRegistryComplete = "Telemetry registry keys set (Maximum Privacy)"
         
         # Telemetry Module - Scheduled Tasks
@@ -2216,6 +2217,7 @@ $Global:Strings = @{
         TelemetrySettingsNotifForced = "     Settings-Benachrichtigungen: AUS (FORCED)"
         TelemetrySettingsNotifError = "Settings-Benachrichtigungen Fehler: {0}"
         TelemetryPrivacyGeneralComplete = "Privacy | General: Alle 5 Toggles sind jetzt OFF"
+        TelemetryAppHistoryOff = "[OK] App-Start-Tracking: AUS"
         TelemetryRegistryComplete = "Telemetrie-Registry-Keys gesetzt (Maximum Privacy)"
         
         # Telemetry Module - Scheduled Tasks
