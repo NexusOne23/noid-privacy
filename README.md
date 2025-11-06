@@ -720,11 +720,6 @@ The authors are not responsible for any damage or data loss caused by this scrip
 - ✅ **Repository Cleanup** - 6 obsolete files removed (features integrated into main codebase)
 - ✅ **Registry Keys Updated** - 388 → 384 entries (more user-friendly, -4 HKCU entries removed)
 
-### v1.7.19
-- ✅ **Gaming Recommendations Refined** - Removed pauschal "Gamer = Option 2" statements (Security-First approach, precise formulations)
-- ✅ **All Instructions Fully Localized** - VBS, BitLocker, CPU-Check messages (72 strings DE+EN)
-- ✅ **Gaming Troubleshooting Section Added** - Step-by-step guide in README (Security-First, try Strict Mode first)
-
 ### v1.7.18
 - ✅ **CRITICAL: Outlook Email Search Fixed** - Removed SetupCompletedSuccessfully key that broke Windows Search indexer
 - ✅ **CRITICAL: Restore-Script Compatibility** - Old backups now filtered, buggy key won't be re-introduced
@@ -789,8 +784,6 @@ The authors are not responsible for any damage or data loss caused by this scrip
 - ✅ **FAQ Documentation** - Added Windows Update guide, fixed DNS info, corrected 26H2 year
 
 </details>
-
-**→ See [CHANGELOG.md](CHANGELOG.md) for full version history**
 
 ---
 
