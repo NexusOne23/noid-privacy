@@ -63,7 +63,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 #### **Files Updated**:
 - Core Docs: `README.md`, `FEATURES.md`, `SECURITY_MAPPING.md`, `REGISTRY_KEYS.md`, `FAQ.md`, `KNOWN_ISSUES.md`
-- New Files: `MS-BASELINE-A-vs-B.md` (complete 429/370 breakdown), `Win11_25H2_Baseline_SecTemplate.inf`
+- New Files: `MS-BASELINE-COVERAGE.md` (complete 429/370 breakdown), `Win11_25H2_Baseline_SecTemplate.inf`
 - Cleanup: Deleted 5 files (PROJECT_STRUCTURE.md, CONTRIBUTORS.md, SECURITY_HALL_OF_FAME.md, Tests\README.md, FINAL_365_POLICY_COMPLETE_AUDIT.md)
 - Links: All cross-references updated and validated
 
