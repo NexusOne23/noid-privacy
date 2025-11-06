@@ -135,10 +135,12 @@ function Set-EdgeSecurityBaseline {
     # === Enhanced Security Mode (POLICIES - GREYED OUT!) ===
     Write-Info "$(Get-LocalizedString 'EdgeEnhancedSecurityConfig')"
     
-    # CRITICAL FIX v1.7.6: TYPO! It must be "EnhancedSecurityMode" (with "d")!
-    # Enhanced Security Mode: Basic (not Strict!)
-    Set-RegistryValue -Path $edgePolicyPath -Name "EnhancedSecurityMode" -Value 1 -Type DWord `
-        -Description "Enhanced Security Mode: Basic (1) - Balance between Security & Compatibility"
+    # Enhanced Security Mode: Balanced (recommended for Security Baselines!)
+    # 0 = Off, 1 = Basic, 2 = Balanced, 3 = Strict
+    # Balanced provides enhanced SmartScreen, memory protection, and stricter site isolation
+    # without breaking most websites (unlike Strict mode)
+    Set-RegistryValue -Path $edgePolicyPath -Name "EnhancedSecurityMode" -Value 2 -Type DWord `
+        -Description "Enhanced Security Mode: Balanced (2) - Optimal Security + Compatibility"
     
     # Download Restrictions: Warn for dangerous files (not block)
     Set-RegistryValue -Path $edgePolicyPath -Name "DownloadRestrictions" -Value 1 -Type DWord `
@@ -230,7 +232,7 @@ function Set-EdgeSecurityBaseline {
     Write-Info "$(Get-LocalizedString 'EdgeSmartScreenActive')"
     Write-Info "$(Get-LocalizedString 'EdgeTrackingBalanced')"
     Write-Info "$(Get-LocalizedString 'EdgeDNSAutomatic')"
-    Write-Info "$(Get-LocalizedString 'EdgeSecurityBasic')"
+    Write-Info "$(Get-LocalizedString 'EdgeSecurityBalanced')"
     Write-Info "$(Get-LocalizedString 'EdgeTLSStandard')"
     Write-Info "$(Get-LocalizedString 'EdgeSiteIsolation')"
     Write-Info "$(Get-LocalizedString 'EdgeExtensionsMSOnly')"

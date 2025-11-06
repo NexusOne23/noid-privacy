@@ -2061,8 +2061,8 @@ $script:RegistryChanges = @(
         Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Edge'
         Name = 'EnhancedSecurityMode'
         Type = 'DWord'
-        ApplyValue = 1
-        Description = 'Enhanced Security Mode: Basic (1) - Balance between Security & Compatibility'
+        ApplyValue = 2
+        Description = 'Enhanced Security Mode: Balanced (2) - Optimal Security + Compatibility'
         File = 'SecurityBaseline-Edge.ps1'
     },
     @{
