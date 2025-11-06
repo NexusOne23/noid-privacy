@@ -1502,11 +1502,16 @@ try {
         Enable-CredentialGuard
         Import-SecurityTemplate  # MS Baseline 25H2 Security Template (67 settings via secedit.exe)
         
-        # CRITICAL FIX: Re-apply LsaCfgFlags AFTER Security Template
-        # Security Template can reset LSA path even if LsaCfgFlags is not in template
-        # This ensures Credential Guard remains enabled
+        # CRITICAL FIX (Auditor recommendation Nov 6, 2025): Re-apply VBS/CG/HVCI AFTER Security Template
+        # Security Template can reset registry paths even if keys are not in template
+        # This ensures Credential Guard & HVCI remain enabled ("Gürtel + Hosenträger")
         $lsaPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Lsa"
+        $cgPath = "HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\CredentialGuard"
+        $hvciPath = "HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity"
+        
         [void](Set-RegistryValue -Path $lsaPath -Name "LsaCfgFlags" -Value 2 -Type DWord -Description "Credential Guard (re-applied after Security Template)")
+        [void](Set-RegistryValue -Path $cgPath -Name "Enabled" -Value 1 -Type DWord -Description "CG Scenario (re-applied after Security Template)")
+        [void](Set-RegistryValue -Path $hvciPath -Name "Enabled" -Value 1 -Type DWord -Description "HVCI Scenario (re-applied after Security Template)")
         
         Disable-NearbySharing
         Enable-BitLockerPolicies
