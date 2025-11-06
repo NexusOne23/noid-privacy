@@ -5,7 +5,7 @@
 [![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-blue.svg)](https://github.com/PowerShell/PowerShell)
 [![Windows 11](https://img.shields.io/badge/Windows%2011-25H2-0078D4.svg)](https://www.microsoft.com/windows/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-1.7.21-blue.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.8.0-blue.svg)](CHANGELOG.md)
 
 ---
 
@@ -681,17 +681,33 @@ The authors are not responsible for any damage or data loss caused by this scrip
 
 ## 📈 Project Status
 
-**Current Version:** 1.7.21  
-**Last Updated:** November 5, 2025  
+**Current Version:** 1.8.0 🎉  
+**Last Updated:** November 6, 2025  
 **Status:** Production-Ready ✅
 
-### Recent Updates (v1.7.21)
-- ✅ **Gaming Recommendations Improved** - Removed "Gamer = Option 2" statements, Security-First approach
-- ✅ **All Instructions Localized** - VBS, BitLocker, CPU-Check messages now fully DE+EN (72 strings)
-- ✅ **Gaming Troubleshooting Added** - Step-by-step guide in README for multiplayer issues
+### 🎊 Major Release (v1.8.0) - 100% Microsoft Security Baseline Coverage
+
+**🚀 Headline:** NoID Privacy now implements **100% of all locally-applicable Microsoft Security Baseline 25H2 policies** (370/370)!
+
+#### **What's New:**
+- ✅ **370/370 applicable policies** (was 213/365 = **+73.7% coverage!**)
+- ✅ **67 secedit settings** automated (Password Policy, Account Lockout, LSA, SMB)
+- ✅ **425 registry keys** (was 391 = **+34 keys**)
+- ✅ **133 verification checks** (optimized from 135)
+- ✅ **CRITICAL FIX:** Credential Guard now actually runs (Hypervisor + LsaCfgFlags)
+- ✅ **Complete documentation overhaul** - 26 files updated, all numbers corrected
+- ✅ **Antivirus compatibility improved** - Generic warnings, all AVs treated equally
+- ✅ **Hosts file: 107,772 domains** (was 80K = **+34%**)
+
+**→ See [CHANGELOG.md](CHANGELOG.md) for complete v1.8.0 details (186 lines!)**
 
 <details>
 <summary><b>Previous Updates (click to expand)</b></summary>
+
+### v1.7.21
+- ✅ **Gaming Recommendations Improved** - Removed "Gamer = Option 2" statements, Security-First approach
+- ✅ **All Instructions Localized** - VBS, BitLocker, CPU-Check messages now fully DE+EN (72 strings)
+- ✅ **Gaming Troubleshooting Added** - Step-by-step guide in README for multiplayer issues
 
 ### v1.7.20
 - ✅ **Camera/Mic/Location Permissions Rebalanced** - Privacy by Default + User Control (Apps can now request permissions)
