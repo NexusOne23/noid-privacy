@@ -136,11 +136,14 @@ function Set-EdgeSecurityBaseline {
     Write-Info "$(Get-LocalizedString 'EdgeEnhancedSecurityConfig')"
     
     # Enhanced Security Mode: Balanced (recommended for Security Baselines!)
-    # 0 = Off, 1 = Basic, 2 = Balanced, 3 = Strict
-    # Balanced provides enhanced SmartScreen, memory protection, and stricter site isolation
-    # without breaking most websites (unlike Strict mode)
-    Set-RegistryValue -Path $edgePolicyPath -Name "EnhancedSecurityMode" -Value 2 -Type DWord `
-        -Description "Enhanced Security Mode: Balanced (2) - Optimal Security + Compatibility"
+    # OFFICIAL MS VALUES (from MS Edge Policy Documentation):
+    # 0 = StandardMode (Off)
+    # 1 = BalancedMode (Balanced - RECOMMENDED!)
+    # 2 = StrictMode (Strict - may break websites)
+    # 3 = BasicMode (DEPRECATED since Edge 113, treated as Balanced)
+    # Source: https://learn.microsoft.com/en-us/deployedge/microsoft-edge-browser-policies/enhancesecuritymode
+    Set-RegistryValue -Path $edgePolicyPath -Name "EnhancedSecurityMode" -Value 1 -Type DWord `
+        -Description "Enhanced Security Mode: Balanced (1) - Optimal Security + Compatibility"
     
     # Download Restrictions: Warn for dangerous files (not block)
     Set-RegistryValue -Path $edgePolicyPath -Name "DownloadRestrictions" -Value 1 -Type DWord `
