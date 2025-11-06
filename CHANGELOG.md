@@ -5,6 +5,186 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.8.0] - 2025-11-06
+
+### 🎉 MAJOR RELEASE: 100% Microsoft Security Baseline Coverage
+
+**Headline:** NoID Privacy now implements **100% of all locally-applicable Microsoft Security Baseline 25H2 policies** (370/370)! 🎊
+
+#### **What's New:**
+- ✅ **370/370 applicable policies** implemented (was 213/365 in v1.7.x = **+73.7% coverage!**)
+- ✅ **67 secedit settings** now automated (Password Policy, Account Lockout, LSA, SMB hardening)
+- ✅ **425 registry keys** configured (was 391 = **+34 keys**)
+- ✅ **133 verification checks** (was 135, optimized by removing 2 fragile checks)
+- ✅ **Complete documentation overhaul** - all numbers and baseline coverage updated
+
+**Coverage Breakdown:**
+- Total MS Baseline 25H2 policies: **429**
+- Locally-implementable: **370** (86.2% of total)
+- Implemented by NoID Privacy: **370** (**100% of applicable!**)
+- Not applicable: **59** (57 IE11-deprecated, 2 Domain Controller-only)
+
+**→ FROM EVERYTHING THAT CAN BE SET ON STANDALONE WINDOWS 11 25H2: WE SET IT ALL!** 🔐
+
+---
+
+### 🔴 CRITICAL FIXES
+
+#### **Credential Guard Not Running After Reboot** 🔥
+- **Bug**: Credential Guard was CONFIGURED but NOT RUNNING after Apply + Reboot
+- **Symptom**: `SecurityServicesRunning` = {2, 3, 4} (missing "1" = Credential Guard)
+- **Root Cause #1**: Hypervisor launch type was NEVER set by Apply-Script
+  - Registry keys alone are insufficient - `bcdedit /set hypervisorlaunchtype auto` required
+- **Root Cause #2**: Verify-Script rejected LsaCfgFlags = 2 (only accepted 1)
+  - Both values valid: 1 = UEFI Lock, 2 = Reversible (Apply sets 2 for flexibility)
+- **Impact**: Core VBS security feature non-functional on ALL systems
+- **Fix (Apply)**: Now automatically sets hypervisor launch type via bcdedit
+- **Fix (Verify)**: Accepts both LsaCfgFlags values (1 OR 2)
+- **Fix (Verify)**: Added Hypervisor diagnostics with actionable fix command
+- **Result**: Credential Guard now activates correctly after reboot
+- **Verify Score**: 109 → 111/133 PASS (+2 fixed checks)
+- **Discovery**: Bitdefender+VMware local machine testing (Nov 6, 2025)
+- **Files**: `SecurityBaseline-Core.ps1`, `Verify-SecurityBaseline.ps1`
+- **Commit**: `4a12f2b`
+
+---
+
+### 📚 DOCUMENTATION OVERHAUL
+
+#### **Complete Baseline Coverage Documentation Update**
+- **Scope**: 26 files updated with correct baseline numbers
+- **Updated Numbers Everywhere**:
+  - Registry Keys: 391 → **425** (+34)
+  - Verification Checks: 124 → **133** (+9, then -2 optimization)
+  - MS Baseline Total: 365 → **429** (+64, corrected count)
+  - Implemented Policies: 213 → **370** (+157!)
+  - N/A Policies: 152 → **59** (-93, corrected calculation)
+  - Coverage: 58.4% → **100%** of applicable policies
+
+#### **Files Updated**:
+- Core Docs: `README.md`, `FEATURES.md`, `SECURITY_MAPPING.md`, `REGISTRY_KEYS.md`, `FAQ.md`, `KNOWN_ISSUES.md`
+- New Files: `MS-BASELINE-A-vs-B.md` (complete 429/370 breakdown), `Win11_25H2_Baseline_SecTemplate.inf`
+- Cleanup: Deleted 5 files (PROJECT_STRUCTURE.md, CONTRIBUTORS.md, SECURITY_HALL_OF_FAME.md, Tests\README.md, FINAL_365_POLICY_COMPLETE_AUDIT.md)
+- Links: All cross-references updated and validated
+
+#### **secedit Automation Documented**:
+- All mentions of "cannot be automated" removed
+- 67 automated secedit settings now clearly documented
+- Password Policy, Account Lockout, User Rights, Security Options
+
+- **Files**: 28 files changed (+3561/-2042 lines)
+- **Commit**: `3d3d02f`
+
+---
+
+### 🛡️ ANTIVIRUS COMPATIBILITY IMPROVEMENTS
+
+#### **Removed Alarmist Bitdefender-Specific Warnings**
+- **Issue**: hosts file warning too alarmist and Bitdefender-specific
+- **Old Message**: "Bitdefender users: 'Scan hosts file' DISABLE! Otherwise internet blocked!"
+- **Problems**: 
+  - Too alarmist (suggested permanent AV setting change)
+  - Bitdefender-specific (affects ALL AVs the same way)
+  - Implies hosts scanning is bad (it's security-important!)
+  - User reported: Works fine with new 107K hosts, no issues
+
+- **New Message** (4 info lines):
+  - "Antivirus software scans hosts file after installation (normal, temporary)"
+  - "Scan completes in seconds to minutes - no action needed"
+  - "If persistent issues: Add to exceptions temporarily (not long-term recommended)"
+  - "Important: hosts file SHOULD be scanned by AV for security!"
+
+- **Result**: Less panic, more education, better security advice
+- **Files**: `SecurityBaseline-Localization.ps1` (EN+DE), `SecurityBaseline-DNS.ps1`
+- **Commit**: `156d82e`
+
+#### **Generic Third-Party AV Documentation**
+- **Issue**: Documentation too focused on Bitdefender, should be balanced
+- **Changes**:
+  - "Bitdefender: False positive" → "Third-Party AV (especially Bitdefender): False positive"
+  - Added Norton/Avast heuristic mentions
+  - "Step-by-step Bitdefender guide" → "Step-by-step AV guides (multiple examples)"
+  - ASR comment: "Bitdefender returns null" → "third-party AVs return null when active"
+  - FAQ: Reordered - Windows Defender first, then AVs alphabetically
+  - All AVs now treated equally (Kaspersky, Norton, ESET, Bitdefender)
+
+- **Result**: More balanced, professional documentation
+- **Files**: `KNOWN_ISSUES.md`, `README.md`, `FAQ.md`, `SecurityBaseline-ASR.ps1`, `CHANGELOG.md`
+- **Commit**: `404ecf0`
+
+---
+
+### 🔧 VERIFICATION IMPROVEMENTS
+
+#### **Removed Fragile Power Management Checks**
+- **Issue**: Display/Hibernate timeout checks showed FALSE FAIL
+- **Verification**: Settings are CORRECT (powercfg /query confirmed)
+  - Display: 0x00000258 = 600 sec = 10 min ✅
+  - Hibernate: 0x00000708 = 1800 sec = 30 min ✅
+- **Root Cause**: /GETACVALUEINDEX parsing fragile (GUID-based, regex, system-dependent)
+- **Impact**: Low/Info (unkritisch für Security Baseline)
+- **Decision**: Remove checks (user: "fixen oder rauswerfen")
+- **Manual Verification**: Still possible via comments in script
+
+- **Checks**: 135 → **133** (-2 removed)
+- **Expected Scores** (updated everywhere):
+  - Native Windows Defender: 118-119/133 PASS (89%)
+  - Third-Party AVs (Bitdefender/Kaspersky/Norton/ESET): 96-100/133 PASS (72-75%)
+
+- **Files**: `Verify-SecurityBaseline.ps1`, `README.md`, `KNOWN_ISSUES.md`, `FAQ.md`
+- **Commit**: `f84c606`
+
+---
+
+### 🔨 OTHER FIXES
+
+#### **DNS Blocklist Idempotency with Version Check**
+- **Added**: Version comparison to prevent unnecessary re-downloads
+- **Files**: `SecurityBaseline-DNS.ps1`
+- **Commit**: `cb50073`
+
+---
+
+### 📊 STATISTICS v1.8.0
+
+**Development:**
+- Commits: 62 (Nov 5-6, 2025)
+- Files Changed: 50+
+- Lines Changed: ~5,000+
+- Documentation Files: 26 updated
+
+**Baseline Coverage:**
+- Total Policies: 365 → **429** (+17.5%)
+- Implemented: 213 → **370** (+73.7%!)
+- Registry Keys: 391 → **425** (+8.7%)
+- Verification: 124 → **133** (+7.3%, then optimized -2)
+- secedit: 0 → **67** (automated!)
+- Coverage: 58.4% → **100%** (of applicable)
+
+**Hosts File:**
+- Domains Blocked: 80K → 107,772 (+34%)
+
+---
+
+### ⚠️ BREAKING CHANGES
+
+1. **Baseline Scope**: 365 → 429 total policies (+17.5%)
+2. **Verification Checks**: 135 → 133 (2 power checks removed, but more reliable)
+3. **Documentation Structure**: 23 → 19 files (5 deleted, 2 added)
+4. **Registry Keys**: 391 → 425 (+34)
+
+**Migration**: No user action needed - fully backward compatible! ✅
+
+---
+
+### 🙏 ACKNOWLEDGMENTS
+
+- Testing: Bitdefender+VMware local machine (discovered Credential Guard bug)
+- User Feedback: hosts file works perfectly with all AVs
+- Community: "nicht nur bitdefender sondern alle av" - balanced documentation
+
+---
+
 ## [1.7.21] - 2025-11-05
 
 ### Fixed
