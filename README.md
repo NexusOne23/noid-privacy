@@ -789,6 +789,20 @@ The authors are not responsible for any damage or data loss caused by this scrip
 <details>
 <summary><b>Previous Updates (click to expand)</b></summary>
 
+### ðŸŽŠ Major Release (v1.8.0) - 100% Microsoft Security Baseline Coverage
+
+**ðŸš€ Headline:** NoID Privacy now implements **100% of all locally-applicable Microsoft Security Baseline 25H2 policies** (370/370)!
+
+#### **What's New:**
+- âœ… **370/370 applicable policies** (was 213/365 = **+73.7% coverage!**)
+- âœ… **67 secedit settings** automated (Password Policy, Account Lockout, LSA, SMB)
+- âœ… **478 Registry Keys** (was 391 = **+87 keys**)
+- âœ… **133 verification checks** (optimized from 135)
+- âœ… **CRITICAL FIX:** Credential Guard now actually runs (Hypervisor + LsaCfgFlags)
+- âœ… **Complete documentation overhaul** - 26 files updated, all numbers corrected
+- âœ… **Antivirus compatibility improved** - Generic warnings, all AVs treated equally
+- âœ… **Hosts file: 107,772 domains** (was 80K = **+34%**)
+
 ### v1.7.21
 - âœ… **Gaming Recommendations Improved** - Removed "Gamer = Option 2" statements, Security-First approach
 - âœ… **All Instructions Localized** - VBS, BitLocker, CPU-Check messages now fully DE+EN (72 strings)
