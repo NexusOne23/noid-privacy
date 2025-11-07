@@ -21,7 +21,8 @@ Set-StrictMode -Version Latest
     Updated: 2025-11-04 (Removed SetupCompletedSuccessfully - breaks Outlook search)
     Updated: 2025-11-06 (Added 3 Defender Features: EnableAppInstallControl, EnableEDRInBlockMode, TamperProtection)
     Updated: 2025-11-07 (Added DisableScanningMappedNetworkDrivesForFullScan - MS Baseline 25H2 completion)
-    Total Entries: 395
+    Updated: 2025-11-07 (Fixed variable paths to absolute paths for backup compatibility - removed 5 duplicates, added 2 WOW6432Node entries, removed 3 dynamic user-specific entries)
+    Total Entries: 391 (backupable static entries)
     Source: registry-changes-complete.txt + manual additions
 #>
 
@@ -404,7 +405,7 @@ $script:RegistryChanges = @(
         File = 'SecurityBaseline-Advanced.ps1'
     },
     @{
-        Path = '$path'
+        Path = 'HKLM:\SOFTWARE\Microsoft\.NETFramework\v4.0.30319'
         Name = 'SchUseStrongCrypto'
         Type = 'DWord'
         ApplyValue = 1
@@ -412,11 +413,27 @@ $script:RegistryChanges = @(
         File = 'SecurityBaseline-Advanced.ps1'
     },
     @{
-        Path = '$path'
+        Path = 'HKLM:\SOFTWARE\Microsoft\.NETFramework\v4.0.30319'
         Name = 'SystemDefaultTlsVersions'
         Type = 'DWord'
         ApplyValue = 1
         Description = '.NET System TLS Versions'
+        File = 'SecurityBaseline-Advanced.ps1'
+    },
+    @{
+        Path = 'HKLM:\SOFTWARE\WOW6432Node\Microsoft\.NETFramework\v4.0.30319'
+        Name = 'SchUseStrongCrypto'
+        Type = 'DWord'
+        ApplyValue = 1
+        Description = '.NET Strong Crypto (32-bit on 64-bit)'
+        File = 'SecurityBaseline-Advanced.ps1'
+    },
+    @{
+        Path = 'HKLM:\SOFTWARE\WOW6432Node\Microsoft\.NETFramework\v4.0.30319'
+        Name = 'SystemDefaultTlsVersions'
+        Type = 'DWord'
+        ApplyValue = 1
+        Description = '.NET System TLS Versions (32-bit on 64-bit)'
         File = 'SecurityBaseline-Advanced.ps1'
     },
     @{
@@ -700,14 +717,6 @@ $script:RegistryChanges = @(
         File = 'SecurityBaseline-Core.ps1'
     },
     @{
-        Path = '$nisPath'
-        Name = 'ConvertWarnToBlock'
-        Type = 'DWord'
-        ApplyValue = 1
-        Description = 'Network Inspection: Auto-convert warnings to blocks'
-        File = 'SecurityBaseline-Core.ps1'
-    },
-    @{
         Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender'
         Name = 'ExclusionsVisibleToLocalUsers'
         Type = 'DWord'
@@ -716,7 +725,7 @@ $script:RegistryChanges = @(
         File = 'SecurityBaseline-Core.ps1'
     },
     @{
-        Path = '$rtpPath'
+        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection'
         Name = 'ConfigureRealTimeProtectionOOBE'
         Type = 'DWord'
         ApplyValue = 1
@@ -724,7 +733,7 @@ $script:RegistryChanges = @(
         File = 'SecurityBaseline-Core.ps1'
     },
     @{
-        Path = '$scanPath'
+        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Scan'
         Name = 'ScanExcludedFilesInQuickScan'
         Type = 'DWord'
         ApplyValue = 1
@@ -732,7 +741,7 @@ $script:RegistryChanges = @(
         File = 'SecurityBaseline-Core.ps1'
     },
     @{
-        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Scan'
+        Path = '$scanPath'
         Name = 'DisableScanningMappedNetworkDrivesForFullScan'
         Type = 'DWord'
         ApplyValue = 1
@@ -740,15 +749,7 @@ $script:RegistryChanges = @(
         File = 'SecurityBaseline-Core.ps1'
     },
     @{
-        Path = '$reportPath'
-        Name = 'ReportDynamicSignatureDroppedEvent'
-        Type = 'DWord'
-        ApplyValue = 1
-        Description = 'Report dynamic signature dropped events'
-        File = 'SecurityBaseline-Core.ps1'
-    },
-    @{
-        Path = '$rtpPath'
+        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection'
         Name = 'RealtimeScanDirection'
         Type = 'DWord'
         ApplyValue = 0
@@ -756,7 +757,7 @@ $script:RegistryChanges = @(
         File = 'SecurityBaseline-Core.ps1'
     },
     @{
-        Path = '$mpEnginePath'
+        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\MpEngine'
         Name = 'MpBafsExtendedTimeout'
         Type = 'DWord'
         ApplyValue = 50
@@ -1987,30 +1988,9 @@ $script:RegistryChanges = @(
         Description = 'Enable SmartScreen PUA for current user - Policy path (Windows Security GUI)'
         File = 'SecurityBaseline-Edge.ps1'
     },
-    @{
-        Path = '$userEdgePath'
-        Name = 'SmartScreenPuaEnabled'
-        Type = 'DWord'
-        ApplyValue = 1
-        Description = ''
-        File = 'SecurityBaseline-Edge.ps1'
-    },
-    @{
-        Path = '$userEdgePolicyPath'
-        Name = 'SmartScreenEnabled'
-        Type = 'DWord'
-        ApplyValue = 1
-        Description = ''
-        File = 'SecurityBaseline-Edge.ps1'
-    },
-    @{
-        Path = '$userEdgePolicyPath'
-        Name = 'SmartScreenPuaEnabled'
-        Type = 'DWord'
-        ApplyValue = 1
-        Description = ''
-        File = 'SecurityBaseline-Edge.ps1'
-    },
+    # NOTE: User-specific Edge SmartScreen settings removed from backup definition
+    # These paths are dynamic (contain user SID) and cannot be backed up statically
+    # They are set at runtime by SecurityBaseline-Edge.ps1 for each loaded user profile
     @{
         Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Edge'
         Name = 'PreventSmartScreenPromptOverride'
