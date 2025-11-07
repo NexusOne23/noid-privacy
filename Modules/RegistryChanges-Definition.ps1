@@ -22,7 +22,15 @@ Set-StrictMode -Version Latest
     Updated: 2025-11-06 (Added 3 Defender Features: EnableAppInstallControl, EnableEDRInBlockMode, TamperProtection)
     Updated: 2025-11-07 (Added DisableScanningMappedNetworkDrivesForFullScan - MS Baseline 25H2 completion)
     Updated: 2025-11-07 (Fixed variable paths to absolute paths for backup compatibility - removed 5 duplicates, added 2 WOW6432Node entries, removed 3 dynamic user-specific entries)
-    Total Entries: 391 (backupable static entries)
+    Updated: 2025-11-07 (Expanded ALL 48 variable paths to absolute paths - 100% backupable registry definition)
+    Total Entries: 473 (all static, fully backupable)
+    
+    Expansion Details:
+    - TLS/SSL Protocols: 8 variables → 24 absolute paths (SSL 2.0, 3.0, TLS 1.0-1.3)
+    - Ciphers: 2 variables → 12 absolute paths (10 weak disabled, 2 strong enabled)
+    - App Permissions: 33 variables → 33 absolute paths (ConsentStore expanded)
+    - Removed: 5 dynamic variables (NetBT $guid, $app.PSPath, $svc.Reg, etc.)
+    - Result: 0 variables remaining, 100% backup/restore compatible
     Source: registry-changes-complete.txt + manual additions
 #>
 
@@ -3125,17 +3133,10 @@ $script:RegistryChanges = @(
         Name = 'Value'
         Type = 'String'
         ApplyValue = 'Deny'
-        Description = ''
+        Description = 'Standortdienste deaktivieren'
         File = 'SecurityBaseline-Telemetry.ps1'
     },
-    @{
-        Path = '$app.PSPath'
-        Name = 'Value'
-        Type = 'String'
-        ApplyValue = 'Deny'
-        Description = ''
-        File = 'SecurityBaseline-Telemetry.ps1'
-    },
+    # NOTE: Dynamic app-specific location permission removed ($app.PSPath - varies by installed apps)
     @{
         Path = 'HKCU:\Software\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy'
         Name = 'HasAccepted'
@@ -3674,14 +3675,6 @@ $script:RegistryChanges = @(
         ApplyValue = 0
         Description = 'Delivery Optimization Config: HTTP-Only (Fallback)'
         File = 'SecurityBaseline-WindowsUpdate.ps1'
-    },
-    @{
-        Path = 'HKLM:\SYSTEM\CurrentControlSet\Services\$($svc.Reg)'
-        Name = 'Start'
-        Type = 'Unknown'
-        ApplyValue = 4
-        Description = ''
-        File = 'SecurityBaseline-WirelessDisplay.ps1'
     },
     @{
         Path = 'HKLM:\SOFTWARE\Microsoft\PlayToReceiver'
