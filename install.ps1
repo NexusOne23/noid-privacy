@@ -86,15 +86,26 @@ $extractPath = "$env:TEMP\noid-privacy"
 try {
     # Get latest release info from GitHub API
     Write-Host "    -> Fetching release information..." -ForegroundColor Gray
-    $latestRelease = Invoke-RestMethod -Uri "https://api.github.com/repos/NexusOne23/noid-privacy/releases/latest" -UseBasicParsing
-    $version = $latestRelease.tag_name
-    $zipUrl = $latestRelease.assets[0].browser_download_url
+    $latestRelease = Invoke-RestMethod -Uri "https://api.github.com/repos/NexusOne23/noid-privacy/releases/latest" -UseBasicParsing -ErrorAction Stop
     
-    Write-Host "    -> Latest version: $version" -ForegroundColor Gray
+    $version = $latestRelease.tag_name
+    
+    # Check for uploaded asset first, fallback to GitHub's automatic zipball
+    if ($latestRelease.assets -and $latestRelease.assets.Count -gt 0) {
+        # Use uploaded asset (preferred - cleaner package)
+        $zipUrl = $latestRelease.assets[0].browser_download_url
+        Write-Host "    -> Latest version: $version (asset)" -ForegroundColor Gray
+    } else {
+        # Use GitHub's automatic source code download (includes .git history but works)
+        $zipUrl = $latestRelease.zipball_url
+        Write-Host "    -> Latest version: $version (source)" -ForegroundColor Gray
+        Write-Host "    -> Note: Downloading full source (no custom asset uploaded)" -ForegroundColor DarkGray
+    }
+    
     Write-Host "    -> Downloading..." -ForegroundColor Gray
     
     # Download ZIP
-    Invoke-WebRequest -Uri $zipUrl -OutFile $downloadPath -UseBasicParsing
+    Invoke-WebRequest -Uri $zipUrl -OutFile $downloadPath -UseBasicParsing -ErrorAction Stop
     
     $sizeInMB = [Math]::Round((Get-Item $downloadPath).Length / 1MB, 2)
     Write-Host "    [OK] Downloaded: $sizeInMB MB" -ForegroundColor Green
