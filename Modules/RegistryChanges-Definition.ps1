@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 #Requires -RunAsAdministrator
 
 # Enable Strict Mode for better error detection
@@ -26,9 +26,9 @@ Set-StrictMode -Version Latest
     Total Entries: 473 (all static, fully backupable)
     
     Expansion Details:
-    - TLS/SSL Protocols: 8 variables → 24 absolute paths (SSL 2.0, 3.0, TLS 1.0-1.3)
-    - Ciphers: 2 variables → 12 absolute paths (10 weak disabled, 2 strong enabled)
-    - App Permissions: 33 variables → 33 absolute paths (ConsentStore expanded)
+    - TLS/SSL Protocols: 8 variables â†’ 24 absolute paths (SSL 2.0, 3.0, TLS 1.0-1.3)
+    - Ciphers: 2 variables â†’ 12 absolute paths (10 weak disabled, 2 strong enabled)
+    - App Permissions: 33 variables â†’ 33 absolute paths (ConsentStore expanded)
     - Removed: 5 dynamic variables (NetBT $guid, $app.PSPath, $svc.Reg, etc.)
     - Result: 0 variables remaining, 100% backup/restore compatible
     Source: registry-changes-complete.txt + manual additions
@@ -793,14 +793,7 @@ $script:RegistryChanges = @(
         Description = 'Disable Teams Chat icon'
         File = 'SecurityBaseline-Bloatware.ps1'
     },
-    @{
-        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsCopilot'
-        Name = 'TurnOffWindowsCopilot'
-        Type = 'DWord'
-        ApplyValue = 1
-        Description = 'Disable Windows Copilot'
-        File = 'SecurityBaseline-Bloatware.ps1'
-    },
+    # REMOVED: Duplicate TurnOffWindowsCopilot (already defined in AI.ps1)
     @{
         Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Dsh'
         Name = 'AllowNewsAndInterests'
@@ -1033,134 +1026,14 @@ $script:RegistryChanges = @(
         Description = 'AutoPlay for non-volume devices disabled (MTP/Camera/Phone)'
         File = 'SecurityBaseline-Core.ps1'
     },
-    @{
-        Path = 'HKLM:\System\CurrentControlSet\Services\Dnscache\InterfaceSpecificParameters\'
-        Name = 'NodeType'
-        Type = 'DWord'
-        ApplyValue = 2
-        Description = 'NetBT auf P-Node (nur WINS)'
-        File = 'SecurityBaseline-Core.ps1'
-    },
     # NOTE: Per-adapter NetBIOS setting removed (dynamic $guid - varies by system)
     # NetBIOS is disabled globally via NodeType=2 above
-    @{
-        Path = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System\Audit'
-        Name = 'ProcessCreationIncludeCmdLine_Enabled'
-        Type = 'DWord'
-        ApplyValue = 1
-        Description = 'Command Line in Event ID 4688'
-        File = 'SecurityBaseline-Core.ps1'
-    },
-    @{
-        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Internet Explorer\Main'
-        Name = 'DisableIE11Launch'
-        Type = 'DWord'
-        ApplyValue = 1
-        Description = 'IE11 Launch via COM blockieren'
-        File = 'SecurityBaseline-Core.ps1'
-    },
     @{
         Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Internet Explorer\Main\FeatureControl\FEATURE_RESTRICT_ACTIVEXINSTALL'
         Name = 'iexplore.exe'
         Type = 'DWord'
         ApplyValue = 1
         Description = 'ActiveX Installation blockieren'
-        File = 'SecurityBaseline-Core.ps1'
-    },
-    @{
-        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Printers'
-        Name = 'RpcAuthnLevelPrivacyEnabled'
-        Type = 'DWord'
-        ApplyValue = 1
-        Description = 'RPC Privacy Level fuer Print Spooler'
-        File = 'SecurityBaseline-Core.ps1'
-    },
-    @{
-        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Printers'
-        Name = 'RegisterSpoolerRemoteRpcEndPoint'
-        Type = 'DWord'
-        ApplyValue = 2
-        Description = 'Remote RPC Endpoint deaktivieren'
-        File = 'SecurityBaseline-Core.ps1'
-    },
-    @{
-        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Printers\PointAndPrint'
-        Name = 'NoWarningNoElevationOnInstall'
-        Type = 'DWord'
-        ApplyValue = 0
-        Description = 'Point-and-Print: Require elevation for driver install'
-        File = 'SecurityBaseline-Core.ps1'
-    },
-    @{
-        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Printers\PointAndPrint'
-        Name = 'UpdatePromptSettings'
-        Type = 'DWord'
-        ApplyValue = 0
-        Description = 'Point-and-Print: Show warning for driver updates'
-        File = 'SecurityBaseline-Core.ps1'
-    },
-    @{
-        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Printers\PointAndPrint'
-        Name = 'RestrictDriverInstallationToAdministrators'
-        Type = 'DWord'
-        ApplyValue = 1
-        Description = 'Point-and-Print: Only admins can install drivers'
-        File = 'SecurityBaseline-Core.ps1'
-    },
-    @{
-        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\NIS'
-        Name = 'ConvertWarnToBlock'
-        Type = 'DWord'
-        ApplyValue = 1
-        Description = 'NIS Warn->Block'
-        File = 'SecurityBaseline-Core.ps1'
-    },
-    @{
-        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Reporting'
-        Name = 'ReportDynamicSignatureDroppedEvent'
-        Type = 'DWord'
-        ApplyValue = 1
-        Description = 'Dynamic Signature Events'
-        File = 'SecurityBaseline-Core.ps1'
-    },
-    @{
-        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Scan'
-        Name = 'CheckExclusions'
-        Type = 'DWord'
-        ApplyValue = 1
-        Description = 'Scan Exclusions too'
-        File = 'SecurityBaseline-Core.ps1'
-    },
-    @{
-        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\MpEngine'
-        Name = 'MpCloudBlockLevel'
-        Type = 'DWord'
-        ApplyValue = 2
-        Description = 'Cloud Protection Level High'
-        File = 'SecurityBaseline-Core.ps1'
-    },
-    @{
-        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender'
-        Name = 'ExclusionsVisibleToLocalUsers'
-        Type = 'DWord'
-        ApplyValue = 1
-        Description = 'Exclusions visible to local users (transparency)'
-        File = 'SecurityBaseline-Core.ps1'
-    },
-    @{
-        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection'
-        Name = 'ConfigureRealTimeProtectionOOBE'
-        Type = 'DWord'
-        ApplyValue = 1
-        Description = 'Real-Time Protection active during OOBE setup'
-        File = 'SecurityBaseline-Core.ps1'
-    },
-    @{
-        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Scan'
-        Name = 'ScanExcludedFilesInQuickScan'
-        Type = 'DWord'
-        ApplyValue = 1
-        Description = 'Also check excluded files in quick scans'
         File = 'SecurityBaseline-Core.ps1'
     },
     @{
@@ -1196,78 +1069,6 @@ $script:RegistryChanges = @(
         File = 'SecurityBaseline-Core.ps1'
     },
     @{
-        Path = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer'
-        Name = 'NoDriveTypeAutoRun'
-        Type = 'DWord'
-        ApplyValue = 0xFF
-        Description = 'AutoPlay auf allen Laufwerkstypen deaktiviert'
-        File = 'SecurityBaseline-Core.ps1'
-    },
-    @{
-        Path = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer'
-        Name = 'NoAutorun'
-        Type = 'DWord'
-        ApplyValue = 1
-        Description = 'AutoRun global deaktiviert (autorun.inf ignoriert)'
-        File = 'SecurityBaseline-Core.ps1'
-    },
-    @{
-        Path = 'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer'
-        Name = 'NoDriveTypeAutoRun'
-        Type = 'DWord'
-        ApplyValue = 0xFF
-        Description = 'AutoPlay User-Level deaktiviert'
-        File = 'SecurityBaseline-Core.ps1'
-    },
-    @{
-        Path = 'HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer'
-        Name = 'NoAutorun'
-        Type = 'DWord'
-        ApplyValue = 1
-        Description = 'AutoRun User-Level deaktiviert'
-        File = 'SecurityBaseline-Core.ps1'
-    },
-    @{
-        Path = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer\NoDriveTypeAutoRun'
-        Name = 'NoDriveTypeAutoRun'
-        Type = 'DWord'
-        ApplyValue = 0xFF
-        Description = 'Legacy AutoRun Path'
-        File = 'SecurityBaseline-Core.ps1'
-    },
-    @{
-        Path = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer'
-        Name = 'NoAutoplayfornonVolume'
-        Type = 'DWord'
-        ApplyValue = 1
-        Description = 'AutoPlay for non-volume devices disabled (MTP/Camera/Phone)'
-        File = 'SecurityBaseline-Core.ps1'
-    },
-    @{
-        Path = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer'
-        Name = 'DisableMotWOnInsecurePathCopy'
-        Type = 'DWord'
-        ApplyValue = 0
-        Description = 'Man-on-The-Wire protection enabled (network copy warning)'
-        File = 'SecurityBaseline-Core.ps1'
-    },
-    @{
-        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\AppPrivacy'
-        Name = 'LetAppsActivateWithVoiceAboveLock'
-        Type = 'DWord'
-        ApplyValue = 2
-        Description = 'Apps: Voice activation above lock OFF (Privacy + Security)'
-        File = 'SecurityBaseline-Telemetry.ps1'
-    },
-    @{
-        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\CredentialsDelegation'
-        Name = 'AllowProtectedCreds'
-        Type = 'DWord'
-        ApplyValue = 1
-        Description = 'Allow credential delegation with Restricted Admin Mode (RDP security)'
-        File = 'SecurityBaseline-Core.ps1'
-    },
-    @{
         Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\System'
         Name = 'AllowCustomSSPsAPs'
         Type = 'DWord'
@@ -1276,131 +1077,11 @@ $script:RegistryChanges = @(
         File = 'SecurityBaseline-Core.ps1'
     },
     @{
-        Path = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer'
-        Name = 'SmartScreenEnabled'
-        Type = 'String'
-        ApplyValue = 'RequireAdmin'
-        Description = 'SmartScreen: Unbekannte Apps brauchen Admin-Prompt'
-        File = 'SecurityBaseline-Core.ps1'
-    },
-    @{
-        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Edge'
-        Name = 'SmartScreenEnabled'
-        Type = 'DWord'
-        ApplyValue = 1
-        Description = 'Edge: SmartScreen aktiviert'
-        File = 'SecurityBaseline-Core.ps1'
-    },
-    @{
-        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Edge'
-        Name = 'SmartScreenPuaEnabled'
-        Type = 'DWord'
-        ApplyValue = 1
-        Description = 'Edge: PUA-Schutz aktiviert (Toolbars, Adware)'
-        File = 'SecurityBaseline-Core.ps1'
-    },
-    @{
-        Path = 'HKCU:\SOFTWARE\Policies\Microsoft\MicrosoftEdge\PhishingFilter'
-        Name = 'EnabledV9'
-        Type = 'DWord'
-        ApplyValue = 1
-        Description = 'Phishing Filter aktiviert'
-        File = 'SecurityBaseline-Core.ps1'
-    },
-    @{
-        Path = 'HKCU:\SOFTWARE\Policies\Microsoft\MicrosoftEdge\PhishingFilter'
-        Name = 'PreventOverride'
-        Type = 'DWord'
-        ApplyValue = 1
-        Description = 'Phishing warnings cannot be bypassed'
-        File = 'SecurityBaseline-Core.ps1'
-    },
-    @{
-        Path = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WTDS\Components'
-        Name = 'ServiceEnabled'
-        Type = 'DWord'
-        ApplyValue = 1
-        Description = 'Enhanced Phishing Protection (Win11)'
-        File = 'SecurityBaseline-Core.ps1'
-    },
-    @{
-        Path = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WTDS\Components'
-        Name = 'NotifyPasswordReuse'
-        Type = 'DWord'
-        ApplyValue = 1
-        Description = 'Warning on password reuse on phishing sites'
-        File = 'SecurityBaseline-Core.ps1'
-    },
-    @{
-        Path = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WTDS\Components'
-        Name = 'NotifyUnsafeApp'
-        Type = 'DWord'
-        ApplyValue = 1
-        Description = 'Warning when starting unsafe apps'
-        File = 'SecurityBaseline-Core.ps1'
-    },
-    @{
-        Path = 'HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters'
-        Name = 'InvalidAuthenticationDelayTimeInMs'
-        Type = 'DWord'
-        ApplyValue = 2000
-        Description = 'SMB Auth Rate Limiter: 2000ms delay (Brute-Force Protection)'
-        File = 'SecurityBaseline-Core.ps1'
-    },
-    @{
-        Path = 'HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters'
-        Name = 'EnableAuthenticationRateLimiter'
-        Type = 'DWord'
-        ApplyValue = 1
-        Description = 'SMB Auth Rate Limiter aktivieren'
-        File = 'SecurityBaseline-Core.ps1'
-    },
-    @{
-        Path = 'HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters'
-        Name = 'SMBServerMinimumProtocol'
-        Type = 'DWord'
-        ApplyValue = 768
-        Description = 'SMB Min Version: 3.0.0 (768 = SMB 3.0)'
-        File = 'SecurityBaseline-Core.ps1'
-    },
-    @{
         Path = 'HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters'
         Name = 'SMBServerMaximumProtocol'
         Type = 'DWord'
         ApplyValue = 1025
         Description = 'SMB Max Version: 3.1.1 (1025 = SMB 3.1.1)'
-        File = 'SecurityBaseline-Core.ps1'
-    },
-    @{
-        Path = 'HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters'
-        Name = 'AuditClientDoesNotSupportEncryption'
-        Type = 'DWord'
-        ApplyValue = 1
-        Description = 'Audit: Client ohne Encryption-Support'
-        File = 'SecurityBaseline-Core.ps1'
-    },
-    @{
-        Path = 'HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters'
-        Name = 'AuditClientDoesNotSupportSigning'
-        Type = 'DWord'
-        ApplyValue = 1
-        Description = 'Audit: Client ohne Signing-Support'
-        File = 'SecurityBaseline-Core.ps1'
-    },
-    @{
-        Path = 'HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters'
-        Name = 'AuditInsecureGuestLogon'
-        Type = 'DWord'
-        ApplyValue = 1
-        Description = 'Audit: Unsichere Guest-Logins'
-        File = 'SecurityBaseline-Core.ps1'
-    },
-    @{
-        Path = 'HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters'
-        Name = 'EnableRemoteMailslots'
-        Type = 'DWord'
-        ApplyValue = 0
-        Description = 'Remote Mailslots deaktivieren (Legacy-Feature)'
         File = 'SecurityBaseline-Core.ps1'
     },
     @{
@@ -1852,14 +1533,6 @@ $script:RegistryChanges = @(
         File = 'SecurityBaseline-Core.ps1'
     },
     @{
-        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\DNSClient'
-        Name = 'EnableMulticast'
-        Type = 'DWord'
-        ApplyValue = 0
-        Description = 'LLMNR deaktivieren (redundant check)'
-        File = 'SecurityBaseline-Core.ps1'
-    },
-    @{
         Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\Network Connections'
         Name = 'NC_ShowSharedAccessUI'
         Type = 'DWord'
@@ -1953,14 +1626,6 @@ $script:RegistryChanges = @(
         Type = 'DWord'
         ApplyValue = 1
         Description = 'Anonymous Share Enumeration verbieten'
-        File = 'SecurityBaseline-Core.ps1'
-    },
-    @{
-        Path = 'HKLM:\SYSTEM\CurrentControlSet\Control\Lsa'
-        Name = 'EveryoneIncludesAnonymous'
-        Type = 'DWord'
-        ApplyValue = 0
-        Description = 'Everyone-Permissions NICHT fuer Anonymous'
         File = 'SecurityBaseline-Core.ps1'
     },
     @{
@@ -2388,27 +2053,11 @@ $script:RegistryChanges = @(
         File = 'SecurityBaseline-Edge.ps1'
     },
     @{
-        Path = 'HKCU:\SOFTWARE\Microsoft\Edge'
-        Name = 'SmartScreenPuaEnabled'
-        Type = 'DWord'
-        ApplyValue = 1
-        Description = 'Enable SmartScreen PUA for current user (Windows Security GUI)'
-        File = 'SecurityBaseline-Edge.ps1'
-    },
-    @{
         Path = 'HKCU:\SOFTWARE\Policies\Microsoft\Edge'
         Name = 'SmartScreenEnabled'
         Type = 'DWord'
         ApplyValue = 1
         Description = 'Enable SmartScreen for current user - Policy path (Windows Security GUI)'
-        File = 'SecurityBaseline-Edge.ps1'
-    },
-    @{
-        Path = 'HKCU:\SOFTWARE\Policies\Microsoft\Edge'
-        Name = 'SmartScreenPuaEnabled'
-        Type = 'DWord'
-        ApplyValue = 1
-        Description = 'Enable SmartScreen PUA for current user - Policy path (Windows Security GUI)'
         File = 'SecurityBaseline-Edge.ps1'
     },
     # NOTE: User-specific Edge SmartScreen settings removed from backup definition
@@ -2707,14 +2356,6 @@ $script:RegistryChanges = @(
         File = 'SecurityBaseline-Telemetry.ps1'
     },
     @{
-        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\SQMClient\Windows'
-        Name = 'CEIPEnable'
-        Type = 'DWord'
-        ApplyValue = 0
-        Description = 'CEIP deaktivieren'
-        File = 'SecurityBaseline-Telemetry.ps1'
-    },
-    @{
         Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\AppCompat'
         Name = 'AITEnable'
         Type = 'DWord'
@@ -2723,27 +2364,11 @@ $script:RegistryChanges = @(
         File = 'SecurityBaseline-Telemetry.ps1'
     },
     @{
-        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\AppCompat'
-        Name = 'DisableInventory'
-        Type = 'DWord'
-        ApplyValue = 1
-        Description = 'Application Inventory deaktivieren'
-        File = 'SecurityBaseline-Telemetry.ps1'
-    },
-    @{
         Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\AdvertisingInfo'
         Name = 'DisabledByGroupPolicy'
         Type = 'DWord'
         ApplyValue = 1
         Description = 'Advertising ID deaktivieren'
-        File = 'SecurityBaseline-Telemetry.ps1'
-    },
-    @{
-        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\AdvertisingInfo'
-        Name = 'DisabledByGroupPolicy'
-        Type = 'DWord'
-        ApplyValue = 1
-        Description = 'Advertising ID Policy (applies to ALL users)'
         File = 'SecurityBaseline-Telemetry.ps1'
     },
     @{
@@ -2816,14 +2441,6 @@ $script:RegistryChanges = @(
         Type = 'DWord'
         ApplyValue = 0
         Description = 'Activity Feed deaktivieren'
-        File = 'SecurityBaseline-Telemetry.ps1'
-    },
-    @{
-        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\System'
-        Name = 'PublishUserActivities'
-        Type = 'DWord'
-        ApplyValue = 0
-        Description = 'User Activities Upload deaktivieren'
         File = 'SecurityBaseline-Telemetry.ps1'
     },
     @{
@@ -2916,26 +2533,10 @@ $script:RegistryChanges = @(
     },
     @{
         Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent'
-        Name = 'DisableSoftLanding'
-        Type = 'DWord'
-        ApplyValue = 1
-        Description = 'Windows Tips deaktivieren'
-        File = 'SecurityBaseline-Telemetry.ps1'
-    },
-    @{
-        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent'
         Name = 'DisableWindowsSpotlightFeatures'
         Type = 'DWord'
         ApplyValue = 1
         Description = 'Windows Spotlight deaktivieren'
-        File = 'SecurityBaseline-Telemetry.ps1'
-    },
-    @{
-        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent'
-        Name = 'DisableTailoredExperiencesWithDiagnosticData'
-        Type = 'DWord'
-        ApplyValue = 1
-        Description = 'Tailored Experiences deaktivieren'
         File = 'SecurityBaseline-Telemetry.ps1'
     },
     @{
@@ -2989,45 +2590,13 @@ $script:RegistryChanges = @(
         File = 'SecurityBaseline-Telemetry.ps1'
     },
     @{
-        Path = 'HKCU:\SOFTWARE\Policies\Microsoft\Windows\Explorer'
-        Name = 'DisableSearchBoxSuggestions'
-        Type = 'DWord'
-        ApplyValue = 1
-        Description = 'Search Box Web Suggestions deaktivieren'
-        File = 'SecurityBaseline-Telemetry.ps1'
-    },
-    @{
         Path = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Search'
         Name = 'BingSearchEnabled'
         Type = 'DWord'
         ApplyValue = 0
         Description = 'Bing Search (User) deaktivieren'
-        File = 'SecurityBaseline-Telemetry.ps1'
-    },
-    @{
-        Path = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Search'
-        Name = 'CortanaConsent'
-        Type = 'DWord'
-        ApplyValue = 0
-        Description = 'Cortana Consent (User) deaktivieren'
-        File = 'SecurityBaseline-Telemetry.ps1'
-    },
-    # REMOVED: Camera HKCU entries (Privacy by Default WITH Prompts!)
-    # Only HKLM remains - apps will ask user for permission
-    @{
-        Path = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\webcam'
-        Name = 'Value'
-        Type = 'String'
         ApplyValue = 'Deny'
         Description = ''
-        File = 'SecurityBaseline-Telemetry.ps1'
-    },
-    # REMOVED: Microphone HKCU entries (Privacy by Default WITH Prompts!)
-    # Only HKLM remains - apps will ask user for permission
-    @{
-        Path = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\microphone'
-        Name = 'Value'
-        Type = 'String'
         ApplyValue = 'Deny'
         Description = ''
         File = 'SecurityBaseline-Telemetry.ps1'
@@ -3050,14 +2619,6 @@ $script:RegistryChanges = @(
     },
     @{
         Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent'
-        Name = 'DisableThirdPartySuggestions'
-        Type = 'DWord'
-        ApplyValue = 1
-        Description = 'Drittanbieter-Vorschlaege deaktivieren'
-        File = 'SecurityBaseline-Telemetry.ps1'
-    },
-    @{
-        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\InputPersonalization'
         Name = 'RestrictImplicitInkCollection'
         Type = 'DWord'
         ApplyValue = 1
@@ -3067,14 +2628,6 @@ $script:RegistryChanges = @(
     @{
         Path = 'HKLM:\SOFTWARE\Policies\Microsoft\InputPersonalization'
         Name = 'RestrictImplicitTextCollection'
-        Type = 'DWord'
-        ApplyValue = 1
-        Description = 'Text-Datensammlung einschraenken (Policy)'
-        File = 'SecurityBaseline-Telemetry.ps1'
-    },
-    @{
-        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\InputPersonalization'
-        Name = 'AllowInputPersonalization'
         Type = 'DWord'
         ApplyValue = 0
         Description = 'Input Personalization komplett deaktivieren'
@@ -3104,46 +2657,6 @@ $script:RegistryChanges = @(
         Description = 'Kontakte-Harvest deaktivieren'
         File = 'SecurityBaseline-Telemetry.ps1'
     },
-    @{
-        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\Personalization'
-        Name = 'AcceptedPrivacyPolicy'
-        Type = 'DWord'
-        ApplyValue = 0
-        Description = 'Personalization Privacy Policy ablehnen'
-        File = 'SecurityBaseline-Telemetry.ps1'
-    },
-    @{
-        Path = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location'
-        Name = 'Value'
-        Type = 'String'
-        ApplyValue = 'Deny'
-        Description = 'Standort: App-Zugriff VERWEIGERT'
-        File = 'SecurityBaseline-Telemetry.ps1'
-    },
-    @{
-        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\LocationAndSensors'
-        Name = 'DisableLocation'
-        Type = 'DWord'
-        ApplyValue = 1
-        Description = 'Standortdienste deaktivieren'
-        File = 'SecurityBaseline-Telemetry.ps1'
-    },
-    @{
-        Path = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\locationHKCU'
-        Name = 'Value'
-        Type = 'String'
-        ApplyValue = 'Deny'
-        Description = 'Standortdienste deaktivieren'
-        File = 'SecurityBaseline-Telemetry.ps1'
-    },
-    # NOTE: Dynamic app-specific location permission removed ($app.PSPath - varies by installed apps)
-    @{
-        Path = 'HKCU:\Software\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy'
-        Name = 'HasAccepted'
-        Type = 'DWord'
-        ApplyValue = 0
-        Description = 'Online Speech Recognition OFF (Privacy)'
-        File = 'SecurityBaseline-Telemetry.ps1'
     },
     # Batch 5a: App Permissions (First 10 of 33)
     @{
@@ -3160,30 +2673,6 @@ $script:RegistryChanges = @(
         Type = 'String'
         ApplyValue = 'Deny'
         Description = 'Apps: Account Info OFF'
-        File = 'SecurityBaseline-Telemetry.ps1'
-    },
-    @{
-        Path = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\contacts'
-        Name = 'Value'
-        Type = 'String'
-        ApplyValue = 'Deny'
-        Description = 'Apps: Contacts OFF'
-        File = 'SecurityBaseline-Telemetry.ps1'
-    },
-    @{
-        Path = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\appointments'
-        Name = 'Value'
-        Type = 'String'
-        ApplyValue = 'Deny'
-        Description = 'Apps: Calendar OFF'
-        File = 'SecurityBaseline-Telemetry.ps1'
-    },
-    @{
-        Path = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\email'
-        Name = 'Value'
-        Type = 'String'
-        ApplyValue = 'Deny'
-        Description = 'Apps: Email OFF'
         File = 'SecurityBaseline-Telemetry.ps1'
     },
     @{
@@ -3717,14 +3206,6 @@ $script:RegistryChanges = @(
         File = 'SecurityBaseline-WirelessDisplay.ps1'
     },
     @{
-        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\3'
-        Name = '1806'
-        Type = 'DWord'
-        ApplyValue = 1
-        Description = 'Internet Zone: Launching apps/files with prompt (allow downloads)'
-        File = 'SecurityBaseline-Core.ps1'
-    },
-    @{
         Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\4'
         Name = '1803'
         Type = 'DWord'
@@ -3770,14 +3251,6 @@ $script:RegistryChanges = @(
         Type = 'DWord'
         ApplyValue = 4
         Description = 'Disable DevicePickerUserSvc (Wireless Display User Service)'
-        File = 'SecurityBaseline-WirelessDisplay.ps1'
-    },
-    @{
-        Path = 'HKLM:\SYSTEM\CurrentControlSet\Services\DevicesFlowUserSvc'
-        Name = 'Start'
-        Type = 'DWord'
-        ApplyValue = 4
-        Description = 'Disable DevicesFlowUserSvc (Wireless Display User Service)'
         File = 'SecurityBaseline-WirelessDisplay.ps1'
     },
     @{
@@ -3859,6 +3332,277 @@ $script:RegistryChanges = @(
         ApplyValue = 4
         Description = 'Tamper Protection: Enabled (local admin control, Value 4)'
         File = 'SecurityBaseline-Core.ps1'
+    },
+    
+    # ===========================
+    # HKCU APP PERMISSIONS (USER-SPECIFIC)
+    # ===========================
+    # These 33 keys are set by SecurityBaseline-Telemetry.ps1 in a loop
+    # They control app permissions for the CURRENT USER (HKCU)
+    # HKLM keys (above) set defaults for NEW users only
+        @{
+        Path = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\userNotificationListener'
+        Name = 'Value'
+        Type = 'String'
+        ApplyValue = 'Deny'
+        Description = 'Apps: Notifications OFF (HKCU)'
+        File = 'SecurityBaseline-Telemetry.ps1'
+    },
+        @{
+        Path = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\userAccountInformation'
+        Name = 'Value'
+        Type = 'String'
+        ApplyValue = 'Deny'
+        Description = 'Apps: Account Info OFF (HKCU)'
+        File = 'SecurityBaseline-Telemetry.ps1'
+    },
+        @{
+        Path = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\contacts'
+        Name = 'Value'
+        Type = 'String'
+        ApplyValue = 'Deny'
+        Description = 'Apps: Contacts OFF (HKCU)'
+        File = 'SecurityBaseline-Telemetry.ps1'
+    },
+        @{
+        Path = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\appointments'
+        Name = 'Value'
+        Type = 'String'
+        ApplyValue = 'Deny'
+        Description = 'Apps: Calendar OFF (HKCU)'
+        File = 'SecurityBaseline-Telemetry.ps1'
+    },
+        @{
+        Path = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\email'
+        Name = 'Value'
+        Type = 'String'
+        ApplyValue = 'Deny'
+        Description = 'Apps: Email OFF (HKCU)'
+        File = 'SecurityBaseline-Telemetry.ps1'
+    },
+        @{
+        Path = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\phoneCall'
+        Name = 'Value'
+        Type = 'String'
+        ApplyValue = 'Deny'
+        Description = 'Apps: Phone Calls OFF (HKCU)'
+        File = 'SecurityBaseline-Telemetry.ps1'
+    },
+        @{
+        Path = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\phoneCallHistory'
+        Name = 'Value'
+        Type = 'String'
+        ApplyValue = 'Deny'
+        Description = 'Apps: Call History OFF (HKCU)'
+        File = 'SecurityBaseline-Telemetry.ps1'
+    },
+        @{
+        Path = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\chat'
+        Name = 'Value'
+        Type = 'String'
+        ApplyValue = 'Deny'
+        Description = 'Apps: Messaging/SMS OFF (HKCU)'
+        File = 'SecurityBaseline-Telemetry.ps1'
+    },
+        @{
+        Path = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\userDataTasks'
+        Name = 'Value'
+        Type = 'String'
+        ApplyValue = 'Deny'
+        Description = 'Apps: Tasks OFF (HKCU)'
+        File = 'SecurityBaseline-Telemetry.ps1'
+    },
+        @{
+        Path = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\radios'
+        Name = 'Value'
+        Type = 'String'
+        ApplyValue = 'Deny'
+        Description = 'Apps: Radios Control OFF (HKCU)'
+        File = 'SecurityBaseline-Telemetry.ps1'
+    },
+        @{
+        Path = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\bluetoothSync'
+        Name = 'Value'
+        Type = 'String'
+        ApplyValue = 'Deny'
+        Description = 'Apps: Other Devices OFF (HKCU)'
+        File = 'SecurityBaseline-Telemetry.ps1'
+    },
+        @{
+        Path = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\documentsLibrary'
+        Name = 'Value'
+        Type = 'String'
+        ApplyValue = 'Deny'
+        Description = 'Apps: Documents Library OFF (HKCU)'
+        File = 'SecurityBaseline-Telemetry.ps1'
+    },
+        @{
+        Path = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\picturesLibrary'
+        Name = 'Value'
+        Type = 'String'
+        ApplyValue = 'Deny'
+        Description = 'Apps: Pictures Library OFF (HKCU)'
+        File = 'SecurityBaseline-Telemetry.ps1'
+    },
+        @{
+        Path = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\videosLibrary'
+        Name = 'Value'
+        Type = 'String'
+        ApplyValue = 'Deny'
+        Description = 'Apps: Videos Library OFF (HKCU)'
+        File = 'SecurityBaseline-Telemetry.ps1'
+    },
+        @{
+        Path = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\broadFileSystemAccess'
+        Name = 'Value'
+        Type = 'String'
+        ApplyValue = 'Deny'
+        Description = 'Apps: File System Access OFF (HKCU)'
+        File = 'SecurityBaseline-Telemetry.ps1'
+    },
+        @{
+        Path = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\musicLibrary'
+        Name = 'Value'
+        Type = 'String'
+        ApplyValue = 'Deny'
+        Description = 'Apps: Music Library OFF (HKCU)'
+        File = 'SecurityBaseline-Telemetry.ps1'
+    },
+        @{
+        Path = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\downloadsFolder'
+        Name = 'Value'
+        Type = 'String'
+        ApplyValue = 'Deny'
+        Description = 'Apps: Downloads Folder OFF (HKCU)'
+        File = 'SecurityBaseline-Telemetry.ps1'
+    },
+        @{
+        Path = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\automaticFileDownloads'
+        Name = 'Value'
+        Type = 'String'
+        ApplyValue = 'Deny'
+        Description = 'Apps: Automatic File Downloads OFF (HKCU)'
+        File = 'SecurityBaseline-Telemetry.ps1'
+    },
+        @{
+        Path = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\activity'
+        Name = 'Value'
+        Type = 'String'
+        ApplyValue = 'Deny'
+        Description = 'Apps: Activity History OFF (HKCU)'
+        File = 'SecurityBaseline-Telemetry.ps1'
+    },
+        @{
+        Path = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\bluetooth'
+        Name = 'Value'
+        Type = 'String'
+        ApplyValue = 'Deny'
+        Description = 'Apps: Bluetooth OFF (HKCU)'
+        File = 'SecurityBaseline-Telemetry.ps1'
+    },
+        @{
+        Path = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\cellularData'
+        Name = 'Value'
+        Type = 'String'
+        ApplyValue = 'Deny'
+        Description = 'Apps: Cellular Data OFF (HKCU)'
+        File = 'SecurityBaseline-Telemetry.ps1'
+    },
+        @{
+        Path = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\gazeInput'
+        Name = 'Value'
+        Type = 'String'
+        ApplyValue = 'Deny'
+        Description = 'Apps: Gaze Input/Eye Tracking OFF (HKCU)'
+        File = 'SecurityBaseline-Telemetry.ps1'
+    },
+        @{
+        Path = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\graphicsCaptureProgrammatic'
+        Name = 'Value'
+        Type = 'String'
+        ApplyValue = 'Deny'
+        Description = 'Apps: Graphics Capture Programmatic OFF (HKCU)'
+        File = 'SecurityBaseline-Telemetry.ps1'
+    },
+        @{
+        Path = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\graphicsCaptureWithoutBorder'
+        Name = 'Value'
+        Type = 'String'
+        ApplyValue = 'Deny'
+        Description = 'Apps: Graphics Capture Without Border OFF (HKCU)'
+        File = 'SecurityBaseline-Telemetry.ps1'
+    },
+        @{
+        Path = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\humanInterfaceDevice'
+        Name = 'Value'
+        Type = 'String'
+        ApplyValue = 'Deny'
+        Description = 'Apps: Human Interface Device OFF (HKCU)'
+        File = 'SecurityBaseline-Telemetry.ps1'
+    },
+        @{
+        Path = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\passkeys'
+        Name = 'Value'
+        Type = 'String'
+        ApplyValue = 'Deny'
+        Description = 'Apps: Passkeys OFF (HKCU)'
+        File = 'SecurityBaseline-Telemetry.ps1'
+    },
+        @{
+        Path = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\passkeysEnumeration'
+        Name = 'Value'
+        Type = 'String'
+        ApplyValue = 'Deny'
+        Description = 'Apps: Passkeys Enumeration OFF (HKCU)'
+        File = 'SecurityBaseline-Telemetry.ps1'
+    },
+        @{
+        Path = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\sensors.custom'
+        Name = 'Value'
+        Type = 'String'
+        ApplyValue = 'Deny'
+        Description = 'Apps: Custom Sensors OFF (HKCU)'
+        File = 'SecurityBaseline-Telemetry.ps1'
+    },
+        @{
+        Path = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\serialCommunication'
+        Name = 'Value'
+        Type = 'String'
+        ApplyValue = 'Deny'
+        Description = 'Apps: Serial Communication OFF (HKCU)'
+        File = 'SecurityBaseline-Telemetry.ps1'
+    },
+        @{
+        Path = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\systemAIModels'
+        Name = 'Value'
+        Type = 'String'
+        ApplyValue = 'Deny'
+        Description = 'Apps: System AI Models OFF (HKCU - 25H2)'
+        File = 'SecurityBaseline-Telemetry.ps1'
+    },
+        @{
+        Path = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\usb'
+        Name = 'Value'
+        Type = 'String'
+        ApplyValue = 'Deny'
+        Description = 'Apps: USB Devices OFF (HKCU)'
+        File = 'SecurityBaseline-Telemetry.ps1'
+    },
+        @{
+        Path = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\wifiData'
+        Name = 'Value'
+        Type = 'String'
+        ApplyValue = 'Deny'
+        Description = 'Apps: WiFi Data OFF (HKCU)'
+        File = 'SecurityBaseline-Telemetry.ps1'
+    },
+        @{
+        Path = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\wiFiDirect'
+        Name = 'Value'
+        Type = 'String'
+        ApplyValue = 'Deny'
+        Description = 'Apps: WiFi Direct OFF (HKCU)'
+        File = 'SecurityBaseline-Telemetry.ps1'
     }
 
 )
