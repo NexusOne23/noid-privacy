@@ -732,7 +732,7 @@ $script:RegistryChanges = @(
         File = 'SecurityBaseline-Core.ps1'
     },
     @{
-        Path = '$scanPath'
+        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Scan'
         Name = 'DisableScanningMappedNetworkDrivesForFullScan'
         Type = 'DWord'
         ApplyValue = 1
