@@ -65,6 +65,7 @@ function Backup-SpecificRegistryKeys {
     $successCount = 0
     $errorCount = 0
     $skippedProtected = 0
+    $notFoundCount = 0
     
     foreach ($change in $RegistryChanges) {
         $currentValue = $null
@@ -155,6 +156,12 @@ function Backup-SpecificRegistryKeys {
                     }
                 }
             }
+            else {
+                # Path does not exist - this key will be created by Apply
+                # Track it in backup with Exists=false so Restore knows it's intentional
+                Write-Verbose "[Backup] Path not found (will be created by Apply): $($change.Path)"
+                $notFoundCount++
+            }
         }
         catch {
             # Check Exception Type (language-independent) instead of error message
@@ -189,12 +196,18 @@ function Backup-SpecificRegistryKeys {
         }
     }
     
+    # Build summary message
+    $summary = "[Backup] Complete: $successCount backed up"
+    if ($notFoundCount -gt 0) {
+        $summary += ", $notFoundCount not found (will be created by Apply)"
+    }
+    if ($errorCount -gt 0) {
+        $summary += ", $errorCount errors"
+    }
     if ($skippedProtected -gt 0) {
-        Write-Verbose "[Backup] Complete: $successCount backed up, $errorCount errors, $skippedProtected protected hives skipped (TrustedInstaller required)"
+        $summary += ", $skippedProtected protected hives skipped (TrustedInstaller required)"
     }
-    else {
-        Write-Verbose "[Backup] Complete: $successCount backed up, $errorCount errors"
-    }
+    Write-Verbose $summary
     
     return $backup
 }
