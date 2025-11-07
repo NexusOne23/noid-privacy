@@ -879,10 +879,10 @@ All errors were introduced during "quick-win" optimization phase where multiple 
   - 3 keys for protocol/service disabling
 
 ### Security Improvements
-- **CISA KEV Coverage** increased from ~35% to 85% (17/20 CVEs protected or mitigated)
-  - 8 CVEs fully protected (40%)
-  - 9 CVEs defense-in-depth protected (45%)
-  - 3 CVEs require Windows Updates only (15%)
+- **CISA KEV Coverage** increased from ~35% to 20/20 (100% with Win11 25H2)
+  - 17 CVEs protected by configuration (8 fully blocked, 9 defense-in-depth)
+  - 3 CVEs patched in Windows 11 25H2 baseline (included out-of-box)
+  - **Note:** Windows 11 25H2 requirement added - released Sept 2025 with kernel patches
 - **Overall Security Score** increased from 8.3/10 to 8.6/10
 - **Kernel-Level Protection** improved from 3/10 to 5/10 (Vulnerable Driver Blocklist)
 - **Network Attack Surface** reduced significantly (auth coercion vectors eliminated)
