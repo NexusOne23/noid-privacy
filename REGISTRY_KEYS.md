@@ -1,987 +1,492 @@
-# 🔐 Registry Keys Reference
+﻿# Registry Keys Reference
 
-**Complete list of all 425 registry keys modified by NoID Privacy**
+**Complete list of all 478 registry keys modified by NoID Privacy**
 
-
-> Auto-generated from RegistryChanges-Definition.ps1
-
-
----
-
-
-## 📑 Modules
-
-- **SecurityBaseline-Advanced.ps1**: 41 keys
-
-- **SecurityBaseline-AI.ps1**: 15 keys
-
-- **SecurityBaseline-ASR.ps1**: 2 keys
-
-- **SecurityBaseline-Bloatware.ps1**: 15 keys
-
-- **SecurityBaseline-Common.ps1**: 1 keys
-
-- **SecurityBaseline-Core.ps1**: 135 keys
-
-- **SecurityBaseline-DNS.ps1**: 3 keys
-
-- **SecurityBaseline-Edge.ps1**: 25 keys
-
-- **SecurityBaseline-OneDrive.ps1**: 8 keys
-
-- **SecurityBaseline-Performance.ps1**: 9 keys
-
-- **SecurityBaseline-Telemetry.ps1**: 110 keys
-
-- **SecurityBaseline-UAC.ps1**: 10 keys
-
-- **SecurityBaseline-WindowsUpdate.ps1**: 9 keys
-
-- **SecurityBaseline-WirelessDisplay.ps1**: 9 keys
-
+> Auto-generated from RegistryChanges-Definition.ps1  
+> Last Updated: 2025-11-07 09:17:20
 
 ---
 
-
-## Advanced Module
-
-**Source**: `SecurityBaseline-Advanced.ps1`
-
-**Keys**: 41
-
-
-| Path | Name | Value | Type | Description |
-
-|------|------|-------|------|-------------|
-
-| `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\LAPS\Config` | Enabled | 1 | DWord | Enable LAPS |
-
-| `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\LAPS\Config` | PasswordAgeDays | 30 | DWord | PW rotation every 30 days |
-
-| `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\LAPS\Config` | PasswordComplexity | 4 | DWord | Max complexity |
-
-| `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\LAPS\Config` | PasswordLength | 20 | DWord | PW length 20 characters |
-
-| `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\LAPS\Config` | BackupDirectory | 2 | DWord | Backup to AD/Entra |
-
-| `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\LAPS\Config` | PostAuthenticationActions | 3 | DWord | Reset PW after auth |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Control\Lsa\MSV1_0` | SCENoApplyLegacyAuditPolicy | 1 | DWord | Force advanced audit subcategory settings (override legacy) |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\PowerShell\ScriptBlockLogging` | EnableScriptBlockLogging | 1 | DWord | PowerShell Script Block Logging |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\PowerShell\Transcription` | EnableTranscripting | 1 | DWord | PowerShell Transcription |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\PowerShell\Transcription` | EnableInvocationHeader | 1 | DWord | Invocation Header |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\PowerShell\Transcription` | OutputDirectory | $transcriptDir | String | Transcript Output Dir |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Services\Netlogon\Parameters` | AuditNTLMInDomain | 7 | DWord | NTLM Auditing: Track all NTLM auth in domain |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Services\Netlogon\Parameters` | RestrictNTLMInDomain | 1 | DWord | NTLM Restriction: Audit-Only (no blocking) |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Control\Lsa\MSV1_0` | AuditReceivingNTLMTraffic | 2 | DWord | Audit incoming NTLM traffic (2=Enable) |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Control\Lsa\MSV1_0` | RestrictReceivingNTLMTraffic | 1 | DWord | NTLM Restriction Outbound: Audit-Only |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\$protocol\Server` | Enabled | 0 | DWord | Disable $protocol Server |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\$protocol\Server` | DisabledByDefault | 1 | DWord | $protocol Server default off |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\$protocol\Client` | Enabled | 0 | DWord | Disable $protocol Client |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\$protocol\Client` | DisabledByDefault | 1 | DWord | $protocol Client default off |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\$protocol\Server` | Enabled | 1 | DWord | Enable $protocol Server |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\$protocol\Server` | DisabledByDefault | 0 | DWord | $protocol Server default on |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\$protocol\Client` | Enabled | 1 | DWord | Enable $protocol Client |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\$protocol\Client` | DisabledByDefault | 0 | DWord | $protocol Client default on |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Ciphers\$cipher` | Enabled | 0 | DWord | Disable $cipher |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Ciphers\$cipher` | Enabled | -1 | DWord | Enable $cipher |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Cryptography\Configuration\SSL\00010002` | Functions | $cipherSuiteOrder | String | Cipher Suite Order (TLS 1.3 + 1.2 GCM/CHACHA only, no CBC) |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Hashes\SHA` | Enabled | 0 | DWord | Disable SHA-1 for TLS/SSL |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Hashes\SHA256` | Enabled | -1 | DWord | Enable SHA-256 |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Hashes\SHA384` | Enabled | -1 | DWord | Enable SHA-384 |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Hashes\SHA512` | Enabled | -1 | DWord | Enable SHA-512 |
-
-| `$path` | SchUseStrongCrypto | 1 | DWord | .NET Strong Crypto |
-
-| `$path` | SystemDefaultTlsVersions | 1 | DWord | .NET System TLS Versions |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL` | EventLogging | 7 | DWord | Schannel Event Logging (all events) |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\WDigest` | UseLogonCredential | 0 | DWord | WDigest disabled (no plaintext passwords in RAM) |
-
-
-
-
-## AI Module
-
-**Source**: `SecurityBaseline-AI.ps1`
-
-**Keys**: 15
-
-
-| Path | Name | Value | Type | Description |
-
-|------|------|-------|------|-------------|
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI` | DisableAIDataAnalysis | 1 | DWord | Windows Recall deaktivieren (KEINE Screenshots!) |
-
-| `HKLM:\SOFTWARE\Microsoft\PolicyManager\default\WindowsAI\DisableAIDataAnalysis` | value | 1 | DWord | Recall Policy Manager: DISABLED |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI` | TurnOffWindowsCopilot | 1 | DWord | Copilot: Layer 1 - Main Policy (HKLM) |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsCopilot` | TurnOffWindowsCopilot | 1 | DWord | Copilot: Layer 2 - Legacy Policy Path |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsCopilot` | ShowCopilotButton | 0 | DWord | Copilot: Layer 3 - Hide Taskbar Button |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\Explorer` | DisableWindowsCopilot | 1 | DWord | Copilot: Layer 4 - Explorer Disable |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI` | DisableClickToDo | 1 | DWord | Click to Do deaktivieren (AI Screenshot Analysis) |
-
-| `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Paint` | DisableCocreator | 1 | DWord | Paint Cocreator deaktivieren (AI Image Gen) |
-
-| `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Paint` | DisableGenerativeFill | 1 | DWord | Paint Generative Fill deaktivieren (AI Edit) |
-
-| `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Paint` | DisableImageCreator | 1 | DWord | Paint Image Creator deaktivieren (AI Art) |
-
-| `HKLM:\SOFTWARE\Policies\WindowsNotepad` | DisableAIFeatures | 1 | DWord | Notepad AI Features deaktivieren (Copilot Button + AI Assistance) |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI` | DisableSettingsAgent | 1 | DWord | Settings Agent deaktivieren (AI in Settings) |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsCopilot` | DisableCopilotProactive | 1 | DWord | Copilot Proactive deaktivieren (keine ungewollten Vorschlaege) |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI` | SetMaximumStorageSpaceForRecallSnapshots | 10 | DWord | Recall: Max Storage = 10GB (Minimum, if reactivated) |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI` | SetMaximumStorageDurationForRecallSnapshots | 1 | DWord | Recall: Max Duration = 1 Day (Minimum, if reactivated) |
-
-
-
-
-## ASR Module
-
-**Source**: `SecurityBaseline-ASR.ps1`
-
-**Keys**: 2
-
-
-| Path | Name | Value | Type | Description |
-
-|------|------|-------|------|-------------|
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\RemovableStorageDevices\{53f5630d-b6bf-11d0-94f2-00a0c91efb8b}` | Deny_Execute | 1 | DWord | USB: Deny execution |
-
-| `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer` | SmartScreenEnabled | RequireAdmin | String | Enforce SmartScreen |
-
-
-
-
-## Bloatware Module
-
-**Source**: `SecurityBaseline-Bloatware.ps1`
-
-**Keys**: 15
-
-
-| Path | Name | Value | Type | Description |
-
-|------|------|-------|------|-------------|
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent` | DisableWindowsConsumerFeatures | 1 | DWord | Disable Consumer Features (no auto-install apps) |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent` | DisableSoftLanding | 1 | DWord | Disable Soft Landing (no app suggestions) |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent` | DisableCloudOptimizedContent | 1 | DWord | Disable cloud-optimized content |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent` | DisableThirdPartySuggestions | 1 | DWord | Disable third-party suggestions in Start Menu |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent` | DisableWindowsSpotlightFeatures | 1 | DWord | Disable Windows Spotlight features |
-
-| `HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager` | SubscribedContent-338388Enabled | 0 | DWord | Disable suggested apps in Start Menu (stub apps) |
-
-| `HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager` | SubscribedContent-338389Enabled | 0 | DWord | Disable tips and tricks |
-
-| `HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager` | SubscribedContent-310093Enabled | 0 | DWord | Disable app suggestions after Windows Update |
-
-| `HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager` | SubscribedContent-353698Enabled | 0 | DWord | Disable Timeline suggestions |
-
-| `HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager` | SilentInstalledAppsEnabled | 0 | DWord | Disable silent installation of apps |
-
-| `HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager` | SystemPaneSuggestionsEnabled | 0 | DWord | Disable suggestions in Settings |
-
-| `HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager` | PreInstalledAppsEnabled | 0 | DWord | Disable pre-installed app advertising |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Chat` | ChatIcon | 3 | DWord | Disable Teams Chat icon |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsCopilot` | TurnOffWindowsCopilot | 1 | DWord | Disable Windows Copilot |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Dsh` | AllowNewsAndInterests | 0 | DWord | Disable Widgets |
-
-
-
-
-## Common Module
-
-**Source**: `SecurityBaseline-Common.ps1`
-
-**Keys**: 1
-
-
-| Path | Name | Value | Type | Description |
-
-|------|------|-------|------|-------------|
-
-| `HKLM:\SOFTWARE\Test` | Value | 1 | DWord |  |
-
-
-
-
-## Core Module
-
-**Source**: `SecurityBaseline-Core.ps1`
-
-**Keys**: 135
-
-
-| Path | Name | Value | Type | Description |
-
-|------|------|-------|------|-------------|
-
-| `HKLM:\SYSTEM\CurrentControlSet\Services\Dnscache\Parameters` | DisableNBTNameResolution | 1 | DWord | NetBIOS Name Resolution global deaktivieren |
-
-| `HKLM:\System\CurrentControlSet\Services\Dnscache\InterfaceSpecificParameters\` | NodeType | 2 | DWord | NetBT auf P-Node (nur WINS) |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Services\NetBT\Parameters\Interfaces\Tcpip_$guid` | NetbiosOptions | 2 | DWord | NetBIOS auf Adapter $guid deaktivieren |
-
-| `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System\Audit` | ProcessCreationIncludeCmdLine_Enabled | 1 | DWord | Command Line in Event ID 4688 |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Internet Explorer\Main` | DisableIE11Launch | 1 | DWord | IE11 Launch via COM blockieren |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Internet Explorer\Main\FeatureControl\FEATURE_RESTRICT_ACTIVEXINSTALL` | iexplore.exe | 1 | DWord | ActiveX Installation blockieren |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Printers` | RpcAuthnLevelPrivacyEnabled | 1 | DWord | RPC Privacy Level fuer Print Spooler |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Printers` | RegisterSpoolerRemoteRpcEndPoint | 2 | DWord | Remote RPC Endpoint deaktivieren |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\NIS` | ConvertWarnToBlock | 1 | DWord | NIS Warn->Block |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Reporting` | ReportDynamicSignatureDroppedEvent | 1 | DWord | Dynamic Signature Events |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Scan` | CheckExclusions | 1 | DWord | Scan Exclusions too |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\MpEngine` | MpCloudBlockLevel | 2 | DWord | Cloud Protection Level High |
-
-| `$nisPath` | ConvertWarnToBlock | 1 | DWord | Network Inspection: Auto-convert warnings to blocks |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender` | ExclusionsVisibleToLocalUsers | 1 | DWord | Exclusions visible to local users (transparency) |
-
-| `$rtpPath` | ConfigureRealTimeProtectionOOBE | 1 | DWord | Real-Time Protection active during OOBE setup |
-
-| `$scanPath` | ScanExcludedFilesInQuickScan | 1 | DWord | Also check excluded files in quick scans |
-
-| `$scanPath` | DisableScanningMappedNetworkDrivesForFullScan | 1 | DWord | Skip mapped network drives in full scans (performance + MS Baseline 25H2) |
-
-| `$reportPath` | ReportDynamicSignatureDroppedEvent | 1 | DWord | Report dynamic signature dropped events |
-
-| `$rtpPath` | RealtimeScanDirection | 0 | DWord | Realtime scan: Both incoming and outgoing files |
-
-| `$mpEnginePath` | MpBafsExtendedTimeout | 50 | DWord | Extended timeout for cloud analysis (50 seconds) |
-
-| `HKLM:\SOFTWARE\Microsoft\Windows Defender\Windows Defender Exploit Guard\Controlled Folder Access` | EnableControlledFolderAccess | 1 | DWord | Controlled Folder Access aktivieren |
-
-| `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer` | NoDriveTypeAutoRun | 255 | DWord | AutoPlay auf allen Laufwerkstypen deaktiviert |
-
-| `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer` | NoAutorun | 1 | DWord | AutoRun global deaktiviert (autorun.inf ignoriert) |
-
-| `HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer` | NoDriveTypeAutoRun | 255 | DWord | AutoPlay User-Level deaktiviert |
-
-| `HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer` | NoAutorun | 1 | DWord | AutoRun User-Level deaktiviert |
-
-| `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer\NoDriveTypeAutoRun` | NoDriveTypeAutoRun | 255 | DWord | Legacy AutoRun Path |
-
-| `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer` | SmartScreenEnabled | RequireAdmin | String | SmartScreen: Unbekannte Apps brauchen Admin-Prompt |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Edge` | SmartScreenEnabled | 1 | DWord | Edge: SmartScreen aktiviert |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Edge` | SmartScreenPuaEnabled | 1 | DWord | Edge: PUA-Schutz aktiviert (Toolbars, Adware) |
-
-| `HKCU:\SOFTWARE\Policies\Microsoft\MicrosoftEdge\PhishingFilter` | EnabledV9 | 1 | DWord | Phishing Filter aktiviert |
-
-| `HKCU:\SOFTWARE\Policies\Microsoft\MicrosoftEdge\PhishingFilter` | PreventOverride | 1 | DWord | Phishing warnings cannot be bypassed |
-
-| `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WTDS\Components` | ServiceEnabled | 1 | DWord | Enhanced Phishing Protection (Win11) |
-
-| `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WTDS\Components` | NotifyPasswordReuse | 1 | DWord | Warning on password reuse on phishing sites |
-
-| `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\WTDS\Components` | NotifyUnsafeApp | 1 | DWord | Warning when starting unsafe apps |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters` | InvalidAuthenticationDelayTimeInMs | 2000 | DWord | SMB Auth Rate Limiter: 2000ms delay (Brute-Force Protection) |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters` | EnableAuthenticationRateLimiter | 1 | DWord | SMB Auth Rate Limiter aktivieren |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters` | SMBServerMinimumProtocol | 768 | DWord | SMB Min Version: 3.0.0 (768 = SMB 3.0) |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters` | SMBServerMaximumProtocol | 1025 | DWord | SMB Max Version: 3.1.1 (1025 = SMB 3.1.1) |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters` | AuditClientDoesNotSupportEncryption | 1 | DWord | Audit: Client ohne Encryption-Support |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters` | AuditClientDoesNotSupportSigning | 1 | DWord | Audit: Client ohne Signing-Support |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters` | AuditInsecureGuestLogon | 1 | DWord | Audit: Unsichere Guest-Logins |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters` | EnableRemoteMailslots | 0 | DWord | Remote Mailslots deaktivieren (Legacy-Feature) |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Services\LanmanWorkstation\Parameters` | SMBClientMinimumProtocol | 768 | DWord | SMB Client Min Version: 3.0.0 |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Services\LanmanWorkstation\Parameters` | SMBClientMaximumProtocol | 1025 | DWord | SMB Client Max Version: 3.1.1 |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Services\LanmanWorkstation\Parameters` | AuditInsecureGuestLogon | 1 | DWord | Audit: Unsichere Guest-Logins (Client) |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Services\LanmanWorkstation\Parameters` | AuditServerDoesNotSupportEncryption | 1 | DWord | Audit: Server ohne Encryption |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Services\LanmanWorkstation\Parameters` | AuditServerDoesNotSupportSigning | 1 | DWord | Audit: Server ohne Signing |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Services\LanmanWorkstation\Parameters` | EnableRemoteMailslots | 0 | DWord | Remote Mailslots deaktivieren (Client) |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Services\LanmanWorkstation\Parameters` | RequireEncryption | 0 | DWord | Encryption nicht erzwingen (Kompatibilitaet) |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters` | SMB1 | 0 | DWord | SMB1 Server deaktivieren (unsicher!) |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Services\LanmanWorkstation\Parameters` | DisableSmb1 | 1 | DWord | SMB1 Client deaktivieren |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Services\LanmanWorkstation\Parameters` | EnableSecuritySignature | 1 | DWord | SMB Signing Client aktivieren |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Services\LanmanWorkstation\Parameters` | RequireSecuritySignature | 1 | DWord | SMB Signing Client erzwingen |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters` | EnableSecuritySignature | 1 | DWord | SMB Signing Server aktivieren |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters` | RequireSecuritySignature | 1 | DWord | SMB Signing Server erzwingen |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters` | EncryptData | 1 | DWord | SMB Encryption aktivieren |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters` | RejectUnencryptedAccess | 1 | DWord | Unencrypted Access ablehnen |
-
-| `HKLM:\Software\Policies\Microsoft\Windows\LanmanWorkstation` | AllowInsecureGuestAuth | 0 | DWord | Unsichere SMB Guest-Logins deaktivieren |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Services\LanmanWorkstation\Parameters` | EnablePlainTextPassword | 0 | DWord | Plaintext-Passwoerter an SMB-Server verbieten |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Services\MrxSmb10` | Start | 4 | DWord | SMB1 Client Driver deaktivieren (Disabled = 4) |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Control\Lsa\MSV1_0` | RequireSignOrSeal | 1 | DWord | NTLM Sign/Seal erzwingen |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\DNSClient` | EnableMulticast | 0 | DWord | LLMNR deaktivieren |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Control\Lsa` | EveryoneIncludesAnonymous | 0 | DWord | Everyone beinhaltet KEINE anonymen User |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Control\Lsa` | NoLMHash | 1 | DWord | LM Hashes deaktivieren (veraltet seit 1992) |
-
-| `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\Wpad` | DoNotUseWPAD | 1 | DWord | WPAD deaktivieren |
-
-| `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\WinHttp` | DisableWpad | 1 | DWord | WinHTTP WPAD deaktivieren |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Services\WlanSvc\Parameters` | DisableMdnsDiscovery | 1 | DWord | WlanSvc mDNS Discovery deaktivieren |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\DNSClient` | EnableMulticast | 0 | DWord | LLMNR deaktivieren (redundant check) |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\Network Connections` | NC_ShowSharedAccessUI | 0 | DWord | Network Discovery UI deaktivieren |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\Network Connections` | NC_AllowNetBridge_NLA | 0 | DWord | Network Bridge deaktivieren |
-
-| `HKLM:\SOFTWARE\Microsoft\WcmSvc\wifinetworkmanager\config` | AutoConnectAllowedOEM | 0 | DWord | Wi-Fi Sense Auto-Connect deaktivieren |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\WCN\Registrars` | EnableRegistrars | 0 | DWord | Windows Connect Now deaktivieren |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\WCN\UI` | DisableWcnUi | 1 | DWord | WCN UI deaktivieren |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Peernet` | Disabled | 1 | DWord | Peer-to-Peer Networking deaktivieren |
-
-| `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System` | DisableAutomaticRestartSignOn | 1 | DWord | Automatische Netzwerk-Authentifizierung deaktivieren |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters` | AutoShareServer | 0 | DWord | Admin Shares auf Servern deaktivieren |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters` | AutoShareWks | 0 | DWord | Admin Shares auf Workstations deaktivieren |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters` | RestrictNullSessAccess | 1 | DWord | Anonymous Access zu Named Pipes einschraenken |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Control\Lsa` | RestrictAnonymousSAM | 1 | DWord | Anonymous SAM Enumeration verbieten |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Control\Lsa` | RestrictAnonymous | 1 | DWord | Anonymous Share Enumeration verbieten |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Control\Lsa` | EveryoneIncludesAnonymous | 0 | DWord | Everyone-Permissions NICHT fuer Anonymous |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters` | NullSessionPipes |  | MultiString | Keine Named Pipes fuer Anonymous Access |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters` | NullSessionShares |  | MultiString | Keine Shares fuer Anonymous Access |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Control\Lsa` | LimitBlankPasswordUse | 1 | DWord | Blank passwords nur bei Console-Logon (kein Remote) |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Control\Lsa` | LmCompatibilityLevel | 5 | DWord | LAN Manager Auth Level: 5 = NTLMv2 only (no LM/NTLM) |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Services\LDAP` | LDAPClientIntegrity | 1 | DWord | LDAP Client Signing: Negotiate signing |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Control\Lsa\MSV1_0` | NTLMMinClientSec | 537395200 | DWord | NTLM Client: Require NTLMv2 + 128-bit encryption |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Control\Lsa\MSV1_0` | NTLMMinServerSec | 537395200 | DWord | NTLM Server: Require NTLMv2 + 128-bit encryption |
-
-| `HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon` | ScRemoveOption | 1 | String | Smart card removal: Lock Workstation (1) |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Control\Lsa` | RestrictRemoteSAM | O:BAG:BAD:(A;;RC;;;BA) | String | Restrict remote SAM calls to Administrators only (SDDL) |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Control\Lsa` | AllowNullSessionFallback | 0 | DWord | Do NOT allow NULL session fallback for LocalSystem |
-
-| `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System\CredSSP\Parameters` | AllowEncryptionOracle | 0 | DWord | Encryption Oracle: Force Updated Clients (most secure) |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\CredentialsDelegation` | AllowDefCredentialsWhenNTLMOnly | 0 | DWord | Do NOT allow delegation of credentials when NTLM only |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\Installer` | EnableUserControl | 0 | DWord | User control over installs: DISABLED (security) |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\Installer` | AlwaysInstallElevated | 0 | DWord | Always install elevated: DISABLED (prevents privilege escalation) |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Internet Explorer\Feeds` | DisableEnclosureDownload | 1 | DWord | RSS: Prevent automatic enclosure downloads (security) |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Search` | AllowIndexingEncryptedStoresOrItems | 0 | DWord | Search: Do NOT index encrypted files (privacy) |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\System` | EnumerateLocalUsers | 0 | DWord | Do NOT enumerate local users on logon screen (privacy) |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server` | fDenyTSConnections | 1 | DWord | RDP-Verbindungen verweigern |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Control\SecurePipeServers\winreg` | RemoteRegAccess | 0 | DWord | Remote Registry Access verweigern |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Control\Remote Assistance` | fAllowToGetHelp | 0 | DWord | Remote Assistance deaktivieren |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Control\Remote Assistance` | fAllowUnsolicited | 0 | DWord | Unaufgeforderte Remote Assistance deaktivieren |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services` | fAllowToGetHelp | 0 | DWord | Remote Assistance via GP deaktivieren |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services` | fAllowUnsolicited | 0 | DWord | Unaufgeforderte RA via GP deaktivieren |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services` | Shadow | 0 | DWord | RDP Shadow Sessions verbieten |
-
-| `HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule` | DisableRpcOverTcp | 1 | DWord | Remote Scheduled Tasks deaktivieren |
-
-| `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Sudo` | Enabled | 0 | DWord | Sudo for Windows deaktivieren (Privilege Escalation Prevention) |
-
-| `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System\Kerberos\Parameters` | SupportedEncryptionTypes | 2147483647 | DWord | Alle modernen Kerberos Enc Types |
-
-| `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System\Kerberos\Parameters` | PKINITHashAlgorithm | 56 | DWord | PKINIT: SHA-256/384/512 (OHNE SHA-1!) |
-
-| `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System\KDC\Parameters` | PKINITHashAlgorithm | 56 | DWord | KDC PKINIT: SHA-256/384/512 (OHNE SHA-1!) |
-
-| `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Attachments` | SaveZoneInformation | 2 | DWord | MotW erzwingen |
-
-| `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Attachments` | ScanWithAntiVirus | 3 | DWord | Immer mit AV scannen |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard` | EnableVirtualizationBasedSecurity | 1 | DWord | VBS aktivieren |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard` | RequirePlatformSecurityFeatures | 3 | DWord | VBS: Secure Boot + DMA |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Control\Lsa` | LsaCfgFlags | 1 | DWord | Credential Guard (UEFI Lock) |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\CredentialGuard` | Enabled | 1 | DWord | Enable Credential Guard Scenario |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity` | Enabled | 1 | DWord | Enable HVCI/Memory Integrity |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity` | WasEnabledBy | 2 | DWord | HVCI enabled via User (GUI remains editable!) |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Control\Lsa` | RunAsPPL | 1 | DWord | LSA als PPL |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\FVE` | EncryptionMethodWithXtsOs | 7 | DWord | XTS-AES-256 OS Drives |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\FVE` | EncryptionMethodWithXtsFdv | 7 | DWord | XTS-AES-256 Fixed Data Drives |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\FVE` | EncryptionMethodWithXtsRdv | 7 | DWord | XTS-AES-256 Removable Drives |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\FVE` | UseTPM | 1 | DWord | TPM erlauben |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\FVE` | UseTPMPIN | 1 | DWord | TPM + PIN erlauben |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\FVE` | UseAdvancedStartup | 1 | DWord | Advanced Startup |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\FVE` | ActiveDirectoryBackup | 0 | DWord | AD Backup optional |
-
-
-
-
-## DNS Module
-
-**Source**: `SecurityBaseline-DNS.ps1`
-
-**Keys**: 3
-
-
-| Path | Name | Value | Type | Description |
-
-|------|------|-------|------|-------------|
-
-| `HKLM:\SYSTEM\CurrentControlSet\Services\Dnscache\Parameters` | EnableDnssec | 1 | DWord | Enable DNSSEC Validation |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Services\Dnscache\Parameters` | DnssecMode | 1 | DWord | DNSSEC Mode: 1 = Opportunistic (validate if available) |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Services\Dnscache\Parameters` | EnableDnssecIPv6 | 1 | DWord | DNSSEC for IPv6 |
-
-
-
-
-## Edge Module
-
-**Source**: `SecurityBaseline-Edge.ps1`
-
-**Keys**: 25
-
-
-| Path | Name | Value | Type | Description |
-
-|------|------|-------|------|-------------|
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Edge` | SmartScreenEnabled | 1 | DWord | Enable SmartScreen (even if deprecated since Edge v139+) |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Edge` | SmartScreenPuaEnabled | 1 | DWord | Enable SmartScreen PUA (Blocks downloads of potentially unwanted apps) |
-
-| `HKCU:\SOFTWARE\Microsoft\Edge` | SmartScreenPuaEnabled | 1 | DWord | Enable SmartScreen PUA for current user (Windows Security GUI) |
-
-| `HKCU:\SOFTWARE\Policies\Microsoft\Edge` | SmartScreenEnabled | 1 | DWord | Enable SmartScreen for current user - Policy path (Windows Security GUI) |
-
-| `HKCU:\SOFTWARE\Policies\Microsoft\Edge` | SmartScreenPuaEnabled | 1 | DWord | Enable SmartScreen PUA for current user - Policy path (Windows Security GUI) |
-
-| `$userEdgePath` | SmartScreenPuaEnabled | 1 | DWord |  |
-
-| `$userEdgePolicyPath` | SmartScreenEnabled | 1 | DWord |  |
-
-| `$userEdgePolicyPath` | SmartScreenPuaEnabled | 1 | DWord |  |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Edge` | PreventSmartScreenPromptOverride | true | String | SmartScreen warnings cannot be bypassed |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Edge` | PreventSmartScreenPromptOverrideForFiles | true | String | SmartScreen file warnings cannot be bypassed |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Edge` | SitePerProcess | 1 | DWord | Enable Site Isolation |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Edge` | TrackingPrevention | 2 | DWord | Tracking Prevention: Strict (2) - Maximum Privacy |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Edge` | BlockThirdPartyCookies | 0 | DWord | Allow Third-Party Cookies (normal websites work) |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Edge` | DnsOverHttpsMode | automatic | String | DNS over HTTPS: Automatic (not enforced) |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Edge` | BuiltInDnsClientEnabled | 1 | DWord | Enable Built-in DNS Client |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Edge` | EnhancedSecurityMode | 1 | DWord | Enhanced Security Mode: Basic (1) - Balance between Security & Compatibility |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Edge` | DownloadRestrictions | 1 | DWord | Warn for dangerous downloads (not block) |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Edge` | ExtensionInstallSources | https://microsoftedge.microsoft.com/addons/* | MultiString | Extensions only from Microsoft Store |
-
-| `HKLM:\SOFTWARE\Microsoft\Edge` | QuicAllowed | 1 | DWord | QUIC/HTTP3 Default: Enabled (User can change) |
-
-| `HKLM:\SOFTWARE\Microsoft\Edge` | PasswordManagerEnabled | 1 | DWord | Password Manager Default: Enabled (User can disable) |
-
-| `HKLM:\SOFTWARE\Microsoft\Edge` | AutofillAddressEnabled | 1 | DWord | AutoFill Address Default: Enabled (User can disable) |
-
-| `HKLM:\SOFTWARE\Microsoft\Edge` | AutofillCreditCardEnabled | 1 | DWord | AutoFill Credit Card Default: Enabled (User can disable) |
-
-| `HKLM:\SOFTWARE\Microsoft\Edge` | PaymentMethodQueryEnabled | 1 | DWord | Payment Methods Default: Enabled (User can disable) |
-
-| `HKLM:\SOFTWARE\Microsoft\Edge` | WebRtcLocalhostIpHandling | default_public_interface_only | String | WebRTC IP-Leak Prevention Default (User can change) |
-
-| `HKLM:\SOFTWARE\Microsoft\Edge` | InPrivateModeAvailability | 0 | DWord | InPrivate Mode Default: Available (User can change) |
-
-
-
-
-## OneDrive Module
-
-**Source**: `SecurityBaseline-OneDrive.ps1`
-
-**Keys**: 8
-
-
-| Path | Name | Value | Type | Description |
-
-|------|------|-------|------|-------------|
-
-| `HKCU:\SOFTWARE\Policies\Microsoft\OneDrive` | DisableTutorial | 1 | DWord | $(Get-LocalizedString |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\OneDrive` | DisableTutorial | 1 | DWord | $(Get-LocalizedString |
-
-| `HKCU:\SOFTWARE\Policies\Microsoft\OneDrive` | DisableFeedback | 1 | DWord | $(Get-LocalizedString |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\OneDrive` | DisableFeedback | 1 | DWord | $(Get-LocalizedString |
-
-| `HKCU:\SOFTWARE\Policies\Microsoft\OneDrive` | PreventNetworkTrafficPreUserSignIn | 1 | DWord | $(Get-LocalizedString |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\OneDrive` | PreventNetworkTrafficPreUserSignIn | 1 | DWord | $(Get-LocalizedString |
-
-| `HKCU:\SOFTWARE\Policies\Microsoft\OneDrive` | KFMBlockOptIn | 1 | DWord | $(Get-LocalizedString |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\OneDrive` | KFMBlockOptIn | 1 | DWord | $(Get-LocalizedString |
-
-
-
-
-## Performance Module
-
-**Source**: `SecurityBaseline-Performance.ps1`
-
-**Keys**: 9
-
-
-| Path | Name | Value | Type | Description |
-
-|------|------|-------|------|-------------|
-
-| `HKLM:\SOFTWARE\Microsoft\Windows Search` | SetupCompletedSuccessfully | 0 | DWord | Search Setup Reset (fuer Re-Index) |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Search` | AllowCortana | 0 | DWord | Cortana deaktivieren |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Search` | DisableWebSearch | 1 | DWord | Web-Suche deaktivieren (nur lokal) |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Search` | ConnectedSearchUseWeb | 0 | DWord | Connected Search Web deaktivieren |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management\PrefetchParameters` | EnablePrefetcher | 2 | DWord | Prefetch: Nur Boot (SSD-optimiert) |
-
-| `HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management\PrefetchParameters` | EnableSuperfetch | 0 | DWord | Superfetch: Aus (SSD braucht das nicht) |
-
-| `HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\Maintenance` | MaintenanceDisabled | 0 | DWord | Maintenance aktiviert (aber optimiert) |
-
-| `HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\Maintenance` | IdleOnly | 1 | DWord | Maintenance nur im Idle |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\DeliveryOptimization` | DODownloadMode | 0 | DWord | Delivery Optimization: HTTP-Only (kein Seeding) |
-
-
-
-
-## Telemetry Module
-
-**Source**: `SecurityBaseline-Telemetry.ps1`
-
-**Keys**: 110
-
-
-| Path | Name | Value | Type | Description |
-
-|------|------|-------|------|-------------|
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection` | AllowTelemetry | 0 | DWord | Telemetrie: Security (0 = Minimum) |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection` | MaxTelemetryAllowed | 0 | DWord | Maximum Telemetrie: Security |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection` | DoNotShowFeedbackNotifications | 1 | DWord | Feedback-Benachrichtigungen deaktivieren |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection` | DoNotShowFeedbackNotifications | 1 | DWord | Windows Feedback deaktivieren |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\SQMClient\Windows` | CEIPEnable | 0 | DWord | CEIP deaktivieren |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\AppCompat` | AITEnable | 0 | DWord | Application Impact Telemetry deaktivieren |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\AppCompat` | DisableInventory | 1 | DWord | Application Inventory deaktivieren |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\AdvertisingInfo` | DisabledByGroupPolicy | 1 | DWord | Advertising ID deaktivieren |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\AdvertisingInfo` | DisabledByGroupPolicy | 1 | DWord | Advertising ID Policy (applies to ALL users) |
-
-| `HKCU:\Control Panel\International\User Profile` | HttpAcceptLanguageOptOut | 1 | DWord | Websites locally relevant content verhindern |
-
-| `HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced` | Start_TrackProgs | 0 | DWord | App Launch Tracking OFF (Start/Search improvement) |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\Explorer` | NoInstrumentation | 1 | DWord | Disable Windows Instrumentation (App Tracking) |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Search` | AllowSearchToUseLocation | 0 | DWord | Search darf Location nicht nutzen |
-
-| `HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager` | SubscribedContent-338393Enabled | 0 | DWord | Settings Suggested Content OFF |
-
-| `HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager` | SubscribedContent-353694Enabled | 0 | DWord | Settings Suggested Content OFF (2) |
-
-| `HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager` | SubscribedContent-353696Enabled | 0 | DWord | Settings Suggested Content OFF (3) |
-
-| `HKCU:\Software\Microsoft\Windows\CurrentVersion\SystemSettings\AccountNotifications` | EnableAccountNotifications | 0 | Unknown |  |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\System` | EnableActivityFeed | 0 | DWord | Activity Feed deaktivieren |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\System` | PublishUserActivities | 0 | DWord | User Activities Upload deaktivieren |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\System` | UploadUserActivities | 0 | DWord | User Activities Upload verbieten |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\System` | AllowClipboardHistory | 0 | DWord | Cloud Clipboard History deaktivieren |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\System` | AllowCrossDeviceClipboard | 0 | DWord | Cross-Device Clipboard deaktivieren |
-
-| `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location` | DisableLocation | 1 | DWord | Location Services deaktivieren |
-
-| `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location` | DisableWindowsLocationProvider | 1 | DWord | Windows Location Provider deaktivieren |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\InputPersonalization` | RestrictImplicitTextCollection | 1 | DWord | Handwriting/Typing Data Collection einschraenken |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\InputPersonalization` | RestrictImplicitInkCollection | 1 | DWord | Ink Data Collection einschraenken |
-
-| `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection` | AllowTelemetry | 0 | DWord | Telemetrie auf Security-Level |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\SettingSync` | DisableSettingSync | 2 | DWord | Settings Sync deaktivieren |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\SettingSync` | DisableSettingSyncUserOverride | 1 | DWord | Settings Sync User Override verbieten |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\FindMyDevice` | AllowFindMyDevice | 0 | DWord | Find My Device deaktivieren |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent` | DisableSoftLanding | 1 | DWord | Windows Tips deaktivieren |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent` | DisableWindowsSpotlightFeatures | 1 | DWord | Windows Spotlight deaktivieren |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent` | DisableTailoredExperiencesWithDiagnosticData | 1 | DWord | Tailored Experiences deaktivieren |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\AppPrivacy` | Value | Deny | String | App Diagnostics Zugriff verweigern |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Search` | AllowCortana | 0 | DWord | Cortana deaktivieren |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Search` | DisableWebSearch | 1 | DWord | Web-Suche deaktivieren |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Search` | ConnectedSearchUseWeb | 0 | DWord | Connected Search Web deaktivieren |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Search` | BingSearchEnabled | 0 | DWord | Bing-Integration deaktivieren |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Search` | EnableDynamicContentInWSB | 0 | DWord | Search Highlights deaktivieren |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Search` | AllowCloudSearch | 0 | DWord | Cloud Search deaktivieren |
-
-| `HKCU:\SOFTWARE\Policies\Microsoft\Windows\Explorer` | DisableSearchBoxSuggestions | 1 | DWord | Search Box Web Suggestions deaktivieren |
-
-| `HKCU:\Software\Microsoft\Windows\CurrentVersion\Search` | BingSearchEnabled | 0 | DWord | Bing Search (User) deaktivieren |
-
-| `HKCU:\Software\Microsoft\Windows\CurrentVersion\Search` | CortanaConsent | 0 | DWord | Cortana Consent (User) deaktivieren |
-
-| `HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\webcam` | Value | Deny | String |  |
-
-| `$app.PSPath` | Value | Deny | String |  |
-
-| `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\webcam` | Value | Deny | String |  |
-
-| `HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\microphone` | Value | Deny | String |  |
-
-| `$app.PSPath` | Value | Deny | String |  |
-
-| `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\microphone` | Value | Deny | String |  |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent` | DisableWindowsConsumerFeatures | 1 | DWord | Consumer Features deaktivieren |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent` | DisableSoftLanding | 1 | DWord | Vorgeschlagene Inhalte deaktivieren |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent` | DisableThirdPartySuggestions | 1 | DWord | Drittanbieter-Vorschlaege deaktivieren |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\InputPersonalization` | RestrictImplicitInkCollection | 1 | DWord | Freihand-Datensammlung einschraenken (Policy) |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\InputPersonalization` | RestrictImplicitTextCollection | 1 | DWord | Text-Datensammlung einschraenken (Policy) |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\InputPersonalization` | AllowInputPersonalization | 0 | DWord | Input Personalization komplett deaktivieren |
-
-| `HKCU:\Software\Microsoft\InputPersonalization` | RestrictImplicitInkCollection | 1 | DWord | Freihand-Datensammlung einschraenken (User) |
-
-| `HKCU:\Software\Microsoft\InputPersonalization` | RestrictImplicitTextCollection | 1 | DWord | Text-Datensammlung einschraenken (User) |
-
-| `HKCU:\Software\Microsoft\InputPersonalization\TrainedDataStore` | HarvestContacts | 0 | DWord | Kontakte-Harvest deaktivieren |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\Personalization` | AcceptedPrivacyPolicy | 0 | DWord | Personalization Privacy Policy ablehnen |
-
-| `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location` | Value | Deny | String | Standort: App-Zugriff VERWEIGERT |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\LocationAndSensors` | DisableLocation | 1 | DWord | Standortdienste deaktivieren |
-
-| `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\locationHKCU` | Value | Deny | String |  |
-
-| `$app.PSPath` | Value | Deny | String |  |
-
-| `HKCU:\Software\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy` | HasAccepted | 0 | DWord | Online Speech Recognition OFF (Privacy) |
-
-| `HKLM:\$consentStoreBase\userNotificationListener` | Value | Deny | String | Apps: Notifications OFF |
-
-| `HKLM:\$consentStoreBase\userAccountInformation` | Value | Deny | String | Apps: Account Info OFF |
-
-| `HKLM:\$consentStoreBase\contacts` | Value | Deny | String | Apps: Contacts OFF |
-
-| `HKLM:\$consentStoreBase\appointments` | Value | Deny | String | Apps: Calendar OFF |
-
-| `HKLM:\$consentStoreBase\email` | Value | Deny | String | Apps: Email OFF |
-
-| `HKLM:\$consentStoreBase\phoneCall` | Value | Deny | String | Apps: Phone Calls OFF |
-
-| `HKLM:\$consentStoreBase\phoneCallHistory` | Value | Deny | String | Apps: Call History OFF |
-
-| `HKLM:\$consentStoreBase\chat` | Value | Deny | String | Apps: Messaging/SMS OFF |
-
-| `HKLM:\$consentStoreBase\userDataTasks` | Value | Deny | String | Apps: Tasks OFF |
-
-| `HKLM:\$consentStoreBase\radios` | Value | Deny | String | Apps: Radios Control OFF |
-
-| `HKLM:\$consentStoreBase\bluetoothSync` | Value | Deny | String | Apps: Other Devices OFF |
-
-| `HKLM:\SOFTWARE\Microsoft\Speech_OneCore\Preferences` | VoiceActivationEnableAboveLockscreen | 0 | DWord | Voice Activation above Lockscreen OFF |
-
-| `HKLM:\$consentStoreBase\documentsLibrary` | Value | Deny | String | Apps: Documents OFF |
-
-| `HKLM:\$consentStoreBase\picturesLibrary` | Value | Deny | String | Apps: Pictures OFF |
-
-| `HKLM:\$consentStoreBase\videosLibrary` | Value | Deny | String | Apps: Videos OFF |
-
-| `HKLM:\$consentStoreBase\broadFileSystemAccess` | Value | Deny | String | Apps: Broad File System OFF (Maximum Security!) |
-
-| `HKLM:\$consentStoreBase\downloadsFolder` | Value | Deny | String | Apps: Downloads Folder OFF |
-
-| `HKLM:\$consentStoreBase\musicLibrary` | Value | Deny | String | Apps: Music Library OFF |
-
-| `HKLM:\$consentStoreBase\automaticFileDownloads` | Value | Deny | String | Apps: Automatic File Downloads OFF |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\AppPrivacy` | LetAppsGetDiagnosticInfo | 2 | DWord | Apps: Diagnostics OFF (Value 2 means User Denied) |
-
-| `HKLM:\$consentStoreBase\activity` | Value | Deny | String | Apps: Activity History OFF |
-
-| `HKLM:\$consentStoreBase\bluetooth` | Value | Deny | String | Apps: Bluetooth OFF |
-
-| `HKLM:\$consentStoreBase\cellularData` | Value | Deny | String | Apps: Cellular Data OFF |
-
-| `HKLM:\$consentStoreBase\gazeInput` | Value | Deny | String | Apps: Gaze Input/Eye Tracking OFF |
-
-| `HKLM:\$consentStoreBase\graphicsCaptureProgrammatic` | Value | Deny | String | Apps: Graphics Capture Programmatic OFF |
-
-| `HKLM:\$consentStoreBase\graphicsCaptureWithoutBorder` | Value | Deny | String | Apps: Graphics Capture Without Border OFF |
-
-| `HKLM:\$consentStoreBase\humanInterfaceDevice` | Value | Deny | String | Apps: Human Interface Device OFF |
-
-| `HKLM:\$consentStoreBase\passkeys` | Value | Deny | String | Apps: Passkeys OFF |
-
-| `HKLM:\$consentStoreBase\passkeysEnumeration` | Value | Deny | String | Apps: Passkeys Enumeration OFF |
-
-| `HKLM:\$consentStoreBase\sensors.custom` | Value | Deny | String | Apps: Custom Sensors OFF |
-
-| `HKLM:\$consentStoreBase\serialCommunication` | Value | Deny | String | Apps: Serial Communication OFF |
-
-| `HKLM:\$consentStoreBase\systemAIModels` | Value | Deny | String | Apps: System AI Models OFF (Windows 11 25H2) |
-
-| `HKLM:\$consentStoreBase\usb` | Value | Deny | String | Apps: USB Devices OFF |
-
-| `HKLM:\$consentStoreBase\wifiData` | Value | Deny | String | Apps: WiFi Data OFF |
-
-| `HKLM:\$consentStoreBase\wiFiDirect` | Value | Deny | String | Apps: WiFi Direct OFF |
-
-| `$hkcuPath` | Value | Deny | String |  |
-
-| `$appKey.PSPath` | Value | Deny | String |  |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\AppPrivacyHKCU` | LetAppsGetDiagnosticInfo | 2 | DWord | CURRENT USER: App Diagnostics OFF |
-
-| `HKCU:\Software\Microsoft\Windows\CurrentVersion\GameDVR` | AppCaptureEnabled | 0 | DWord | Game Capture deaktivieren |
-
-| `HKCU:\System\GameConfigStore` | GameDVR_Enabled | 0 | DWord | GameDVR deaktivieren |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR` | AllowGameDVR | 0 | DWord | GameDVR Policy: Verbieten |
-
-| `HKCU:\Software\Microsoft\GameBar` | AutoGameModeEnabled | 0 | DWord | Auto Game Mode deaktivieren |
-
-| `HKCU:\Software\Microsoft\GameBar` | AllowAutoGameMode | 0 | DWord | Auto Game Mode verbieten |
-
-| `HKCU:\SOFTWARE\Policies\Microsoft\Windows\CurrentVersion\PushNotifications` | NoToastApplicationNotificationOnLockScreen | 1 | DWord | No toast notifications on lock screen (privacy + security) |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\Personalization` | NoLockScreenCamera | 1 | DWord | Prevent lock screen camera (privacy) |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\Personalization` | NoLockScreenSlideshow | 1 | DWord | Prevent lock screen slideshow (privacy) |
-
-
-
-
-## UAC Module
-
-**Source**: `SecurityBaseline-UAC.ps1`
-
-**Keys**: 10
-
-
-| Path | Name | Value | Type | Description |
-
-|------|------|-------|------|-------------|
-
-| `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System` | EnableLUA | 1 | DWord | Enable UAC |
-
-| `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System` | ConsentPromptBehaviorAdmin | 2 | DWord | UAC: Always notify (Slider at top) - Prompt for credentials on secure desktop |
-
-| `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System` | PromptOnSecureDesktop | 1 | DWord | UAC: Enable Secure Desktop (Anti-Malware Protection) |
-
-| `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System` | ConsentPromptBehaviorUser | 1 | DWord | UAC: Standard User Prompt for credentials |
-
-| `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System` | ValidateAdminCodeSignatures | 0 | DWord | UAC: No signature check (too restrictive for normal environments) |
-
-| `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System` | EnableSecureUIAPaths | 1 | DWord | UAC: Only allow secure UIAccess paths |
-
-| `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System` | LocalAccountTokenFilterPolicy | 0 | DWord | UAC: Prevent remote UAC bypass for local accounts (anti-PtH) |
-
-| `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System` | InactivityTimeoutSecs | 900 | DWord | Auto-lock after 15 minutes (900 sec) inactivity |
-
-| `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System` | ConsentPromptBehaviorAdminInEPPMode | 2 | DWord | UAC EPP: Prompt for credentials on secure desktop |
-
-| `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System` | AdminApprovalModeType | 1 | DWord | UAC: Admin Approval Mode with Enhanced Privilege Protection |
-
-
-
-
-## WindowsUpdate Module
-
-**Source**: `SecurityBaseline-WindowsUpdate.ps1`
-
-**Keys**: 9
-
-
-| Path | Name | Value | Type | Description |
-
-|------|------|-------|------|-------------|
-
-| `HKLM:\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings` | AllowMUUpdateService | 1 | DWord | Updates for other MS products: ON |
-
-| `HKLM:\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings` | IsContinuousInnovationOptedIn | 1 | DWord | Get latest updates as soon as available: ON |
-
-| `HKLM:\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings` | AllowAutoWindowsUpdateDownloadOverMeteredNetwork | 1 | DWord | Download updates over metered connections: ON (Security First!) |
-
-| `HKLM:\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings` | RestartNotificationsAllowed2 | 1 | DWord | Restart notifications: ON |
-
-| `HKLM:\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings` | IsExpedited | 1 | DWord | Get latest updates immediately: ON |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\DeliveryOptimization` | ManagePreviewBuilds | 1 | DWord | Preview Builds Policy: Managed |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\DeliveryOptimization` | ManagePreviewBuildsPolicyValue | 0 | DWord | Preview Builds Policy: NO Preview Builds (guaranteed!) |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\DeliveryOptimization` | DODownloadMode | 0 | DWord | Delivery Optimization Policy: HTTP-Only (guaranteed!) |
-
-| `HKLM:\SOFTWARE\Microsoft\Windows\DeliveryOptimization\Config` | DODownloadMode | 0 | DWord | Delivery Optimization Config: HTTP-Only (Fallback) |
-
-
-
-
-## WirelessDisplay Module
-
-**Source**: `SecurityBaseline-WirelessDisplay.ps1`
-
-**Keys**: 9
-
-| Path | Name | Value | Type | Description |
-
-|------|------|-------|------|-------------|
-
-| `HKLM:\SYSTEM\CurrentControlSet\Services\$($svc.Reg)` | Start | 4 | Unknown |  |
-
-| `HKLM:\SOFTWARE\Microsoft\PlayToReceiver` | Enabled | 0 | DWord | Disable PlayToReceiver |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\Connect` | AllowProjectionToPC | 0 | DWord | Prohibit projection to this PC |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\Connect` | RequirePinForPairing | 1 | DWord | Enforce PIN for pairing |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\Windows\WirelessDisplay` | Enabled | 0 | DWord | Disable Wireless Display Feature |
-
-| `HKLM:\SOFTWARE\Policies\Microsoft\WindowsMediaPlayer` | PreventWirelessReceiver | 1 | DWord | Prevent Wireless Media Streaming |
-
-| `HKLM:\SOFTWARE\Microsoft\WlanSvc\AnqpCache` | OsuRegistrationStatus | 0 | DWord | Disable Wi-Fi Direct OSU |
-
-
-
+## All Registry Keys
+- `HKCU:\Control Panel\International\User Profile\HttpAcceptLanguageOptOut`
+- `HKCU:\Software\Microsoft\Edge\SmartScreenPuaEnabled`
+- `HKCU:\Software\Microsoft\GameBar\AllowAutoGameMode`
+- `HKCU:\Software\Microsoft\GameBar\AutoGameModeEnabled`
+- `HKCU:\Software\Microsoft\InputPersonalization\RestrictImplicitInkCollection`
+- `HKCU:\Software\Microsoft\InputPersonalization\RestrictImplicitTextCollection`
+- `HKCU:\Software\Microsoft\InputPersonalization\TrainedDataStore\HarvestContacts`
+- `HKCU:\Software\Microsoft\Personalization\Settings\AcceptedPrivacyPolicy`
+- `HKCU:\Software\Microsoft\Speech_OneCore\Settings\OnlineSpeechPrivacy\HasAccepted`
+- `HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\activity\Value`
+- `HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\appointments\Value`
+- `HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\automaticFileDownloads\Value`
+- `HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\bluetooth\Value`
+- `HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\bluetoothSync\Value`
+- `HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\broadFileSystemAccess\Value`
+- `HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\cellularData\Value`
+- `HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\chat\Value`
+- `HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\contacts\Value`
+- `HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\documentsLibrary\Value`
+- `HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\downloadsFolder\Value`
+- `HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\email\Value`
+- `HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\gazeInput\Value`
+- `HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\graphicsCaptureProgrammatic\Value`
+- `HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\graphicsCaptureWithoutBorder\Value`
+- `HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\humanInterfaceDevice\Value`
+- `HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\musicLibrary\Value`
+- `HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\passkeys\Value`
+- `HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\passkeysEnumeration\Value`
+- `HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\phoneCall\Value`
+- `HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\phoneCallHistory\Value`
+- `HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\picturesLibrary\Microsoft.WindowsCamera_8wekyb3d8bbwe\Value`
+- `HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\picturesLibrary\Value`
+- `HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\radios\Value`
+- `HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\sensors.custom\Value`
+- `HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\serialCommunication\Value`
+- `HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\systemAIModels\Microsoft.Windows.Photos_8wekyb3d8bbwe\Value`
+- `HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\systemAIModels\Value`
+- `HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\usb\Value`
+- `HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\userAccountInformation\Value`
+- `HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\userDataTasks\Value`
+- `HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\userNotificationListener\Value`
+- `HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\videosLibrary\Microsoft.WindowsCamera_8wekyb3d8bbwe\Value`
+- `HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\videosLibrary\Value`
+- `HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\wifiData\Value`
+- `HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\wiFiDirect\Value`
+- `HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager\PreInstalledAppsEnabled`
+- `HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager\SilentInstalledAppsEnabled`
+- `HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager\SubscribedContent-310093Enabled`
+- `HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager\SubscribedContent-338388Enabled`
+- `HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager\SubscribedContent-338389Enabled`
+- `HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager\SubscribedContent-338393Enabled`
+- `HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager\SubscribedContent-353694Enabled`
+- `HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager\SubscribedContent-353696Enabled`
+- `HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager\SubscribedContent-353698Enabled`
+- `HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\ContentDeliveryManager\SystemPaneSuggestionsEnabled`
+- `HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced\Start_TrackProgs`
+- `HKCU:\Software\Microsoft\Windows\CurrentVersion\GameDVR\AppCaptureEnabled`
+- `HKCU:\Software\Microsoft\Windows\CurrentVersion\Internet Settings\ZoneMap\AutoDetect`
+- `HKCU:\Software\Microsoft\Windows\CurrentVersion\Internet Settings\ZoneMap\IntranetName`
+- `HKCU:\Software\Microsoft\Windows\CurrentVersion\Internet Settings\ZoneMap\ProxyBypass`
+- `HKCU:\Software\Microsoft\Windows\CurrentVersion\Internet Settings\ZoneMap\UNCAsIntranet`
+- `HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer\NoAutorun`
+- `HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer\NoDriveTypeAutoRun`
+- `HKCU:\Software\Microsoft\Windows\CurrentVersion\Search\BingSearchEnabled`
+- `HKCU:\Software\Microsoft\Windows\CurrentVersion\Search\CortanaConsent`
+- `HKCU:\Software\Microsoft\Windows\CurrentVersion\SystemSettings\AccountNotifications\EnableAccountNotifications`
+- `HKCU:\SOFTWARE\Policies\Microsoft\Edge\SmartScreenEnabled`
+- `HKCU:\Software\Policies\Microsoft\Edge\SmartScreenPuaEnabled`
+- `HKCU:\Software\Policies\Microsoft\MicrosoftEdge\PhishingFilter\EnabledV9`
+- `HKCU:\Software\Policies\Microsoft\MicrosoftEdge\PhishingFilter\PreventOverride`
+- `HKCU:\SOFTWARE\Policies\Microsoft\OneDrive\DisableFeedback`
+- `HKCU:\Software\Policies\Microsoft\OneDrive\DisablePersonalSync`
+- `HKCU:\SOFTWARE\Policies\Microsoft\OneDrive\DisableTutorial`
+- `HKCU:\SOFTWARE\Policies\Microsoft\OneDrive\KFMBlockOptIn`
+- `HKCU:\SOFTWARE\Policies\Microsoft\OneDrive\PreventNetworkTrafficPreUserSignIn`
+- `HKCU:\Software\Policies\Microsoft\Windows\AppPrivacy\LetAppsGetDiagnosticInfo`
+- `HKCU:\SOFTWARE\Policies\Microsoft\Windows\CurrentVersion\PushNotifications\NoToastApplicationNotificationOnLockScreen`
+- `HKCU:\Software\Policies\Microsoft\Windows\Explorer\DisableSearchBoxSuggestions`
+- `HKCU:\System\GameConfigStore\GameDVR_Enabled`
+- `HKLM:\SOFTWARE\Microsoft\.NETFramework\v4.0.30319\SchUseStrongCrypto`
+- `HKLM:\SOFTWARE\Microsoft\.NETFramework\v4.0.30319\SystemDefaultTlsVersions`
+- `HKLM:\SOFTWARE\Microsoft\Edge\AutofillAddressEnabled`
+- `HKLM:\SOFTWARE\Microsoft\Edge\AutofillCreditCardEnabled`
+- `HKLM:\SOFTWARE\Microsoft\Edge\InPrivateModeAvailability`
+- `HKLM:\SOFTWARE\Microsoft\Edge\PasswordManagerEnabled`
+- `HKLM:\SOFTWARE\Microsoft\Edge\PaymentMethodQueryEnabled`
+- `HKLM:\SOFTWARE\Microsoft\Edge\QuicAllowed`
+- `HKLM:\SOFTWARE\Microsoft\Edge\WebRtcLocalhostIpHandling`
+- `HKLM:\SOFTWARE\Microsoft\PlayToReceiver\Enabled`
+- `HKLM:\SOFTWARE\Microsoft\PolicyManager\default\WindowsAI\DisableAIDataAnalysis\value`
+- `HKLM:\SOFTWARE\Microsoft\Speech_OneCore\Preferences\VoiceActivationEnableAboveLockscreen`
+- `HKLM:\SOFTWARE\Microsoft\WcmSvc\wifinetworkmanager\config\AutoConnectAllowedOEM`
+- `HKLM:\SOFTWARE\Microsoft\Windows Defender\Features\EnableAppInstallControl`
+- `HKLM:\SOFTWARE\Microsoft\Windows Defender\Windows Defender Exploit Guard\Controlled Folder Access\EnableControlledFolderAccess`
+- `HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\DisableRpcOverTcp`
+- `HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\Maintenance\IdleOnly`
+- `HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Schedule\Maintenance\MaintenanceDisabled`
+- `HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon\ScRemoveOption`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\activity\Value`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\appDiagnostics\Value`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\appointments\Value`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\automaticFileDownloads\Value`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\bluetooth\Value`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\bluetoothSync\Value`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\broadFileSystemAccess\Value`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\cellularData\Value`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\chat\Value`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\contacts\Value`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\documentsLibrary\Value`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\downloadsFolder\Value`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\email\Value`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\gazeInput\Value`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\graphicsCaptureProgrammatic\Value`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\graphicsCaptureWithoutBorder\Value`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\humanInterfaceDevice\Value`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location\DisableLocation`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location\DisableWindowsLocationProvider`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\location\Value`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\microphone\Value`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\musicLibrary\Value`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\passkeys\Value`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\passkeysEnumeration\Value`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\phoneCall\Value`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\phoneCallHistory\Value`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\picturesLibrary\Value`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\radios\Value`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\sensors.custom\Value`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\serialCommunication\Value`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\systemAIModels\Value`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\usb\Value`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\userAccountInformation\Value`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\userDataTasks\Value`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\userNotificationListener\Value`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\videosLibrary\Value`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\webcam\Value`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\wifiData\Value`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\wiFiDirect\Value`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\SmartScreenEnabled`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\WinHttp\DisableWpad`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\Wpad\DoNotUseWPAD`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\LAPS\Config\BackupDirectory`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\LAPS\Config\Enabled`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\LAPS\Config\PasswordAgeDays`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\LAPS\Config\PasswordComplexity`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\LAPS\Config\PasswordLength`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\LAPS\Config\PostAuthenticationActions`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Attachments\SaveZoneInformation`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Attachments\ScanWithAntiVirus`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\CredUI\EnumerateAdministrators`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\DataCollection\AllowTelemetry`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer\DisableMotWOnInsecurePathCopy`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer\NoAutoplayfornonVolume`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer\NoAutorun`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer\NoDriveTypeAutoRun`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Explorer\NoDriveTypeAutoRun\NoDriveTypeAutoRun`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Paint\DisableCocreator`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Paint\DisableGenerativeFill`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\Paint\DisableImageCreator`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System\AdminApprovalModeType`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System\Audit\ProcessCreationIncludeCmdLine_Enabled`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System\ConsentPromptBehaviorAdmin`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System\ConsentPromptBehaviorAdminInEPPMode`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System\ConsentPromptBehaviorUser`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System\CredSSP\Parameters\AllowEncryptionOracle`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System\DisableAutomaticRestartSignOn`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System\EnableInstallerDetection`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System\EnableLUA`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System\EnableMPR`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System\EnableSecureUIAPaths`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System\FilterAdministratorToken`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System\InactivityTimeoutSecs`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System\KDC\Parameters\PKINITHashAlgorithm`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System\Kerberos\Parameters\PKINITHashAlgorithm`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System\Kerberos\Parameters\SupportedEncryptionTypes`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System\LocalAccountTokenFilterPolicy`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System\MSAOptional`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System\PromptOnSecureDesktop`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System\ValidateAdminCodeSignatures`
+- `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Sudo\Enabled`
+- `HKLM:\SOFTWARE\Microsoft\Windows\DeliveryOptimization\Config\DODownloadMode`
+- `HKLM:\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings\AllowAutoWindowsUpdateDownloadOverMeteredNetwork`
+- `HKLM:\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings\AllowMUUpdateService`
+- `HKLM:\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings\IsContinuousInnovationOptedIn`
+- `HKLM:\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings\IsExpedited`
+- `HKLM:\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings\RestartNotificationsAllowed2`
+- `HKLM:\SOFTWARE\Microsoft\WlanSvc\AnqpCache\OsuRegistrationStatus`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Biometrics\FacialFeatures\EnhancedAntiSpoofing`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Cryptography\Configuration\SSL\00010002\Functions`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Dsh\AllowNewsAndInterests`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Edge\BlockThirdPartyCookies`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Edge\BuiltInDnsClientEnabled`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Edge\DnsOverHttpsMode`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Edge\DownloadRestrictions`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Edge\EnhancedSecurityMode`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Edge\ExtensionInstallSources`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Edge\PreventSmartScreenPromptOverride`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Edge\PreventSmartScreenPromptOverrideForFiles`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Edge\SitePerProcess`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Edge\SmartScreenEnabled`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Edge\SmartScreenPuaEnabled`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Edge\TrackingPrevention`
+- `HKLM:\SOFTWARE\Policies\Microsoft\FindMyDevice\AllowFindMyDevice`
+- `HKLM:\SOFTWARE\Policies\Microsoft\FVE\ActiveDirectoryBackup`
+- `HKLM:\SOFTWARE\Policies\Microsoft\FVE\EncryptionMethodWithXtsFdv`
+- `HKLM:\SOFTWARE\Policies\Microsoft\FVE\EncryptionMethodWithXtsOs`
+- `HKLM:\SOFTWARE\Policies\Microsoft\FVE\EncryptionMethodWithXtsRdv`
+- `HKLM:\SOFTWARE\Policies\Microsoft\FVE\UseAdvancedStartup`
+- `HKLM:\SOFTWARE\Policies\Microsoft\FVE\UseTPM`
+- `HKLM:\SOFTWARE\Policies\Microsoft\FVE\UseTPMPIN`
+- `HKLM:\SOFTWARE\Policies\Microsoft\InputPersonalization\AllowInputPersonalization`
+- `HKLM:\SOFTWARE\Policies\Microsoft\InputPersonalization\RestrictImplicitInkCollection`
+- `HKLM:\SOFTWARE\Policies\Microsoft\InputPersonalization\RestrictImplicitTextCollection`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Internet Explorer\Feeds\DisableEnclosureDownload`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Internet Explorer\Main\DisableIE11Launch`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Internet Explorer\Main\FeatureControl\FEATURE_RESTRICT_ACTIVEXINSTALL\iexplore.exe`
+- `HKLM:\SOFTWARE\Policies\Microsoft\OneDrive\DisableFeedback`
+- `HKLM:\SOFTWARE\Policies\Microsoft\OneDrive\DisablePersonalSync`
+- `HKLM:\SOFTWARE\Policies\Microsoft\OneDrive\DisableTutorial`
+- `HKLM:\SOFTWARE\Policies\Microsoft\OneDrive\KFMBlockOptIn`
+- `HKLM:\SOFTWARE\Policies\Microsoft\OneDrive\PreventNetworkTrafficPreUserSignIn`
+- `HKLM:\SOFTWARE\Policies\Microsoft\PassportForWork\PINComplexity\Digits`
+- `HKLM:\SOFTWARE\Policies\Microsoft\PassportForWork\PINComplexity\Expiration`
+- `HKLM:\SOFTWARE\Policies\Microsoft\PassportForWork\PINComplexity\History`
+- `HKLM:\SOFTWARE\Policies\Microsoft\PassportForWork\PINComplexity\MaximumPINLength`
+- `HKLM:\SOFTWARE\Policies\Microsoft\PassportForWork\PINComplexity\MinimumPINLength`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Peernet\Disabled`
+- `HKLM:\SOFTWARE\Policies\Microsoft\SQMClient\Windows\CEIPEnable`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\DisableLocalAdminMerge`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\DisableRoutinelyTakingAction`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\ExclusionsVisibleToLocalUsers`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Features\EnableEDRInBlockMode`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Features\TamperProtection`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\HideExclusionsFromLocalAdmins`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\MpEngine\MpBafsExtendedTimeout`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\MpEngine\MpCloudBlockLevel`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\NIS\ConvertWarnToBlock`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection\ConfigureRealTimeProtectionOOBE`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection\DisableBehaviorMonitoring`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection\DisableIOAVProtection`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection\DisableOnAccessProtection`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection\DisableRealtimeMonitoring`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection\DisableScanOnRealtimeEnable`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection\DisableScriptScanning`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection\EDRBlockMode`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Real-Time Protection\RealtimeScanDirection`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Reporting\ReportDynamicSignatureDroppedEvent`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Scan\CheckExclusions`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Scan\DisableScanningMappedNetworkDrivesForFullScan`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Scan\ScanExcludedFilesInQuickScan`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Spynet\DisableBlockAtFirstSeen`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\DNSClient\EnableMulticast`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\DNSClient\EnableNetbios`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Printers\CopyFilesPolicy`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Printers\DisableWebPnPDownload`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Printers\PointAndPrint\NoWarningNoElevationOnInstall`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Printers\PointAndPrint\RestrictDriverInstallationToAdministrators`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Printers\PointAndPrint\UpdatePromptSettings`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Printers\RedirectionGuardPolicy`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Printers\RegisterSpoolerRemoteRpcEndPoint`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Printers\RpcAuthnLevelPrivacyEnabled`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Rpc\ForceKerberosForRpc`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Rpc\RestrictRemoteClients`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Rpc\RpcAuthentication`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Rpc\RpcProtocols`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Rpc\RpcTcpPort`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Rpc\RpcUseNamedPipeProtocol`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services\fAllowToGetHelp`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services\fAllowUnsolicited`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services\Shadow`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\AdvertisingInfo\DisabledByGroupPolicy`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\AppCompat\AITEnable`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\AppCompat\DisableInventory`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\AppPrivacy\LetAppsActivateWithVoiceAboveLock`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\AppPrivacy\LetAppsGetDiagnosticInfo`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent\DisableCloudOptimizedContent`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent\DisableSoftLanding`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent\DisableTailoredExperiencesWithDiagnosticData`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent\DisableThirdPartySuggestions`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent\DisableWindowsConsumerFeatures`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent\DisableWindowsSpotlightFeatures`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent\RestrictImplicitInkCollection`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\Connect\AllowProjectionToPC`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\Connect\RequirePinForPairing`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\Control Panel\Desktop\ScreenSaverIsSecure`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\CredentialsDelegation\AllowDefCredentialsWhenNTLMOnly`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\CredentialsDelegation\AllowProtectedCreds`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\3\1806`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\4\1803`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\CurrentVersion\Internet Settings\Zones\4\1806`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection\AllowTelemetry`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection\DoNotShowFeedbackNotifications`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection\MaxTelemetryAllowed`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\DeliveryOptimization\DODownloadMode`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\DeliveryOptimization\ManagePreviewBuilds`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\DeliveryOptimization\ManagePreviewBuildsPolicyValue`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\Explorer\DisableWindowsCopilot`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\Explorer\NoInstrumentation`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\Explorer\NoWebServices`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\GameDVR\AllowGameDVR`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\Installer\AlwaysInstallElevated`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\Installer\EnableUserControl`
+- `HKLM:\Software\Policies\Microsoft\Windows\LanmanWorkstation\AllowInsecureGuestAuth`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\LocationAndSensors\DisableLocation`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\LocationAndSensors\DisableWindowsLocationProvider`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\Network Connections\NC_AllowNetBridge_NLA`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\Network Connections\NC_ShowSharedAccessUI`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\Personalization\NoLockScreenCamera`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\Personalization\NoLockScreenSlideshow`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\PowerShell\ScriptBlockLogging\EnableScriptBlockLogging`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\PowerShell\Transcription\EnableInvocationHeader`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\PowerShell\Transcription\EnableTranscripting`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\PowerShell\Transcription\OutputDirectory`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\RemovableStorageDevices\{53f5630d-b6bf-11d0-94f2-00a0c91efb8b}\Deny_Execute`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\Safer\CodeIdentifiers\DefaultLevel`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\Safer\CodeIdentifiers\TransparentEnabled`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\SettingSync\DisableSettingSync`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\SettingSync\DisableSettingSyncUserOverride`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\System\AllowClipboardHistory`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\System\AllowCrossDeviceClipboard`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\System\AllowCustomSSPsAPs`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\System\EnableActivityFeed`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\System\EnableCdp`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\System\EnableSmartScreen`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\System\EnumerateLocalUsers`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\System\PublishUserActivities`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\System\ShellSmartScreenLevel`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\System\UploadUserActivities`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\WCN\Registrars\EnableRegistrars`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\WCN\UI\DisableWcnUi`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Chat\ChatIcon`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Search\AllowCloudSearch`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Search\AllowCortana`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Search\AllowIndexingEncryptedStoresOrItems`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Search\AllowSearchToUseLocation`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Search\BingSearchEnabled`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Search\ConnectedSearchUseWeb`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Search\EnableDynamicContentInWSB`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI\DisableAIDataAnalysis`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI\DisableClickToDo`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI\DisableSettingsAgent`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI\SetMaximumStorageDurationForRecallSnapshots`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI\SetMaximumStorageSpaceForRecallSnapshots`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI\TurnOffWindowsCopilot`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsCopilot\DisableCopilotProactive`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsCopilot\ShowCopilotButton`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsCopilot\TurnOffWindowsCopilot`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\ManagePreviewBuilds`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\ManagePreviewBuildsPolicyValue`
+- `HKLM:\SOFTWARE\Policies\Microsoft\Windows\WirelessDisplay\Enabled`
+- `HKLM:\SOFTWARE\Policies\Microsoft\WindowsInkWorkspace\AllowWindowsInkWorkspace`
+- `HKLM:\SOFTWARE\Policies\Microsoft\WindowsMediaPlayer\PreventWirelessReceiver`
+- `HKLM:\SOFTWARE\Policies\WindowsNotepad\DisableAIFeatures`
+- `HKLM:\SOFTWARE\WOW6432Node\Microsoft\.NETFramework\v4.0.30319\SchUseStrongCrypto`
+- `HKLM:\SOFTWARE\WOW6432Node\Microsoft\.NETFramework\v4.0.30319\SystemDefaultTlsVersions`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\CI\Config\VulnerableDriverBlocklistEnable`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard\EnableVirtualizationBasedSecurity`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard\RequirePlatformSecurityFeatures`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\CredentialGuard\Enabled`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity\Enabled`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity\WasEnabledBy`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\EFS\Disabled`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\Lsa\AllowNullSessionFallback`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\Lsa\EveryoneIncludesAnonymous`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\Lsa\LimitBlankPasswordUse`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\Lsa\LmCompatibilityLevel`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\Lsa\LsaCfgFlags`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\Lsa\MSV1_0\AuditReceivingNTLMTraffic`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\Lsa\MSV1_0\NTLMMinClientSec`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\Lsa\MSV1_0\NTLMMinServerSec`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\Lsa\MSV1_0\RequireSignOrSeal`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\Lsa\MSV1_0\RestrictReceivingNTLMTraffic`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\Lsa\MSV1_0\SCENoApplyLegacyAuditPolicy`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\Lsa\NoLMHash`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\Lsa\RestrictAnonymous`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\Lsa\RestrictAnonymousSAM`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\Lsa\RestrictRemoteSAM`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\Lsa\RunAsPPL`
+- `HKLM:\System\CurrentControlSet\Control\Lsa\SCENoApplyLegacyAuditPolicy`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\Remote Assistance\fAllowToGetHelp`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\Remote Assistance\fAllowUnsolicited`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\SecurePipeServers\winreg\RemoteRegAccess`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Ciphers\AES 128\128\Enabled`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Ciphers\AES 256\256\Enabled`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Ciphers\DES 56\56\Enabled`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Ciphers\NULL\Enabled`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Ciphers\RC2 128\128\Enabled`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Ciphers\RC2 40\128\Enabled`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Ciphers\RC2 56\128\Enabled`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Ciphers\RC4 128\128\Enabled`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Ciphers\RC4 40\128\Enabled`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Ciphers\RC4 56\128\Enabled`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Ciphers\RC4 64\128\Enabled`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Ciphers\Triple DES 168\Enabled`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\EventLogging`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Hashes\SHA\Enabled`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Hashes\SHA256\Enabled`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Hashes\SHA384\Enabled`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Hashes\SHA512\Enabled`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\SSL 2.0\Client\DisabledByDefault`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\SSL 2.0\Client\Enabled`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\SSL 2.0\Server\DisabledByDefault`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\SSL 2.0\Server\Enabled`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\SSL 3.0\Client\DisabledByDefault`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\SSL 3.0\Client\Enabled`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\SSL 3.0\Server\DisabledByDefault`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\SSL 3.0\Server\Enabled`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.0\Client\DisabledByDefault`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.0\Client\Enabled`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.0\Server\DisabledByDefault`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.0\Server\Enabled`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.1\Client\DisabledByDefault`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.1\Client\Enabled`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.1\Server\DisabledByDefault`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.1\Server\Enabled`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.2\Client\DisabledByDefault`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.2\Client\Enabled`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.2\Server\DisabledByDefault`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.2\Server\Enabled`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.3\Client\DisabledByDefault`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.3\Client\Enabled`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.3\Server\DisabledByDefault`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.3\Server\Enabled`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\WDigest\UseLogonCredential`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\kernel\DisableExceptionChainValidation`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management\PrefetchParameters\EnablePrefetcher`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management\PrefetchParameters\EnableSuperfetch`
+- `HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\fDenyTSConnections`
+- `HKLM:\SYSTEM\CurrentControlSet\Policies\EarlyLaunch\DriverLoadPolicy`
+- `HKLM:\SYSTEM\CurrentControlSet\Services\DevicePickerUserSvc\Start`
+- `HKLM:\System\CurrentControlSet\Services\DevicesFlowUserSvc\Start`
+- `HKLM:\System\CurrentControlSet\Services\Dnscache\InterfaceSpecificParameters\\NodeType`
+- `HKLM:\SYSTEM\CurrentControlSet\Services\Dnscache\Parameters\DisableNBTNameResolution`
+- `HKLM:\SYSTEM\CurrentControlSet\Services\Dnscache\Parameters\DnssecMode`
+- `HKLM:\System\CurrentControlSet\Services\Dnscache\Parameters\EnableAutoDoh`
+- `HKLM:\SYSTEM\CurrentControlSet\Services\Dnscache\Parameters\EnableDnssec`
+- `HKLM:\SYSTEM\CurrentControlSet\Services\Dnscache\Parameters\EnableDnssecIPv6`
+- `HKLM:\SYSTEM\CurrentControlSet\Services\EFS\Start`
+- `HKLM:\System\CurrentControlSet\Services\LanmanServer\Parameters\AuditClientDoesNotSupportEncryption`
+- `HKLM:\System\CurrentControlSet\Services\LanmanServer\Parameters\AuditClientDoesNotSupportSigning`
+- `HKLM:\System\CurrentControlSet\Services\LanmanServer\Parameters\AuditInsecureGuestLogon`
+- `HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters\AutoShareServer`
+- `HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters\AutoShareWks`
+- `HKLM:\System\CurrentControlSet\Services\LanmanServer\Parameters\EnableAuthenticationRateLimiter`
+- `HKLM:\System\CurrentControlSet\Services\LanmanServer\Parameters\EnableRemoteMailslots`
+- `HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters\EnableSecuritySignature`
+- `HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters\EncryptData`
+- `HKLM:\System\CurrentControlSet\Services\LanmanServer\Parameters\InvalidAuthenticationDelayTimeInMs`
+- `HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters\NullSessionPipes`
+- `HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters\NullSessionShares`
+- `HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters\RejectUnencryptedAccess`
+- `HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters\RequireSecuritySignature`
+- `HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters\RestrictNullSessAccess`
+- `HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters\SMB1`
+- `HKLM:\System\CurrentControlSet\Services\LanmanServer\Parameters\SMBServerMaximumProtocol`
+- `HKLM:\System\CurrentControlSet\Services\LanmanServer\Parameters\SMBServerMinimumProtocol`
+- `HKLM:\SYSTEM\CurrentControlSet\Services\LanmanWorkstation\Parameters\AuditInsecureGuestLogon`
+- `HKLM:\SYSTEM\CurrentControlSet\Services\LanmanWorkstation\Parameters\AuditServerDoesNotSupportEncryption`
+- `HKLM:\SYSTEM\CurrentControlSet\Services\LanmanWorkstation\Parameters\AuditServerDoesNotSupportSigning`
+- `HKLM:\SYSTEM\CurrentControlSet\Services\LanmanWorkstation\Parameters\DisableSmb1`
+- `HKLM:\SYSTEM\CurrentControlSet\Services\LanmanWorkstation\Parameters\EnablePlainTextPassword`
+- `HKLM:\SYSTEM\CurrentControlSet\Services\LanmanWorkstation\Parameters\EnableRemoteMailslots`
+- `HKLM:\SYSTEM\CurrentControlSet\Services\LanmanWorkstation\Parameters\EnableSecuritySignature`
+- `HKLM:\SYSTEM\CurrentControlSet\Services\LanmanWorkstation\Parameters\RequireEncryption`
+- `HKLM:\SYSTEM\CurrentControlSet\Services\LanmanWorkstation\Parameters\RequireSecuritySignature`
+- `HKLM:\SYSTEM\CurrentControlSet\Services\LanmanWorkstation\Parameters\SMBClientMaximumProtocol`
+- `HKLM:\System\CurrentControlSet\Services\LanmanWorkstation\Parameters\SMBClientMinimumProtocol`
+- `HKLM:\SYSTEM\CurrentControlSet\Services\LDAP\LDAPClientIntegrity`
+- `HKLM:\SYSTEM\CurrentControlSet\Services\LDAP\LdapEnforceChannelBinding`
+- `HKLM:\SYSTEM\CurrentControlSet\Services\MrxSmb10\Start`
+- `HKLM:\System\CurrentControlSet\Services\NetBT\Parameters\NodeType`
+- `HKLM:\SYSTEM\CurrentControlSet\Services\NetBT\Parameters\NoNameReleaseOnDemand`
+- `HKLM:\SYSTEM\CurrentControlSet\Services\Netlogon\Parameters\AuditNTLMInDomain`
+- `HKLM:\System\CurrentControlSet\Services\Netlogon\Parameters\RequireSignOrSeal`
+- `HKLM:\SYSTEM\CurrentControlSet\Services\Netlogon\Parameters\RestrictNTLMInDomain`
+- `HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\DisableIPSourceRouting`
+- `HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\EnableICMPRedirect`
+- `HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip6\Parameters\DisableIPSourceRouting`
+- `HKLM:\SYSTEM\CurrentControlSet\Services\WlanSvc\Parameters\DisableMdnsDiscovery`
+
+---
+
+**Total**: 478 keys (all unique)

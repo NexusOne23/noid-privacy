@@ -744,7 +744,7 @@ function Disable-CameraAndMicrophone {
         if (-not (Test-Path $cameraPathHKLM)) {
             $null = New-Item -Path $cameraPathHKLM -Force -ErrorAction Stop
         }
-        Set-ItemProperty -Path $cameraPathHKLM -Name "Value" -Value "Deny" -Type String -Force -ErrorAction Stop
+        Set-ItemProperty -Path $cameraPathHKLM -Name "Value" -Value "Deny" -Force -ErrorAction Stop
         Write-Verbose "$(Get-LocalizedString 'TelemetryCameraHKLMValue')"
     }
     catch {
@@ -761,7 +761,7 @@ function Disable-CameraAndMicrophone {
         if (-not (Test-Path $microphonePathHKLM)) {
             $null = New-Item -Path $microphonePathHKLM -Force -ErrorAction Stop
         }
-        Set-ItemProperty -Path $microphonePathHKLM -Name "Value" -Value "Deny" -Type String -Force -ErrorAction Stop
+        Set-ItemProperty -Path $microphonePathHKLM -Name "Value" -Value "Deny" -Force -ErrorAction Stop
         Write-Verbose "$(Get-LocalizedString 'TelemetryMicrophoneHKLMValue')"
     }
     catch {
@@ -1334,7 +1334,7 @@ function Disable-AllAppPermissionsDefaults {
             }
             
             # ONLY set Value - Windows manages LastUsedTime* itself!
-            Set-ItemProperty -Path $hkcuPath -Name "Value" -Value "Deny" -Type String -Force -ErrorAction Stop
+            Set-ItemProperty -Path $hkcuPath -Name "Value" -Value "Deny" -Force -ErrorAction Stop
             Write-Verbose "$(Get-LocalizedString 'TelemetryAppPermHKCUDeny' $permission)"
             
             # Sub-keys also set to Deny
@@ -1343,7 +1343,7 @@ function Disable-AllAppPermissionsDefaults {
                 if ($appSubKeys) {
                     foreach ($appKey in $appSubKeys) {
                         try {
-                            Set-ItemProperty -Path $appKey.PSPath -Name "Value" -Value "Deny" -Type String -Force -ErrorAction Stop
+                            Set-ItemProperty -Path $appKey.PSPath -Name "Value" -Value "Deny" -Force -ErrorAction Stop
                         }
                         catch {
                             Write-Verbose "$(Get-LocalizedString 'TelemetryAppPermAppError' $appKey.PSChildName $_)"

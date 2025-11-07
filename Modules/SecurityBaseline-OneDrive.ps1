@@ -231,7 +231,7 @@ function Remove-OneDriveCompletely {
     $explorerPath = "HKCR:\CLSID\{018D5C66-4533-4307-9B53-224DE2ED1FE6}\System.IsPinnedToNameSpaceTree"
     if (Test-Path $explorerPath) {
         try {
-            Set-ItemProperty -Path $explorerPath -Name "System.IsPinnedToNameSpaceTree" -Value 0 -Type DWord -ErrorAction Stop
+            Set-ItemProperty -Path $explorerPath -Name "System.IsPinnedToNameSpaceTree" -Value 0 -ErrorAction Stop
             Write-Verbose "OneDrive removed from Explorer sidebar"
         }
         catch {

@@ -91,9 +91,9 @@ function Set-EdgeSecurityBaseline {
                 New-Item -Path $userEdgePolicyPath -Force -ErrorAction SilentlyContinue | Out-Null
             }
             
-            Set-ItemProperty -Path $userEdgePath -Name "SmartScreenPuaEnabled" -Value 1 -Type DWord -ErrorAction SilentlyContinue
-            Set-ItemProperty -Path $userEdgePolicyPath -Name "SmartScreenEnabled" -Value 1 -Type DWord -ErrorAction SilentlyContinue
-            Set-ItemProperty -Path $userEdgePolicyPath -Name "SmartScreenPuaEnabled" -Value 1 -Type DWord -ErrorAction SilentlyContinue
+            Set-ItemProperty -Path $userEdgePath -Name "SmartScreenPuaEnabled" -Value 1 -ErrorAction SilentlyContinue
+            Set-ItemProperty -Path $userEdgePolicyPath -Name "SmartScreenEnabled" -Value 1 -ErrorAction SilentlyContinue
+            Set-ItemProperty -Path $userEdgePolicyPath -Name "SmartScreenPuaEnabled" -Value 1 -ErrorAction SilentlyContinue
         }
         Write-Verbose "SmartScreenPuaEnabled set for $($loadedProfiles.Count) loaded user profile(s)"
     }

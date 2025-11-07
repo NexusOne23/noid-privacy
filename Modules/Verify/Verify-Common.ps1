@@ -44,8 +44,6 @@ function Test-BaselineCheck {
         [string]$Impact = "Medium"
     )
     
-    $errorMessage = $null
-    
     try {
         $actual = & $Test
         $passed = if ($Expected -is [scriptblock]) { & $Expected $actual } else { $actual -eq $Expected }

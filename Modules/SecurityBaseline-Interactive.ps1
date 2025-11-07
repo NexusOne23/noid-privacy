@@ -1379,8 +1379,6 @@ function Start-InteractiveMode {
     .DESCRIPTION
         Hauptfunktion fuer das interaktive Menue-System.
         Best Practice 25H2: Select-Language Existenz-Check, Add-Member Validierung.
-    .PARAMETER LogPath
-        Pfad zur Log-Datei (optional, wird aktuell nicht verwendet)
     .OUTPUTS
         [hashtable] Konfigurations-Hashtable oder $null bei Exit
     .EXAMPLE
@@ -1388,9 +1386,7 @@ function Start-InteractiveMode {
     #>
     [CmdletBinding()]
     [OutputType([object])]
-    param(
-        [string]$LogPath
-    )
+    param()
     
     # Language selection at first start - with existence check
     if (Get-Command -Name Select-Language -ErrorAction SilentlyContinue) {
@@ -1539,7 +1535,7 @@ function Show-BackupPrompt {
         Write-Host "    - Services (25+ Services die Script aendert)" -ForegroundColor Gray
         Write-Host "    - Firewall (alle Regeln + 3 Profile Domain/Private/Public)" -ForegroundColor Gray
         Write-Host "    - Scheduled Tasks (30 Tasks die Script aendert)" -ForegroundColor Gray
-        Write-Host "    - Registry (391 Keys die Script aendert)" -ForegroundColor Gray
+        Write-Host "    - Registry (478 Keys die Script aendert)" -ForegroundColor Gray
         Write-Host "    - Built-in Admin (Name 'Administrator' + Enabled=$false)" -ForegroundColor Gray
         Write-Host "    - ASR (19 Regeln) + Exploit Protection (13 Mitigations)" -ForegroundColor Gray
         Write-Host ""
@@ -1630,7 +1626,7 @@ function Show-BackupPrompt {
         Write-Host "  - Services (25+ services that script modifies)" -ForegroundColor Gray
         Write-Host "  - Firewall (all rules + 3 profiles Domain/Private/Public)" -ForegroundColor Gray
         Write-Host "  - Scheduled Tasks (30 tasks that script modifies)" -ForegroundColor Gray
-        Write-Host "  - Registry (391 keys that script modifies)" -ForegroundColor Gray
+        Write-Host "  - Registry (478 keys that script modifies)" -ForegroundColor Gray
         Write-Host "  - Built-in Admin (name 'Administrator' + Enabled=$false)" -ForegroundColor Gray
         Write-Host "  - ASR (19 rules) + Exploit Protection (13 mitigations)" -ForegroundColor Gray
         Write-Host ""
