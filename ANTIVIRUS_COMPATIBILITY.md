@@ -1,5 +1,208 @@
 # Antivirus Compatibility & Known False Positives
 
+**Last Updated:** November 7, 2025 | **Version:** 1.8.1
+
+---
+
+## 🚨 CRITICAL: One-Liner Installation Blocked by Antivirus
+
+### Issue Summary
+
+**Symptom:** PowerShell error when running the one-liner installer:
+```
+Das Skript enthält schädliche Daten und wurde von Ihrer Antivirensoftware blockiert.
+CategoryInfo          : ParserError: (:) [], ParentContainsErrorRecordException
+FullyQualifiedErrorId : ScriptContainedMaliciousContent
+```
+
+**Affected Command:**
+```powershell
+irm https://raw.githubusercontent.com/NexusOne23/noid-privacy/main/install.ps1 | iex
+```
+
+**Affected Antivirus:**
+- ✅ **Bitdefender** (most common)
+- ✅ Kaspersky (sometimes)
+- ✅ Norton (rarely)
+- ✅ ESET (rarely)
+
+**Status:** ✅ **FALSE POSITIVE** - This is a legitimate security hardening script
+
+---
+
+### Why Is This Happening?
+
+**Antivirus Logic (Incorrect):**
+```
+Malware → Downloads script from internet → Modifies registry → Steals data ❌
+Our Script → Downloads from GitHub → Applies MS Baseline → Protects you ✅
+```
+
+**What the Antivirus Sees:**
+- ❌ Script downloads code from remote URL
+- ❌ Script modifies 478 registry keys
+- ❌ Script disables services
+- ❌ Script modifies Windows Defender settings
+- ❌ Script changes firewall rules
+- ❌ Pattern matches "malware behavior"
+
+**Reality:**
+- ✅ Applies **Microsoft Security Baseline 25H2** (official recommendation)
+- ✅ Enhances security and privacy
+- ✅ Everything is reversible via backup
+- ✅ Source code is public on GitHub
+- ✅ No data exfiltration, no credential theft
+
+---
+
+### ✅ SOLUTIONS (3 Options)
+
+#### **OPTION 1: Manual Installation (RECOMMENDED - Safest)**
+
+**Why recommended?** No `irm | iex` pattern, less suspicious for AV.
+
+```powershell
+# 1. Download ZIP manually via browser
+https://github.com/NexusOne23/noid-privacy/releases/latest
+
+# 2. Extract ZIP to folder (e.g., C:\Downloads\noid-privacy)
+
+# 3. Right-click on folder → Scan with Bitdefender (verify it's clean)
+
+# 4. Open PowerShell as Administrator, navigate to folder
+cd C:\Downloads\noid-privacy
+
+# 5. Run the script directly
+.\Apply-Win11-25H2-SecurityBaseline.ps1 -Interactive
+```
+
+**Advantage:**
+- ✅ No network download during execution
+- ✅ You can scan the files first
+- ✅ More transparent (you see all files)
+- ✅ Less likely to trigger AV
+
+---
+
+#### **OPTION 2: Temporary Antivirus Exception**
+
+**⚠️ Use with caution!** Only if you trust the source.
+
+**For Bitdefender:**
+```
+1. Open Bitdefender → Protection → Antivirus
+2. Click "Advanced Settings"
+3. Manage Exceptions → Add Exception
+4. Type: Process
+5. Path: C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe
+6. Click "Add Exception"
+
+7. Run the one-liner:
+   irm https://raw.githubusercontent.com/NexusOne23/noid-privacy/main/install.ps1 | iex
+
+8. IMPORTANT: Remove the exception after installation!
+```
+
+**For Other Antivirus:**
+- Similar process: Add PowerShell to exceptions temporarily
+- Look for "Exclusions", "Exceptions", or "Whitelist" in AV settings
+
+---
+
+#### **OPTION 3: Disable Antivirus Temporarily**
+
+**⚠️ NOT RECOMMENDED** - Last resort only!
+
+```
+1. Disable Bitdefender Shield (right-click system tray icon)
+2. Select: Disable for 15 minutes
+3. Run one-liner immediately
+4. Re-enable Bitdefender
+```
+
+**Why not recommended?**
+- Leaves system unprotected
+- Defeats the purpose of having an AV
+- Use Option 1 or 2 instead
+
+---
+
+### 🔍 How to Verify the Script Is Safe
+
+**1. Check Source Code on GitHub:**
+```
+https://github.com/NexusOne23/noid-privacy
+```
+- All code is public and reviewable
+- 478 registry keys documented in `REGISTRY_KEYS.md`
+- No obfuscation, no compiled binaries
+
+**2. Check VirusTotal:**
+- Upload `install.ps1` to VirusTotal.com
+- Most engines show 0/xx detections
+- Some may flag as "potentially unwanted" (false positive)
+
+**3. Review What the Script Does:**
+```powershell
+# Download script without executing
+Invoke-RestMethod https://raw.githubusercontent.com/NexusOne23/noid-privacy/main/install.ps1 -OutFile install.ps1
+
+# Read the script
+Get-Content install.ps1
+
+# Check for suspicious patterns (there are none!)
+Select-String -Path install.ps1 -Pattern "password|token|api|exfiltrate"
+```
+
+---
+
+### 📊 Why Do Security Scripts Trigger False Positives?
+
+**Legitimate Security Tools vs. Malware:**
+
+| Behavior | Security Script | Malware |
+|----------|----------------|---------|
+| **Modify Registry** | ✅ Apply MS Baseline | ❌ Disable Security |
+| **Disable Services** | ✅ Telemetry/Bloat | ❌ Defender/Firewall |
+| **Change Firewall** | ✅ Block Inbound | ❌ Allow C&C |
+| **Download Code** | ✅ From GitHub | ❌ From Malicious URL |
+| **Intent** | ✅ Protect User | ❌ Steal Data |
+
+**Problem:** Antivirus uses **heuristics** (behavioral patterns), not intent analysis.
+
+**Result:** Security hardening scripts can look like malware to signature-less detection engines.
+
+---
+
+### 🛡️ Is This Safe? YES!
+
+**Evidence:**
+- ✅ **Open Source:** All code public on GitHub
+- ✅ **Microsoft Standards:** Implements MS Security Baseline 25H2
+- ✅ **Compliance:** CIS, NIST, DoD STIG aligned
+- ✅ **Reversible:** Complete backup/restore system
+- ✅ **Documented:** 478 registry keys explained
+- ✅ **No Obfuscation:** Plain PowerShell, no compiled code
+- ✅ **Community:** Used by security professionals
+
+**Red Flags This Script Does NOT Have:**
+- ❌ Encoded/obfuscated commands
+- ❌ External C&C connections
+- ❌ Credential theft
+- ❌ Data exfiltration
+- ❌ Privilege escalation exploits
+- ❌ Persistence mechanisms (startup tasks, etc.)
+
+---
+
+### 📚 References
+
+- **Microsoft Security Baseline 25H2:** https://www.microsoft.com/en-us/download/details.aspx?id=55319
+- **Bitdefender False Positives:** https://www.bitdefender.com/consumer/support/answer/24658/
+- **PowerShell Security:** https://learn.microsoft.com/en-us/powershell/scripting/learn/security-features
+
+---
+
 ## 🚨 Bitdefender False Positive - RestrictRemoteSAM
 
 ### Issue Summary

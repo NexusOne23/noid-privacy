@@ -3,16 +3,7 @@
 **Source:** Microsoft Security Baseline Windows 11 v25H2 (Official)  
 **Analysis Date:** November 5, 2025  
 **NoID Privacy Version:** v1.8.1  
-**100% VERIFIED**
-
-> ⚠️ **IMPORTANT:** This is the **CORRECT and CURRENT** version!  
-> Older versions in this folder with the following characteristics are **OUTDATED** and should **NOT** be used:
-> - TOTAL = 430 (instead of 429)
-> - Services/Tasks = 5 (instead of 4)
-> - Firewall = 14 (instead of 24)
-> - SMB = 770/1792 (instead of 768/785)
-> - Contains Windows Update Settings (not in Baseline!)
-> - Contains ConfigureDoSvc (not in Baseline!)
+**Status:** ✅ **100% VERIFIED & UP-TO-DATE**
 
 ---
 
@@ -31,7 +22,7 @@ This document makes **CRYSTAL CLEAR:**
 
 ```
 MS SECURITY BASELINE WINDOWS 11 v25H2
-Source: Windows 11 v25H2 Security Baseline\
+Source: Windows 11 v25H2 Security Baseline
 
 TOTAL: 429 Settings
 
