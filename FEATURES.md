@@ -1,4 +1,4 @@
-﻿# ðŸš€ Complete Feature List
+# 🚀 Complete Feature List
 
 **NoID Privacy - Windows 11 25H2 Security Baseline**
 
@@ -6,7 +6,7 @@
 
 ---
 
-## ðŸ“‘ Table of Contents
+## 📑 Table of Contents
 
 - [Security Features](#-security-features) - 400+ Settings
 - [Privacy Features](#-privacy-features) - 300+ Settings  
@@ -24,12 +24,12 @@
 
 ---
 
-## ðŸ›¡ï¸ Security Features
+## 🛡️ Security Features
 
 ### Microsoft Defender - Real-Time Protection
-âœ… **11 Protection Layers Configured**
+✅ **11 Protection Layers Configured**
 
-**Module:** `SecurityBaseline-Core.ps1` â†’ `Set-DefenderBaselineSettings`
+**Module:** `SecurityBaseline-Core.ps1` → `Set-DefenderBaselineSettings`
 
 | Feature | User Benefit |
 |---------|--------------|
@@ -46,7 +46,7 @@
 | Tamper Protection | Can't be disabled by malware |
 
 ### Attack Surface Reduction (ASR)
-âœ… **19 ASR Rules = 19 Attack Vectors Blocked**
+✅ **19 ASR Rules = 19 Attack Vectors Blocked**
 
 **Module:** `SecurityBaseline-ASR.ps1`
 
@@ -73,7 +73,7 @@
 | Advanced ransomware protection | Multi-stage ransomware |
 
 ### BitLocker Encryption
-âœ… **XTS-AES-256 Military-Grade Encryption**
+✅ **XTS-AES-256 Military-Grade Encryption**
 
 | Configuration | What It Means |
 |---------------|---------------|
@@ -84,7 +84,7 @@
 | Pre-Boot Authentication | Stolen laptop = useless brick |
 
 ### Credential Protection
-âœ… **8 Credential Theft Protections**
+✅ **8 Credential Theft Protections**
 
 | Technology | Blocks |
 |------------|--------|
@@ -98,7 +98,7 @@
 | NTLM Auditing | Outdated auth detection |
 
 ### Exploit Protection
-âœ… **13 System-Wide Exploit Mitigations**
+✅ **13 System-Wide Exploit Mitigations**
 
 | Mitigation | Blocks |
 |------------|--------|
@@ -117,9 +117,9 @@
 | Win32k Disable | Kernel exploits |
 
 ### User Account Control (UAC)
-âœ… **Maximum Elevation Security**
+✅ **Maximum Elevation Security**
 
-**Module:** `SecurityBaseline-UAC.ps1` â†’ `Set-MaximumUAC` + `Enable-EnhancedPrivilegeProtectionMode`
+**Module:** `SecurityBaseline-UAC.ps1` → `Set-MaximumUAC` + `Enable-EnhancedPrivilegeProtectionMode`
 
 - **Level:** Always notify (highest)
 - **Secure Desktop:** Dimmed screen (can't be faked)
@@ -127,7 +127,7 @@
 - **Enhanced Privilege Protection:** Future-ready EPP mode
 
 ### Firewall
-âœ… **Strict Inbound = Zero Unsolicited Connections**
+✅ **Strict Inbound = Zero Unsolicited Connections**
 
 - Inbound: BLOCK ALL
 - Outbound: Allow (you can surf normally)
@@ -136,10 +136,10 @@
 
 ---
 
-## ðŸ”’ Privacy Features
+## 🔒 Privacy Features
 
 ### Complete Telemetry Shutdown
-âœ… **Microsoft Gets Minimal Data (Defender Cloud Only)**
+✅ **Microsoft Gets Minimal Data (Defender Cloud Only)**
 
 **Module:** `SecurityBaseline-Telemetry.ps1`
 
@@ -167,7 +167,7 @@
 - 25+ more data collection tasks
 
 **Network Restrictions:** Search Privacy
-âœ… **Local-Only Search**
+✅ **Local-Only Search**
 
 - Web Search: OFF (no Bing queries)
 - Cortana: Removed
@@ -176,7 +176,7 @@
 - Location in Search: OFF
 
 ### Windows Search Privacy
-âœ… **Local-Only Search**
+✅ **Local-Only Search**
 
 - Web Search: OFF (no Bing queries)
 - Cortana: Removed
@@ -185,7 +185,7 @@
 - Location in Search: OFF
 
 ### App Permissions - Default DENY
-âœ… **37 Permission Categories Locked Down**
+✅ **37 Permission Categories Locked Down**
 
 All apps CANNOT access (unless you allow):
 - Camera, Microphone, Location
@@ -202,17 +202,17 @@ All apps CANNOT access (unless you allow):
 **You control EVERYTHING apps can access!**
 
 ### OneDrive Configuration
-âœ… **Two Options: Privacy Hardening (Default) or Complete Removal**
+✅ **Two Options: Privacy Hardening (Default) or Complete Removal**
 
 **Module:** `SecurityBaseline-OneDrive.ps1`
 
 #### **Why We Don't Remove OneDrive by Default**
 
 **Design Philosophy:**
-- âœ… **Microsoft Security Baseline Compliance:** OneDrive is integral to Microsoft's security architecture
-- âœ… **Microsoft Account Integration:** Modern Windows features rely on OneDrive (Settings Sync, BitLocker Recovery Key backup)
-- âœ… **Enterprise Compatibility:** Many organizations use OneDrive for Business
-- âœ… **User Choice:** Privacy can be achieved through hardening without breaking functionality
+- ✅ **Microsoft Security Baseline Compliance:** OneDrive is integral to Microsoft's security architecture
+- ✅ **Microsoft Account Integration:** Modern Windows features rely on OneDrive (Settings Sync, BitLocker Recovery Key backup)
+- ✅ **Enterprise Compatibility:** Many organizations use OneDrive for Business
+- ✅ **User Choice:** Privacy can be achieved through hardening without breaking functionality
 
 **However:** We provide BOTH options - you decide what's right for you!
 
@@ -221,18 +221,18 @@ All apps CANNOT access (unless you allow):
 **Function:** `Enable-OneDrivePrivacy` (runs by default when OneDrive module selected)
 
 **What Gets Hardened:**
-- âœ… **Tutorial Disabled:** No first-run tracking dialogs
-- âœ… **Feedback Disabled:** No bug report/diagnostic data sent to Microsoft
-- âœ… **Pre-Login Network Blocked:** OneDrive doesn't connect before user sign-in (no silent tracking)
-- âœ… **Known Folder Move (KFM) Blocked:** Desktop/Documents/Pictures WON'T auto-upload
-- âœ… **Optional Diagnostic Data Disabled:** Minimal telemetry only (via Telemetry module)
+- ✅ **Tutorial Disabled:** No first-run tracking dialogs
+- ✅ **Feedback Disabled:** No bug report/diagnostic data sent to Microsoft
+- ✅ **Pre-Login Network Blocked:** OneDrive doesn't connect before user sign-in (no silent tracking)
+- ✅ **Known Folder Move (KFM) Blocked:** Desktop/Documents/Pictures WON'T auto-upload
+- ✅ **Optional Diagnostic Data Disabled:** Minimal telemetry only (via Telemetry module)
 
 **What Still Works:**
-- âœ… **OneDrive Sync:** Normal file sync works perfectly
-- âœ… **Manual Uploads:** YOU control what goes to the cloud
-- âœ… **Settings Sync:** Your Windows settings sync across devices (if using Microsoft Account)
-- âœ… **BitLocker Keys:** Recovery keys can be saved to your Microsoft Account
-- âœ… **Office Integration:** Seamless saving to OneDrive from Office apps
+- ✅ **OneDrive Sync:** Normal file sync works perfectly
+- ✅ **Manual Uploads:** YOU control what goes to the cloud
+- ✅ **Settings Sync:** Your Windows settings sync across devices (if using Microsoft Account)
+- ✅ **BitLocker Keys:** Recovery keys can be saved to your Microsoft Account
+- ✅ **Office Integration:** Seamless saving to OneDrive from Office apps
 
 **Result:** Privacy-first OneDrive - functionality preserved, tracking eliminated, YOU control uploads!
 
@@ -241,15 +241,15 @@ All apps CANNOT access (unless you allow):
 **Function:** `Remove-OneDriveCompletely` (must be called explicitly in script)
 
 **What Gets Removed:**
-- âŒ **OneDrive Application:** Completely uninstalled
-- âŒ **Registry Entries:** All OneDrive configuration removed
-- âŒ **Explorer Integration:** OneDrive removed from File Explorer sidebar
-- âŒ **Startup Entries:** Won't start on login
+- ❌ **OneDrive Application:** Completely uninstalled
+- ❌ **Registry Entries:** All OneDrive configuration removed
+- ❌ **Explorer Integration:** OneDrive removed from File Explorer sidebar
+- ❌ **Startup Entries:** Won't start on login
 
 **What's Preserved:**
-- âœ… **Your Files:** Local `C:\Users\<YourName>\OneDrive` folder is NEVER deleted
-- âœ… **Data Safety:** All your files remain accessible
-- âœ… **Reinstallation:** Can reinstall anytime from https://www.microsoft.com/onedrive/download
+- ✅ **Your Files:** Local `C:\Users\<YourName>\OneDrive` folder is NEVER deleted
+- ✅ **Data Safety:** All your files remain accessible
+- ✅ **Reinstallation:** Can reinstall anytime from https://www.microsoft.com/onedrive/download
 
 **When to Use Complete Removal:**
 - You never use cloud storage
@@ -261,10 +261,10 @@ All apps CANNOT access (unless you allow):
 
 ---
 
-## ðŸŒ Network Security
+## 🌐 Network Security
 
 ### DNS Security - 100% Strict DoH Enforcement
-âœ… **Choose Your Provider + Encrypted + Validated + Blocked**
+✅ **Choose Your Provider + Encrypted + Validated + Blocked**
 
 **Modules:** `SecurityBaseline-DNS-Common.ps1`, `SecurityBaseline-DNS-Providers.ps1`, `SecurityBaseline-DNS.ps1`
 
@@ -280,11 +280,11 @@ All apps CANNOT access (unless you allow):
 | **Quad9** | Security + Threat Intel | Global (Non-profit) | Malware blocking, GDPR, no logging |
 
 **All Providers Include:**
-- âœ… **100% Strict Enforcement:** `autoupgrade=yes`, `udpfallback=no` (no fallback to unencrypted DNS!)
-- âœ… **Dual-Stack:** IPv6 + IPv4 (IPv6 preferred when available)
-- âœ… **Per-Adapter Configuration:** Real network adapters only (VPN/Virtual excluded)
-- âœ… **Global DoH Policy:** `EnableAutoDoh=2` (Windows-wide enforcement)
-- âœ… **ISP Can't See:** Your DNS queries are encrypted via HTTPS (Port 443)
+- ✅ **100% Strict Enforcement:** `autoupgrade=yes`, `udpfallback=no` (no fallback to unencrypted DNS!)
+- ✅ **Dual-Stack:** IPv6 + IPv4 (IPv6 preferred when available)
+- ✅ **Per-Adapter Configuration:** Real network adapters only (VPN/Virtual excluded)
+- ✅ **Global DoH Policy:** `EnableAutoDoh=2` (Windows-wide enforcement)
+- ✅ **ISP Can't See:** Your DNS queries are encrypted via HTTPS (Port 443)
 
 **Provider Details:**
 
@@ -311,29 +311,29 @@ All apps CANNOT access (unless you allow):
 - Features: Threat intelligence blocking, operated by non-profit consortium
 
 #### **DNSSEC Validation**
-- âœ… **Opportunistic Mode:** Balanced security + compatibility
-- âœ… **Prevents:** DNS spoofing, cache poisoning, DNS hijacking
-- âœ… **Windows Native:** Built into Windows DNS client
+- ✅ **Opportunistic Mode:** Balanced security + compatibility
+- ✅ **Prevents:** DNS spoofing, cache poisoning, DNS hijacking
+- ✅ **Windows Native:** Built into Windows DNS client
 
 #### **Steven Black Unified Hosts**
-- âœ… **107,772 domains blocked** at DNS level (before queries even reach DNS!)
-- âœ… **Categories:** Malware + Ads + Tracking + Telemetry
-- âœ… **Optimized:** 9 domains per line (DNS cache friendly)
-- âœ… **Performance:** Zero impact (in-memory lookup)
-- âœ… **Updated:** November 5, 2025
+- ✅ **107,772 domains blocked** at DNS level (before queries even reach DNS!)
+- ✅ **Categories:** Malware + Ads + Tracking + Telemetry
+- ✅ **Optimized:** 9 domains per line (DNS cache friendly)
+- ✅ **Performance:** Zero impact (in-memory lookup)
+- ✅ **Updated:** November 5, 2025
 
 **Architecture: Defense in Depth**
-1. **Hosts file** blocks known bad domains (107K+) â†’ Never queries DNS
-2. **DoH Provider** encrypts queries â†’ ISP can't see or manipulate
-3. **DNSSEC** validates responses â†’ Prevents spoofing
-4. **Threat Intel** (Quad9) or **Ad Blocking** (AdGuard) â†’ Extra protection
+1. **Hosts file** blocks known bad domains (107K+) → Never queries DNS
+2. **DoH Provider** encrypts queries → ISP can't see or manipulate
+3. **DNSSEC** validates responses → Prevents spoofing
+4. **Threat Intel** (Quad9) or **Ad Blocking** (AdGuard) → Extra protection
 
 **Result: Maximum privacy + Maximum security + YOU choose the provider!**
 
 ### SMB Hardening
-âœ… **Secure File Sharing**
+✅ **Secure File Sharing**
 
-**Module:** `SecurityBaseline-Core.ps1` â†’ `Set-SMBHardening`
+**Module:** `SecurityBaseline-Core.ps1` → `Set-SMBHardening`
 
 - SMB v1: COMPLETELY REMOVED (WannaCry protection)
 - SMB Signing: REQUIRED (MITM prevention)
@@ -341,29 +341,29 @@ All apps CANNOT access (unless you allow):
 - Guest Auth: DISABLED (no anonymous access)
 
 ### TLS/SSL Hardening
-âœ… **Only Secure Protocols + Strong Ciphers**
+✅ **Only Secure Protocols + Strong Ciphers**
 
-**Module:** `SecurityBaseline-Advanced.ps1` â†’ `Set-TLSHardening`
+**Module:** `SecurityBaseline-Advanced.ps1` → `Set-TLSHardening`
 
 **Protocols:**
-- âŒ SSL 2.0 / 3.0 (DROWN, POODLE attacks)
-- âŒ TLS 1.0 / 1.1 (Deprecated, weak)
-- âœ… TLS 1.2 / 1.3 (Modern & Secure)
+- ❌ SSL 2.0 / 3.0 (DROWN, POODLE attacks)
+- ❌ TLS 1.0 / 1.1 (Deprecated, weak)
+- ✅ TLS 1.2 / 1.3 (Modern & Secure)
 
 **Ciphers:**
-- âŒ Weak: RC4, 3DES, DES, NULL, MD5
-- âŒ CBC Ciphers (vulnerable to BEAST/Lucky13)
-- âœ… Strong: AES-GCM, ChaCha20-Poly1305 only (AEAD)
-- âœ… Hash: SHA-256/384/512 (no SHA-1)
+- ❌ Weak: RC4, 3DES, DES, NULL, MD5
+- ❌ CBC Ciphers (vulnerable to BEAST/Lucky13)
+- ✅ Strong: AES-GCM, ChaCha20-Poly1305 only (AEAD)
+- ✅ Hash: SHA-256/384/512 (no SHA-1)
 
 **User Benefit:** Bank-grade TLS encryption, no weak crypto
 
 ### Legacy Protocols - All Disabled
-âœ… **Attack Surface Minimized**
+✅ **Attack Surface Minimized**
 
 **Modules:** 
-- `SecurityBaseline-Core.ps1` â†’ `Disable-NetworkLegacyProtocols`
-- `SecurityBaseline-Advanced.ps1` â†’ `Disable-WDigest`
+- `SecurityBaseline-Core.ps1` → `Disable-NetworkLegacyProtocols`
+- `SecurityBaseline-Advanced.ps1` → `Disable-WDigest`
 
 - LLMNR: OFF (MITM credential theft)
 - NetBIOS: OFF (network poisoning)
@@ -374,9 +374,9 @@ All apps CANNOT access (unless you allow):
 - WSD: OFF (Web Services Discovery)
 
 ### Network Stealth Mode
-âœ… **Invisible on Network**
+✅ **Invisible on Network**
 
-**Module:** `SecurityBaseline-Core.ps1` â†’ `Enable-NetworkStealthMode`
+**Module:** `SecurityBaseline-Core.ps1` → `Enable-NetworkStealthMode`
 
 **What's Disabled:**
 - Network Discovery: OFF (can't be found by other PCs)
@@ -387,18 +387,18 @@ All apps CANNOT access (unless you allow):
 - WSD: Web Services Discovery disabled
 
 **What Still Works:**
-- âœ… Internet access (browsing, downloads)
-- âœ… Wi-Fi / Ethernet connection
-- âœ… VPN connections
-- âœ… Outgoing connections to network shares (if you manually connect)
+- ✅ Internet access (browsing, downloads)
+- ✅ Wi-Fi / Ethernet connection
+- ✅ VPN connections
+- ✅ Outgoing connections to network shares (if you manually connect)
 
 **User Benefit:** Your PC is invisible on the network, can't be scanned/discovered
 **Use Case:** Coffee shop Wi-Fi, untrusted networks
 
 ### Unnecessary Services Disabled
-âœ… **25+ Services Disabled (CIS Benchmark)**
+✅ **25+ Services Disabled (CIS Benchmark)**
 
-**Module:** `SecurityBaseline-Core.ps1` â†’ `Disable-UnnecessaryServices`
+**Module:** `SecurityBaseline-Core.ps1` → `Disable-UnnecessaryServices`
 
 **Services Disabled:**
 - Remote Registry (remote access to registry)
@@ -420,17 +420,17 @@ All apps CANNOT access (unless you allow):
 - Xbox Live (4 services: Auth, Game Save, Networking, Accessories)
 
 **Services KEPT Active:**
-- âœ… Smart Card Services (3 services) - Enterprise compatibility
-- âœ… Windows Update
-- âœ… Windows Defender
-- âœ… All critical system services
+- ✅ Smart Card Services (3 services) - Enterprise compatibility
+- ✅ Windows Update
+- ✅ Windows Defender
+- ✅ All critical system services
 
 **User Benefit:** Less attack surface, better performance, no unnecessary background processes
 
 ### Wireless Security
-âœ… **No Wireless Eavesdropping**
+✅ **No Wireless Eavesdropping**
 
-**Module:** `SecurityBaseline-WirelessDisplay.ps1` â†’ `Disable-WirelessDisplay`
+**Module:** `SecurityBaseline-WirelessDisplay.ps1` → `Disable-WirelessDisplay`
 
 - Miracast: DISABLED (4 layers)
 - Wireless Display: DISABLED
@@ -440,31 +440,31 @@ All apps CANNOT access (unless you allow):
 
 ---
 
-## ðŸ¤– AI & Tracking Lockdown
+## 🤖 AI & Tracking Lockdown
 
 ### 9 AI Features Completely Disabled
-âœ… **Zero AI Spying**
+✅ **Zero AI Spying**
 
 **Module:** `SecurityBaseline-AI.ps1`
 
 | AI Feature | Privacy Risk | Status |
 |------------|--------------|--------|
-| **Windows Recall** | Screenshots EVERYTHING (passwords!) | âŒ DISABLED |
-| **Windows Copilot** | AI data collection | âŒ DISABLED (4 layers) |
-| **Click to Do** | Screenshot AI analysis | âŒ DISABLED |
-| **Paint Cocreator** | Cloud-based image generation | âŒ DISABLED |
-| **Paint Generative Fill** | Cloud AI editing | âŒ DISABLED |
-| **Paint Image Creator** | Cloud AI art | âŒ DISABLED |
-| **Notepad AI** | Copilot integration in Notepad | âŒ DISABLED |
-| **Settings Agent** | AI in Settings menu | âŒ DISABLED |
-| **Copilot Proactive** | Unsolicited AI suggestions | âŒ DISABLED |
+| **Windows Recall** | Screenshots EVERYTHING (passwords!) | ❌ DISABLED |
+| **Windows Copilot** | AI data collection | ❌ DISABLED (4 layers) |
+| **Click to Do** | Screenshot AI analysis | ❌ DISABLED |
+| **Paint Cocreator** | Cloud-based image generation | ❌ DISABLED |
+| **Paint Generative Fill** | Cloud AI editing | ❌ DISABLED |
+| **Paint Image Creator** | Cloud AI art | ❌ DISABLED |
+| **Notepad AI** | Copilot integration in Notepad | ❌ DISABLED |
+| **Settings Agent** | AI in Settings menu | ❌ DISABLED |
+| **Copilot Proactive** | Unsolicited AI suggestions | ❌ DISABLED |
 
 **Fallback:** If user re-enables Recall: 10 GB max, 1 day retention
 
 ### Microsoft Edge Privacy
-âœ… **Security Locked, Convenience Customizable**
+✅ **Security Locked, Convenience Customizable**
 
-**Module:** `SecurityBaseline-Edge.ps1` â†’ `Set-EdgeSecurityBaseline`
+**Module:** `SecurityBaseline-Edge.ps1` → `Set-EdgeSecurityBaseline`
 
 **Enforced (Greyed Out):**
 - SmartScreen: ON (malware blocking)
@@ -481,10 +481,10 @@ All apps CANNOT access (unless you allow):
 
 ---
 
-## ðŸ“¡ Telemetry Control
+## 📡 Telemetry Control
 
 ### What Gets Stopped
-âœ… **Complete Telemetry Lockdown**
+✅ **Complete Telemetry Lockdown**
 
 **Services (25+):**
 Every single diagnostic/telemetry service disabled
@@ -501,12 +501,12 @@ All data collection tasks disabled
 
 ---
 
-## ðŸŽ® Application Control
+## 🎮 Application Control
 
 ### Bloatware Removal
-âœ… **50+ Pre-Installed Apps Removed**
+✅ **50+ Pre-Installed Apps Removed**
 
-**Module:** `SecurityBaseline-Bloatware.ps1` â†’ `Remove-BloatwareApps` + `Disable-ConsumerFeatures`
+**Module:** `SecurityBaseline-Bloatware.ps1` → `Remove-BloatwareApps` + `Disable-ConsumerFeatures`
 
 **Communication:**
 Teams, Skype, Messenger, Your Phone, Cortana, People
@@ -532,10 +532,10 @@ Solitaire, Candy Crush, Bubble Witch
 
 ---
 
-## ðŸ”„ Windows Update
+## 🔄 Windows Update
 
 ### Secure Auto-Update Configuration
-âœ… **HYBRID Approach: Security + User Control**
+✅ **HYBRID Approach: Security + User Control**
 
 **Module:** `SecurityBaseline-WindowsUpdate.ps1`
 
@@ -551,7 +551,7 @@ Solitaire, Candy Crush, Bubble Witch
 **Philosophy:** All toggles ON = Maximum security, but user CAN change
 
 ### Delivery Optimization
-âœ… **HTTP-Only (No P2P)**
+✅ **HTTP-Only (No P2P)**
 
 | Setting | Configuration | User Benefit |
 |---------|---------------|--------------|
@@ -564,10 +564,10 @@ Solitaire, Candy Crush, Bubble Witch
 
 ---
 
-## ðŸ” System Hardening
+## 🔐 System Hardening
 
 ### Controlled Folder Access (Ransomware Protection)
-âœ… **Advanced Ransomware Defense**
+✅ **Advanced Ransomware Defense**
 
 **Module:** `SecurityBaseline-Core.ps1`
 
@@ -580,7 +580,7 @@ Solitaire, Candy Crush, Bubble Witch
 **User Benefit:** Ransomware CANNOT encrypt your documents!
 
 ### AutoPlay/AutoRun Disablement
-âœ… **USB Attack Prevention**
+✅ **USB Attack Prevention**
 
 | Feature | Status | Protection Against |
 |---------|--------|---------------------|
@@ -592,7 +592,7 @@ Solitaire, Candy Crush, Bubble Witch
 **User Benefit:** USB stick can't auto-infect your PC
 
 ### Administrative Shares Disablement
-âœ… **Hidden Share Protection**
+✅ **Hidden Share Protection**
 
 | Share | Status | Security Impact |
 |-------|--------|-----------------|
@@ -604,7 +604,7 @@ Solitaire, Candy Crush, Bubble Witch
 **User Benefit:** Hackers can't access C$ remotely
 
 ### Print Spooler Hardening
-âœ… **PrintNightmare Protection**
+✅ **PrintNightmare Protection**
 
 - RPC Authentication: REQUIRED
 - RPC Encryption: ENABLED
@@ -615,7 +615,7 @@ Solitaire, Candy Crush, Bubble Witch
 **Blocks:** PrintNightmare exploit + variants
 
 ### Remote Access Complete Lockdown
-âœ… **Zero Remote Access**
+✅ **Zero Remote Access**
 
 **ALL Remote Methods Disabled:**
 - Remote Desktop (RDP)
@@ -631,7 +631,7 @@ Solitaire, Candy Crush, Bubble Witch
 **User Benefit:** Can't be hacked remotely
 
 ### IE11 & Legacy COM Disablement
-âœ… **No Legacy Browser Exploits**
+✅ **No Legacy Browser Exploits**
 
 - Internet Explorer 11: DISABLED
 - MSHTML.DLL: BLOCKED
@@ -642,7 +642,7 @@ Solitaire, Candy Crush, Bubble Witch
 **User Benefit:** No IE exploits, must use Edge
 
 ### Sudo for Windows Disablement
-âœ… **No Privilege Escalation Vector**
+✅ **No Privilege Escalation Vector**
 
 - Sudo Command: DISABLED
 - Windows 11 24H2+ Feature
@@ -651,7 +651,7 @@ Solitaire, Candy Crush, Bubble Witch
 **User Benefit:** UAC can't be bypassed via sudo
 
 ### Anonymous SID Enumeration Blocking
-âœ… **User Enumeration Prevention**
+✅ **User Enumeration Prevention**
 
 - RestrictAnonymousSAM = 1
 - RestrictAnonymous = 1
@@ -662,7 +662,7 @@ Solitaire, Candy Crush, Bubble Witch
 **User Benefit:** Attackers can't enumerate users
 
 ### Mark-of-the-Web (MotW)
-âœ… **Downloaded File Protection**
+✅ **Downloaded File Protection**
 
 - SmartScreen: Checks downloaded files
 - Zone.Identifier: Preserved
@@ -672,7 +672,7 @@ Solitaire, Candy Crush, Bubble Witch
 **User Benefit:** Downloads are automatically scanned
 
 ### Kerberos PKINIT Hash Agility
-âœ… **Modern Kerberos Only**
+✅ **Modern Kerberos Only**
 
 - SHA-256/384/512: ENABLED
 - SHA-1: DISABLED
@@ -682,7 +682,7 @@ Solitaire, Candy Crush, Bubble Witch
 **User Benefit:** No weak Kerberos attacks
 
 ### Secure Administrator Account
-âœ… **Built-in Admin Hardening**
+✅ **Built-in Admin Hardening**
 
 - Account: Renamed (not "Administrator")
 - Status: Disabled (not in use)
@@ -693,7 +693,7 @@ Solitaire, Candy Crush, Bubble Witch
 **User Benefit:** Built-in admin can't be brute-forced
 
 ### Process Auditing with Command Line
-âœ… **Full Command Line Logging**
+✅ **Full Command Line Logging**
 
 - Process Creation: LOGGED
 - Command Lines: CAPTURED
@@ -704,7 +704,7 @@ Solitaire, Candy Crush, Bubble Witch
 **Use Case:** Forensics, incident response
 
 ### SmartScreen Extended Configuration
-âœ… **Multi-Layer SmartScreen**
+✅ **Multi-Layer SmartScreen**
 
 - Windows Defender SmartScreen: ON
 - Microsoft Edge SmartScreen: ON
@@ -716,12 +716,12 @@ Solitaire, Candy Crush, Bubble Witch
 
 ---
 
-## âš¡ Performance Optimization
+## ⚡ Performance Optimization
 
 ### Background Task Control
-âœ… **30 Tasks Disabled**
+✅ **30 Tasks Disabled**
 
-**Module:** `SecurityBaseline-Performance.ps1` â†’ `Optimize-ScheduledTasks`
+**Module:** `SecurityBaseline-Performance.ps1` → `Optimize-ScheduledTasks`
 
 - WinSAT, Defrag, Error Reporting
 - CEIP, Application Experience
@@ -729,29 +729,29 @@ Solitaire, Candy Crush, Bubble Witch
 - **Windows Update/Defender: KEPT ACTIVE**
 
 ### Event Log Optimization
-âœ… **Less Disk I/O**
+✅ **Less Disk I/O**
 
-**Module:** `SecurityBaseline-Performance.ps1` â†’ `Optimize-EventLogs`
+**Module:** `SecurityBaseline-Performance.ps1` → `Optimize-EventLogs`
 
 **Log Size Reduction:**
-- Application Log: 20 MB â†’ 10 MB
-- System Log: 20 MB â†’ 10 MB  
-- Setup Log: 20 MB â†’ 10 MB
-- Forwarded Events: 20 MB â†’ 10 MB
+- Application Log: 20 MB → 10 MB
+- System Log: 20 MB → 10 MB  
+- Setup Log: 20 MB → 10 MB
+- Forwarded Events: 20 MB → 10 MB
 - **Security Log: KEPT at 100 MB** (critical!)
 
 **Noisy Logs Reduced:**
-- Microsoft-Windows-NCSI: 15 MB â†’ 5 MB
-- Microsoft-Windows-NetworkProfile: 15 MB â†’ 5 MB
-- Microsoft-Windows-WindowsUpdateClient: 15 MB â†’ 5 MB
+- Microsoft-Windows-NCSI: 15 MB → 5 MB
+- Microsoft-Windows-NetworkProfile: 15 MB → 5 MB
+- Microsoft-Windows-WindowsUpdateClient: 15 MB → 5 MB
 - And 10+ more chatty logs reduced
 
 **User Benefit:** Less disk writes, faster log access, less I/O noise
 
 ### Background Activities Control
-âœ… **Quieter System**
+✅ **Quieter System**
 
-**Module:** `SecurityBaseline-Performance.ps1` â†’ `Disable-BackgroundActivities`
+**Module:** `SecurityBaseline-Performance.ps1` → `Disable-BackgroundActivities`
 
 **Disabled Background Features:**
 - Cortana Background Tasks
@@ -766,9 +766,9 @@ Solitaire, Candy Crush, Bubble Witch
 **User Benefit:** Less CPU/disk usage when idle, more battery life
 
 ### System Maintenance Optimization
-âœ… **Controlled Maintenance Windows**
+✅ **Controlled Maintenance Windows**
 
-**Module:** `SecurityBaseline-Performance.ps1` â†’ `Optimize-SystemMaintenance`
+**Module:** `SecurityBaseline-Performance.ps1` → `Optimize-SystemMaintenance`
 
 **Optimized Tasks:**
 - Idle Maintenance: Less aggressive
@@ -780,9 +780,9 @@ Solitaire, Candy Crush, Bubble Witch
 **User Benefit:** Less interruptions during work, maintenance runs when YOU want
 
 ### Visual Effects Optimization
-âœ… **Performance > Eye Candy**
+✅ **Performance > Eye Candy**
 
-**Module:** `SecurityBaseline-Performance.ps1` â†’ `Disable-VisualEffects`
+**Module:** `SecurityBaseline-Performance.ps1` → `Disable-VisualEffects`
 
 **Optimized Settings:**
 - Animations: Reduced (not disabled)
@@ -796,9 +796,9 @@ Solitaire, Candy Crush, Bubble Witch
 **Note:** User can re-enable animations in Settings > Accessibility > Visual Effects
 
 ### Performance Report
-âœ… **See What Changed**
+✅ **See What Changed**
 
-**Module:** `SecurityBaseline-Performance.ps1` â†’ `Show-PerformanceReport`
+**Module:** `SecurityBaseline-Performance.ps1` → `Show-PerformanceReport`
 
 **Shows:**
 - ~30 Tasks disabled (telemetry, performance)
@@ -812,10 +812,10 @@ Solitaire, Candy Crush, Bubble Witch
 
 ---
 
-## ðŸŽ¨ User Experience
+## 🎨 User Experience
 
 ### Interactive Menu
-âœ… **4 Modes**
+✅ **4 Modes**
 
 **Module:** `SecurityBaseline-Interactive.ps1` + `Apply-Win11-25H2-SecurityBaseline.ps1`
 
@@ -825,16 +825,16 @@ Solitaire, Candy Crush, Bubble Witch
 - **Verify:** Validate applied settings
 
 ### Multi-Language
-âœ… **English + German**
+✅ **English + German**
 
-**Module:** `SecurityBaseline-Localization.ps1` â†’ `Get-LocalizedString` + `Select-Language`
+**Module:** `SecurityBaseline-Localization.ps1` → `Get-LocalizedString` + `Select-Language`
 
 - Real-time language switching
 - All messages localized
 - Menu system translated
 
 ### Progress Visualization
-âœ… **Always Know What's Happening**
+✅ **Always Know What's Happening**
 
 - Progress bar
 - Step counter (X/Y)
@@ -843,16 +843,16 @@ Solitaire, Candy Crush, Bubble Witch
 
 ---
 
-## ðŸ’¾ Backup & Recovery
+## 💾 Backup & Recovery
 
 ### Complete System Backup
-âœ… **Can Undo EVERYTHING**
+✅ **Can Undo EVERYTHING**
 
 **Module:** `Backup-SecurityBaseline.ps1`
 
 **6 Backup Components:**
 
-**1. Registry Snapshots (478 Keys)**
+**1. Registry Snapshots (478 keys)**
 - Security policy keys (Defender, ASR, BitLocker, Firewall, VBS, etc.)
 - Privacy setting keys (Telemetry, App Permissions, AI, Tracking)
 - Network configuration keys (DNS, TLS/SSL, Legacy Protocols, WDigest)
@@ -904,7 +904,7 @@ Solitaire, Candy Crush, Bubble Witch
 **User Benefit:** Can undo EVERYTHING with one command
 
 ### Granular Restore
-âœ… **Flexible Undo Options**
+✅ **Flexible Undo Options**
 
 **Module:** `Restore-SecurityBaseline.ps1`
 
@@ -926,7 +926,7 @@ Solitaire, Candy Crush, Bubble Witch
 - Timestamp verification
 
 ### Rollback Functionality
-âœ… **Safe Experimentation**
+✅ **Safe Experimentation**
 
 **Module:** `Rollback-SecurityBaseline.ps1`
 
@@ -944,12 +944,12 @@ Solitaire, Candy Crush, Bubble Witch
 
 ---
 
-## ðŸ”§ Advanced Features
+## 🔧 Advanced Features
 
 ### Windows LAPS
-âœ… **Automatic Admin Password Rotation**
+✅ **Automatic Admin Password Rotation**
 
-**Module:** `SecurityBaseline-Advanced.ps1` â†’ `Enable-WindowsLAPS`
+**Module:** `SecurityBaseline-Advanced.ps1` → `Enable-WindowsLAPS`
 
 - Rotation: Every 30 days
 - Length: 20 characters
@@ -958,9 +958,9 @@ Solitaire, Candy Crush, Bubble Witch
 - Audit: Every change logged
 
 ### Advanced Auditing
-âœ… **18 Security Event Categories**
+✅ **18 Security Event Categories**
 
-**Module:** `SecurityBaseline-Advanced.ps1` â†’ `Enable-AdvancedAuditing`
+**Module:** `SecurityBaseline-Advanced.ps1` → `Enable-AdvancedAuditing`
 
 - Logon/Logoff tracking
 - Account management
@@ -972,9 +972,9 @@ Solitaire, Candy Crush, Bubble Witch
 **Use Case:** Security incident investigation
 
 ### NTLM Auditing
-âœ… **Legacy Authentication Tracking**
+✅ **Legacy Authentication Tracking**
 
-**Module:** `SecurityBaseline-Advanced.ps1` â†’ `Enable-NTLMAuditing`
+**Module:** `SecurityBaseline-Advanced.ps1` → `Enable-NTLMAuditing`
 
 - **Tracks:** All NTLM authentication attempts
 - **Event IDs:** 4624 (NTLM Logon), 8004 (NTLM Auth), 8002 (NTLM Blocked)
@@ -985,9 +985,9 @@ Solitaire, Candy Crush, Bubble Witch
 **User Benefit:** See who's still using outdated NTLM (vs Kerberos)
 
 ### Smart App Control
-âœ… **AI-Based App Reputation**
+✅ **AI-Based App Reputation**
 
-**Module:** `SecurityBaseline-ASR.ps1` â†’ `Enable-SmartAppControl`
+**Module:** `SecurityBaseline-ASR.ps1` → `Enable-SmartAppControl`
 
 - Cloud verification
 - Machine learning detection
@@ -995,9 +995,9 @@ Solitaire, Candy Crush, Bubble Witch
 - Untrusted app blocking
 
 ### USB Device Control
-âœ… **Removable Media Protection**
+✅ **Removable Media Protection**
 
-**Module:** `SecurityBaseline-ASR.ps1` â†’ `Enable-USBDeviceControl`
+**Module:** `SecurityBaseline-ASR.ps1` → `Enable-USBDeviceControl`
 
 - **Blocks:** Untrusted USB executables
 - **Allows:** Read/Write of files (USB storage works)
@@ -1007,9 +1007,9 @@ Solitaire, Candy Crush, Bubble Witch
 **User Benefit:** USB sticks work, but can't infect you
 
 ### Game Bar & Game Mode
-âœ… **Gaming Telemetry Disabled**
+✅ **Gaming Telemetry Disabled**
 
-**Module:** `SecurityBaseline-Telemetry.ps1` â†’ `Disable-GameBarAndGameMode`
+**Module:** `SecurityBaseline-Telemetry.ps1` → `Disable-GameBarAndGameMode`
 
 - **Xbox Game Bar:** DISABLED (no gaming overlay)
 - **Game Mode:** DISABLED (no performance tracking)
@@ -1019,7 +1019,7 @@ Solitaire, Candy Crush, Bubble Witch
 **User Benefit:** No gaming data sent to Microsoft
 
 ### Registry Ownership Management
-âœ… **TrustedInstaller Handling**
+✅ **TrustedInstaller Handling**
 
 **Module:** `SecurityBaseline-RegistryOwnership.ps1`
 
@@ -1034,10 +1034,10 @@ Solitaire, Candy Crush, Bubble Witch
 
 ---
 
-## ðŸ“Š Verification & Validation
+## 📊 Verification & Validation
 
 ### Verification Mode
-âœ… **Post-Apply Validation**
+✅ **Post-Apply Validation**
 
 **Script:** `Verify-SecurityBaseline.ps1`
 
@@ -1062,7 +1062,7 @@ Solitaire, Candy Crush, Bubble Witch
 
 ---
 
-## ðŸ“Š Statistics Summary
+## 📊 Statistics Summary
 
 | Category | Count | Details |
 |----------|-------|---------|
@@ -1086,38 +1086,38 @@ Solitaire, Candy Crush, Bubble Witch
 
 ---
 
-## ðŸŽ¯ Quick Feature Lookup
+## 🎯 Quick Feature Lookup
 
 **Want Maximum Security?**
-â†’ Defender (11 layers) + ASR (19 rules) + BitLocker + Exploit Protection (13 mitigations) + System Hardening (15 protections)
+→ Defender (11 layers) + ASR (19 rules) + BitLocker + Exploit Protection (13 mitigations) + System Hardening (15 protections)
 
 **Want Maximum Privacy?**
-â†’ Telemetry OFF (25+ services + 30 tasks + 478 Keys) + App Permissions (37 categories) + AI Lockdown (9 features) + 107,772 domains blocked
+→ Telemetry OFF (25+ services + 30 tasks + 478 keys) + App Permissions (37 categories) + AI Lockdown (9 features) + 107,772 domains blocked
 
 **Want Ransomware Protection?**
-â†’ ASR Rules + Controlled Folder Access + AutoPlay OFF + Network Protection
+→ ASR Rules + Controlled Folder Access + AutoPlay OFF + Network Protection
 
 **Want Secure Updates?**
-â†’ Windows Update (all toggles ON) + Delivery Optimization (HTTP-only, no P2P)
+→ Windows Update (all toggles ON) + Delivery Optimization (HTTP-only, no P2P)
 
 **Want System Hardening?**
-â†’ Remote Access OFF + Admin Shares OFF + Print Spooler hardened + IE11 disabled + AutoPlay OFF
+→ Remote Access OFF + Admin Shares OFF + Print Spooler hardened + IE11 disabled + AutoPlay OFF
 
 **Want Performance?**
-â†’ 30 tasks disabled + Event log optimization + Visual effects optimized + Bloatware removed
+→ 30 tasks disabled + Event log optimization + Visual effects optimized + Bloatware removed
 
 **Want Control?**
-â†’ Custom Mode = Pick specific modules
+→ Custom Mode = Pick specific modules
 
 **Want Proof of Configuration?**
-â†’ Verification Mode (Verify-SecurityBaseline.ps1)
+→ Verification Mode (Verify-SecurityBaseline.ps1)
 
 **Made a Mistake?**
-â†’ Backup/Restore = Complete undo (6 backup components)
+→ Backup/Restore = Complete undo (6 backup components)
 
 ---
 
-## ðŸ“š Related Documentation
+## 📚 Related Documentation
 
 - **[Installation Guide](INSTALLATION.md)** - How to apply
 - **[FAQ](FAQ.md)** - Common questions
@@ -1127,5 +1127,5 @@ Solitaire, Candy Crush, Bubble Witch
 
 ---
 
-**Last Updated:** October 2025 (v1.7.13)  
+**Last Updated:** November 2025 (v1.8.1)  
 **Source:** [NoID Privacy GitHub](https://github.com/NexusOne23/noid-privacy)

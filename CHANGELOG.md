@@ -85,16 +85,16 @@ All errors were introduced during "quick-win" optimization phase where multiple 
 
 ## [1.8.0] - 2025-11-06
 
-### ðŸŽ‰ MAJOR RELEASE: 100% Microsoft Security Baseline Coverage
+### 🎉 MAJOR RELEASE: 100% Microsoft Security Baseline Coverage
 
-**Headline:** NoID Privacy now implements **100% of all locally-applicable Microsoft Security Baseline 25H2 policies** (370/370)! ðŸŽŠ
+**Headline:** NoID Privacy now implements **100% of all locally-applicable Microsoft Security Baseline 25H2 policies** (370/370)! 🎊
 
 #### **What's New:**
-- âœ… **370/370 applicable policies** implemented (was 213/365 in v1.7.x = **+73.7% coverage!**)
-- âœ… **67 secedit settings** now automated (Password Policy, Account Lockout, LSA, SMB hardening)
-- âœ… **478 registry keys** configured (was 391 = **+87 keys**)
-- âœ… **133 verification checks** (was 135, optimized by removing 2 fragile checks)
-- âœ… **Complete documentation overhaul** - all numbers and baseline coverage updated
+- ✅ **370/370 applicable policies** implemented (was 213/365 in v1.7.x = **+73.7% coverage!**)
+- ✅ **67 secedit settings** now automated (Password Policy, Account Lockout, LSA, SMB hardening)
+- ✅ **425 registry keys** configured (was 391 = **+34 keys**)
+- ✅ **133 verification checks** (was 135, optimized by removing 2 fragile checks)
+- ✅ **Complete documentation overhaul** - all numbers and baseline coverage updated
 
 **Coverage Breakdown:**
 - Total MS Baseline 25H2 policies: **429**
@@ -102,13 +102,13 @@ All errors were introduced during "quick-win" optimization phase where multiple 
 - Implemented by NoID Privacy: **370** (**100% of applicable!**)
 - Not applicable: **59** (57 IE11-deprecated, 2 Domain Controller-only)
 
-**â†’ FROM EVERYTHING THAT CAN BE SET ON STANDALONE WINDOWS 11 25H2: WE SET IT ALL!** ðŸ”
+**→ FROM EVERYTHING THAT CAN BE SET ON STANDALONE WINDOWS 11 25H2: WE SET IT ALL!** 🔐
 
 ---
 
-### ðŸ”´ CRITICAL FIXES
+### 🔴 CRITICAL FIXES
 
-#### **Credential Guard Not Running After Reboot** ðŸ”¥
+#### **Credential Guard Not Running After Reboot** 🔥
 - **Bug**: Credential Guard was CONFIGURED but NOT RUNNING after Apply + Reboot
 - **Symptom**: `SecurityServicesRunning` = {2, 3, 4} (missing "1" = Credential Guard)
 - **Root Cause #1**: Hypervisor launch type was NEVER set by Apply-Script
@@ -120,24 +120,24 @@ All errors were introduced during "quick-win" optimization phase where multiple 
 - **Fix (Verify)**: Accepts both LsaCfgFlags values (1 OR 2)
 - **Fix (Verify)**: Added Hypervisor diagnostics with actionable fix command
 - **Result**: Credential Guard now activates correctly after reboot
-- **Verify Score**: 109 â†’ 111/133 PASS (+2 fixed checks)
+- **Verify Score**: 109 → 111/133 PASS (+2 fixed checks)
 - **Discovery**: Bitdefender+VMware local machine testing (Nov 6, 2025)
 - **Files**: `SecurityBaseline-Core.ps1`, `Verify-SecurityBaseline.ps1`
 - **Commit**: `4a12f2b`
 
 ---
 
-### ðŸ“š DOCUMENTATION OVERHAUL
+### 📚 DOCUMENTATION OVERHAUL
 
 #### **Complete Baseline Coverage Documentation Update**
 - **Scope**: 26 files updated with correct baseline numbers
 - **Updated Numbers Everywhere**:
-  - Registry Keys: 391 â†’ **480** (+87)
-  - Verification Checks: 124 â†’ **133** (+9, then -2 optimization)
-  - MS Baseline Total: 365 â†’ **429** (+64, corrected count)
-  - Implemented Policies: 213 â†’ **370** (+157!)
-  - N/A Policies: 152 â†’ **59** (-93, corrected calculation)
-  - Coverage: 58.4% â†’ **100%** of applicable policies
+  - Registry Keys: 391 → **425** (+34)
+  - Verification Checks: 124 → **133** (+9, then -2 optimization)
+  - MS Baseline Total: 365 → **429** (+64, corrected count)
+  - Implemented Policies: 213 → **370** (+157!)
+  - N/A Policies: 152 → **59** (-93, corrected calculation)
+  - Coverage: 58.4% → **100%** of applicable policies
 
 #### **Files Updated**:
 - Core Docs: `README.md`, `FEATURES.md`, `SECURITY_MAPPING.md`, `REGISTRY_KEYS.md`, `FAQ.md`, `KNOWN_ISSUES.md`
@@ -155,7 +155,7 @@ All errors were introduced during "quick-win" optimization phase where multiple 
 
 ---
 
-### ðŸ›¡ï¸ ANTIVIRUS COMPATIBILITY IMPROVEMENTS
+### 🛡️ ANTIVIRUS COMPATIBILITY IMPROVEMENTS
 
 #### **Removed Alarmist Bitdefender-Specific Warnings**
 - **Issue**: hosts file warning too alarmist and Bitdefender-specific
@@ -179,10 +179,10 @@ All errors were introduced during "quick-win" optimization phase where multiple 
 #### **Generic Third-Party AV Documentation**
 - **Issue**: Documentation too focused on Bitdefender, should be balanced
 - **Changes**:
-  - "Bitdefender: False positive" â†’ "Third-Party AV (especially Bitdefender): False positive"
+  - "Bitdefender: False positive" → "Third-Party AV (especially Bitdefender): False positive"
   - Added Norton/Avast heuristic mentions
-  - "Step-by-step Bitdefender guide" â†’ "Step-by-step AV guides (multiple examples)"
-  - ASR comment: "Bitdefender returns null" â†’ "third-party AVs return null when active"
+  - "Step-by-step Bitdefender guide" → "Step-by-step AV guides (multiple examples)"
+  - ASR comment: "Bitdefender returns null" → "third-party AVs return null when active"
   - FAQ: Reordered - Windows Defender first, then AVs alphabetically
   - All AVs now treated equally (Kaspersky, Norton, ESET, Bitdefender)
 
@@ -192,19 +192,19 @@ All errors were introduced during "quick-win" optimization phase where multiple 
 
 ---
 
-### ðŸ”§ VERIFICATION IMPROVEMENTS
+### 🔧 VERIFICATION IMPROVEMENTS
 
 #### **Removed Fragile Power Management Checks**
 - **Issue**: Display/Hibernate timeout checks showed FALSE FAIL
 - **Verification**: Settings are CORRECT (powercfg /query confirmed)
-  - Display: 0x00000258 = 600 sec = 10 min âœ…
-  - Hibernate: 0x00000708 = 1800 sec = 30 min âœ…
+  - Display: 0x00000258 = 600 sec = 10 min ✅
+  - Hibernate: 0x00000708 = 1800 sec = 30 min ✅
 - **Root Cause**: /GETACVALUEINDEX parsing fragile (GUID-based, regex, system-dependent)
-- **Impact**: Low/Info (unkritisch fÃ¼r Security Baseline)
+- **Impact**: Low/Info (unkritisch für Security Baseline)
 - **Decision**: Remove checks (user: "fixen oder rauswerfen")
 - **Manual Verification**: Still possible via comments in script
 
-- **Checks**: 135 â†’ **133** (-2 removed)
+- **Checks**: 135 → **133** (-2 removed)
 - **Expected Scores** (updated everywhere):
   - Native Windows Defender: 118-119/133 PASS (89%)
   - Third-Party AVs (Bitdefender/Kaspersky/Norton/ESET): 96-100/133 PASS (72-75%)
@@ -214,7 +214,7 @@ All errors were introduced during "quick-win" optimization phase where multiple 
 
 ---
 
-### ðŸ”¨ OTHER FIXES
+### 🔨 OTHER FIXES
 
 #### **DNS Blocklist Idempotency with Version Check**
 - **Added**: Version comparison to prevent unnecessary re-downloads
@@ -223,7 +223,7 @@ All errors were introduced during "quick-win" optimization phase where multiple 
 
 ---
 
-### ðŸ“Š STATISTICS v1.8.0
+### 📊 STATISTICS v1.8.0
 
 **Development:**
 - Commits: 62 (Nov 5-6, 2025)
@@ -232,30 +232,30 @@ All errors were introduced during "quick-win" optimization phase where multiple 
 - Documentation Files: 26 updated
 
 **Baseline Coverage:**
-- Total Policies: 365 â†’ **429** (+17.5%)
-- Implemented: 213 â†’ **370** (+73.7%!)
-- Registry Keys: 391 â†’ **480** (+22%)
-- Verification: 124 â†’ **133** (+7.3%, then optimized -2)
-- secedit: 0 â†’ **67** (automated!)
-- Coverage: 58.4% â†’ **100%** (of applicable)
+- Total Policies: 365 → **429** (+17.5%)
+- Implemented: 213 → **370** (+73.7%!)
+- Registry Keys: 391 → **425** (+8.7%)
+- Verification: 124 → **133** (+7.3%, then optimized -2)
+- secedit: 0 → **67** (automated!)
+- Coverage: 58.4% → **100%** (of applicable)
 
 **Hosts File:**
-- Domains Blocked: 80K â†’ 107,772 (+34%)
+- Domains Blocked: 80K → 107,772 (+34%)
 
 ---
 
-### âš ï¸ BREAKING CHANGES
+### ⚠️ BREAKING CHANGES
 
-1. **Baseline Scope**: 365 â†’ 429 total policies (+17.5%)
-2. **Verification Checks**: 135 â†’ 133 (2 power checks removed, but more reliable)
-3. **Documentation Structure**: 23 â†’ 19 files (5 deleted, 2 added)
-4. **Registry Keys**: 391 â†’ 480 (+87)
+1. **Baseline Scope**: 365 → 429 total policies (+17.5%)
+2. **Verification Checks**: 135 → 133 (2 power checks removed, but more reliable)
+3. **Documentation Structure**: 23 → 19 files (5 deleted, 2 added)
+4. **Registry Keys**: 391 → 425 (+34)
 
-**Migration**: No user action needed - fully backward compatible! âœ…
+**Migration**: No user action needed - fully backward compatible! ✅
 
 ---
 
-### ðŸ™ ACKNOWLEDGMENTS
+### 🙏 ACKNOWLEDGMENTS
 
 - Testing: Bitdefender+VMware local machine (discovered Credential Guard bug)
 - User Feedback: hosts file works perfectly with all AVs
@@ -279,23 +279,23 @@ All errors were introduced during "quick-win" optimization phase where multiple 
 
 ## [1.7.20] - 2025-11-05
 
-### ðŸŽ¯ Major Feature: Privacy by Default WITH User Control
+### 🎯 Major Feature: Privacy by Default WITH User Control
 
-#### **Camera/Microphone/Location Permissions Rebalanced** ðŸ”¥
+#### **Camera/Microphone/Location Permissions Rebalanced** 🔥
 - **BREAKING CHANGE**: Apps can now request Camera/Mic/Location permissions again
   - **Previous Behavior**: HKCU hard-blocked (no prompts, apps silently denied)
   - **New Behavior**: HKLM defaults only (Windows asks user for permission)
   - **Impact**: Zoom/Teams/Discord/Maps now functional after user approval
-  - **Result**: Privacy by Default + User Control = Best of Both Worlds! ðŸŽ‰
+  - **Result**: Privacy by Default + User Control = Best of Both Worlds! 🎉
   - **Why**: Forum feedback - "Apps kaputt ohne Grund", frustrating for home users
   - **Security**: Still denied by default, but user can allow trusted apps
   - **Files**: SecurityBaseline-Telemetry.ps1, RegistryChanges-Definition.ps1 (-132 lines)
-  - **Registry**: 388 â†’ 384 entries (-4 HKCU entries removed)
+  - **Registry**: 388 → 384 entries (-4 HKCU entries removed)
   - **Commits**: `c62d300`, `acae656`
 
 ### Added
 
-- **Hibernate Mode Linked to Remote Access Choice** ðŸš€
+- **Hibernate Mode Linked to Remote Access Choice** 🚀
   - **Desktop Mode (RDP OFF)**: Hibernate enabled (30 min timeout)
   - **Remote Server Mode (RDP ON)**: Hibernate disabled (prevents RDP disconnects)
   - **Logic**: Remote servers need 24/7 availability, desktops can hibernate
@@ -304,7 +304,7 @@ All errors were introduced during "quick-win" optimization phase where multiple 
   - **Files**: SecurityBaseline-Advanced.ps1, Apply-Win11-25H2-SecurityBaseline.ps1
   - **Commit**: `29eff59`
 
-- **Power Management Full Backup/Restore Support** âš¡
+- **Power Management Full Backup/Restore Support** ⚡
   - **Backup**: All power settings now saved (timeouts, hibernate, CONSOLELOCK)
   - **Restore**: Complete restoration of original power configuration
   - **German Support**: Works on German Windows (powercfg localization fix)
@@ -314,7 +314,7 @@ All errors were introduced during "quick-win" optimization phase where multiple 
 
 ### Fixed
 
-- **CRITICAL: Windows Settings App Search Broken** ðŸ”¥
+- **CRITICAL: Windows Settings App Search Broken** 🔥
   - **Bug**: DisableWebSearch registry key blocked Settings app search
   - **Impact**: "Network", "Update", "Privacy" searches returned nothing
   - **Root Cause**: Key too broad - blocked Windows internal search
@@ -323,7 +323,7 @@ All errors were introduced during "quick-win" optimization phase where multiple 
   - **Files**: SecurityBaseline-Telemetry.ps1, SecurityBaseline-Performance.ps1
   - **Commit**: `c8950f8`
 
-- **CRITICAL: Chrome/Edge Downloads Blocked by Policy 1806** ðŸ”¥
+- **CRITICAL: Chrome/Edge Downloads Blocked by Policy 1806** 🔥
   - **Bug**: Internet/Intranet Zone 1806 broke browser downloads
   - **Symptom**: "blocked by your organization" on legitimate downloads
   - **Root Cause**: 1806 = "Disable launching apps" too aggressive for modern browsers
@@ -345,7 +345,7 @@ All errors were introduced during "quick-win" optimization phase where multiple 
 
 - **Restore Script: PropertyNotFoundException on Power Settings**
   - **Bug**: Crash when restoring backups without power management data
-  - **Symptom**: "MonitorTimeoutAC" property not found â†’ script terminated
+  - **Symptom**: "MonitorTimeoutAC" property not found → script terminated
   - **Root Cause**: Direct property access without PSObject.Properties check
   - **Fix**: Defensive property access pattern (check existence BEFORE access)
   - **Pattern**: `if ('Property' -in $obj.PSObject.Properties.Name) { ... }`
@@ -375,7 +375,7 @@ All errors were introduced during "quick-win" optimization phase where multiple 
 - **Total Changes**: 20 commits, ~500 lines modified
 - **Critical Fixes**: 6 (Settings Search, Downloads, Power Management, Camera/Mic)
 - **New Features**: 2 (Hibernate Integration, Power Backup/Restore)
-- **Registry Keys**: 388 â†’ 384 entries (more user-friendly)
+- **Registry Keys**: 388 → 384 entries (more user-friendly)
 - **Quality**: Root cause analysis for ALL bugs (no quick fixes!)
 - **Testing**: Verified on German Windows VM, backup/restore cycle tested
 
@@ -383,7 +383,7 @@ All errors were introduced during "quick-win" optimization phase where multiple 
 
 - **Camera/Mic/Location**: Apps will now ASK for permission (expected behavior)
   - If you want hard-block: Manually set HKCU registry keys
-  - Default: Privacy by Default + User prompts âœ…
+  - Default: Privacy by Default + User prompts ✅
   
 - **Hibernate**: Now linked to Remote Access choice
   - Desktop Mode: ON (saves power, clears RAM)
@@ -398,10 +398,10 @@ All errors were introduced during "quick-win" optimization phase where multiple 
 - **Gaming Recommendations Refined** - Removed pauschal "Gamer = Option 2" statements
   - **Issue**: Remote-Menu suggested Option 2 (less strict) for ALL gamers
   - **Reality**: 90% of multiplayer games only need outbound (work with Strict Mode)
-  - **Fix**: PrÃ¤zise Formulierungen - "only if you explicitly need inbound connections"
-  - **Change**: Empfehlung jetzt "If unsure â†’ Option 1" (Security-First!)
+  - **Fix**: Präzise Formulierungen - "only if you explicitly need inbound connections"
+  - **Change**: Empfehlung jetzt "If unsure → Option 1" (Security-First!)
   - **Affected**: Localization.ps1 (Remote Menu strings DE+EN), Verify-Script, DNS-Module
-  - **Result**: Keine pauschalen Gaming-Empfehlungen, bewusste Entscheidung fÃ¼r User
+  - **Result**: Keine pauschalen Gaming-Empfehlungen, bewusste Entscheidung für User
   - **User Feedback**: Gaming recommendations too broad, security-first approach needed
   - **Commits**: `70b9173`, `990ac76`
 
@@ -412,12 +412,12 @@ All errors were introduced during "quick-win" optimization phase where multiple 
   - **BitLocker AES-256 Upgrade**: 33 strings (DE+EN) - 3 Methoden + PowerShell Alternative
   - **CPU-Check Messages**: 18 strings (DE+EN) - Old CPU warnings + Modern CPU + NOTE
   - **Files**: SecurityBaseline-Localization.ps1, SecurityBaseline-Core.ps1
-  - **Result**: Alle wichtigen Anleitungen jetzt sprachunabhÃ¤ngig (DE/EN)
+  - **Result**: Alle wichtigen Anleitungen jetzt sprachunabhängig (DE/EN)
   - **Total**: 72 neue Strings, 231 code insertions
   - **Commits**: `990ac76`, `78afd3e`
 
 - **Gaming Troubleshooting Section** - README.md
-  - **New Section**: "ðŸŽ® Gaming & Multiplayer Issues" in Troubleshooting
+  - **New Section**: "🎮 Gaming & Multiplayer Issues" in Troubleshooting
   - **Content**: Security-First approach, step-by-step guide, game examples
   - **Explains**: Try Strict Mode first (works for 90%), Option 2 only if needed
   - **Examples**: Fortnite/Valorant/CoD work with Strict, Minecraft hosting needs Option 2
@@ -465,12 +465,12 @@ All errors were introduced during "quick-win" optimization phase where multiple 
 - **Device-Level App Permissions Backup Re-Added** - Critical Backup/Restore gap closed!
   - Backup-SecurityBaseline.ps1: New section [15/15] Device-Level App Permissions Backup
   - Previous v1.7.13 removed this backup claiming "TrustedInstaller protection makes it meaningless"
-  - Critical Issue: Restore script EXPECTED this data but backup had none â†’ Restore failed to restore original state!
+  - Critical Issue: Restore script EXPECTED this data but backup had none → Restore failed to restore original state!
   - Solution: Graceful degradation - backup readable entries, skip Access Denied silently
   - Coverage: webcam + microphone EnabledByUser keys (~5-20 per permission)
   - Result: 100% Backup/Restore coverage restored - ALL changes by Apply script are now fully reversible!
-  - All counters updated: Backup [1/14] â†’ [1/15] through [14/14] â†’ [14/15]
-  - Forum feedback addressed: "Does Restore really restore EVERYTHING?" â†’ YES!
+  - All counters updated: Backup [1/14] → [1/15] through [14/14] → [14/15]
+  - Forum feedback addressed: "Does Restore really restore EVERYTHING?" → YES!
 
 - **DNS Menu Localization (EN/DE)** - Full internationalization of DNS provider selection
   - SecurityBaseline-Interactive.ps1: Show-DNSProviderMenu fully localized
@@ -553,7 +553,7 @@ All errors were introduced during "quick-win" optimization phase where multiple 
   - **Impact**: After Restore, webcam/microphone EnabledByUser keys remained at "Deny" (not restored)
   - **Scope**: ~5-20 app permission keys per permission (webcam, microphone)
   - **Why removed in v1.7.13**: "TrustedInstaller-protected, backup meaningless"
-  - **Why critical**: Restore script expected this data â†’ without it, cannot restore original state
+  - **Why critical**: Restore script expected this data → without it, cannot restore original state
   - **Fix approach**: Backup with try-catch per app, skip Access Denied gracefully, backup readable entries
   - **Verification**: Restore-SecurityBaseline.ps1 (Lines 2069-2178) already had correct restore logic waiting for data!
   - **Commit**: `49216e1`
@@ -622,9 +622,9 @@ All errors were introduced during "quick-win" optimization phase where multiple 
   - Auto-detect: Only as last resort if Select-Language function unavailable
 - **78 App Name Mappings** - User-friendly app names in Missing-Apps list
   - Maps internal package names to Microsoft Store display names
-  - Example: `Clipchamp.Clipchamp` â†’ `Clipchamp - Video Editor`
-  - Example: `MSTeams` â†’ `Microsoft Teams (klassisch)`
-  - Example: `Microsoft.YourPhone` â†’ `Phone Link (frueher: Ihr Smartphone)`
+  - Example: `Clipchamp.Clipchamp` → `Clipchamp - Video Editor`
+  - Example: `MSTeams` → `Microsoft Teams (klassisch)`
+  - Example: `Microsoft.YourPhone` → `Phone Link (frueher: Ihr Smartphone)`
   - Categories: Xbox/Gaming, Teams, Productivity, Social Media, Entertainment, Games, Utilities, Creative
   - Result: Users can easily find and reinstall apps from Microsoft Store
 
@@ -638,7 +638,7 @@ All errors were introduced during "quick-win" optimization phase where multiple 
   - SecurityBaseline-DNS.ps1: `AllowInboundRules` based on `$script:StrictFirewall`
   - Strict Mode (Option 1): `AllowInboundRules=False` - blocks everything including localhost
   - Standard Mode (Option 2): `AllowInboundRules=True` - localhost works (Docker/LLM OK)
-  - Fixes: OpenWebUI â†’ FastFlowLM, Docker inter-container, WSL development
+  - Fixes: OpenWebUI → FastFlowLM, Docker inter-container, WSL development
 - **Restore Warning Messages Color** - Changed from Red to Yellow for better visual distinction
   - Restore-SecurityBaseline.ps1: All security warning boxes now use Yellow instead of Red
   - Red is reserved for actual errors, Yellow for important warnings
@@ -646,9 +646,9 @@ All errors were introduced during "quick-win" optimization phase where multiple 
   - Improves: Visual clarity, prevents misinterpretation of warnings as errors
 - **ASCII Cleanup (Project-Wide)** - Replaced non-ASCII characters with ASCII equivalents
   - Scanned all 37 PowerShell files in project for non-ASCII characters
-  - Replaced: EN DASH (`â€“` U+2013) â†’ HYPHEN-MINUS (`-` U+002D)
-  - Replaced: RIGHTWARDS ARROW (`â†’` U+2192) â†’ ASCII (`->`)
-  - Replaced: REGISTERED SIGN (`Â®` U+00AE) â†’ `(R)`
+  - Replaced: EN DASH (`–` U+2013) → HYPHEN-MINUS (`-` U+002D)
+  - Replaced: RIGHTWARDS ARROW (`→` U+2192) → ASCII (`->`)
+  - Replaced: REGISTERED SIGN (`®` U+00AE) → `(R)`
   - Files Modified: Restore-SecurityBaseline.ps1, Apply-Win11-25H2-SecurityBaseline.ps1, SecurityBaseline-Core.ps1, SecurityBaseline-DNS-Providers.ps1
   - Result: 100% ASCII-clean codebase for maximum cross-platform compatibility
 - **ArgumentList Array Format** - Robust parameter passing in Start-Process
@@ -666,9 +666,9 @@ All errors were introduced during "quick-win" optimization phase where multiple 
   - Priority: Parameter > Environment > Existing Variable > Interactive > Auto-detect
   - Added: Debug messages to trace language selection (`[DEBUG] Language set from parameter: de`)
   - Files Fixed: `Restore-SecurityBaseline.ps1` (lines 154-203), `Apply-Win11-25H2-SecurityBaseline.ps1` (lines 911-921)
-  - Result: Language selection now works correctly - German stays German throughout Apply â†’ Restore flow
+  - Result: Language selection now works correctly - German stays German throughout Apply → Restore flow
 - **Step Counter Inconsistency in Restore Script** - Counter showed incorrect numbering
-  - Problem: Step counter jumped between totals (e.g., `[5/14]` â†’ `[6/15]`, ending at `[14/14]` instead of correct total)
+  - Problem: Step counter jumped between totals (e.g., `[5/14]` → `[6/15]`, ending at `[14/14]` instead of correct total)
   - Impact: Unprofessional display, user confusion about progress
   - Solution: Fixed all 17 step counters to show consistent `[1/17]` through `[17/17]`
   - Files Fixed: `Restore-SecurityBaseline.ps1` (lines 392-2081, all step displays)
@@ -710,7 +710,7 @@ All errors were introduced during "quick-win" optimization phase where multiple 
   - Solution: Interactive menu allows keeping RDP enabled
 - **Local Services Broken** - Docker/LLM/localhost apps stopped working
   - Root Cause: Firewall ultra-strict mode blocks localhost (127.0.0.1)
-  - Impact: OpenWebUI â†’ FastFlowLM (NPU), Docker containers, WSL development
+  - Impact: OpenWebUI → FastFlowLM (NPU), Docker containers, WSL development
   - Solution: Option 2 allows localhost connections (`AllowInboundRules=True`)
 - **CRITICAL: Registry Restore Bug (49 Errors)** - Parameter name mismatch in Set-RegistryValueSmart calls
   - Root Cause: Function expects `-Type` parameter, but code called with `-ValueType`
@@ -734,28 +734,28 @@ All errors were introduced during "quick-win" optimization phase where multiple 
   - Note: This was hidden in DNS module (counter-intuitive location), now properly documented
 
 ### Performance
-- **MASSIVE Performance Boost: 5 Minutes â†’ 8 Seconds** - Restore script now 97% faster
-  - **Services Restore (214x â†’ 1x)**: Bulk-load all services once, then hashtable lookup
+- **MASSIVE Performance Boost: 5 Minutes → 8 Seconds** - Restore script now 97% faster
+  - **Services Restore (214x → 1x)**: Bulk-load all services once, then hashtable lookup
     - Before: 214 individual `Get-Service` calls (~15s)
     - After: One bulk load + O(1) hashtable lookups (~1s)
     - Improvement: 93% faster
-  - **Windows Features Restore (135x â†’ 1x)**: Bulk-load all features once, then hashtable lookup
+  - **Windows Features Restore (135x → 1x)**: Bulk-load all features once, then hashtable lookup
     - Before: 135 individual `Get-WindowsOptionalFeature` calls with DISM/WMI (~270s = 4.5 minutes!)
     - After: One bulk load + O(1) hashtable lookups (~5s)
     - Improvement: 98% faster (265 seconds saved!)
-  - **Provisioned Packages Restore (14x â†’ 1x)**: Bulk-load all packages once, then hashtable lookup
+  - **Provisioned Packages Restore (14x → 1x)**: Bulk-load all packages once, then hashtable lookup
     - Before: 14 individual `Get-AppxProvisionedPackage` calls with filter (~28s)
     - After: One bulk load + O(1) hashtable lookups (~2s)
     - Improvement: 92% faster
-  - Pattern: Same optimization technique as Scheduled Tasks (200x â†’ 1x) and Firewall Rules (497x â†’ 1x)
+  - Pattern: Same optimization technique as Scheduled Tasks (200x → 1x) and Firewall Rules (497x → 1x)
   - Total Time Saved: ~305 seconds (5+ minutes!)
   - Implementation: All with graceful fallback if bulk-load fails
 
 ### Documentation
 - **SECURITY_MAPPING.md**: Fixed baseline coverage inconsistency (Audit Finding #1)
-  - Changed: "Baseline Coverage: ~95%" â†’ "100% of locally-implementable policies (213/213 from 365 total)"
+  - Changed: "Baseline Coverage: ~95%" → "100% of locally-implementable policies (213/213 from 365 total)"
   - Clarified: 152 policies N/A (IE11 deprecated, secedit-only, domain-only)
-  - Renamed: "Why Not 100% Baseline?" â†’ "Beyond Baseline"
+  - Renamed: "Why Not 100% Baseline?" → "Beyond Baseline"
   - Added note: Enhancements are NOT missing implementations, baseline requirements fully met
   - Result: Consistent documentation across all files (README.md was already correct)
 - **FAQ.md**: New section "Can I use Remote Desktop (RDP) with this script?"
@@ -832,7 +832,7 @@ All errors were introduced during "quick-win" optimization phase where multiple 
 ### Documentation
 - **FEATURES.md** - Comprehensive DNS provider comparison table added
   - Detailed explanation of each provider's strengths
-  - Architecture: Defense in Depth (Hosts â†’ DoH â†’ DNSSEC â†’ Threat Intel)
+  - Architecture: Defense in Depth (Hosts → DoH → DNSSEC → Threat Intel)
   - OneDrive dual-option rationale and Microsoft Security Baseline compliance
 - **README.md** - Updated DNS section with multi-provider support
   - Provider comparison table
@@ -942,7 +942,7 @@ All errors were introduced during "quick-win" optimization phase where multiple 
 - **Windows Update FAQ** - Comprehensive guide on Windows Update types and when to re-run the script
 
 ### Fixed
-- **Domain Count Calculation** - Corrected to 79,776 domains (Ã—9 for optimized hosts file) instead of incorrect 8,064
+- **Domain Count Calculation** - Corrected to 79,776 domains (×9 for optimized hosts file) instead of incorrect 8,064
 - **lastrun.txt Creation** - Moved `Invoke-RebootPrompt` after finally-block to ensure lastrun.txt is always written before reboot
 - **PowerShell 5.1 Compatibility** - Removed `-LiteralPath` parameter that doesn't exist in PowerShell 5.1 (IPv6 DoH configuration)
 - **DNS Documentation** - Fixed DNS info in FAQ.md (added IPv6 servers, removed false Google fallback)
@@ -957,7 +957,7 @@ All errors were introduced during "quick-win" optimization phase where multiple 
 - IPv4 DoH: `HKLM:\System\...\Doh\<IPv4>` with DohFlags=1
 - IPv6 DoH: `HKLM:\System\...\Doh6\<IPv6>` with DohFlags=1 (separate branch!)
 - Notepad AI: `HKLM:\SOFTWARE\Policies\WindowsNotepad\DisableAIFeatures=1`
-- Domain count: 8,864 lines Ã— 9 domains per line = 79,776 total domains
+- Domain count: 8,864 lines × 9 domains per line = 79,776 total domains
 - Reboot prompt moved from inside try-block to after finally-block
 
 ## [1.7.10] - 2025-10-28
@@ -1234,7 +1234,7 @@ All errors were introduced during "quick-win" optimization phase where multiple 
 ## [1.6.1] - 2025-09-27
 
 ### Fixed
-- StrictControlFlowGuard â†’ StrictCFG parameter fix
+- StrictControlFlowGuard → StrictCFG parameter fix
 - Empty Write-Info strings removed
 
 ## [1.6.0] - 2025-09-26
