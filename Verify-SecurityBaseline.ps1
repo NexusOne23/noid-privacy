@@ -107,6 +107,7 @@ Write-Host "================================================================`n" 
 $script:results = @()
 $script:passCount = 0
 $script:failCount = 0
+$script:WarningCount = 0
 
 function Test-BaselineCheck {
     param($Category, $Name, $Test, $Expected, $Impact = "Medium")
@@ -469,22 +470,38 @@ try {
 }
 
 # ASR Rule Check Function (19 rules total)
+# ASR Modes: 0=Disabled, 1=Block (Enforce), 2=Audit, 6=Warn
+# Expected: 1=PASS, 2/6=WARNING (active but not blocking), 0/missing=ERROR
 function Test-ASRRule {
     param([string]$Name, [string]$GUID, [string]$Impact = "High")
     
+    $action = $null
+    
     if ($script:asrConfig.ContainsKey($GUID)) {
         $action = $script:asrConfig[$GUID]
-        Test-BaselineCheck -Category "ASR" -Name $Name -Impact $Impact `
-            -Test { $action } `
-            -Expected 1
     } else {
         # Registry fallback
         $asrPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Windows Defender Exploit Guard\ASR\Rules"
+        $action = Get-RegistryValueSafe $asrPath $GUID
+    }
+    
+    # Determine result based on action value
+    if ($action -eq 1) {
+        # Block/Enforce mode - PASS
         Test-BaselineCheck -Category "ASR" -Name $Name -Impact $Impact `
-            -Test { 
-                Get-RegistryValueSafe $asrPath $GUID
-            } `
-            -Expected 1
+            -Test { $true } -Expected $true
+    }
+    elseif ($action -eq 2 -or $action -eq 6) {
+        # Audit or Warn mode - WARNING (active but not blocking)
+        $mode = if ($action -eq 2) { "Audit" } else { "Warn" }
+        Write-Host "  [~] $Name" -ForegroundColor Yellow
+        Write-Host "      Mode: $mode (logging only, not blocking)" -ForegroundColor DarkYellow
+        $script:WarningCount++
+    }
+    else {
+        # Disabled (0) or missing - ERROR
+        Test-BaselineCheck -Category "ASR" -Name $Name -Impact $Impact `
+            -Test { $false } -Expected $true
     }
 }
 
@@ -1494,14 +1511,19 @@ $errors = if ($errorResults) { @($errorResults).Count } else { 0 }
 $total = if ($script:results) { @($script:results).Count } else { 0 }
 
 Write-Host "QUICK CHECK SUMMARY:" -ForegroundColor Cyan
-Write-Host "  PASS:  $passed" -ForegroundColor Green
-Write-Host "  FAIL:  $failed" -ForegroundColor Red
-Write-Host "  ERROR: $errors" -ForegroundColor Yellow
-Write-Host "  TOTAL: $total" -ForegroundColor Cyan
+Write-Host "  PASS:    $passed" -ForegroundColor Green
+Write-Host "  WARNING: $script:WarningCount" -ForegroundColor Yellow
+Write-Host "  FAIL:    $failed" -ForegroundColor Red
+Write-Host "  ERROR:   $errors" -ForegroundColor Yellow
+Write-Host "  TOTAL:   $total" -ForegroundColor Cyan
 Write-Host ""
 
 if ($failed -eq 0 -and $errors -eq 0) {
-    Write-Host "  [OK] All quick checks PASSED!" -ForegroundColor Green
+    if ($script:WarningCount -gt 0) {
+        Write-Host "  [~] All critical checks PASSED! ($script:WarningCount warnings - review above)" -ForegroundColor Yellow
+    } else {
+        Write-Host "  [OK] All quick checks PASSED!" -ForegroundColor Green
+    }
 } elseif ($failed -le 3) {
     Write-Host "  [!] Some checks failed (probably needs reboot)" -ForegroundColor Yellow
 } else {

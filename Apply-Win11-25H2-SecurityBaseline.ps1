@@ -3,7 +3,7 @@
 
 <#
 .SYNOPSIS
-    NoID Privacy v1.7 - Windows 11 25H2 Security & Privacy Hardening
+    NoID Privacy v1.8.1 - Windows 11 25H2 Security & Privacy Hardening
     Microsoft Security Baseline 25H2 compliant + Privacy-First Extensions
     
 .DESCRIPTION
@@ -153,7 +153,7 @@
 [CmdletBinding(SupportsShouldProcess=$true, ConfirmImpact='None')]
 param(
     [Parameter(Mandatory = $false)]
-    [ValidateSet('Audit', 'Enforce', IgnoreCase=$true)]
+    [ValidateSet('Audit', 'Enforce', 'Custom', IgnoreCase=$true)]
     [string]$Mode = 'Audit',
     
     [Parameter(Mandatory = $false)]
@@ -1074,77 +1074,6 @@ if ($Interactive) {
                 Write-Host "$(Get-LocalizedString 'BackupCanRestore')" -ForegroundColor Green
                 Write-Host "$(Get-LocalizedString 'BackupRunRestore')" -ForegroundColor Cyan
                 Write-Host ""
-                
-                # ===== DNS & ONEDRIVE SELECTION (after backup, before enforcement) =====
-                # Only show in Enforce/Custom mode (not Audit mode)
-                if ($Mode -ne 'Audit') {
-                    # DNS Provider Selection (only if DNS module is selected)
-                    $showDNSMenu = $false
-                    if ($Mode -eq 'Enforce') {
-                        $showDNSMenu = $true  # Always show in Enforce mode
-                    }
-                    elseif ($Mode -eq 'Custom' -and $SelectedModules -contains 'DNS') {
-                        $showDNSMenu = $true  # Show in Custom mode if DNS module selected
-                    }
-                    
-                    if ($showDNSMenu) {
-                        $dnsChoice = Show-DNSProviderMenu
-                        
-                        # Store DNS choice in config for later use
-                        if (-not $config.ContainsKey('DNSProvider')) {
-                            $config.Add('DNSProvider', $dnsChoice)
-                        }
-                        else {
-                            $config.DNSProvider = $dnsChoice
-                        }
-                        
-                        Write-Verbose "DNS Provider selected: $dnsChoice"
-                    }
-                    
-                    # OneDrive Handling Selection (always show in Enforce/Custom)
-                    $oneDriveChoice = Show-OneDriveMenu
-                    
-                    # Store OneDrive choice in config for later use
-                    if (-not $config.ContainsKey('OneDriveAction')) {
-                        $config.Add('OneDriveAction', $oneDriveChoice)
-                    }
-                    else {
-                        $config.OneDriveAction = $oneDriveChoice
-                    }
-                    
-                    Write-Verbose "OneDrive action selected: $oneDriveChoice"
-                    
-                    # Remote Access & Firewall Configuration (always show in Enforce/Custom)
-                    $remoteAccessChoice = Show-RemoteAccessMenu
-                    
-                    # Store Remote Access choice and derive firewall strictness
-                    if (-not $config.ContainsKey('RemoteAccessMode')) {
-                        $config.Add('RemoteAccessMode', $remoteAccessChoice)
-                    }
-                    else {
-                        $config.RemoteAccessMode = $remoteAccessChoice
-                    }
-                    
-                    # Set script-level variables based on user choice
-                    if ($remoteAccessChoice -eq '1') {
-                        # Maximum Security: Disable RDP + Strict Firewall
-                        $script:DisableRDP = $true
-                        $script:StrictFirewall = $true
-                        Write-Verbose "Remote Access: RDP will be DISABLED, Firewall ultra-strict"
-                    }
-                    else {
-                        # Allow Remote Access: Keep RDP + Allow localhost
-                        $script:DisableRDP = $false
-                        $script:StrictFirewall = $false
-                        Write-Verbose "Remote Access: RDP will stay ENABLED, Firewall allows localhost"
-                    }
-                    
-                    Write-Host ""
-                    Write-Host "===========================================================" -ForegroundColor Green
-                    Write-Host "  CONFIGURATION COMPLETE - READY TO START" -ForegroundColor Green
-                    Write-Host "===========================================================" -ForegroundColor Green
-                    Write-Host ""
-                }
                 # NO second Read-Host here - Backup script already asked!
             }
             else {
@@ -1198,6 +1127,8 @@ if ($Interactive) {
         }
     }
     
+    # ===== CREATE SYSTEM RESTORE POINT (IF NO BACKUP WAS MADE) =====
+    # CRITICAL: Must happen AFTER backup choice and BEFORE Extra-Menüs!
     # Restore Point Setting from config
     if ($config.ContainsKey('CreateRestorePoint')) {
         $script:createRestorePoint = $config.CreateRestorePoint
@@ -1205,6 +1136,113 @@ if ($Interactive) {
     } else {
         $script:createRestorePoint = $false  # Default with backup
         Write-Verbose "Restore Point setting not found - using default: false"
+    }
+    
+    if ($script:createRestorePoint) {
+        Write-Host ""
+        Write-Host "============================================================================" -ForegroundColor Cyan
+        Write-Host "                    Creating System Restore Point" -ForegroundColor Cyan
+        Write-Host "============================================================================" -ForegroundColor Cyan
+        Write-Host ""
+        Write-Host "[i] Creating restore point for rollback capability..." -ForegroundColor Cyan
+        Write-Host "[i] This will take a few seconds..." -ForegroundColor Gray
+        Write-Host ""
+        
+        Write-Verbose "Creating System Restore Point..."
+        try {
+            Enable-ComputerRestore -Drive "$env:SystemDrive\" -ErrorAction SilentlyContinue
+            Checkpoint-Computer -Description "NoID Privacy - Before Security Baseline" -RestorePointType MODIFY_SETTINGS -ErrorAction Stop
+            Write-Host "[OK] System Restore Point created successfully!" -ForegroundColor Green
+            Write-Host ""
+        }
+        catch {
+            Write-Warning "Could not create System Restore Point: $_"
+            Write-Warning "Continuing without restore point (not critical)..."
+            Write-Host ""
+        }
+    }
+    else {
+        Write-Verbose "System Restore Point creation skipped by user choice"
+        # CRITICAL FIX: Only warn if NEITHER backup NOR restore point was created!
+        # Don't confuse user when they made a backup - that's their safety net!
+        if (-not $backupSuccess) {
+            Write-Host "[!] System Restore Point skipped - no safety net!" -ForegroundColor Yellow
+        }
+        else {
+            Write-Verbose "Safety net provided by backup - restore point warning skipped"
+        }
+    }
+    
+    # ===== DNS & ONEDRIVE & REMOTE ACCESS SELECTION =====
+    # Show AFTER backup (or NoBackup choice), BEFORE enforcement
+    # Show in Enforce mode and Custom mode (not Audit mode - Audit uses defaults)
+    if ($Mode -eq 'Enforce' -or $Mode -eq 'Custom') {
+        # DNS Provider Selection (only if DNS module is selected)
+        $showDNSMenu = $false
+        if ($Mode -eq 'Enforce') {
+            $showDNSMenu = $true  # Always show in Enforce mode
+        }
+        elseif ($Mode -eq 'Custom' -and $SelectedModules -contains 'DNS') {
+            $showDNSMenu = $true  # Show in Custom mode if DNS module selected
+        }
+        
+        if ($showDNSMenu) {
+            $dnsChoice = Show-DNSProviderMenu
+            
+            # Store DNS choice in config for later use
+            if (-not $config.ContainsKey('DNSProvider')) {
+                $config.Add('DNSProvider', $dnsChoice)
+            }
+            else {
+                $config.DNSProvider = $dnsChoice
+            }
+            
+            Write-Verbose "DNS Provider selected: $dnsChoice"
+        }
+        
+        # OneDrive Handling Selection (always show in Enforce/Custom)
+        $oneDriveChoice = Show-OneDriveMenu
+        
+        # Store OneDrive choice in config for later use
+        if (-not $config.ContainsKey('OneDriveAction')) {
+            $config.Add('OneDriveAction', $oneDriveChoice)
+        }
+        else {
+            $config.OneDriveAction = $oneDriveChoice
+        }
+        
+        Write-Verbose "OneDrive action selected: $oneDriveChoice"
+        
+        # Remote Access & Firewall Configuration (always show in Enforce/Custom)
+        $remoteAccessChoice = Show-RemoteAccessMenu
+        
+        # Store Remote Access choice and derive firewall strictness
+        if (-not $config.ContainsKey('RemoteAccessMode')) {
+            $config.Add('RemoteAccessMode', $remoteAccessChoice)
+        }
+        else {
+            $config.RemoteAccessMode = $remoteAccessChoice
+        }
+        
+        # Set script-level variables based on user choice
+        if ($remoteAccessChoice -eq '1') {
+            # Maximum Security: Disable RDP + Strict Firewall
+            $script:DisableRDP = $true
+            $script:StrictFirewall = $true
+            Write-Verbose "Remote Access: RDP will be DISABLED, Firewall ultra-strict"
+        }
+        else {
+            # Allow Remote Access: Keep RDP + Allow localhost
+            $script:DisableRDP = $false
+            $script:StrictFirewall = $false
+            Write-Verbose "Remote Access: RDP will stay ENABLED, Firewall allows localhost"
+        }
+        
+        Write-Host ""
+        Write-Host "===========================================================" -ForegroundColor Green
+        Write-Host "  CONFIGURATION COMPLETE - READY TO START" -ForegroundColor Green
+        Write-Host "===========================================================" -ForegroundColor Green
+        Write-Host ""
     }
 } else {
     # Non-Interactive Mode (CLI): No backup prompt!
@@ -1385,30 +1423,8 @@ try {
     # ROOT CAUSE: Function returns $true which can pollute caller's return array
     Test-SystemRequirements | Out-Null
     
-    # 2. Create System Restore Point (Safety Net) - only if desired)
-    if ($script:createRestorePoint) {
-        Write-Verbose "Creating System Restore Point..."
-        try {
-            Enable-ComputerRestore -Drive "$env:SystemDrive\" -ErrorAction SilentlyContinue
-            Checkpoint-Computer -Description "NoID Privacy - Before Security Baseline" -RestorePointType MODIFY_SETTINGS -ErrorAction Stop
-            Write-Host "[OK] System Restore Point created" -ForegroundColor Green
-        }
-        catch {
-            Write-Warning "Could not create System Restore Point: $_"
-            Write-Warning "Continuing without restore point (not critical)..."
-        }
-    }
-    else {
-        Write-Verbose "System Restore Point creation skipped by user choice"
-        # CRITICAL FIX: Only warn if NEITHER backup NOR restore point was created!
-        # Don't confuse user when they made a backup - that's their safety net!
-        if (-not $backupSuccess) {
-            Write-Host "[!] System Restore Point skipped - no safety net!" -ForegroundColor Yellow
-        }
-        else {
-            Write-Verbose "Safety net provided by backup - restore point warning skipped"
-        }
-    }
+    # NOTE: System Restore Point was already created earlier (before Extra-Menüs)
+    # See Line ~1141-1174 for the actual creation code
     
     # Dynamischer Module Counter
     $moduleCount = $SelectedModules.Count
@@ -1468,7 +1484,22 @@ try {
             Write-Host "  [i] To configure DNS, run in interactive mode or use -DNSProvider parameter" -ForegroundColor Cyan
         }
         
-        Disable-RemoteAccessCompletely
+        # Remote Access Configuration (based on user choice or default)
+        if ($script:DisableRDP) {
+            # Maximum Security: Disable RDP completely
+            Disable-RemoteAccessCompletely
+        }
+        else {
+            # Allow Remote Access: Keep RDP enabled, configure for remote scenarios
+            Write-Host ""
+            Write-Host "========================================" -ForegroundColor Yellow
+            Write-Host "  Remote Access Configuration" -ForegroundColor Yellow
+            Write-Host "========================================" -ForegroundColor Yellow
+            Write-Host "[i] RDP remains ENABLED (user choice for remote access)" -ForegroundColor Cyan
+            Write-Host "[i] Firewall configured to allow localhost connections" -ForegroundColor Cyan
+            Write-Host "[!] IMPORTANT: Ensure strong RDP password + Network Level Authentication!" -ForegroundColor Yellow
+            Write-Host ""
+        }
         
         # Disable Sudo for Windows (Microsoft Baseline 25H2)
         Disable-SudoForWindows
@@ -1487,10 +1518,17 @@ try {
         Write-Host ""
         Write-Host "[$currentModule/$moduleCount] $(Get-LocalizedString 'ProgressASR')" -ForegroundColor Cyan
         
-        Set-AttackSurfaceReductionRules -Mode $Mode
+        # Use ASRMode for Custom mode, otherwise use Mode
+        $effectiveASRMode = if ($Mode -eq 'Custom' -and $config.ContainsKey('ASRMode')) { 
+            $config.ASRMode 
+        } else { 
+            $Mode 
+        }
+        
+        Set-AttackSurfaceReductionRules -Mode $effectiveASRMode
         Enable-SmartAppControl
         
-        Write-Host "[OK] $(Get-LocalizedString 'SuccessASR') ($Mode Mode)!" -ForegroundColor Green
+        Write-Host "[OK] $(Get-LocalizedString 'SuccessASR') ($effectiveASRMode Mode)!" -ForegroundColor Green
     }
     
     # === ADVANCED MODULE ===

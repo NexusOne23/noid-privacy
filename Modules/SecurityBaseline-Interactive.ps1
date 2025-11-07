@@ -851,7 +851,7 @@ function Invoke-CustomMode {
     Write-Host ""
     
     $asrMode = Get-UserChoice -Prompt "ASR-Modus" -ValidChoices @('1', '2')
-    $mode = if ($asrMode -eq '1') { 'Audit' } else { 'Enforce' }
+    $asrModeString = if ($asrMode -eq '1') { 'Audit' } else { 'Enforce' }
     
     Write-Host ""
     Write-Host "============================================================================" -ForegroundColor Green
@@ -866,9 +866,9 @@ function Invoke-CustomMode {
     if (-not $moduleCount) { $moduleCount = "Selected Modules: $($enabledModules.Count)" }
     Write-Host "  $moduleCount" -ForegroundColor White
     
-    $asrMode = Get-LocalizedString 'CustomModeASRMode' $mode
-    if (-not $asrMode) { $asrMode = "ASR Mode: $mode" }
-    Write-Host "  $asrMode" -ForegroundColor White
+    $asrModeText = Get-LocalizedString 'CustomModeASRMode' $asrModeString
+    if (-not $asrModeText) { $asrModeText = "ASR Mode: $asrModeString" }
+    Write-Host "  $asrModeText" -ForegroundColor White
     Write-Host ""
     
     $willStart = Get-LocalizedString 'CustomModeWillStart'
@@ -889,12 +889,13 @@ function Invoke-CustomMode {
     if ($confirm -in @('J', 'Y')) {
         # Best Practice 25H2: Explicitly create hashtable with all properties
         $customConfig = @{
-            Mode = $mode
+            Mode = 'Custom'  # Always 'Custom' for proper extra-menu handling
+            ASRMode = $asrModeString  # Separate ASR mode (Audit/Enforce)
             Modules = $enabledModules
             CreateRestorePoint = $true
             CreateBackup = $false  # Wird spaeter von Start-InteractiveMode ueberschrieben
         }
-        Write-Verbose "Custom Mode Config created with Mode=$($customConfig.Mode), Modules=$($customConfig.Modules -join ',')"
+        Write-Verbose "Custom Mode Config created with Mode=$($customConfig.Mode), ASRMode=$($customConfig.ASRMode), Modules=$($customConfig.Modules -join ',')"
         return $customConfig
     }
     return $null

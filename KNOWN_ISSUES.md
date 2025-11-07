@@ -318,6 +318,89 @@ Found a bug not listed here? Please report it:
 
 ---
 
+## 🔧 Installation & Execution
+
+### VirtualTerminalLevel Registry Change
+
+**Background**: The `Start-NoID-Privacy.bat` launcher enables colored console output for better readability.
+
+- **Change Made**: Sets `HKCU:\Console\VirtualTerminalLevel = 1`
+- **Purpose**: Enables ANSI color codes in PowerShell console (green/red/yellow text)
+- **Persistence**: Registry value remains after script execution
+- **Impact**: Minimal - only affects console color support
+- **Removal (Optional)**:
+  ```powershell
+  Remove-ItemProperty -Path "HKCU:\Console" -Name "VirtualTerminalLevel" -ErrorAction SilentlyContinue
+  ```
+- **Status**: Cosmetic change, no security implications
+
+---
+
+## 🔄 Restore Limitations
+
+### Security Template Persistence After Restore
+
+**Background**: The Security Template (67 settings applied via `secedit.exe`) cannot be fully reverted by Windows design.
+
+**What Stays Hardened After Restore:**
+
+1. **Password Policy** (6 settings)
+   - Minimum Password Length: 14 characters (was: 8)
+   - Password Complexity: ON (was: OFF)
+   - Password History: 24 passwords (was: 0)
+   - Account Lockout: 10 attempts / 10 minutes (was: disabled)
+
+2. **UAC Settings** (9 settings)
+   - UAC remains enabled with secure desktop prompts
+   - Inactivity timeout: 15 minutes
+   - Enhanced privilege protection mode configured
+
+3. **NTLM/SMB/Network Security** (13 settings)
+   - NTLMv2 only (no legacy NTLMv1)
+   - SMB Signing required
+   - Anonymous access blocked
+   - Plaintext passwords disabled
+
+4. **Privilege Rights** (23 settings)
+   - Restricted debug/backup/restore rights
+   - Create Token/Permanent Objects blocked
+   - Stricter privilege assignments
+
+5. **LSA/Security Settings** (7 settings)
+   - Blank password use forbidden
+   - Remote SAM access restricted
+   - LDAP client signing required
+
+**Why This Happens:**
+- Windows **does not allow** reverting hardened security policies to less restrictive values
+- This is documented Microsoft behavior (security-by-design)
+- Example: Password complexity ON cannot be turned OFF via `secedit.exe`
+
+**Is This a Problem?**
+- ❌ **NO** - Having stricter security is BETTER, not worse!
+- ✅ Your system remains **MORE SECURE** than the backup state
+- ✅ All other settings (Registry, Services, Firewall, DNS) are fully restored
+
+**What Was Restored:**
+- ✅ Registry keys (100% restored)
+- ✅ Services (100% restored)
+- ✅ Firewall rules and profiles (100% restored)
+- ✅ DNS settings (100% restored)
+- ✅ User account states (100% restored)
+- ⚠️ Security Template (stays hardened - Windows limitation)
+
+**If You Need Exact Original State:**
+- Fresh Windows installation is the only guaranteed method
+- However, this is rarely necessary - stricter security is preferred!
+
+**Compatibility Notes:**
+- Modern applications work fine with these hardened settings
+- Legacy systems (Windows XP/2000) cannot connect (NTLMv1 blocked)
+- Some old NAS devices may need firmware updates (SMB1 disabled)
+- 14-character password requirement applies to LOCAL accounts only (not Microsoft accounts)
+
+---
+
 ## ✅ Fixed Issues
 
 See [CHANGELOG.md](CHANGELOG.md) for resolved issues and version history.
