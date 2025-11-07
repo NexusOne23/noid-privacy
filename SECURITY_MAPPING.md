@@ -261,4 +261,4 @@ This document is updated when:
 - New Windows 11 features require policy updates
 - Script modules add new security configurations
 
-**Last Updated:** October 30, 2025 (Windows 11 25H2 baseline)
+**Last Updated:** November 7, 2025 (Windows 11 25H2 baseline, NoID Privacy v1.8.1)

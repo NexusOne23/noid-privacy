@@ -324,4 +324,4 @@ See [CHANGELOG.md](CHANGELOG.md) for resolved issues and version history.
 
 ---
 
-*Last Updated: October 2025*
+*Last Updated: November 7, 2025 (v1.8.1)*

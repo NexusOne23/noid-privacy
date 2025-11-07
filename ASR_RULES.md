@@ -542,4 +542,4 @@ This project implements ASR rules via:
 
 ---
 
-**Last Updated:** October 30, 2025 (Windows 11 25H2)
+**Last Updated:** November 7, 2025 (Windows 11 25H2, NoID Privacy v1.8.1)

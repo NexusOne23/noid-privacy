@@ -20,9 +20,9 @@ We actively support the following versions with security updates:
 
 | Version | Supported          | Status |
 | ------- | ------------------ | ------ |
-| 1.7.x   | :white_check_mark: | Current stable release |
-| 1.6.x   | :white_check_mark: | Maintenance mode (critical fixes only) |
-| < 1.6   | :x:                | No longer supported |
+| 1.8.x   | :white_check_mark: | Current stable release |
+| 1.7.x   | :white_check_mark: | Maintenance mode (critical fixes only) |
+| < 1.7   | :x:                | No longer supported |
 
 ## Reporting a Vulnerability
 
@@ -165,8 +165,8 @@ This project implements multiple security layers:
 | **Backup System** | Rollback capability | ✅ Implemented |
 | **Verbose Logging** | Audit trail | ✅ Implemented |
 | **Privilege Checks** | Admin rights validation | ✅ Implemented |
-| **BitLocker Warning** | Prevent false sense of security | ✅ Implemented (v1.7.13) |
-| **VBS Verification** | Verify Credential Guard activation | ✅ Implemented (v1.7.13) |
+| **BitLocker Warning** | Prevent false sense of security | ✅ Implemented (v1.8.1) |
+| **VBS Verification** | Verify Credential Guard activation | ✅ Implemented (v1.8.1) |
 | **Hardware Checks** | TPM/CPU/Virtualization validation | ✅ Implemented |
 
 ### 📖 Security Documentation
@@ -194,7 +194,7 @@ We welcome security audits from the community. If you'd like to perform a securi
 4. **Reversibility**: Some changes (Recall, Copilot, app removal) are permanent
 5. **Manual Steps**: Certain features require post-script configuration
 
-**Critical Security Considerations (Added v1.7.13):**
+**Critical Security Considerations (Added v1.8.0, Updated v1.8.1):**
 
 6. **BitLocker Not Auto-Enabled**: 
    - Script configures BitLocker policies but does NOT automatically enable encryption
@@ -250,13 +250,13 @@ We currently do **not** offer a paid bug bounty program. However:
 
 ---
 
-**Last Updated**: October 30, 2025  
-**Version**: 2.0 (Comprehensive Security Policy Update)
+**Last Updated**: November 7, 2025  
+**Version**: 2.0 (Comprehensive Security Policy Update, NoID Privacy v1.8.1)
 
 **Changelog:**
 - Added comprehensive severity classification system
 - Added PowerShell-specific security considerations
-- Updated security features with v1.7.13 improvements
+- Updated security features with v1.8.1 improvements
 - Documented BitLocker and VBS/Credential Guard limitations
 - Clarified PGP key status and bug bounty program
 - Added detailed attack vector mitigations

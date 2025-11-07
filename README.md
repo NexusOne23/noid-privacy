@@ -15,7 +15,7 @@
 📌 **How?** → PowerShell: **Apply** → **Verify** → **Restore** (fully reversible!)  
 📌 **For whom?** → SMB, freelancers, power users **without Intune/Active Directory**
 
-**425 Registry Keys · 19 ASR Rules · 133 Verification Checks · Complete Backup/Restore**
+**478 Registry Keys · 19 ASR Rules · 133 Verification Checks · Complete Backup/Restore**
 
 ---
 
@@ -26,7 +26,7 @@
 | 🛡️ **SECURITY** | 🔒 **PRIVACY** | ⚡ **PERFORMANCE** | 🔄 **REVERSIBLE** |
 |:---:|:---:|:---:|:---:|
 | **100% locally-implementable<br>MS Baseline (370/429)** | **95% Telemetry Reduced** | **30 Tasks Disabled** | **Complete Backup** |
-| 19 ASR Rules (Enforce) | 9 AI Features Locked | Event Logs Optimized | 494 Settings Restored |
+| 19 ASR Rules (Enforce) | 9 AI Features Locked | Event Logs Optimized | 540+ Settings Restored |
 | 13 Exploit Mitigations | 37 App Permissions | No Bloatware | **0 Errors** |
 | Credential Guard + VBS | 107,772 Domains Blocked | Faster Boot | Safe to Experiment |
 
@@ -126,7 +126,7 @@ cd noid-privacy
 ### 🔒 Privacy Protection - Minimized Telemetry
 
 **Your Privacy is Maximized:**
-- **Telemetry Minimized** → 25+ services + 30 tasks + 425 registry keys configured for minimum data collection
+- **Telemetry Minimized** → 25+ services + 30 tasks + 478 registry keys configured for minimum data collection
 - **AI Lockdown (9 features)** → Windows Recall DISABLED (no screenshots of passwords!), Copilot blocked (4 layers), Click to Do, Paint AI (3), Notepad AI, Settings Agent, Copilot Proactive
 - **App Permission Control** → 37 categories default-DENY (apps can't spy without explicit permission)
 - **Clean System** → 80+ bloatware app patterns checked (Xbox, 3D apps, Candy Crush, Teams Chat, Copilot, Widgets)
@@ -353,7 +353,7 @@ The project uses a modular architecture with **13 specialized modules**: Core, A
 | **Advanced** | VBS, Credential Guard, LAPS, Auditing | Credential Guard, VBS, HVCI, LSA-PPL, BitLocker policies, Windows LAPS, TLS/SSL hardening |
 | **DNS** | Multi-Provider DoH, DNSSEC, Blocklist | 4 providers (Cloudflare/AdGuard/NextDNS/Quad9), 100% strict enforcement, DNSSEC validation, 107,772 blocked domains, Strict Inbound Firewall |
 | **Bloatware** | App removal, Consumer features | 80+ app patterns, Teams Chat/Copilot/Widgets disabled, Consumer Features blocked |
-| **Telemetry** | Privacy protection, App permissions | 25+ services, 425 registry keys (110 telemetry-specific), 37 app permission categories, Camera/Mic controls |
+| **Telemetry** | Privacy protection, App permissions | 25+ services, 478 registry keys (110 telemetry-specific), 37 app permission categories, Camera/Mic controls |
 | **Performance** | Scheduled tasks, Event logs | 30 tasks disabled, Event log optimization, Windows Search local-only, Prefetch/Superfetch tuning |
 | **AI** | Recall, Copilot, AI tracking | 9 AI features disabled: Recall, Copilot (4 layers), Click to Do, Paint AI (3), Notepad AI, Settings Agent, Copilot Proactive |
 | **Edge** | Microsoft Edge security baseline | SmartScreen enforced, Tracking Prevention, DoH automatic, Site Isolation, Extension policies |
@@ -563,7 +563,7 @@ This project uses GitHub Actions for automated quality checks and releases:
 - Automatic GitHub Release creation
 - Changelog generation from commits
 - Release archive with SHA256 checksums
-- Usage: `git tag v1.7.14 && git push --tags`
+- Usage: `git tag v1.8.2 && git push --tags`
 
 **Code Signing** (Prepared for SignPath Foundation)
 - Status: Pending approval (Application submitted Oct 30, 2025)
@@ -693,8 +693,10 @@ The authors are not responsible for any damage or data loss caused by this scrip
 - ✅ **15 parser errors fixed** - Script completely non-functional → fully operational
 - ✅ **Apply Script:** Fixed undefined `$config` variable crash (interactive mode broken)
 - ✅ **Registry Definition:** Fixed 14 errors (OneDrive descriptions, apostrophes, empty values)
+- ✅ **Registry Keys Expanded:** 425 → 478 keys (+53 extended hardening beyond baseline)
 - ✅ **100% tested on fresh VM:** Backup → Apply → Restore → All SUCCESS
-- ✅ **Production ready:** 0 errors, 662 restore items, 134/136 verification checks
+- ✅ **Production ready:** 0 errors, 540+ restore items, 134/136 verification checks
+- ✅ **Documentation updated:** All counts corrected across 5 files (README, CHANGELOG, FEATURES, ANTIVIRUS_COMPATIBILITY, REGISTRY_KEYS)
 
 **→ See [CHANGELOG.md](CHANGELOG.md) for complete v1.8.1 details**
 

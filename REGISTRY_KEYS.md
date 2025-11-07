@@ -10,27 +10,27 @@
 
 | Module | Keys | Purpose |
 |--------|------|---------|
-| **SecurityBaseline-Core.ps1** | 135 | Defender, Firewall, Services, Exploit Protection |
-| **SecurityBaseline-Telemetry.ps1** | 110 | Privacy, Telemetry, App Permissions, Tracking |
-| **SecurityBaseline-Advanced.ps1** | 41 | VBS, Credential Guard, LAPS, TLS/SSL, Auditing |
-| **SecurityBaseline-Edge.ps1** | 25 | Microsoft Edge security baseline |
-| **SecurityBaseline-AI.ps1** | 15 | Recall, Copilot, AI features blocking |
-| **SecurityBaseline-Bloatware.ps1** | 15 | Consumer features, app installation blocking |
-| **SecurityBaseline-UAC.ps1** | 10 | User Account Control maximum settings |
-| **SecurityBaseline-WindowsUpdate.ps1** | 9 | Update configuration, delivery optimization |
-| **SecurityBaseline-Performance.ps1** | 9 | Event logs, background tasks |
-| **SecurityBaseline-WirelessDisplay.ps1** | 9 | Miracast, wireless display disablement |
+| **SecurityBaseline-Core.ps1** | 153 | Defender, Firewall, Services, Exploit Protection |
+| **SecurityBaseline-Telemetry.ps1** | 118 | Privacy, Telemetry, Data Collection, Tracking |
+| **SecurityBaseline-Advanced.ps1** | 90 | VBS, Credential Guard, LAPS, TLS/SSL, Auditing |
+| **SecurityBaseline-Edge.ps1** | 20 | Microsoft Edge security baseline |
+| **SecurityBaseline-AI.ps1** | 16 | Recall, Copilot, AI features blocking |
+| **SecurityBaseline-UAC.ps1** | 15 | User Account Control maximum settings |
+| **SecurityBaseline-Bloatware.ps1** | 14 | Consumer features, app installation blocking |
+| **SecurityBaseline-AppPermissions.ps1** | 11 | App permission categories (37 categories default-deny) |
+| **SecurityBaseline-WindowsUpdate.ps1** | 10 | Update configuration, delivery optimization |
+| **SecurityBaseline-Performance.ps1** | 10 | Event logs, background tasks |
 | **SecurityBaseline-OneDrive.ps1** | 8 | OneDrive privacy hardening |
-| **SecurityBaseline-DNS.ps1** | 3 | DNS-over-HTTPS global settings |
+| **SecurityBaseline-WirelessDisplay.ps1** | 7 | Miracast, wireless display disablement |
+| **SecurityBaseline-DNS.ps1** | 4 | DNS-over-HTTPS global settings |
 | **SecurityBaseline-ASR.ps1** | 2 | Attack Surface Reduction enablement |
-| **SecurityBaseline-Common.ps1** | 1 | Shared configuration |
 | **Total** | **478** | |
 
 ---
 
 ## Security Categories
 
-### Defender & Security (135 keys)
+### Defender & Security (153 keys)
 - Real-Time Protection
 - Cloud Protection
 - Sample Submission
@@ -46,7 +46,7 @@
 - Firewall configuration
 - SmartScreen settings
 
-### Privacy & Telemetry (110 keys)
+### Privacy & Telemetry (129 keys)
 - Diagnostic data (Security level)
 - Telemetry services
 - Activity history
@@ -60,7 +60,7 @@
 - Account notifications
 - Background apps
 
-### Advanced Security (41 keys)
+### Advanced Security (90 keys)
 - Credential Guard (VBS)
 - LSA Protection (RunAsPPL)
 - WDigest disablement
@@ -72,7 +72,7 @@
 - Advanced audit policies
 - Windows LAPS configuration
 
-### Microsoft Edge (25 keys)
+### Microsoft Edge (20 keys)
 - SmartScreen enforcement
 - Tracking prevention
 - DNS-over-HTTPS
@@ -82,7 +82,7 @@
 - AutoFill configuration
 - InPrivate mode
 
-### AI Features (15 keys)
+### AI Features (16 keys)
 - Windows Recall disablement
 - Windows Copilot (4 layers)
 - Click to Do
@@ -93,7 +93,7 @@
 - Settings Agent
 - Copilot Proactive
 
-### Bloatware Control (15 keys)
+### Bloatware Control (14 keys)
 - Consumer features
 - App suggestions
 - Lock screen tips
@@ -102,14 +102,14 @@
 - Cloud content
 - Pre-installed apps blocking
 
-### User Account Control (10 keys)
+### User Account Control (15 keys)
 - Admin approval mode
 - Secure desktop
 - Elevation prompts
 - Admin detection
 - Enhanced privilege protection
 
-### Windows Update (9 keys)
+### Windows Update (10 keys)
 - Automatic updates
 - Feature updates
 - Driver updates
@@ -117,7 +117,7 @@
 - Delivery optimization
 - P2P disablement
 
-### Performance (9 keys)
+### Performance (10 keys)
 - Event log sizing
 - Application log
 - System log
@@ -125,7 +125,7 @@
 - Background activities
 - Maintenance windows
 
-### Wireless Display (9 keys)
+### Wireless Display (7 keys)
 - Miracast disablement
 - Wireless display
 - Wi-Fi Direct
@@ -140,7 +140,7 @@
 - File collaboration
 - Automatic sync
 
-### DNS Security (3 keys)
+### DNS Security (4 keys)
 - DNS-over-HTTPS enablement
 - DNSSEC validation
 - Global DoH policy
@@ -149,14 +149,11 @@
 - ASR rule enablement
 - ASR mode configuration
 
-### Common Settings (1 key)
-- Global configuration flags
-
 ---
 
 ## Module Details
 
-### Core Module (135 keys)
+### Core Module (153 keys)
 
 **Purpose:** Microsoft Defender, Firewall, Services, Exploit Protection, System Hardening
 

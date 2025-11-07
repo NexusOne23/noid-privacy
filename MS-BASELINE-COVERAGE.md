@@ -2,6 +2,7 @@
 
 **Source:** Microsoft Security Baseline Windows 11 v25H2 (Official)  
 **Analysis Date:** November 5, 2025  
+**NoID Privacy Version:** v1.8.1  
 **100% VERIFIED**
 
 > ⚠️ **IMPORTANT:** This is the **CORRECT and CURRENT** version!  
@@ -666,6 +667,7 @@ All 429 Settings individually checked against official MS Baseline.
 
 **Source:** Microsoft Security Baseline Windows 11 v25H2  
 **Analyzed:** November 5, 2025, 7:52 PM  
+**NoID Privacy:** v1.8.1 (November 7, 2025)  
 **Verified against:**
 - MSFT-Win11-v25H2.PolicyRules (Registry values)
 - GptTmpl.inf (Security Template)
@@ -729,7 +731,7 @@ All 429 Settings individually checked against official MS Baseline.
 
 🎉 **This document is content-wise AND formally 100% consistent with the Microsoft Security Baseline Windows 11 v25H2!**
 
-**Last Update:** November 5, 2025, 11:35 PM
+**Last Update:** November 7, 2025 (v1.8.1)
 
 **✅ FINAL CORRECTION:**
 - **Total: 429 Settings** ✅

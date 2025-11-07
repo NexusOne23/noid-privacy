@@ -858,7 +858,7 @@ Solitaire, Candy Crush, Bubble Witch
 - Network configuration keys (DNS, TLS/SSL, Legacy Protocols, WDigest)
 - All modified HKLM:\SOFTWARE\Policies paths
 - All modified HKLM:\SYSTEM\CurrentControlSet paths
-- Per-module breakdown: Core (127), Telemetry (110), Advanced (34), Edge (25), AI (15), etc.
+- Per-module breakdown: Core (153), Telemetry (118), Advanced (90), Edge (20), AI (16), UAC (15), Bloatware (14), AppPermissions (11), WindowsUpdate (10), Performance (10), OneDrive (8), WirelessDisplay (7), DNS (4), ASR (2)
 
 **2. Service States (25+ services)**
 - Service name
@@ -1127,5 +1127,5 @@ Solitaire, Candy Crush, Bubble Witch
 
 ---
 
-**Last Updated:** November 2025 (v1.8.1)  
+**Last Updated:** November 7, 2025 (v1.8.1)  
 **Source:** [NoID Privacy GitHub](https://github.com/NexusOne23/noid-privacy)
