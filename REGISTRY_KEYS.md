@@ -290,6 +290,8 @@
 
 | `$scanPath` | ScanExcludedFilesInQuickScan | 1 | DWord | Also check excluded files in quick scans |
 
+| `$scanPath` | DisableScanningMappedNetworkDrivesForFullScan | 1 | DWord | Skip mapped network drives in full scans (performance + MS Baseline 25H2) |
+
 | `$reportPath` | ReportDynamicSignatureDroppedEvent | 1 | DWord | Report dynamic signature dropped events |
 
 | `$rtpPath` | RealtimeScanDirection | 0 | DWord | Realtime scan: Both incoming and outgoing files |

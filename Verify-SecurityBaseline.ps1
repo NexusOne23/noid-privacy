@@ -433,6 +433,13 @@ Test-BaselineCheck -Category "Defender" -Name "EDR in Block Mode Enabled" -Impac
     } `
     -Expected $true
 
+# 20. Disable Scanning Mapped Network Drives (Performance + MS Baseline 25H2)
+Test-BaselineCheck -Category "Defender" -Name "Mapped Network Drives Scan Disabled" -Impact "Low" `
+    -Test { 
+        Get-RegistryValueSafe "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Scan" "DisableScanningMappedNetworkDrivesForFullScan" -DefaultValue 0
+    } `
+    -Expected 1
+
 # ===========================
 # ATTACK SURFACE REDUCTION (ASR) RULES
 # Microsoft Security Baseline 25H2: 19 Rules

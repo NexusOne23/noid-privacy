@@ -950,6 +950,10 @@ function Set-DefenderBaselineSettings {
     Set-RegistryValue -Path $scanPath -Name "ScanExcludedFilesInQuickScan" -Value 1 -Type DWord `
         -Description "Also check excluded files in quick scans"
     
+    # 5b. Disable scanning mapped network drives (MS Baseline 25H2 - Performance)
+    Set-RegistryValue -Path $scanPath -Name "DisableScanningMappedNetworkDrivesForFullScan" -Value 1 -Type DWord `
+        -Description "Skip mapped network drives in full scans (performance + baseline)"
+    
     # 6. Report Dynamic Signature dropped events
     $reportPath = "$defenderPath\Reporting"
     Set-RegistryValue -Path $reportPath -Name "ReportDynamicSignatureDroppedEvent" -Value 1 -Type DWord `

@@ -388,7 +388,7 @@ The Backup/Restore system uses a **two-layer architecture** for maximum performa
 ```
 ┌─────────────────────────────────────┐
 │ 1. APPLY                            │
-│    Sets 394 Registry Keys           │
+│    Sets 395 Registry Keys           │
 │    Modifies Services, Tasks, etc.   │
 └─────────────────────────────────────┘
               ↓

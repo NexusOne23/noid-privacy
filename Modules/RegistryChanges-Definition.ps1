@@ -20,7 +20,8 @@ Set-StrictMode -Version Latest
     Generated: 2025-10-31 17:15:00
     Updated: 2025-11-04 (Removed SetupCompletedSuccessfully - breaks Outlook search)
     Updated: 2025-11-06 (Added 3 Defender Features: EnableAppInstallControl, EnableEDRInBlockMode, TamperProtection)
-    Total Entries: 394
+    Updated: 2025-11-07 (Added DisableScanningMappedNetworkDrivesForFullScan - MS Baseline 25H2 completion)
+    Total Entries: 395
     Source: registry-changes-complete.txt + manual additions
 #>
 
@@ -728,6 +729,14 @@ $script:RegistryChanges = @(
         Type = 'DWord'
         ApplyValue = 1
         Description = 'Also check excluded files in quick scans'
+        File = 'SecurityBaseline-Core.ps1'
+    },
+    @{
+        Path = '$scanPath'
+        Name = 'DisableScanningMappedNetworkDrivesForFullScan'
+        Type = 'DWord'
+        ApplyValue = 1
+        Description = 'Skip mapped network drives in full scans (performance + MS Baseline 25H2)'
         File = 'SecurityBaseline-Core.ps1'
     },
     @{
