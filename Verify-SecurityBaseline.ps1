@@ -548,10 +548,10 @@ Test-ASRRule -Name "Block use of copied or impersonated system tools (preview)" 
 
 # ===========================
 # EXPLOIT PROTECTION (WINDOWS DEFENDER)
-# 10 System-wide Mitigations
+# 8 System-wide Mitigations
 # ===========================
 
-Write-Host "`n=== EXPLOIT PROTECTION (10 MITIGATIONS) ===" -ForegroundColor Yellow
+Write-Host "`n=== EXPLOIT PROTECTION (8 MITIGATIONS) ===" -ForegroundColor Yellow
 
 # Get current system-wide mitigations directly (no JSON needed)
 try {
