@@ -29,8 +29,8 @@
     - DoH Configuration Restore (DNS over HTTPS)
     
 .NOTES
-    Version:        1.8.0
-    Last Updated:   November 6, 2025
+    Version:        1.8.1
+    Last Updated:   November 7, 2025
     Author:         NoID Privacy Team
     
 .PARAMETER BackupFile
@@ -1013,7 +1013,7 @@ if ($fwRulesCount -gt 0) {
             }
         }
         catch {
-            # Not critical
+            # Ignore - individual firewall rule restore failure is not critical, continue with others
         }
     }
     
@@ -1058,7 +1058,7 @@ if ($backup.Settings.RegistryBackup) {
             
             # Set correct value instead of restoring buggy value
             try {
-                Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows Search' -Name 'SetupCompletedSuccessfully' -Value 1 -Type DWord -ErrorAction Stop
+                Set-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\Windows Search' -Name 'SetupCompletedSuccessfully' -Value 1 -ErrorAction Stop
                 Write-Host "    [OK] Windows Search fixed (SetupCompletedSuccessfully = 1)" -ForegroundColor Green
             }
             catch {
@@ -1302,6 +1302,8 @@ if ($currentAdminAccount) {
                             # Convert to Base64 and take first 24 characters (strong enough)
                             $newPassword = [System.Convert]::ToBase64String($bytes).Substring(0,24)
                             
+                            # Suppress PSScriptAnalyzer warning - this is cryptographically secure random password
+                            [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingConvertToSecureStringWithPlainText', '', Justification='Cryptographically secure random password for built-in admin - required for Set-LocalUser')]
                             $securePassword = ConvertTo-SecureString $newPassword -AsPlainText -Force
                             Set-LocalUser -Name $originalAdmin.Name -Password $securePassword -ErrorAction Stop
                             
@@ -1541,7 +1543,7 @@ if ($missingAppsCount -gt 0) {
                     }
                 }
                 catch {
-                    # Error
+                    # Ignore - individual app check failure is not critical, continue with others
                 }
             }
             
@@ -1983,7 +1985,7 @@ if ($backup.Settings.DoH -and $backup.Settings.DoH.Enabled) {
                 $enableAutoDoh = $backup.Settings.DoH.EnableAutoDoh
             }
             
-            Set-ItemProperty -Path $dnsRegPath -Name 'EnableAutoDoh' -Value $enableAutoDoh -Type DWord -Force -ErrorAction SilentlyContinue
+            Set-ItemProperty -Path $dnsRegPath -Name 'EnableAutoDoh' -Value $enableAutoDoh -Force -ErrorAction SilentlyContinue
             Write-Verbose "  Registry: EnableAutoDoh = $enableAutoDoh (from backup)"
         }
         catch {
@@ -2058,7 +2060,7 @@ else {
         try {
             $dnsRegPath = 'HKLM:\SYSTEM\CurrentControlSet\Services\Dnscache\Parameters'
             if (Test-Path $dnsRegPath) {
-                Set-ItemProperty -Path $dnsRegPath -Name 'EnableAutoDoh' -Value 0 -Type DWord -Force -ErrorAction SilentlyContinue
+                Set-ItemProperty -Path $dnsRegPath -Name 'EnableAutoDoh' -Value 0 -Force -ErrorAction SilentlyContinue
                 Write-Verbose "  Registry: EnableAutoDoh = 0 (disabled)"
             }
         }
@@ -2104,7 +2106,7 @@ if ($backup.Settings.DohEncryption -and $backup.Settings.DohEncryption.Enabled) 
                     }
                     
                     # Restore DohFlags value
-                    Set-ItemProperty -Path $regPath -Name 'DohFlags' -Value $dohFlags -Type QWord -Force -ErrorAction Stop
+                    Set-ItemProperty -Path $regPath -Name 'DohFlags' -Value $dohFlags -Force -ErrorAction Stop
                     Write-Verbose "  Restored IPv4 DoH encryption: $ip = $dohFlags"
                     $restoredServers++
                 }
@@ -2134,7 +2136,7 @@ if ($backup.Settings.DohEncryption -and $backup.Settings.DohEncryption.Enabled) 
                     }
                     
                     # Restore DohFlags value
-                    Set-ItemProperty -Path $regPath -Name 'DohFlags' -Value $dohFlags -Type QWord -Force -ErrorAction Stop
+                    Set-ItemProperty -Path $regPath -Name 'DohFlags' -Value $dohFlags -Force -ErrorAction Stop
                     Write-Verbose "  Restored IPv6 DoH encryption: $ip = $dohFlags"
                     $restoredServers++
                 }

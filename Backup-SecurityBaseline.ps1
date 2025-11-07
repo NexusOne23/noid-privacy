@@ -63,8 +63,8 @@
     - HKCU:\SOFTWARE\Policies\Microsoft\Edge\SmartScreenPuaEnabled
     
 .NOTES
-    Version:        1.8.0
-    Last Updated:   November 6, 2025
+    Version:        1.8.1
+    Last Updated:   November 7, 2025
     Author:         NoID Privacy Team
     
 .PARAMETER BackupPath
@@ -140,7 +140,7 @@ catch {
 # Initialize script-scope variable (defensive programming)
 $script:RegistryChanges = @()
 
-# Load Registry Changes Definition (v2.0 - 391 specific keys)
+# Load Registry Changes Definition (v2.0 - 478 specific keys)
 # IMPORTANT: Temporarily bypass execution policy for unsigned modules
 $savedExecutionPolicy = Get-ExecutionPolicy -Scope Process
 try {
@@ -645,11 +645,11 @@ Write-Host ""
 Write-Host "[9/16] $(Get-LocalizedString 'BackupRegistry')" -ForegroundColor Yellow
 
 # NEW v2.0: Specific registry backup (20-30x faster!)
-# Only backs up the 394 registry keys that Apply actually modifies
+# Only backs up the 478 registry keys that Apply actually modifies
 # Previous version: Complete snapshots (5-15 minutes, 50,000+ keys, 5MB)
-# New version: Specific backup (30 seconds, 394 keys, 100KB)
+# New version: Specific backup (30 seconds, 478 keys, 100KB)
 
-Write-Host "[i] Creating specific registry backup (394 keys)..." -ForegroundColor Cyan
+Write-Host "[i] Creating specific registry backup (478 keys)..." -ForegroundColor Cyan
 $startTime = Get-Date
 
 try {

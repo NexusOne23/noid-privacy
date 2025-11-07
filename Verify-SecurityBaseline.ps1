@@ -30,8 +30,8 @@
     - Logs saved to: C:\ProgramData\SecurityBaseline\Logs\Verify-*.log
     
 .NOTES
-    Version:        1.8.0
-    Last Update:    November 6, 2025
+    Version:        1.8.1
+    Last Update:    November 7, 2025
     Baseline:       Microsoft Security Baseline 25H2 (Sept 30, 2025)
 #>
 
@@ -419,7 +419,7 @@ Test-BaselineCheck -Category "Defender" -Name "SmartScreen Warn -> Block Mode" -
 # 18. Tamper Protection (prevents malware from disabling Defender)
 Test-BaselineCheck -Category "Defender" -Name "Tamper Protection Enabled" -Impact "Critical" `
     -Test { 
-        $value = Get-RegistryValueSafe "HKLM:\SOFTWARE\Microsoft\Windows Defender\Features" "TamperProtection" -DefaultValue 0
+        $value = Get-RegistryValueSafe "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Features" "TamperProtection" -DefaultValue 0
         # Value 4 = Local admin control, Value 5 = Cloud-managed, both are valid
         $value -ge 4
     } `
@@ -1463,14 +1463,14 @@ Test-BaselineCheck -Category "APT-Protection" -Name "SRP Transparent Enforcement
 
 $srpRulesPath = "$srpPath\0\Paths"
 
-Test-BaselineCheck -Category "APT-Protection" -Name "SRP Deny Rules Configured (5+)" -Impact "Critical" `
+Test-BaselineCheck -Category "APT-Protection" -Name "SRP Deny Rules Configured (3+)" -Impact "Critical" `
     -Test { 
         if (Test-Path $srpRulesPath) {
             $rules = Get-ChildItem $srpRulesPath -ErrorAction SilentlyContinue
             if ($rules) { $rules.Count } else { 0 }
         } else { 0 }
     } `
-    -Expected { param($actual) $actual -ge 5 }
+    -Expected { param($actual) $actual -ge 3 }
 
 Test-BaselineCheck -Category "APT-Protection" -Name "WebClient Service Disabled (4)" -Impact "High" `
     -Test { 

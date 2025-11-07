@@ -24,10 +24,10 @@
     - Privacy Settings: 300+ (158 reg keys + 37 permissions + 30 tasks + 9 AI + 80+ apps + more)
     
 .NOTES
-    Version:        1.8.0
+    Version:        1.8.1
     Baseline:       Microsoft Security Baseline 25H2 (September 30, 2025)
     Author:         NoID Privacy Project
-    Last Updated:   November 6, 2025
+    Last Updated:   November 7, 2025
     Requires:       Windows 11 25H2/24H2/23H2, PowerShell 5.1+, Admin Rights
     
     Changelog 1.7.9 (26. Oktober 2025):
@@ -1344,7 +1344,7 @@ Write-Host "               Maximum Security + Privacy + Performance" -Foreground
 Write-Host "" -ForegroundColor Cyan
 Write-Host "=============================================================================" -ForegroundColor Cyan
 Write-Host ""
-Write-Host "  Version: 1.8.0 | ASR Mode: $Mode" -ForegroundColor Cyan
+Write-Host "  Version: 1.8.1 | ASR Mode: $Mode" -ForegroundColor Cyan
 if ($Interactive) {
     Write-Host "  Interface: Interactive Menu" -ForegroundColor Cyan
 }
