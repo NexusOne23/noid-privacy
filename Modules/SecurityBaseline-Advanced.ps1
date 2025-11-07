@@ -788,11 +788,11 @@ function Set-SecurePowerManagement {
         
         REMOTE ACCESS MODE:
         If RDP/Remote Access is enabled (Docker/LLM/Services), Hibernate is DISABLED!
-        Reason: Hibernate clears RAM → Services stop → Remote access breaks
+        Reason: Hibernate clears RAM -> Services stop -> Remote access breaks
         
     .PARAMETER DisableRDP
-        If $true: RDP is disabled → Hibernate enabled (default security)
-        If $false: RDP is enabled → Hibernate disabled (services keep running)
+        If $true: RDP is disabled -> Hibernate enabled (default security)
+        If $false: RDP is enabled -> Hibernate disabled (services keep running)
         
     .EXAMPLE
         Set-SecurePowerManagement -DisableRDP $true   # Desktop Mode
@@ -908,15 +908,15 @@ function Set-SecurePowerManagement {
     }
     Write-Host ""
     Write-Info "TIMELINE:"
-    Write-Info "  10 Min → Display turns off"
-    Write-Info "  15 Min → Lock screen + Password required (Machine Policy)"
+    Write-Info "  10 Min -> Display turns off"
+    Write-Info "  15 Min -> Lock screen + Password required (Machine Policy)"
     
     if ($DisableRDP) {
-        Write-Info "  30 Min → Hibernate (RAM cleared)"
+        Write-Info "  30 Min -> Hibernate (RAM cleared)"
         Write-Warning-Custom "System will hibernate after 30 minutes of inactivity (security feature)"
     }
     else {
-        Write-Info "  30 Min → System stays ON (no hibernate in Remote Access Mode)"
+        Write-Info "  30 Min -> System stays ON (no hibernate in Remote Access Mode)"
     }
     
     Write-Host ""

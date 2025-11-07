@@ -28,7 +28,7 @@ function Disable-WindowsRecall {
     
     # CRITICAL: Turn off Recall completely
     Set-RegistryValue -Path $aiPolicyPath -Name "DisableAIDataAnalysis" -Value 1 -Type DWord `
-        -Description "Windows Recall deaktivieren (KEINE Screenshots!)"
+        -Description "Disable Windows Recall (NO Screenshots!)"
     
     # Policy Manager Path (additional protection)
     $policyManagerPath = "HKLM:\SOFTWARE\Microsoft\PolicyManager\default\WindowsAI\DisableAIDataAnalysis"
@@ -96,7 +96,7 @@ function Disable-ClickToDo {
     
     $aiPolicyPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI"
     Set-RegistryValue -Path $aiPolicyPath -Name "DisableClickToDo" -Value 1 -Type DWord `
-        -Description "Click to Do deaktivieren (AI Screenshot Analysis)"
+        -Description "Disable Click to Do (AI Screenshot Analysis)"
     
     Write-Success "$(Get-LocalizedString 'AIClickToDoDisabled')"
     Write-Info "$(Get-LocalizedString 'AIClickToDoNoAnalysis')"
@@ -124,15 +124,15 @@ function Disable-PaintAIFeatures {
     
     # Cocreator (AI Image Generation)
     Set-RegistryValue -Path $paintPolicyPath -Name "DisableCocreator" -Value 1 -Type DWord `
-        -Description "Paint Cocreator deaktivieren (AI Image Gen)"
+        -Description "Disable Paint Cocreator (AI Image Gen)"
     
     # Generative Fill (AI Editing)
     Set-RegistryValue -Path $paintPolicyPath -Name "DisableGenerativeFill" -Value 1 -Type DWord `
-        -Description "Paint Generative Fill deaktivieren (AI Edit)"
+        -Description "Disable Paint Generative Fill (AI Edit)"
     
     # Image Creator (AI Art)
     Set-RegistryValue -Path $paintPolicyPath -Name "DisableImageCreator" -Value 1 -Type DWord `
-        -Description "Paint Image Creator deaktivieren (AI Art)"
+        -Description "Disable Paint Image Creator (AI Art)"
     
     Write-Success "$(Get-LocalizedString 'AIPaintDisabled')"
     Write-Info "$(Get-LocalizedString 'AIPaintFeatures')"
@@ -159,7 +159,7 @@ function Disable-NotepadAIFeatures {
     
     # Disable AI Features in Notepad (Copilot integration)
     Set-RegistryValue -Path $notepadPolicyPath -Name "DisableAIFeatures" -Value 1 -Type DWord `
-        -Description "Notepad AI Features deaktivieren (Copilot Button + AI Assistance)"
+        -Description "Disable Notepad AI Features (Copilot Button + AI Assistance)"
     
     Write-Success "$(Get-LocalizedString 'AINotepadDisabled')"
     Write-Info "$(Get-LocalizedString 'AINotepadFeatures')"
@@ -180,7 +180,7 @@ function Disable-SettingsAgent {
     
     $aiPolicyPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI"
     Set-RegistryValue -Path $aiPolicyPath -Name "DisableSettingsAgent" -Value 1 -Type DWord `
-        -Description "Settings Agent deaktivieren (AI in Settings)"
+        -Description "Disable Settings Agent (AI in Settings)"
     
     Write-Success "$(Get-LocalizedString 'AISettingsAgentDisabled')"
 }
@@ -200,7 +200,7 @@ function Disable-CopilotProactive {
     # Disable Copilot Proactive
     $copilotPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsCopilot"
     Set-RegistryValue -Path $copilotPath -Name "DisableCopilotProactive" -Value 1 -Type DWord `
-        -Description "Copilot Proactive deaktivieren (keine ungewollten Vorschlaege)"
+        -Description "Disable Copilot Proactive (no unsolicited suggestions)"
     
     Write-Success "$(Get-LocalizedString 'AICopilotProactiveDisabled')"
 }

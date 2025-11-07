@@ -11,10 +11,10 @@ Set-StrictMode -Version Latest
 function Show-Banner {
     <#
     .SYNOPSIS
-        Zeigt das NoID Privacy Banner an
+        Shows the NoID Privacy Banner
     .DESCRIPTION
-        Loescht den Bildschirm und zeigt das dekorative Banner mit Branding.
-        Best Practice 25H2: Error-Handling fuer Clear-Host in non-interactive sessions.
+        Clears the screen and displays the decorative banner with branding.
+        Best Practice 25H2: Error-Handling for Clear-Host in non-interactive sessions.
     .EXAMPLE
         Show-Banner
     #>
@@ -209,13 +209,13 @@ function Get-UserChoice {
                 continue
             }
             
-            # Validierung erfolgreich - gebe ORIGINAL-Case zurueck
+            # Validation successful - return ORIGINAL case
             $matchIndex = [array]::IndexOf($validChoicesUpper, $choice)
             if ($matchIndex -ge 0) {
                 $choice = $ValidChoices[$matchIndex]
             }
             
-            break  # Input ist valide - Loop beenden
+            break  # Input is valid - exit loop
         }
         catch {
             $errorMsg = Get-LocalizedString 'ErrorInputFailed' $_.Exception.Message
@@ -841,13 +841,13 @@ function Invoke-CustomMode {
     if (-not $step2) { $step2 = "STEP 2: Choose mode for ASR rules:" }
     Write-Host "  $step2" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "  [1] Audit Mode   (NUR ASR auf Audit, alles andere Enforce)" -ForegroundColor White
-    Write-Host "      • ASR Rules nur loggen (empfohlen fuer Test)" -ForegroundColor Gray
-    Write-Host "      • Registry, Services, Apps etc. werden trotzdem angewendet" -ForegroundColor Gray
+    Write-Host "  [1] Audit Mode   (ONLY ASR on Audit, everything else Enforce)" -ForegroundColor White
+    Write-Host "      - ASR Rules only log (recommended for testing)" -ForegroundColor Gray
+    Write-Host "      - Registry, Services, Apps etc. are still applied" -ForegroundColor Gray
     Write-Host ""
-    Write-Host "  [2] Enforce Mode (ALLES wird enforce inkl. ASR)" -ForegroundColor White
-    Write-Host "      • ASR Rules aktiv blockieren (Production)" -ForegroundColor Gray
-    Write-Host "      • Maximum Protection" -ForegroundColor Gray
+    Write-Host "  [2] Enforce Mode (EVERYTHING enforced incl. ASR)" -ForegroundColor White
+    Write-Host "      - ASR Rules actively block (Production)" -ForegroundColor Gray
+    Write-Host "      - Maximum Protection" -ForegroundColor Gray
     Write-Host ""
     
     $asrMode = Get-UserChoice -Prompt "ASR-Modus" -ValidChoices @('1', '2')
@@ -1275,26 +1275,46 @@ function Show-SafetyWarning {
     Write-Host "============================================================================" -ForegroundColor Yellow
     Write-Host ""
     
-    if ($Global:CurrentLanguage -eq 'de') {
-        Write-Host "  Haben Sie die README gelesen UND ein System-Backup erstellt?" -ForegroundColor Cyan
-        Write-Host "  [J] Ja, ich habe alles gelesen und ein Backup erstellt" -ForegroundColor Green
-        Write-Host "  [N] Nein, ich breche ab" -ForegroundColor Yellow
+    # Get localized safety check messages
+    $safetyQuestion = Get-LocalizedString 'SafetyCheckQuestion'
+    $safetyYes = Get-LocalizedString 'SafetyCheckYes'
+    $safetyNo = Get-LocalizedString 'SafetyCheckNo'
+    
+    # Fallback if localization fails
+    if (-not $safetyQuestion) {
+        if ($Global:CurrentLanguage -eq 'de') {
+            $safetyQuestion = "Haben Sie die README gelesen UND ein System-Backup erstellt?"
+            $safetyYes = "Ja, ich habe alles gelesen und ein Backup erstellt"
+            $safetyNo = "Nein, ich breche ab"
+        }
+        else {
+            $safetyQuestion = "Have you read the README AND created a system backup?"
+            $safetyYes = "Yes, I have read everything and created a backup"
+            $safetyNo = "No, I will cancel"
+        }
     }
-    else {
-        Write-Host "  Have you read the README AND created a system backup?" -ForegroundColor Cyan
-        Write-Host "  [Y] Yes, I have read everything and created a backup" -ForegroundColor Green
-        Write-Host "  [N] No, I will cancel" -ForegroundColor Yellow
-    }
+    
+    $yesKey = if ($Global:CurrentLanguage -eq 'de') { "[J]" } else { "[Y]" }
+    
+    Write-Host "  $safetyQuestion" -ForegroundColor Cyan
+    Write-Host "  $yesKey $safetyYes" -ForegroundColor Green
+    Write-Host "  [N] $safetyNo" -ForegroundColor Yellow
     
     Write-Host ""
     
+    # Get localized prompt
+    $inputPrompt = Get-LocalizedString 'UserInputPrompt'
+    if (-not $inputPrompt) { 
+        $inputPrompt = if ($Global:CurrentLanguage -eq 'de') { "Ihre Eingabe" } else { "Your input" }
+    }
+    
+    $choiceFormat = Get-LocalizedString 'RebootChoiceFormat'
+    if (-not $choiceFormat) { 
+        $choiceFormat = if ($Global:CurrentLanguage -eq 'de') { "[J/N]:" } else { "[Y/N]:" }
+    }
+    
     do {
-        if ($Global:CurrentLanguage -eq 'de') {
-            Write-Host "  Ihre Eingabe [J/N]: " -NoNewline -ForegroundColor Cyan
-        }
-        else {
-            Write-Host "  Your input [Y/N]: " -NoNewline -ForegroundColor Cyan
-        }
+        Write-Host "  $inputPrompt $choiceFormat " -NoNewline -ForegroundColor Cyan
         
         $userAck = Read-Host
         if ($userAck) {

@@ -1,42 +1,42 @@
-# 📊 MS SECURITY BASELINE 25H2: A vs B
+# 📊 MS SECURITY BASELINE 25H2: Coverage & Standalone Applicability
 
-**Quelle:** Microsoft Security Baseline Windows 11 v25H2 (Offiziell)  
-**Datum Analyse:** 5. November 2025  
-**100% VERIFIZIERT**
+**Source:** Microsoft Security Baseline Windows 11 v25H2 (Official)  
+**Analysis Date:** November 5, 2025  
+**100% VERIFIED**
 
-> ⚠️ **WICHTIG:** Dies ist die **KORREKTE und AKTUELLE** Version!  
-> Ältere Versionen in diesem Ordner mit folgenden Merkmalen sind **VERALTET** und sollten **NICHT** verwendet werden:
-> - TOTAL = 430 (statt 429)
-> - Services/Tasks = 5 (statt 4)
-> - Firewall = 14 (statt 24)
-> - SMB = 770/1792 (statt 768/785)
-> - Enthält Windows Update Settings (nicht in Baseline!)
-> - Enthält ConfigureDoSvc (nicht in Baseline!)
-
----
-
-## 🎯 ZWECK
-
-Dieses Dokument macht **GLASKLAR:**
-
-**A = MS SECURITY BASELINE 25H2 (Was ist drin?)**
-**B = STANDALONE ANWENDBAR (Was funktioniert auf Win11 Pro ohne AD/Intune?)**
+> ⚠️ **IMPORTANT:** This is the **CORRECT and CURRENT** version!  
+> Older versions in this folder with the following characteristics are **OUTDATED** and should **NOT** be used:
+> - TOTAL = 430 (instead of 429)
+> - Services/Tasks = 5 (instead of 4)
+> - Firewall = 14 (instead of 24)
+> - SMB = 770/1792 (instead of 768/785)
+> - Contains Windows Update Settings (not in Baseline!)
+> - Contains ConfigureDoSvc (not in Baseline!)
 
 ---
 
-# 📋 TEIL A: MS SECURITY BASELINE 25H2 - WAS IST DRIN?
+## 🎯 PURPOSE
 
-## **GESAMTÜBERSICHT:**
+This document makes **CRYSTAL CLEAR:**
+
+**A = MS SECURITY BASELINE 25H2 (What's included?)**
+**B = STANDALONE APPLICABLE (What works on Win11 Pro without AD/Intune?)**
+
+---
+
+# 📋 PART A: MS SECURITY BASELINE 25H2 - WHAT'S INCLUDED?
+
+## **OVERALL OVERVIEW:**
 
 ```
 MS SECURITY BASELINE WINDOWS 11 v25H2
-Quelle: Windows 11 v25H2 Security Baseline\
+Source: Windows 11 v25H2 Security Baseline\
 
 TOTAL: 429 Settings
 
 ├─ [1] Registry Policies:        335 Settings
 ├─ [2] Security Template:         67 Settings
-├─ [3] Advanced Audit Policy:     23 Kategorien
+├─ [3] Advanced Audit Policy:     23 Categories
 └─ [4] Services:                   4 Items
 ```
 
@@ -44,26 +44,26 @@ TOTAL: 429 Settings
 
 ## [1] REGISTRY POLICIES - 335 Settings
 
-### **ÜBERSICHT:**
+### **OVERVIEW:**
 
-| GPO | Anzahl | Hive | Fokus |
+| GPO | Count | Hive | Focus |
 |-----|--------|------|-------|
-| MSFT Windows 11 25H2 - Computer | 140 | HKLM | Allgemeine Win11-Härtung |
+| MSFT Windows 11 25H2 - Computer | 140 | HKLM | General Win11 Hardening |
 | MSFT Internet Explorer 11 - Computer | 133 | HKLM | IE11 + Internet Settings |
-| MSFT Windows 11 25H2 - Defender Antivirus | 39 | HKLM | Defender-Konfiguration |
-| MSFT Windows 11 25H2 - BitLocker | 10 | HKLM | Encryption-Policies |
+| MSFT Windows 11 25H2 - Defender Antivirus | 39 | HKLM | Defender Configuration |
+| MSFT Windows 11 25H2 - BitLocker | 10 | HKLM | Encryption Policies |
 | MSFT Windows 11 25H2 - Credential Guard | 8 | HKLM | VBS/Credential Guard |
-| MSFT Internet Explorer 11 - User | 3 | HKCU | IE11 User-Einstellungen |
-| MSFT Windows 11 25H2 - User | 2 | HKCU | Win11 User-Einstellungen |
+| MSFT Internet Explorer 11 - User | 3 | HKCU | IE11 User Settings |
+| MSFT Windows 11 25H2 - User | 2 | HKCU | Win11 User Settings |
 | **TOTAL** | **335** | - | - |
 
-**Quelle:** MSFT-Win11-v25H2.PolicyRules (gezählt als einzelne Registry-Werte)
+**Source:** MSFT-Win11-v25H2.PolicyRules (counted as individual Registry values)
 
 ---
 
 ### **1.1 CREDENTIAL GUARD (8 Settings)**
 
-**Pfad:** `HKLM\SOFTWARE\Policies\Microsoft\Windows\DeviceGuard`
+**Path:** `HKLM\SOFTWARE\Policies\Microsoft\Windows\DeviceGuard`
 
 ```
 1. EnableVirtualizationBasedSecurity = 1
@@ -76,13 +76,13 @@ TOTAL: 429 Settings
 8. ConfigureKernelShadowStacksLaunch = 1 (Kernel CET Shadow Stacks - enforcement mode)
 ```
 
-**Zweck:** Virtualization-Based Security (VBS) + Credential Guard aktivieren
+**Purpose:** Enable Virtualization-Based Security (VBS) + Credential Guard
 
 ---
 
 ### **1.2 BITLOCKER (10 Settings)**
 
-**Pfade:** 
+**Paths:** 
 - `HKLM\Software\Policies\Microsoft\FVE`
 - `HKLM\System\CurrentControlSet\Policies\Microsoft\FVE` (RDVDenyWriteAccess)
 - Power Settings, Device Install Restrictions
@@ -100,17 +100,17 @@ TOTAL: 429 Settings
 10. RDVDenyWriteAccess = 1 (System\CurrentControlSet path!)
 ```
 
-**Zweck:** BitLocker Device Encryption härten + Removable Drive Write Protection
+**Purpose:** Harden BitLocker Device Encryption + Removable Drive Write Protection
 
 ---
 
 ### **1.3 DEFENDER ANTIVIRUS (39 Settings)**
 
-**Kategorien:**
-- Realtime Protection (10 Settings) - Alle = 0 (AN)
+**Categories:**
+- Realtime Protection (10 Settings) - All = 0 (ON)
 - Cloud Protection (5 Settings) - MpCloudBlockLevel=2, Timeout=50s
 - PUA Protection (5 Settings) - PUAProtection=1
-- ASR Rules (15 GUIDs) - Alle = 1 oder 2 (Audit)
+- ASR Rules (15 GUIDs) - All = 1 or 2 (Audit)
 - Network Protection (1 Setting) - EnableNetworkProtection=1
 - Misc (3 Settings)
 
@@ -137,7 +137,7 @@ d1e49aac-8f56-4280-b9ba-993a6d77406c = Block PSExec/WMI commands (Audit)
 
 ### **1.4 WIN11 25H2 COMPUTER (140 Settings)**
 
-**Hauptkategorien:**
+**Main Categories:**
 
 **A. AutoRun/AutoPlay (4 Settings)**
 ```
@@ -149,11 +149,11 @@ DisableAutoplay = 1
 
 **B. Windows Update**
 ```
-❌ KEINE Windows Update Settings in der offiziellen Baseline!
-(NoAutoUpdate, AUOptions, etc. sind NICHT Teil der v25H2 Baseline)
+❌ NO Windows Update Settings in the official Baseline!
+(NoAutoUpdate, AUOptions, etc. are NOT part of the v25H2 Baseline)
 ```
 
-**Hinweis:** Windows Update wird über separate Policies oder Intune verwaltet
+**Note:** Windows Update is managed via separate Policies or Intune
 
 **C. SMB Server/Client (5 Settings)**
 ```
@@ -169,16 +169,16 @@ SMBv1 Client:
 - SMB1 = 0 (Disabled)
 ```
 
-**Quelle:** PolicyRules - Exakte Werte aus offizieller Baseline
+**Source:** PolicyRules - Exact values from official Baseline
 
 **D. Kerberos/CredSSP (13 Settings)**
 ```
 Kerberos PKINIT Hash Algorithms:
 - PKINITHashAlgorithmConfigurationEnabled = 1
-- PKINITSHA1 = 0 (deaktiviert)
-- PKINITSHA256 = 3 (aktiviert)
-- PKINITSHA384 = 3 (aktiviert)
-- PKINITSHA512 = 3 (aktiviert)
+- PKINITSHA1 = 0 (disabled)
+- PKINITSHA256 = 3 (enabled)
+- PKINITSHA384 = 3 (enabled)
+- PKINITSHA512 = 3 (enabled)
 
 Kerberos Encryption:
 - SupportedEncryptionTypes = 0x7FFFFFFF
@@ -187,15 +187,15 @@ CredSSP:
 - AllowEncryptionOracle = 0
 ```
 
-**D1. NetBIOS-Deaktivierung (NEU in v25H2)**
+**D1. NetBIOS Deactivation (NEW in v25H2)**
 ```
-Pfad: HKLM\Software\Policies\Microsoft\Windows NT\DNSClient
+Path: HKLM\Software\Policies\Microsoft\Windows NT\DNSClient
 ValueName: EnableNetbios
 Type: REG_DWORD
-Data: 0 (Deaktiviert auf ALLEN Netzwerkadaptern)
+Data: 0 (Disabled on ALL network adapters)
 
-Neu in v25H2: Früher nur auf bestimmten Netzwerktypen, jetzt global
-Zweck: Verhindert NetBIOS-Namensauflösung (Legacy-Protokoll)
+New in v25H2: Previously only on specific network types, now global
+Purpose: Prevents NetBIOS name resolution (legacy protocol)
 ```
 
 **E. Remote Desktop (6 Settings)**
@@ -208,7 +208,7 @@ SecurityLayer = 2
 
 **F. Firewall (24 Settings)**
 ```
-Alle 3 Profile (Domain/Private/Public):
+All 3 Profiles (Domain/Private/Public):
 - EnableFirewall = 1
 - DefaultInboundAction = Block
 - DefaultOutboundAction = Allow  
@@ -216,7 +216,7 @@ Alle 3 Profile (Domain/Private/Public):
 - LogFilePath, LogFileSize, LogDroppedPackets, LogSuccessfulConnections
 ```
 
-**Quelle:** PolicyRules - 24 Firewall Registry-Werte (8 pro Profil × 3 Profile)
+**Source:** PolicyRules - 24 Firewall Registry values (8 per profile × 3 profiles)
 
 **G. WinRM/PowerShell (8 Settings)**
 ```
@@ -233,11 +233,11 @@ RestrictDriverInstallationToAdministrators = 1
 
 **I. Search/Privacy (Diverse Settings)**
 ```
-(Exakte Settings gegen PolicyRules prüfen)
+(Check exact settings against PolicyRules)
 ```
 
-**Hinweis:** Beispielwerte wie AllowCloudSearch, AllowCortana, DisableWebSearch 
-sind NICHT in der offiziellen MS Baseline 25H2 enthalten!
+**Note:** Example values like AllowCloudSearch, AllowCortana, DisableWebSearch 
+are NOT included in the official MS Baseline 25H2!
 
 **J. Device Installation (6 Settings)**
 ```
@@ -261,7 +261,7 @@ NC_ShowSharedAccessUI = 0
 DisableWindowsConsumerFeatures = 1
 ```
 
-**Hinweis:** ConfigureDoSvc ist NICHT Teil der Baseline
+**Note:** ConfigureDoSvc is NOT part of the Baseline
 
 **N. Privacy/Telemetry (8 Settings)**
 ```
@@ -282,11 +282,11 @@ etc.
 
 ### **1.5 INTERNET EXPLORER 11 (133 Computer + 3 User Settings)**
 
-**⚠️ WICHTIG: IE11 ist deprecated auf Win11 - ABER:**
+**⚠️ IMPORTANT: IE11 is deprecated on Win11 - BUT:**
 
 #### **Computer Settings (HKLM): 133**
 
-**79 Settings = Internet Settings\Zones** → **SYSTEM-WEIT!**
+**79 Settings = Internet Settings\Zones** → **SYSTEM-WIDE!**
 ```
 Zone 0 (My Computer): 15 Settings
 Zone 1 (Local Intranet): 20 Settings
@@ -295,25 +295,25 @@ Zone 3 (Internet): 20 Settings
 Zone 4 (Restricted Sites): 9 Settings
 ```
 
-**Zweck:** Security Zones für Edge IE-Modus, Office, .NET, Windows Update
+**Purpose:** Security Zones for Edge IE mode, Office, .NET, Windows Update
 
-**54 Settings = IE-spezifisch (FeatureControl etc.)** → **Deprecated!**
+**54 Settings = IE-specific (FeatureControl etc.)** → **Deprecated!**
 
-**Rechnung:** 79 (Zones HKLM) + 54 (IE-only HKLM) = **133 Computer Settings**
+**Calculation:** 79 (Zones HKLM) + 54 (IE-only HKLM) = **133 Computer Settings**
 
-**Hinweis:** Total IE deprecated = 57 (54 Computer + 3 User deprecated Settings)
+**Note:** Total IE deprecated = 57 (54 Computer + 3 User deprecated Settings)
 
 #### **User Settings (HKCU): 3**
 
-Zusätzlich 3 IE-User Settings (HKCU) - separat in der Tabelle oben aufgeführt unter "MSFT Internet Explorer 11 - User"
+Additionally 3 IE User Settings (HKCU) - listed separately in the table above under "MSFT Internet Explorer 11 - User"
 
-**IE GESAMT:** 133 (Computer HKLM) + 3 (User HKCU) = **136 IE-bezogene Einstellungen**
+**IE TOTAL:** 133 (Computer HKLM) + 3 (User HKCU) = **136 IE-related settings**
 
 ---
 
 ### **1.6 WIN11 25H2 USER (2 Settings)**
 
-**Pfad:** `HKCU\SOFTWARE\Policies\Microsoft\Windows\...`
+**Path:** `HKCU\SOFTWARE\Policies\Microsoft\Windows\...`
 
 ```
 1. DisableThirdPartySuggestions = 1
@@ -324,7 +324,7 @@ Zusätzlich 3 IE-User Settings (HKCU) - separat in der Tabelle oben aufgeführt 
 
 ## [2] SECURITY TEMPLATE - 67 Settings
 
-**Anwendung:** Via `secedit /configure /db <db> /cfg <inf> /quiet`
+**Application:** Via `secedit /configure /db <db> /cfg <inf> /quiet`
 
 ### **2.1 SYSTEM ACCESS (Password/Lockout) - 9 Settings**
 
@@ -351,16 +351,16 @@ SeTakeOwnershipPrivilege = *S-1-5-32-544
 SeSecurityPrivilege = *S-1-5-32-544
 
 SeImpersonatePrivilege = *S-1-5-32-544, *S-1-5-6, *S-1-5-19, *S-1-5-20, 
-                         *S-1-5-99-... (PrintSpoolerService) ← NEU in v25H2!
+                         *S-1-5-99-... (PrintSpoolerService) ← NEW in v25H2!
 ...
 (23 Privilege Rights total)
 ```
 
-**NEU in v25H2:** SeImpersonatePrivilege erweitert um:
+**NEW in v25H2:** SeImpersonatePrivilege extended with:
 - **RESTRICTED SERVICES\PrintSpoolerService**
 - SID: *S-1-5-99-216390572-1995538116-3857911515-2404958512-2623887229
-- Zweck: Windows Protected Print (WPP) mit Least Privilege
-- Kontext: Erlaubt Print Spooler Service, Clients nach Authentifizierung zu imitieren
+- Purpose: Windows Protected Print (WPP) with Least Privilege
+- Context: Allows Print Spooler Service to impersonate clients after authentication
 
 ### **2.3 SECURITY OPTIONS (Registry Values) - 31 Settings**
 
@@ -376,43 +376,43 @@ MACHINE\System\CurrentControlSet\Services\LanManServer\Parameters\InvalidAuthent
 ### **2.4 SERVICE GENERAL SETTING - 4 Settings**
 
 ```
-Service-Konfigurationen für Security-relevante Dienste
+Service configurations for security-relevant services
 ```
 
-**Quelle:** GptTmpl.inf aus offizieller Baseline  
-**Korrigiert:** System Access=9, Privilege Rights=23, Security Options=31, Services=4
+**Source:** GptTmpl.inf from official Baseline  
+**Corrected:** System Access=9, Privilege Rights=23, Security Options=31, Services=4
 
 ---
 
-## [3] ADVANCED AUDIT POLICY - 23 Kategorien
+## [3] ADVANCED AUDIT POLICY - 23 Categories
 
-**Anwendung:** Via `auditpol /set /subcategory:"<Name>" /success:enable /failure:enable`
+**Application:** Via `auditpol /set /subcategory:"<Name>" /success:enable /failure:enable`
 
-| # | Kategorie | Success | Failure | Zweck |
+| # | Category | Success | Failure | Purpose |
 |---|-----------|---------|---------|-------|
-| 1 | Audit Credential Validation | ✅ | ✅ | Password Spraying erkennen |
-| 2 | Audit Security Group Management | ✅ | ❌ | Admin-Escalation tracken |
-| 3 | Audit User Account Management | ✅ | ✅ | Account-Änderungen loggen |
-| 4 | Audit PNP Activity | ✅ | ❌ | USB-Devices tracken |
-| 5 | Audit Process Creation | ✅ | ❌ | Malware-Execution erkennen |
-| 6 | Audit Account Lockout | ❌ | ✅ | Brute-Force erkennen (Failure only!) |
-| 7 | Audit Group Membership | ✅ | ❌ | Gruppenmitgliedschaft bei Login |
-| 8 | Audit Logon | ✅ | ✅ | Login-Versuche tracken |
+| 1 | Audit Credential Validation | ✅ | ✅ | Detect password spraying |
+| 2 | Audit Security Group Management | ✅ | ❌ | Track admin escalation |
+| 3 | Audit User Account Management | ✅ | ✅ | Log account changes |
+| 4 | Audit PNP Activity | ✅ | ❌ | Track USB devices |
+| 5 | Audit Process Creation | ✅ | ❌ | Detect malware execution |
+| 6 | Audit Account Lockout | ❌ | ✅ | Detect brute force (Failure only!) |
+| 7 | Audit Group Membership | ✅ | ❌ | Group membership at login |
+| 8 | Audit Logon | ✅ | ✅ | Track login attempts |
 | 9 | Audit Other Logon/Logoff Events | ✅ | ✅ | RDP, Network Logon |
-| 10 | Audit Special Logon | ✅ | ❌ | Admin-Logins tracken |
-| 11 | Audit Detailed File Share | ❌ | ✅ | File-Access detailliert (Failure only!) |
-| 12 | Audit File Share | ✅ | ✅ | Share-Access tracken |
+| 10 | Audit Special Logon | ✅ | ❌ | Track admin logins |
+| 11 | Audit Detailed File Share | ❌ | ✅ | Detailed file access (Failure only!) |
+| 12 | Audit File Share | ✅ | ✅ | Track share access |
 | 13 | Audit Other Object Access Events | ✅ | ✅ | Registry, Scheduled Tasks |
-| 14 | Audit Removable Storage | ✅ | ✅ | USB-Zugriffe loggen |
-| 15 | Audit Audit Policy Change | ✅ | ❌ | Policy-Änderungen tracken |
-| 16 | Audit Authentication Policy Change | ✅ | ❌ | Auth-Policy-Änderungen |
-| 17 | Audit MPSSVC Rule-Level Policy Change | ✅ | ✅ | Firewall-Regel-Änderungen |
-| 18 | Audit Other Policy Change Events | ❌ | ✅ | Sonstige Policy-Änderungen (Failure only!) |
+| 14 | Audit Removable Storage | ✅ | ✅ | Log USB access |
+| 15 | Audit Audit Policy Change | ✅ | ❌ | Track policy changes |
+| 16 | Audit Authentication Policy Change | ✅ | ❌ | Auth policy changes |
+| 17 | Audit MPSSVC Rule-Level Policy Change | ✅ | ✅ | Firewall rule changes |
+| 18 | Audit Other Policy Change Events | ❌ | ✅ | Other policy changes (Failure only!) |
 | 19 | Audit Sensitive Privilege Use | ✅ | ❌ | Debug, Backup Privilege |
-| 20 | Audit Other System Events | ✅ | ✅ | System-Events |
+| 20 | Audit Other System Events | ✅ | ✅ | System events |
 | 21 | Audit Security State Change | ✅ | ❌ | Windows Start/Stop |
-| 22 | Audit Security System Extension | ✅ | ❌ | Security-Treiber-Laden |
-| 23 | Audit System Integrity | ✅ | ✅ | Rootkit-Erkennung |
+| 22 | Audit Security System Extension | ✅ | ❌ | Security driver loading |
+| 23 | Audit System Integrity | ✅ | ✅ | Rootkit detection |
 
 ---
 
@@ -425,34 +425,36 @@ Service-Konfigurationen für Security-relevante Dienste
 4. Xbox Live Networking Service (XboxNetApiSvc) → Disabled
 ```
 
-**Quelle:** GptTmpl.inf [Service General Setting]
+**Source:** GptTmpl.inf [Service General Setting]
 
-**Zweck:** Xbox Gaming Services deaktivieren
+**Purpose:** Disable Xbox Gaming Services
 
-**✅ BESTÄTIGT:** Diese 4 Services sind offiziell Teil der MS Security Baseline 25H2!
+**✅ CONFIRMED:** These 4 Services are officially part of the MS Security Baseline 25H2!
 
-**❌ NICHT in Baseline:** XblGameSaveTask (Scheduled Task) - nicht Teil der offiziellen Baseline
+**❌ NOT in Baseline:** XblGameSaveTask (Scheduled Task) - not part of the official Baseline
 
 ---
 
-# 📋 TEIL B: STANDALONE ANWENDBAR (WIN11 PRO ohne AD/Intune)
+# 📋 PART B: STANDALONE APPLICABLE (WIN11 PRO without AD/Intune)
 
-## **GESAMT-ÜBERSICHT:**
+## **OVERALL SUMMARY:**
 
 ```
 MS BASELINE 25H2: 429 Settings
 
-✅ ANWENDBAR auf Win11 Pro Standalone: 370 (86.2%)
-❌ NICHT ANWENDBAR (N/A):              59 (13.8%)
+✅ APPLICABLE on Win11 Pro Standalone: 370 (86.2%)
+❌ NOT APPLICABLE (N/A):              59 (13.8%)
 
-OHNE IE11-ONLY: 370/374 = 98.9% anwendbar! ✅✅✅
+WITHOUT IE11-ONLY: 370/372 = 99.5% applicable! ✅✅✅
+Calculation: 429 total - 57 IE deprecated = 372 relevant
+             370 applicable / 372 relevant = 99.5%
 ```
 
 ---
 
-## **AUFSCHLÜSSELUNG:**
+## **BREAKDOWN:**
 
-| Kategorie | Total | Anwendbar | % | Status |
+| Category | Total | Applicable | % | Status |
 |-----------|-------|-----------|---|--------|
 | **Credential Guard** | 8 | 8 | 100% | ✅✅✅ |
 | **BitLocker** | 10 | 10 | 100% | ✅✅✅ |
@@ -464,89 +466,89 @@ OHNE IE11-ONLY: 370/374 = 98.9% anwendbar! ✅✅✅
 | **Security Template** | 67 | 67 | 100% | ✅✅✅ |
 | **Audit Policies** | 23 | 23 | 100% | ✅✅✅ |
 | **Services** | 4 | 4 | 100% | ✅✅✅ |
-| **GESAMT** | **429** | **370** | **86.2%** | ✅ |
+| **TOTAL** | **429** | **370** | **86.2%** | ✅ |
 
 ---
 
-## **DETAILLIERTE ANWENDBARKEIT:**
+## **DETAILED APPLICABILITY:**
 
-### **[1] REGISTRY POLICIES - 274/335 anwendbar (81.8%)**
+### **[1] REGISTRY POLICIES - 274/335 applicable (81.8%)**
 
-#### **✅ 100% ANWENDBAR:**
+#### **✅ 100% APPLICABLE:**
 
 **1. Credential Guard (8/8)**
-- Voraussetzung: Hardware-VT + TPM 2.0 + UEFI
-- Funktioniert auf: Win11 Pro mit moderner Hardware
-- Härtet: Lokalen Kerberos-Client + VBS
+- Requirement: Hardware-VT + TPM 2.0 + UEFI
+- Works on: Win11 Pro with modern hardware
+- Hardens: Local Kerberos client + VBS
 
 **2. BitLocker (10/10)**
-- Voraussetzung: TPM 2.0 (Standard auf modernen Geräten)
-- Funktioniert auf: Win11 Pro (BitLocker verfügbar)
-- Härtet: Device Encryption
+- Requirement: TPM 2.0 (standard on modern devices)
+- Works on: Win11 Pro (BitLocker available)
+- Hardens: Device Encryption
 
 **3. Defender Antivirus (39/39)**
-- Voraussetzung: Keine
-- Funktioniert auf: Jedem Win11 Pro
-- Härtet: Realtime Protection, Cloud Protection, ASR Rules, Network Protection
+- Requirement: None
+- Works on: Any Win11 Pro
+- Hardens: Realtime Protection, Cloud Protection, ASR Rules, Network Protection
 
 **4. Win11 User (2/2)**
-- Voraussetzung: Keine
-- Funktioniert auf: Jedem Win11 Pro
+- Requirement: None
+- Works on: Any Win11 Pro
 
 **5. Internet Settings\Zones (79/79)**
-- Voraussetzung: Keine
-- Funktioniert auf: Jedem Win11 Pro
-- Genutzt von: Edge IE-Modus, Office, .NET, Windows Update, SmartScreen
+- Requirement: None
+- Works on: Any Win11 Pro
+- Used by: Edge IE mode, Office, .NET, Windows Update, SmartScreen
 
 **6. Security Template (67/67)**
-- Anwendung: Via `secedit.exe`
-- Funktioniert auf: Jedem Win11 Pro
-- Härtet: Password Policy, Account Lockout, Privilege Rights, LSA/SMB
+- Application: Via `secedit.exe`
+- Works on: Any Win11 Pro
+- Hardens: Password Policy, Account Lockout, Privilege Rights, LSA/SMB
 
 **7. Audit Policies (23/23)**
-- Anwendung: Via `auditpol.exe`
-- Funktioniert auf: Jedem Win11 Pro
-- Loggt: Events lokal (einige Kategorien loggen mehr bei Domain-Join)
+- Application: Via `auditpol.exe`
+- Works on: Any Win11 Pro
+- Logs: Events locally (some categories log more with Domain Join)
 
 **8. Services (4/4)**
-- Voraussetzung: Keine
-- Funktioniert auf: Jedem Win11 Pro
-- **Hinweis:** XblGameSaveTask (Scheduled Task) ist NICHT Teil der Baseline
+- Requirement: None
+- Works on: Any Win11 Pro
+- **Note:** XblGameSaveTask (Scheduled Task) is NOT part of the Baseline
 
 ---
 
-#### **⚠️ 97.1% ANWENDBAR:**
+#### **⚠️ 97.1% APPLICABLE:**
 
 **Win11 Computer (138/140)**
 
-**Anwendbar: 138 Settings**
+**Applicable: 138 Settings**
 
-**NICHT anwendbar: 2 Settings**
-1. `ADPasswordEncryptionEnabled` - LAPS (nur auf Domain Controller)
-2. `ADBackupDSRMPassword` - LAPS (nur auf Domain Controller)
+**NOT applicable: 2 Settings**
+1. `ADPasswordEncryptionEnabled` - LAPS (only on Domain Controller)
+2. `ADBackupDSRMPassword` - LAPS (only on Domain Controller)
 
-**✅ KORREKTUR:** MSAOptional und EnableMPR sind **NICHT** Domain-only!
-- Beide funktionieren auf Standalone Win11 Pro ✅
-- Beide wurden implementiert ✅
+**✅ CORRECTION:** MSAOptional and EnableMPR are **NOT** Domain-only!
+- Both work on Standalone Win11 Pro ✅
+- Both have been implemented ✅
 
-**WICHTIG: Kerberos IST anwendbar!**
+**IMPORTANT: Kerberos IS applicable!**
 - PKINITHashAlgorithm, SupportedEncryptionTypes, etc.
-- Härtet lokalen Kerberos-Client (nicht nur DC!)
-- Funktioniert auch ohne Domain Join
+- Hardens local Kerberos client (not just DC!)
+- Works even without Domain Join
 
 ---
 
-#### **❌ 0% ANWENDBAR:**
+#### **❌ 0% APPLICABLE:**
 
 **IE11-only (57/133)**
-- FeatureControl Settings (nicht-Zones)
-- IE11-spezifische Optionen
-- Auf Win11 wirkungslos (IE11 entfernt)
-- Von 133 IE11 Computer Settings sind 57 deprecated
+- FeatureControl Settings (non-Zones)
+- IE11-specific options
+- Ineffective on Win11 (IE11 removed)
+- Of 133 IE11 Computer Settings, 57 are deprecated
 
 ---
 
-### **N/A GRÜNDE (59 Settings):**
+### **N/A REASONS (59 Settings):**
 
 ```
 ├─ IE11-only (FeatureControl):      57 Settings
@@ -554,23 +556,23 @@ OHNE IE11-ONLY: 370/374 = 98.9% anwendbar! ✅✅✅
    ├─ ADPasswordEncryptionEnabled (LAPS - Domain Controller)
    └─ ADBackupDSRMPassword (LAPS - Domain Controller)
 
-✅ KORREKTUR: MSAOptional und EnableMPR funktionieren auf Standalone!
+✅ CORRECTION: MSAOptional and EnableMPR work on Standalone!
 ```
 
 ---
 
-## **ANWENDUNGS-METHODEN:**
+## **APPLICATION METHODS:**
 
 ### **1. REGISTRY POLICIES**
 
-**Methode A: PowerShell**
+**Method A: PowerShell**
 ```powershell
 New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DeviceGuard" -Force
 New-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DeviceGuard" `
   -Name "EnableVirtualizationBasedSecurity" -PropertyType DWord -Value 1 -Force
 ```
 
-**Methode B: GPO Import** (nur bei Domain)
+**Method B: GPO Import** (only with Domain)
 ```powershell
 Import-GPO -BackupId {GUID} -TargetName "Baseline" -Path ".\GPOs\"
 ```
@@ -579,7 +581,7 @@ Import-GPO -BackupId {GUID} -TargetName "Baseline" -Path ".\GPOs\"
 
 ### **2. SECURITY TEMPLATE**
 
-**Methode: secedit.exe**
+**Method: secedit.exe**
 ```powershell
 secedit /configure /db "$env:TEMP\secedit.sdb" `
   /cfg "Win11_25H2_Baseline_SecTemplate.inf" /quiet
@@ -589,7 +591,7 @@ secedit /configure /db "$env:TEMP\secedit.sdb" `
 
 ### **3. AUDIT POLICIES**
 
-**Methode: auditpol.exe**
+**Method: auditpol.exe**
 ```powershell
 auditpol /set /subcategory:"Audit Credential Validation" `
   /success:enable /failure:enable
@@ -599,47 +601,47 @@ auditpol /set /subcategory:"Audit Credential Validation" `
 
 ### **4. SERVICES**
 
-**Methode: PowerShell**
+**Method: PowerShell**
 ```powershell
-# 4 Services aus Baseline
+# 4 Services from Baseline
 Set-Service -Name XboxGipSvc -StartupType Disabled
 Set-Service -Name XblAuthManager -StartupType Disabled
 Set-Service -Name XblGameSave -StartupType Disabled
 Set-Service -Name XboxNetApiSvc -StartupType Disabled
 
-# NICHT Teil der Baseline (optionale Härtung):
+# NOT part of Baseline (optional hardening):
 # Disable-ScheduledTask -TaskPath "\Microsoft\XblGameSave\" -TaskName "XblGameSaveTask"
 ```
 
 ---
 
-## **VORAUSSETZUNGEN FÜR WIN11 PRO STANDALONE:**
+## **REQUIREMENTS FOR WIN11 PRO STANDALONE:**
 
-| Feature | Voraussetzung | Verfügbar? |
+| Feature | Requirement | Available? |
 |---------|---------------|------------|
-| **Credential Guard** | Hardware-VT + TPM 2.0 + UEFI | ✅ Moderne Geräte (seit 2016) |
-| **BitLocker** | TPM 2.0 | ✅ Win11-zertifizierte Geräte |
-| **Defender** | Keine | ✅ Jedes Win11 Pro |
-| **Kerberos** | Keine | ✅ Lokaler Client |
-| **Internet Zones** | Keine | ✅ System-weit |
-| **Security Template** | Admin-Rechte | ✅ Lokal anwendbar |
-| **Audit Policies** | Admin-Rechte | ✅ Lokal anwendbar |
-| **Services** | Admin-Rechte | ✅ Lokal anwendbar |
+| **Credential Guard** | Hardware-VT + TPM 2.0 + UEFI | ✅ Modern devices (since 2016) |
+| **BitLocker** | TPM 2.0 | ✅ Win11-certified devices |
+| **Defender** | None | ✅ Any Win11 Pro |
+| **Kerberos** | None | ✅ Local client |
+| **Internet Zones** | None | ✅ System-wide |
+| **Security Template** | Admin rights | ✅ Locally applicable |
+| **Audit Policies** | Admin rights | ✅ Locally applicable |
+| **Services** | Admin rights | ✅ Locally applicable |
 
 ---
 
-## **FINALE ZUSAMMENFASSUNG:**
+## **FINAL SUMMARY:**
 
 ```
 MS SECURITY BASELINE WINDOWS 11 v25H2
 
-A = WAS IST DRIN: 429 Settings
+A = WHAT'S INCLUDED: 429 Settings
 ├─ Registry: 335
 ├─ Security Template: 67
 ├─ Audit: 23
 └─ Services: 4
 
-B = STANDALONE ANWENDBAR: 370 Settings (86.2%)
+B = STANDALONE APPLICABLE: 370 Settings (86.2%)
 ├─ Credential Guard: 8 ✅
 ├─ BitLocker: 10 ✅
 ├─ Defender: 39 ✅
@@ -652,86 +654,86 @@ B = STANDALONE ANWENDBAR: 370 Settings (86.2%)
 
 N/A: 59 Settings (13.8%)
 ├─ IE11-only: 57 (deprecated)
-└─ Domain/DC-only: 2 (LAPS only - MSAOptional+EnableMPR funktionieren auf Standalone!)
+└─ Domain/DC-only: 2 (LAPS only - MSAOptional+EnableMPR work on Standalone!)
 
-OHNE IE11-ONLY: 370/374 = 98.9% ✅✅✅
+WITHOUT IE11-ONLY: 370/372 = 99.5% ✅✅✅
 ```
 
 ---
 
-**100% VERIFIZIERT GEGEN ORIGINALE BASELINE-DATEIEN!**  
-Alle 429 Settings einzeln gegen offizielle MS Baseline geprüft.
+**100% VERIFIED AGAINST ORIGINAL BASELINE FILES!**  
+All 429 Settings individually checked against official MS Baseline.
 
-**Quelle:** Microsoft Security Baseline Windows 11 v25H2  
-**Analysiert:** 5. November 2025, 19:52 Uhr  
-**Verifiziert gegen:**
-- MSFT-Win11-v25H2.PolicyRules (Registry-Werte)
+**Source:** Microsoft Security Baseline Windows 11 v25H2  
+**Analyzed:** November 5, 2025, 7:52 PM  
+**Verified against:**
+- MSFT-Win11-v25H2.PolicyRules (Registry values)
 - GptTmpl.inf (Security Template)
 - GPO-Reports (HTML)
 - MS Security Baseline Windows 11 v25H2.xlsx
 
-**✅ KORRIGIERT (5. Nov, 19:40):**
-- IE11 Computer: 133 (nicht 136) ✅
-- Firewall: 24 Settings (nicht 14) ✅
+**✅ CORRECTED (Nov 5, 7:40 PM):**
+- IE11 Computer: 133 (not 136) ✅
+- Firewall: 24 Settings (not 14) ✅
 - SMB: MinSmb2Dialect=768, MaxSmb2Dialect=785 ✅
-- Security Template: 9+23+31+4=67 (nicht 9+3+40+15) ✅
-- Search/Cortana Beispiele entfernt (nicht in Baseline) ✅
+- Security Template: 9+23+31+4=67 (not 9+3+40+15) ✅
+- Search/Cortana examples removed (not in Baseline) ✅
 
-**✅ ERGÄNZT (5. Nov, 19:48) - Neue v25H2 Features:**
-- NetBIOS-Deaktivierung (EnableNetbios=0 auf allen Adaptern) ✅
+**✅ ADDED (Nov 5, 7:48 PM) - New v25H2 Features:**
+- NetBIOS Deactivation (EnableNetbios=0 on all adapters) ✅
 - PrintSpoolerService in SeImpersonatePrivilege ✅
-- Beide verifiziert gegen originale Baseline-Dateien (CSV + GptTmpl.inf)
+- Both verified against original Baseline files (CSV + GptTmpl.inf)
 
-**✅ FINALE KLARSTELLUNG (5. Nov, 23:03) - IE11 Breakdown:**
+**✅ FINAL CLARIFICATION (Nov 5, 11:03 PM) - IE11 Breakdown:**
 - IE Computer (HKLM): 79 Zones + 54 IE-only = 133 ✅
 - IE User (HKCU): 3 Settings ✅
-- IE GESAMT: 136 IE-bezogene Einstellungen ✅
-- Keine Verwechslung mehr zwischen Computer/User Split
+- IE TOTAL: 136 IE-related settings ✅
+- No more confusion between Computer/User split
 
 ---
 
-## 🎯 FINALE BESTÄTIGUNG
+## 🎯 FINAL CONFIRMATION
 
-**Frage:** Ist dieses Dokument aligned mit der MS Security Baseline v25H2?
+**Question:** Is this document aligned with the MS Security Baseline v25H2?
 
-**Antwort:** **JA - 100% ALIGNED!** ✅
+**Answer:** **YES - 100% ALIGNED!** ✅
 
-### **Was korrekt ist:**
+### **What is correct:**
 
-✅ **Gesamtsummen:** 429 = 335 Registry + 67 Security Template + 23 Audit + 4 Services  
+✅ **Total sums:** 429 = 335 Registry + 67 Security Template + 23 Audit + 4 Services  
 ✅ **Registry Split:** 140 + 133 + 39 + 10 + 8 + 3 + 2 = 335  
-✅ **Firewall:** 24 (8 Werte × 3 Profile)  
+✅ **Firewall:** 24 (8 values × 3 profiles)  
 ✅ **SMB:** MinSmb2Dialect=768, MaxSmb2Dialect=785, SMB1=0  
-✅ **Defender:** 39 Settings inkl. 15 ASR-GUIDs  
-✅ **Credential Guard:** 8 Werte exakt  
-✅ **Security Template:** 9/23/31/4 Verteilung  
-✅ **Audit Matrix:** Alle Kategorien korrekt (Success/Failure)  
-✅ **Services:** 4 Xbox (kein XblGameSaveTask)  
-✅ **IE Breakdown:** 133 (HKLM) + 3 (HKCU) = 136 total - glasklar!  
-✅ **Keine Windows Update Settings** (nicht in Baseline)  
-✅ **Keine ConfigureDoSvc** (nicht in Baseline)  
-✅ **Standalone-Berechnung:** 370/429 = 86,2% anwendbar
+✅ **Defender:** 39 Settings incl. 15 ASR GUIDs  
+✅ **Credential Guard:** 8 values exact  
+✅ **Security Template:** 9/23/31/4 distribution  
+✅ **Audit Matrix:** All categories correct (Success/Failure)  
+✅ **Services:** 4 Xbox (no XblGameSaveTask)  
+✅ **IE Breakdown:** 133 (HKLM) + 3 (HKCU) = 136 total - crystal clear!  
+✅ **No Windows Update Settings** (not in Baseline)  
+✅ **No ConfigureDoSvc** (not in Baseline)  
+✅ **Standalone calculation:** 370/429 = 86.2% applicable
 
-### **Änderungen in dieser Version:**
+### **Changes in this version:**
 
-✅ **IE-Abschnitt 1.5:** Klarstellung der 133/3/136 Split (Computer/User/Total)  
-  - **Vorher:** "79 + 57 = 133" (verwirrend)  
-  - **Nachher:** "79 Zones + 54 IE-only = 133 Computer, plus 3 User" (glasklar!)
+✅ **IE Section 1.5:** Clarification of 133/3/136 split (Computer/User/Total)  
+  - **Before:** "79 + 57 = 133" (confusing)  
+  - **After:** "79 Zones + 54 IE-only = 133 Computer, plus 3 User" (crystal clear!)
 
-✅ **MSAOptional + EnableMPR:** Korrektur von "Domain-only" zu "Standalone-anwendbar"
-  - **Vorher:** N/A = 61 (54 IE + 4 Domain + 2 LAPS)
-  - **Nachher:** N/A = 59 (57 IE + 2 LAPS)
-  - **Standalone:** 370 statt 368
+✅ **MSAOptional + EnableMPR:** Correction from "Domain-only" to "Standalone-applicable"
+  - **Before:** N/A = 61 (54 IE + 4 Domain + 2 LAPS)
+  - **After:** N/A = 59 (57 IE + 2 LAPS)
+  - **Standalone:** 370 instead of 368
 
 ### **Status:**
 
-🎉 **Dieses Dokument ist inhaltlich UND formell 100% konsistent mit der Microsoft Security Baseline Windows 11 v25H2!**
+🎉 **This document is content-wise AND formally 100% consistent with the Microsoft Security Baseline Windows 11 v25H2!**
 
-**Letzte Aktualisierung:** 5. November 2025, 23:35 Uhr
+**Last Update:** November 5, 2025, 11:35 PM
 
-**✅ FINALE KORREKTUR:**
+**✅ FINAL CORRECTION:**
 - **Total: 429 Settings** ✅
-- **Services: 4 (kein XblGameSaveTask)** ✅
-- **Standalone anwendbar: 370 (MSAOptional+EnableMPR korrigiert!)** ✅
+- **Services: 4 (no XblGameSaveTask)** ✅
+- **Standalone applicable: 370 (MSAOptional+EnableMPR corrected!)** ✅
 - **N/A: 59 (57 IE + 2 LAPS)** ✅
-- **Ohne IE11: 370/374 = 98.9%** ✅
+- **Without IE11: 370/372 = 99.5%** ✅

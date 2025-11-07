@@ -311,7 +311,7 @@ if ($backupCount -gt 10) {
                 Write-Warning "Could not delete old backup: $($oldBackup.Name)"
             }
         }
-        Write-Host "  [OK] $deleteCount $(Get-LocalizedString 'BackupDeleted')" -ForegroundColor Green
+        Write-Host "[OK] $deleteCount $(Get-LocalizedString 'BackupDeleted')" -ForegroundColor Green
     }
 }
 else {
@@ -353,7 +353,7 @@ $dnsBackup = foreach ($adapter in $adapters) {
             $ipv6Addrs = if ($dnsIPv6 -and $dnsIPv6.ServerAddresses) { @($dnsIPv6.ServerAddresses) } else { @() }
             
             $allAddrs = @($ipv4Addrs) + @($ipv6Addrs)
-            Write-Host "  [OK] $($adapterMsg) $($allAddrs -join ', ')" -ForegroundColor Gray
+            Write-Host "[OK] $($adapterMsg) $($allAddrs -join ', ')" -ForegroundColor Gray
             
             # Output to pipeline (captured by $dnsBackup)
             # CRITICAL: InterfaceGuid is stable across reboots (IfIndex can change!)
@@ -401,7 +401,7 @@ Write-Host "[3/16] $(Get-LocalizedString 'BackupApps')" -ForegroundColor Yellow
 # User Apps (with timeout protection)
 $installedApps = @()
 try {
-    Write-Host "$(Get-LocalizedString 'BackupAppsReading')" -ForegroundColor Gray
+    Write-Host "[i] $(Get-LocalizedString 'BackupAppsReading')" -ForegroundColor Gray
     
     # TIMEOUT: 60 seconds max for AppX enumeration
     $job = Start-Job -ScriptBlock { Get-AppxPackage -ErrorAction SilentlyContinue }
@@ -424,7 +424,7 @@ try {
         
         $backup.Settings.InstalledApps = $installedApps
         $appsCount = if ($installedApps) { @($installedApps).Count } else { 0 }
-        Write-Host "  [OK] $appsCount $(Get-LocalizedString 'BackupAppsUser')" -ForegroundColor Green
+        Write-Host "[OK] $appsCount $(Get-LocalizedString 'BackupAppsUser')" -ForegroundColor Green
     }
     else {
         # Timeout erreicht!
@@ -439,11 +439,11 @@ catch {
 }
 
 # Provisioned Packages (with timeout protection)
-Write-Host "  [i] $(Get-LocalizedString 'BackupAppsProvisioned')" -ForegroundColor Cyan
+Write-Host "[i] $(Get-LocalizedString 'BackupAppsProvisioned')" -ForegroundColor Cyan
 
 $provisionedPackages = @()
 try {
-    Write-Host "$(Get-LocalizedString 'BackupProvisionedReading')" -ForegroundColor Gray
+    Write-Host "[i] $(Get-LocalizedString 'BackupProvisionedReading')" -ForegroundColor Gray
     
     # TIMEOUT: 90 seconds max (Get-AppxProvisionedPackage -Online is SLOW!)
     $job = Start-Job -ScriptBlock { Get-AppxProvisionedPackage -Online -ErrorAction SilentlyContinue }
@@ -465,7 +465,7 @@ try {
         
         $backup.Settings.ProvisionedPackages = $provisionedPackages
         $pkgCount = if ($provisionedPackages) { @($provisionedPackages).Count } else { 0 }
-        Write-Host "  [OK] $pkgCount $(Get-LocalizedString 'BackupAppsProvisionedSaved')" -ForegroundColor Green
+        Write-Host "[OK] $pkgCount $(Get-LocalizedString 'BackupAppsProvisionedSaved')" -ForegroundColor Green
     }
     else {
         # Timeout erreicht!
@@ -507,7 +507,7 @@ $servicesBackup = foreach ($service in $allServices) {
 $backup.Settings.Services = $servicesBackup
 $servicesCount = if ($servicesBackup) { @($servicesBackup).Count } else { 0 }
 Write-Host "[OK] $servicesCount $(Get-LocalizedString 'BackupServicesSaved')" -ForegroundColor Green
-Write-Host "    $(Get-LocalizedString 'BackupServicesNote')" -ForegroundColor Gray
+Write-Host "$(Get-LocalizedString 'BackupServicesNote')" -ForegroundColor Gray
 Write-Host ""
 #endregion
 
@@ -516,7 +516,7 @@ Write-Host "[5/16] Backing up Windows Optional Features..." -ForegroundColor Yel
 
 $windowsFeaturesBackup = @()
 try {
-    Write-Host "  [i] Reading Windows Optional Features..." -ForegroundColor Gray
+    Write-Host "[i] Reading Windows Optional Features..." -ForegroundColor Gray
     
     # Get all Windows Optional Features (not just enabled ones)
     $features = Get-WindowsOptionalFeature -Online -ErrorAction SilentlyContinue
@@ -539,8 +539,8 @@ try {
         
         $backup.Settings.WindowsFeatures = $windowsFeaturesBackup
         $featuresCount = if ($windowsFeaturesBackup) { @($windowsFeaturesBackup).Count } else { 0 }
-        Write-Host "  [OK] $featuresCount Windows Features saved" -ForegroundColor Green
-        Write-Host "      (Includes state: Enabled/Disabled/DisabledWithPayloadRemoved)" -ForegroundColor Gray
+        Write-Host "[OK] $featuresCount Windows Features saved" -ForegroundColor Green
+        Write-Host "[i] Includes state: Enabled/Disabled/DisabledWithPayloadRemoved" -ForegroundColor Gray
     }
     else {
         Write-Warning "No Windows Features found"
@@ -612,7 +612,7 @@ $firewallBackup = foreach ($rule in $allFirewallRules) {
 $backup.Settings.FirewallRules = $firewallBackup
 $firewallCount = if ($firewallBackup) { @($firewallBackup).Count } else { 0 }
 Write-Host "[OK] $firewallCount $(Get-LocalizedString 'BackupFirewallSaved')" -ForegroundColor Green
-Write-Host "    $(Get-LocalizedString 'BackupFirewallNote')" -ForegroundColor Gray
+Write-Host "$(Get-LocalizedString 'BackupFirewallNote')" -ForegroundColor Gray
 Write-Host ""
 #endregion
 
@@ -1027,10 +1027,10 @@ try {
     
     if ($deviceLevelBackup.Apps.Count -gt 0) {
         $deviceLevelBackup.Enabled = $true
-        Write-Host "  [OK] $($deviceLevelBackup.Apps.Count) device-level app permissions backed up" -ForegroundColor Green
+        Write-Host "[OK] $($deviceLevelBackup.Apps.Count) device-level app permissions backed up" -ForegroundColor Green
     }
     else {
-        Write-Host "  [INFO] No device-level app permissions found (or all Access Denied)" -ForegroundColor Gray
+        Write-Host "[INFO] No device-level app permissions found (or all Access Denied)" -ForegroundColor Gray
     }
 }
 catch {
@@ -1104,7 +1104,7 @@ try {
         $powerBackup.Settings.HibernateEnabled = $hibernateStatus -match 'Hibernate'
         
         $powerBackup.Enabled = $true
-        Write-Host "  [OK] Power settings backed up (Scheme: $($powerBackup.Settings.ActiveSchemeGUID))" -ForegroundColor Green
+        Write-Host "[OK] Power settings backed up (Scheme: $($powerBackup.Settings.ActiveSchemeGUID))" -ForegroundColor Green
         
         # Safe property access for verbose output
         $props = $powerBackup.Settings.PSObject.Properties.Name

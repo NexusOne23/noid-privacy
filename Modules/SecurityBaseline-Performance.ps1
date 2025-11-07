@@ -47,8 +47,8 @@ function Optimize-ScheduledTasks {
     
     Write-Section "Scheduled Tasks Optimierung (Performance)"
     
-    Write-Info "Performance-spezifische Scheduled Tasks werden deaktiviert..."
-    Write-Info "Telemetrie-Tasks werden separat im Telemetry-Modul deaktiviert"
+    Write-Info "Performance-specific Scheduled Tasks will be disabled..."
+    Write-Info "Telemetry Tasks are disabled separately in the Telemetry module"
     
     # List of PERFORMANCE tasks to disable (Best Practice 2025)
     # NOTE: Telemetry tasks are in Telemetry module!
@@ -200,42 +200,42 @@ function Optimize-ScheduledTasks {
             if ($scheduledTask.State -ne 'Disabled') {
                 Disable-ScheduledTask -TaskPath $task.Path -TaskName $task.Name -ErrorAction Stop | Out-Null
                 $disabledCount++
-                Write-Verbose "     Deaktiviert: $fullPath ($($task.Reason))"
+                Write-Verbose "     Disabled: $fullPath ($($task.Reason))"
             }
             else {
-                Write-Verbose "     Bereits deaktiviert: $fullPath"
+                Write-Verbose "     Already disabled: $fullPath"
             }
         }
         catch {
-            Write-Verbose "     Fehler bei Task $fullPath : $_"
+            Write-Verbose "     Error with task $fullPath : $_"
         }
     }
     
-    Write-Success "$disabledCount Performance-Tasks deaktiviert"
+    Write-Success "$disabledCount Performance Tasks disabled"
     
     if ($notFoundCount -gt 0) {
-        Write-Info "$notFoundCount Tasks nicht gefunden (normal in Windows 11 25H2)"
-        Write-Verbose "Viele Tasks wurden in Windows 11 24H2/25H2 entfernt:"
-        Write-Verbose "  - Maps Tasks (Maps App abgeschafft)"
+        Write-Info "$notFoundCount Tasks not found (normal in Windows 11 25H2)"
+        Write-Verbose "Many tasks were removed in Windows 11 24H2/25H2:"
+        Write-Verbose "  - Maps Tasks (Maps App discontinued)"
         Write-Verbose "  - AitAgent (Windows 7/8 Legacy)"
-        Write-Verbose "  - Family Safety (nur wenn aktiviert)"
-        Write-Verbose "  - Mobile Broadband (nur auf LTE/5G-Geraeten)"
+        Write-Verbose "  - Family Safety (only if activated)"
+        Write-Verbose "  - Mobile Broadband (only on LTE/5G devices)"
     }
     
     if ($errorCount -gt 0) {
-        Write-Warning "$errorCount Tasks konnten nicht deaktiviert werden"
+        Write-Warning "$errorCount Tasks could not be disabled"
     }
     
     if ($disabledCount -eq 0 -and $notFoundCount -gt 0) {
-        Write-Info "HINWEIS: Windows 11 25H2 (Build 26200) hat viele Tasks entfernt"
-        Write-Info "Dies ist NORMAL und KEIN Fehler! Hauptsaechlich betroffen:"
-        Write-Info "  - Maps (wird Juli 2025 komplett abgeschafft)"
-        Write-Info "  - Legacy Telemetry Tasks (bereits im Telemetry-Modul deaktiviert)"
-        Write-Info "  - Optionale Features (Family Safety, Mobile Broadband)"
+        Write-Info "NOTE: Windows 11 25H2 (Build 26200) removed many tasks"
+        Write-Info "This is NORMAL and NOT an error! Mainly affected:"
+        Write-Info "  - Maps (will be completely removed in July 2025)"
+        Write-Info "  - Legacy Telemetry Tasks (already disabled in Telemetry module)"
+        Write-Info "  - Optional Features (Family Safety, Mobile Broadband)"
     }
     
-    Write-Info "Telemetrie-Tasks werden separat im Telemetry-Modul deaktiviert"
-    Write-Info "WICHTIG: Windows Update/Defender Tasks bleiben AKTIV (kritisch!)"
+    Write-Info "Telemetry Tasks are disabled separately in the Telemetry module"
+    Write-Info "IMPORTANT: Windows Update/Defender Tasks remain ACTIVE (critical!)"
 }
 
 function Optimize-EventLogs {
@@ -293,12 +293,12 @@ function Optimize-EventLogs {
                     Write-Verbose "     Grund: $($log.Reason)"
                 }
                 else {
-                    Write-Warning-Custom "Event Log '$($log.Name)' konnte nicht konfiguriert werden (Exit: $LASTEXITCODE)"
+                    Write-Warning-Custom "Event Log '$($log.Name)' could not be configured (Exit: $LASTEXITCODE)"
                 }
             }
         }
         catch {
-            Write-Verbose "Fehler bei $($log.Name): $_"
+            Write-Verbose "Error with $($log.Name): $_"
         }
     }
     
@@ -329,7 +329,7 @@ function Optimize-EventLogs {
                     Write-Verbose "     Deaktiviert: $logName (Noise-Log)"
                 }
                 else {
-                    Write-Warning-Custom "Event Log '$logName' konnte nicht deaktiviert werden (Exit: $LASTEXITCODE)"
+                    Write-Warning-Custom "Event Log '$logName' could not be disabled (Exit: $LASTEXITCODE)"
                     if ($result) {
                         Write-Info "Details: $result"
                     }
@@ -338,13 +338,13 @@ function Optimize-EventLogs {
         }
         catch {
             # Silent - not critical
-            Write-Verbose "Fehler bei $logName : $_"
+            Write-Verbose "Error with $logName : $_"
         }
     }
     
-    Write-Success "Event Logs optimiert (Kritische erhoeht, Noise reduziert)"
-    Write-Info "Security/System Logs: Erhoeht (fuer Forensik)"
-    Write-Info "Noise Logs: Reduziert (weniger I/O, weniger Speicher)"
+    Write-Success "Event Logs optimized (Critical increased, Noise reduced)"
+    Write-Info "Security/System Logs: Increased (for forensics)"
+    Write-Info "Noise Logs: Reduced (less I/O, less memory)"
 }
 
 function Disable-BackgroundActivities {
@@ -363,11 +363,11 @@ function Disable-BackgroundActivities {
     
     Write-Section "Background Activities Optimierung"
     
-    Write-Info "Hintergrund-Aktivitaeten werden optimiert..."
+    Write-Info "Background activities are being optimized..."
     
     # ===== WINDOWS SEARCH INDEXING =====
     try {
-        Write-Info "Windows Search wird optimiert (nur Web-Features deaktiviert)..."
+        Write-Info "Windows Search is being optimized (only Web features disabled)..."
         
         # NOTE: SetupCompletedSuccessfully = 0 was REMOVED (breaks Windows Search and Outlook!)
         # Windows Search Indexer must remain functional for local file/email search
@@ -383,15 +383,15 @@ function Disable-BackgroundActivities {
         Set-RegistryValue -Path $cortanaPath -Name "ConnectedSearchUseWeb" -Value 0 -Type DWord `
             -Description "Connected Search Web deaktivieren"
         
-        Write-Success "Windows Search optimiert (nur lokal, kein Web)"
+        Write-Success "Windows Search optimized (local only, no Web)"
     }
     catch {
-        Write-Warning "Windows Search Optimierung fehlgeschlagen: $_"
+        Write-Warning "Windows Search optimization failed: $_"
     }
     
     # ===== DEFRAG OPTIMIZATION =====
     try {
-        Write-Info "Defragmentation wird optimiert..."
+        Write-Info "Defragmentation is being optimized..."
         
         # Best Practice 25H2: Per-volume configuration
         # SSDs: TRIM only (no defrag)
@@ -409,11 +409,11 @@ function Disable-BackgroundActivities {
                 if ($disk -and $disk.PSObject.Properties['MediaType']) {
                     if ($disk.MediaType -eq 'SSD') {
                         $hasSSD = $true
-                        Write-Verbose "SSD detected: $($vol.DriveLetter) - TRIM wird automatisch verwendet"
+                        Write-Verbose "SSD detected: $($vol.DriveLetter) - TRIM is used automatically"
                     }
                     elseif ($disk.MediaType -eq 'HDD') {
                         $hasHDD = $true
-                        Write-Verbose "HDD detected: $($vol.DriveLetter) - Defrag bleibt aktiv"
+                        Write-Verbose "HDD detected: $($vol.DriveLetter) - Defrag remains active"
                     }
                 }
                 else {
@@ -432,32 +432,32 @@ function Disable-BackgroundActivities {
                 $defragTask = Get-ScheduledTask -TaskPath "\Microsoft\Windows\Defrag\" -TaskName "ScheduledDefrag" -ErrorAction SilentlyContinue 2>$null
                 if ($defragTask -and $defragTask.State -ne 'Disabled') {
                     Disable-ScheduledTask -TaskName "\Microsoft\Windows\Defrag\ScheduledDefrag" -ErrorAction SilentlyContinue | Out-Null
-                    Write-Success "Defrag deaktiviert (nur SSDs - TRIM automatisch)"
+                    Write-Success "Defrag disabled (SSDs only - TRIM automatic)"
                 }
                 elseif ($defragTask) {
-                    Write-Verbose "Defrag bereits deaktiviert (uebersprungen)"
+                    Write-Verbose "Defrag already disabled (skipped)"
                 }
             }
             catch {
-                Write-Verbose "Defrag-Task nicht gefunden (bereits optimiert oder nicht vorhanden)"
+                Write-Verbose "Defrag task not found (already optimized or not present)"
             }
         }
         elseif ($hasSSD -and $hasHDD) {
             # Hybrid system: Keep defrag task (Windows optimizes per volume)
-            Write-Success "Hybrid System: Windows optimiert automatisch (SSD=TRIM, HDD=Defrag)"
+            Write-Success "Hybrid System: Windows optimizes automatically (SSD=TRIM, HDD=Defrag)"
         }
         else {
             # Pure HDD or unknown: Keep defrag
-            Write-Success "Defrag bleibt aktiv (HDDs profitieren davon)"
+            Write-Success "Defrag remains active (HDDs benefit from it)"
         }
     }
     catch {
-        Write-Verbose "Defrag Optimierung fehlgeschlagen: $_"
+        Write-Verbose "Defrag optimization failed: $_"
     }
     
     # ===== SUPERFETCH / SYSMAIN =====
     try {
-        Write-Info "Superfetch/SysMain wird optimiert..."
+        Write-Info "Superfetch/SysMain is being optimized..."
         
         # For SSD: Superfetch not needed (SSD is fast enough)
         # For HDD: Can help
@@ -466,16 +466,16 @@ function Disable-BackgroundActivities {
         $sysmainService = Get-Service -Name "SysMain" -ErrorAction SilentlyContinue
         if ($sysmainService) {
             Set-Service -Name "SysMain" -StartupType Manual -ErrorAction SilentlyContinue
-            Write-Success "SysMain/Superfetch auf 'Manual' (laeuft nur bei Bedarf)"
+            Write-Success "SysMain/Superfetch set to 'Manual' (runs only when needed)"
         }
     }
     catch {
-        Write-Verbose "Superfetch Optimierung: $_"
+        Write-Verbose "Superfetch optimization: $_"
     }
     
     # ===== PREFETCH =====
     try {
-        Write-Info "Prefetch wird optimiert..."
+        Write-Info "Prefetch is being optimized..."
         
         # Optimize Prefetch for SSD
         $prefetchPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Memory Management\PrefetchParameters"
@@ -488,29 +488,29 @@ function Disable-BackgroundActivities {
         Set-RegistryValue -Path $prefetchPath -Name "EnableSuperfetch" -Value 0 -Type DWord `
             -Description "Superfetch: Aus (SSD braucht das nicht)"
         
-        Write-Success "Prefetch optimiert (Nur Boot, kein App-Prefetch)"
+        Write-Success "Prefetch optimized (Boot only, no App-Prefetch)"
     }
     catch {
-        Write-Verbose "Prefetch Optimierung: $_"
+        Write-Verbose "Prefetch optimization: $_"
     }
     
     # ===== BACKGROUND INTELLIGENT TRANSFER SERVICE (BITS) =====
     try {
-        Write-Info "BITS wird optimiert..."
+        Write-Info "BITS is being optimized..."
         
         # Set BITS to Manual (runs only with Windows Update)
         $bitsService = Get-Service -Name "BITS" -ErrorAction SilentlyContinue
         if ($bitsService) {
             Set-Service -Name "BITS" -StartupType Manual -ErrorAction SilentlyContinue
-            Write-Success "BITS auf 'Manual' (laeuft nur bei Bedarf)"
+            Write-Success "BITS set to 'Manual' (runs only when needed)"
         }
     }
     catch {
-        Write-Verbose "BITS Optimierung: $_"
+        Write-Verbose "BITS optimization: $_"
     }
     
-    Write-Success "Background Activities optimiert"
-    Write-Info "System ist jetzt 'stiller' und weniger Hintergrund-I/O"
+    Write-Success "Background Activities optimized"
+    Write-Info "System is now 'quieter' with less background I/O"
 }
 
 function Optimize-SystemMaintenance {
@@ -528,7 +528,7 @@ function Optimize-SystemMaintenance {
     
     Write-Section "System Maintenance Optimierung"
     
-    Write-Info "System Maintenance wird optimiert..."
+    Write-Info "System Maintenance is being optimized..."
     
     # ===== AUTOMATIC MAINTENANCE =====
     try {
@@ -542,48 +542,48 @@ function Optimize-SystemMaintenance {
         Set-RegistryValue -Path $maintenancePath -Name "IdleOnly" -Value 1 -Type DWord `
             -Description "Maintenance nur im Idle"
         
-        Write-Success "Automatic Maintenance: Nur im Idle (stoert nicht bei Nutzung)"
+        Write-Success "Automatic Maintenance: Idle only (doesn't disturb during use)"
     }
     catch {
-        Write-Verbose "Maintenance Optimierung: $_"
+        Write-Verbose "Maintenance optimization: $_"
     }
     
     # ===== DEFRAG FOR SSD =====
     try {
-        Write-Info "Defrag wird fuer SSD optimiert..."
+        Write-Info "Defrag is being optimized for SSD..."
         
         # For SSD: Scheduled Defrag not needed (TRIM is enough)
         try {
             $defragTask = Get-ScheduledTask -TaskName "ScheduledDefrag" -ErrorAction SilentlyContinue 2>$null
             if ($defragTask) {
-                Write-Success "Defrag Task laeuft weiter (Windows macht automatisch TRIM fuer SSD)"
+                Write-Success "Defrag Task continues (Windows automatically does TRIM for SSD)"
             }
         }
         catch {
-            Write-Verbose "Defrag-Task nicht gefunden"
+            Write-Verbose "Defrag task not found"
         }
     }
     catch {
-        Write-Verbose "Defrag Optimierung: $_"
+        Write-Verbose "Defrag optimization: $_"
     }
     
     # ===== WINDOWS UPDATE SEEDING =====
     try {
-        Write-Info "Windows Update Seeding wird optimiert..."
+        Write-Info "Windows Update Seeding is being optimized..."
         
         # Delivery Optimization Seeding to minimum (already done, double-check)
         $doPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DeliveryOptimization"
         Set-RegistryValue -Path $doPath -Name "DODownloadMode" -Value 0 -Type DWord `
             -Description "Delivery Optimization: HTTP-Only (kein Seeding)"
         
-        Write-Success "Update Seeding: HTTP-Only (kein P2P Upload)"
+        Write-Success "Update Seeding: HTTP-Only (no P2P upload)"
     }
     catch {
         Write-Verbose "Update Seeding: $_"
     }
     
-    Write-Success "System Maintenance optimiert"
-    Write-Info "Weniger Hintergrund-I/O, mehr Performance bei aktiver Nutzung"
+    Write-Success "System Maintenance optimized"
+    Write-Info "Less background I/O, more performance during active use"
 }
 
 function Disable-VisualEffects {
@@ -613,8 +613,8 @@ function Disable-VisualEffects {
     # 
     # RECOMMENDATION: User should set this themselves via GUI
     
-    Write-Success "Visual Effects: User-Choice (NICHT system-weit gesetzt)"
-    Write-Info "User kann Settings nach eigenen Vorlieben anpassen"
+    Write-Success "Visual Effects: User-Choice (NOT set system-wide)"
+    Write-Info "User can adjust Settings according to their preferences"
 }
 
 function Show-PerformanceReport {
@@ -630,32 +630,32 @@ function Show-PerformanceReport {
     
     Write-Section "Performance Optimierung - Report"
     
-    Write-Host "`n=== OPTIMIERT ===" -ForegroundColor Green
-    Write-Host "[OK] Scheduled Tasks: ~30 unnoetige Tasks deaktiviert" -ForegroundColor Green
-    Write-Host "[OK] Event Logs: Kritische erhoeht, Noise reduziert" -ForegroundColor Green
-    Write-Host "[OK] Background Activities: Search/Prefetch optimiert" -ForegroundColor Green
-    Write-Host "[OK] System Maintenance: Nur im Idle" -ForegroundColor Green
-    Write-Host "[OK] Visual Effects: Balance (schnell + lesbar)" -ForegroundColor Green
+    Write-Host "`n=== OPTIMIZED ===" -ForegroundColor Green
+    Write-Host "[OK] Scheduled Tasks: ~30 unnecessary tasks disabled" -ForegroundColor Green
+    Write-Host "[OK] Event Logs: Critical increased, Noise reduced" -ForegroundColor Green
+    Write-Host "[OK] Background Activities: Search/Prefetch optimized" -ForegroundColor Green
+    Write-Host "[OK] System Maintenance: Idle only" -ForegroundColor Green
+    Write-Host "[OK] Visual Effects: Balance (fast + readable)" -ForegroundColor Green
     
-    Write-Host "`n=== BLEIBT AKTIV (WICHTIG!) ===" -ForegroundColor Yellow
-    Write-Host "[OK] Windows Update Tasks (kritisch fuer Security!)" -ForegroundColor Yellow
-    Write-Host "[OK] Windows Defender Tasks (kritisch fuer Security!)" -ForegroundColor Yellow
-    Write-Host "[OK] BITS Service (fuer Windows Update)" -ForegroundColor Yellow
-    Write-Host "[OK] Automatic Maintenance (nur im Idle)" -ForegroundColor Yellow
+    Write-Host "`n=== REMAINS ACTIVE (IMPORTANT!) ===" -ForegroundColor Yellow
+    Write-Host "[OK] Windows Update Tasks (critical for Security!)" -ForegroundColor Yellow
+    Write-Host "[OK] Windows Defender Tasks (critical for Security!)" -ForegroundColor Yellow
+    Write-Host "[OK] BITS Service (for Windows Update)" -ForegroundColor Yellow
+    Write-Host "[OK] Automatic Maintenance (idle only)" -ForegroundColor Yellow
     
-    Write-Host "`n=== ERGEBNIS ===" -ForegroundColor Cyan
-    Write-Host "[OK] Weniger CPU-Last im Hintergrund" -ForegroundColor Green
-    Write-Host "[OK] Weniger Disk-I/O (leiser, schneller)" -ForegroundColor Green
-    Write-Host "[OK] Weniger Telemetrie-Tasks" -ForegroundColor Green
-    Write-Host "[OK] Event Logs optimiert (weniger Speicher)" -ForegroundColor Green
-    Write-Host "[OK] System ist 'stiller' und responsiver!" -ForegroundColor Green
+    Write-Host "`n=== RESULT ===" -ForegroundColor Cyan
+    Write-Host "[OK] Less CPU load in background" -ForegroundColor Green
+    Write-Host "[OK] Less Disk I/O (quieter, faster)" -ForegroundColor Green
+    Write-Host "[OK] Fewer Telemetry tasks" -ForegroundColor Green
+    Write-Host "[OK] Event Logs optimized (less memory)" -ForegroundColor Green
+    Write-Host "[OK] System is 'quieter' and more responsive!" -ForegroundColor Green
     
-    Write-Host "`n=== WAS DU MERKST ===" -ForegroundColor Cyan
-    Write-Host "   Weniger Festplatten-Aktivitaet im Leerlauf" -ForegroundColor White
-    Write-Host "   Schnellere Reaktionszeiten" -ForegroundColor White
-    Write-Host "   Weniger Hintergrund-Laerm" -ForegroundColor White
-    Write-Host "   Niedrigere Basis-CPU-Last (~1-2% weniger)" -ForegroundColor White
-    Write-Host "   Weniger Event Log Noise" -ForegroundColor White
+    Write-Host "`n=== WHAT YOU'LL NOTICE ===" -ForegroundColor Cyan
+    Write-Host "   Less disk activity when idle" -ForegroundColor White
+    Write-Host "   Faster response times" -ForegroundColor White
+    Write-Host "   Less background noise" -ForegroundColor White
+    Write-Host "   Lower baseline CPU load (~1-2% less)" -ForegroundColor White
+    Write-Host "   Less Event Log noise" -ForegroundColor White
 }
 
 # Note: Export-ModuleMember is NOT needed for dot-sourced scripts

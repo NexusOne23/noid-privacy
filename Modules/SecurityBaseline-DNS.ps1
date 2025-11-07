@@ -108,7 +108,7 @@ function Install-DNSBlocklist {
                 return
             }
             else {
-                Write-Info "Updating hosts file: $currentDomainCount → $expectedDomainCount domains (+$($expectedDomainCount - [int]$currentDomainCount) new blocks)"
+                Write-Info "Updating hosts file: $currentDomainCount -> $expectedDomainCount domains (+$($expectedDomainCount - [int]$currentDomainCount) new blocks)"
                 # Continue with installation (update to newer version)
             }
         }

@@ -1820,7 +1820,7 @@ if ($backup.Settings.ExploitProtection -and $backup.Settings.ExploitProtection.E
                     param($Name, $BackupState, $EnableParams, $DisableParams)
                     
                     # BackupState properties: Enable (0=NotSet, 1=On, 2=Off), Disable, etc.
-                    # We check the ENABLE state: 1 = On → Enable, 2 = Off → Disable
+                    # We check the ENABLE state: 1 = On -> Enable, 2 = Off -> Disable
                     
                     $enableList = @()
                     $disableList = @()
@@ -1830,7 +1830,7 @@ if ($backup.Settings.ExploitProtection -and $backup.Settings.ExploitProtection.E
                         $props = $BackupState.PSObject.Properties.Name
                         if ($param -in $props) {
                             $value = $BackupState.$param
-                            # Value 1 = On → Enable, Value 2 = Off → Disable, 0 = NotSet → skip
+                            # Value 1 = On -> Enable, Value 2 = Off -> Disable, 0 = NotSet -> skip
                             if ($value -eq 1) { $enableList += $param }
                             elseif ($value -eq 2) { $disableList += $param }
                         }
@@ -1948,8 +1948,8 @@ Write-Host ""
 Write-Host "[12/18] Restore DoH Configuration..." -ForegroundColor Yellow
 
 # STRATEGY: TRUE RESTORE - restore to state BEFORE Apply script
-# If backup HAD DoH → restore with BACKUP settings (not hardcoded strict!)
-# If backup had NO DoH → REMOVE all DoH configuration
+# If backup HAD DoH -> restore with BACKUP settings (not hardcoded strict!)
+# If backup had NO DoH -> REMOVE all DoH configuration
 
 # Remove all existing DoH configurations first (idempotent)
 Write-Verbose "Removing all existing DoH configurations..."
@@ -1967,7 +1967,7 @@ if ($existingDoh) {
 
 if ($backup.Settings.DoH -and $backup.Settings.DoH.Enabled) {
     try {
-        # Backup HAD DoH → restore with BACKUP settings
+        # Backup HAD DoH -> restore with BACKUP settings
         Write-Verbose "Backup had DoH configuration - restoring from backup..."
         
         # Restore EnableAutoDoh from BACKUP (not hardcoded!)
@@ -2041,7 +2041,7 @@ if ($backup.Settings.DoH -and $backup.Settings.DoH.Enabled) {
     }
 }
 else {
-    # Backup had NO DoH → REMOVE all DoH configuration (true restore!)
+    # Backup had NO DoH -> REMOVE all DoH configuration (true restore!)
     Write-Host "  [INFO] Backup had no DoH configuration - removing all DoH settings..." -ForegroundColor Gray
     
     try {
@@ -2332,9 +2332,9 @@ if ($backup.Settings.PSObject.Properties.Name -contains 'SecurityTemplate' -and 
     Write-Host "      This is documented Microsoft behavior, not a script limitation." -ForegroundColor Gray
     Write-Host ""
     Write-Host "  [i] TECHNICAL BACKGROUND:" -ForegroundColor Cyan
-    Write-Host "      - Apply script HARDENS security (default → strict)" -ForegroundColor Gray
+    Write-Host "      - Apply script HARDENS security (default -> strict)" -ForegroundColor Gray
     Write-Host "      - secedit.exe can apply stricter policies" -ForegroundColor Gray
-    Write-Host "      - BUT: Cannot revert strict → default (Windows design)" -ForegroundColor Gray
+    Write-Host "      - BUT: Cannot revert strict -> default (Windows design)" -ForegroundColor Gray
     Write-Host "      - Examples: Password complexity ON cannot be turned OFF" -ForegroundColor Gray
     Write-Host "                  Password MinLength 14 cannot be reduced to 8" -ForegroundColor Gray
     Write-Host ""
@@ -2350,12 +2350,12 @@ if ($backup.Settings.PSObject.Properties.Name -contains 'SecurityTemplate' -and 
     Write-Host "      Your system is MORE SECURE than the backup state." -ForegroundColor Green
     Write-Host ""
     Write-Host "  [i] WHAT WAS RESTORED:" -ForegroundColor Cyan
-    Write-Host "      ✅ Registry: All security registry keys restored" -ForegroundColor Gray
-    Write-Host "      ✅ Services: All service states restored" -ForegroundColor Gray
-    Write-Host "      ✅ Firewall: All rules and profiles restored" -ForegroundColor Gray
-    Write-Host "      ✅ DNS: Fully restored" -ForegroundColor Gray
-    Write-Host "      ✅ Users: Account states restored" -ForegroundColor Gray
-    Write-Host "      ⚠️  Security Template: Skipped (Windows limitation)" -ForegroundColor DarkYellow
+    Write-Host "      [OK] Registry: All security registry keys restored" -ForegroundColor Gray
+    Write-Host "      [OK] Services: All service states restored" -ForegroundColor Gray
+    Write-Host "      [OK] Firewall: All rules and profiles restored" -ForegroundColor Gray
+    Write-Host "      [OK] DNS: Fully restored" -ForegroundColor Gray
+    Write-Host "      [OK] Users: Account states restored" -ForegroundColor Gray
+    Write-Host "      [!]  Security Template: Skipped (Windows limitation)" -ForegroundColor DarkYellow
     Write-Host ""
     Write-Host "  [i] IF YOU NEED EXACT ORIGINAL STATE:" -ForegroundColor Cyan
     Write-Host "      Fresh Windows install is the only guaranteed method." -ForegroundColor Gray
@@ -2580,9 +2580,13 @@ Write-Host ""
 $promptText = Get-LocalizedString "RebootPrompt"
 if (-not $promptText) { $promptText = "Ihre Wahl" }
 
+# Get localized Y/N or J/N based on language
+$yesNoPrompt = Get-LocalizedString "RebootChoiceFormat"
+if (-not $yesNoPrompt) { $yesNoPrompt = "[Y/N]:" }
+
 do {
     Write-Host "  $promptText " -NoNewline -ForegroundColor Cyan
-    Write-Host "[Y/N]: " -NoNewline -ForegroundColor Gray
+    Write-Host "$yesNoPrompt " -NoNewline -ForegroundColor Gray
     $reboot = Read-Host
     
     # Input validation: Trim and ToUpper with null check

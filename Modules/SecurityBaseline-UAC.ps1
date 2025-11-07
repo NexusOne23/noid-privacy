@@ -128,7 +128,7 @@ function Enable-EnhancedPrivilegeProtectionMode {
     Write-Warning-Custom "$(Get-LocalizedString 'UACEPPUpcomingFeature')"
     Write-Info "$(Get-LocalizedString 'UACEPPAnnouncedBaseline')"
     Write-Info "$(Get-LocalizedString 'UACEPPNotYetActive')"
-    Write-Info "Mehr Info: https://techcommunity.microsoft.com/blog/windows-itpro-blog/administrator-protection-on-windows-11/4303482"
+    Write-Info "More info: https://techcommunity.microsoft.com/blog/windows-itpro-blog/administrator-protection-on-windows-11/4303482"
     Write-Host ""
     Write-Info "$(Get-LocalizedString 'UACEPPSettingAnyway')"
     

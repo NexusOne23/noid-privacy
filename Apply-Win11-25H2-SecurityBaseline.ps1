@@ -105,7 +105,7 @@
 .PARAMETER Mode
     Specifies ONLY the ASR (Attack Surface Reduction) enforcement mode.
     
-    ⚠️ IMPORTANT: This parameter affects ONLY the 19 ASR rules!
+    [!] IMPORTANT: This parameter affects ONLY the 19 ASR rules!
     ALL OTHER SETTINGS are ALWAYS applied regardless of this parameter:
     - 391 Registry keys (Security + Privacy)
     - Services configuration
@@ -1504,7 +1504,7 @@ try {
         
         # CRITICAL FIX (Auditor recommendation Nov 6, 2025): Re-apply VBS/CG/HVCI AFTER Security Template
         # Security Template can reset registry paths even if keys are not in template
-        # This ensures Credential Guard & HVCI remain enabled ("Gürtel + Hosenträger")
+        # This ensures Credential Guard & HVCI remain enabled ("Belt and Suspenders")
         $lsaPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Lsa"
         $cgPath = "HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\CredentialGuard"
         $hvciPath = "HKLM:\SYSTEM\CurrentControlSet\Control\DeviceGuard\Scenarios\HypervisorEnforcedCodeIntegrity"
