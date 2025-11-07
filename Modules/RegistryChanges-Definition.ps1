@@ -284,84 +284,297 @@ $script:RegistryChanges = @(
         Description = 'NTLM Restriction Outbound: Audit-Only'
         File = 'SecurityBaseline-Advanced.ps1'
     },
+    # TLS/SSL Protocol Entries - Expanded from $protocol variable (Batch 1: SSL 2.0, SSL 3.0)
     @{
-        Path = 'HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\$protocol\Server'
+        Path = 'HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\SSL 2.0\Server'
         Name = 'Enabled'
         Type = 'DWord'
         ApplyValue = 0
-        Description = 'Disable $protocol Server'
+        Description = 'Disable SSL 2.0 Server'
         File = 'SecurityBaseline-Advanced.ps1'
     },
     @{
-        Path = 'HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\$protocol\Server'
+        Path = 'HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\SSL 2.0\Server'
         Name = 'DisabledByDefault'
         Type = 'DWord'
         ApplyValue = 1
-        Description = '$protocol Server default off'
+        Description = 'SSL 2.0 Server default off'
         File = 'SecurityBaseline-Advanced.ps1'
     },
     @{
-        Path = 'HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\$protocol\Client'
+        Path = 'HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\SSL 2.0\Client'
         Name = 'Enabled'
         Type = 'DWord'
         ApplyValue = 0
-        Description = 'Disable $protocol Client'
+        Description = 'Disable SSL 2.0 Client'
         File = 'SecurityBaseline-Advanced.ps1'
     },
     @{
-        Path = 'HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\$protocol\Client'
+        Path = 'HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\SSL 2.0\Client'
         Name = 'DisabledByDefault'
         Type = 'DWord'
         ApplyValue = 1
-        Description = '$protocol Client default off'
+        Description = 'SSL 2.0 Client default off'
         File = 'SecurityBaseline-Advanced.ps1'
     },
     @{
-        Path = 'HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\$protocol\Server'
+        Path = 'HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\SSL 3.0\Server'
+        Name = 'Enabled'
+        Type = 'DWord'
+        ApplyValue = 0
+        Description = 'Disable SSL 3.0 Server'
+        File = 'SecurityBaseline-Advanced.ps1'
+    },
+    @{
+        Path = 'HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\SSL 3.0\Server'
+        Name = 'DisabledByDefault'
+        Type = 'DWord'
+        ApplyValue = 1
+        Description = 'SSL 3.0 Server default off'
+        File = 'SecurityBaseline-Advanced.ps1'
+    },
+    @{
+        Path = 'HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\SSL 3.0\Client'
+        Name = 'Enabled'
+        Type = 'DWord'
+        ApplyValue = 0
+        Description = 'Disable SSL 3.0 Client'
+        File = 'SecurityBaseline-Advanced.ps1'
+    },
+    @{
+        Path = 'HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\SSL 3.0\Client'
+        Name = 'DisabledByDefault'
+        Type = 'DWord'
+        ApplyValue = 1
+        Description = 'SSL 3.0 Client default off'
+        File = 'SecurityBaseline-Advanced.ps1'
+    },
+    # Batch 2: TLS 1.0, TLS 1.1
+    @{
+        Path = 'HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.0\Server'
+        Name = 'Enabled'
+        Type = 'DWord'
+        ApplyValue = 0
+        Description = 'Disable TLS 1.0 Server'
+        File = 'SecurityBaseline-Advanced.ps1'
+    },
+    @{
+        Path = 'HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.0\Server'
+        Name = 'DisabledByDefault'
+        Type = 'DWord'
+        ApplyValue = 1
+        Description = 'TLS 1.0 Server default off'
+        File = 'SecurityBaseline-Advanced.ps1'
+    },
+    @{
+        Path = 'HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.0\Client'
+        Name = 'Enabled'
+        Type = 'DWord'
+        ApplyValue = 0
+        Description = 'Disable TLS 1.0 Client'
+        File = 'SecurityBaseline-Advanced.ps1'
+    },
+    @{
+        Path = 'HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.0\Client'
+        Name = 'DisabledByDefault'
+        Type = 'DWord'
+        ApplyValue = 1
+        Description = 'TLS 1.0 Client default off'
+        File = 'SecurityBaseline-Advanced.ps1'
+    },
+    @{
+        Path = 'HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.1\Server'
+        Name = 'Enabled'
+        Type = 'DWord'
+        ApplyValue = 0
+        Description = 'Disable TLS 1.1 Server'
+        File = 'SecurityBaseline-Advanced.ps1'
+    },
+    @{
+        Path = 'HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.1\Server'
+        Name = 'DisabledByDefault'
+        Type = 'DWord'
+        ApplyValue = 1
+        Description = 'TLS 1.1 Server default off'
+        File = 'SecurityBaseline-Advanced.ps1'
+    },
+    @{
+        Path = 'HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.1\Client'
+        Name = 'Enabled'
+        Type = 'DWord'
+        ApplyValue = 0
+        Description = 'Disable TLS 1.1 Client'
+        File = 'SecurityBaseline-Advanced.ps1'
+    },
+    @{
+        Path = 'HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.1\Client'
+        Name = 'DisabledByDefault'
+        Type = 'DWord'
+        ApplyValue = 1
+        Description = 'TLS 1.1 Client default off'
+        File = 'SecurityBaseline-Advanced.ps1'
+    },
+    # Batch 3: TLS 1.2, TLS 1.3 (Strong Protocols)
+    @{
+        Path = 'HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.2\Server'
         Name = 'Enabled'
         Type = 'DWord'
         ApplyValue = 1
-        Description = 'Enable $protocol Server'
+        Description = 'Enable TLS 1.2 Server'
         File = 'SecurityBaseline-Advanced.ps1'
     },
     @{
-        Path = 'HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\$protocol\Server'
+        Path = 'HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.2\Server'
         Name = 'DisabledByDefault'
         Type = 'DWord'
         ApplyValue = 0
-        Description = '$protocol Server default on'
+        Description = 'TLS 1.2 Server default on'
         File = 'SecurityBaseline-Advanced.ps1'
     },
     @{
-        Path = 'HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\$protocol\Client'
+        Path = 'HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.2\Client'
         Name = 'Enabled'
         Type = 'DWord'
         ApplyValue = 1
-        Description = 'Enable $protocol Client'
+        Description = 'Enable TLS 1.2 Client'
         File = 'SecurityBaseline-Advanced.ps1'
     },
     @{
-        Path = 'HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\$protocol\Client'
+        Path = 'HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.2\Client'
         Name = 'DisabledByDefault'
         Type = 'DWord'
         ApplyValue = 0
-        Description = '$protocol Client default on'
+        Description = 'TLS 1.2 Client default on'
         File = 'SecurityBaseline-Advanced.ps1'
     },
     @{
-        Path = 'HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Ciphers\$cipher'
+        Path = 'HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.3\Server'
+        Name = 'Enabled'
+        Type = 'DWord'
+        ApplyValue = 1
+        Description = 'Enable TLS 1.3 Server'
+        File = 'SecurityBaseline-Advanced.ps1'
+    },
+    @{
+        Path = 'HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.3\Server'
+        Name = 'DisabledByDefault'
+        Type = 'DWord'
+        ApplyValue = 0
+        Description = 'TLS 1.3 Server default on'
+        File = 'SecurityBaseline-Advanced.ps1'
+    },
+    @{
+        Path = 'HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.3\Client'
+        Name = 'Enabled'
+        Type = 'DWord'
+        ApplyValue = 1
+        Description = 'Enable TLS 1.3 Client'
+        File = 'SecurityBaseline-Advanced.ps1'
+    },
+    @{
+        Path = 'HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.3\Client'
+        Name = 'DisabledByDefault'
+        Type = 'DWord'
+        ApplyValue = 0
+        Description = 'TLS 1.3 Client default on'
+        File = 'SecurityBaseline-Advanced.ps1'
+    },
+    # Batch 4: Weak Ciphers (10 keys) - First 8
+    @{
+        Path = 'HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Ciphers\DES 56/56'
         Name = 'Enabled'
         Type = 'DWord'
         ApplyValue = 0
-        Description = 'Disable $cipher'
+        Description = 'Disable DES 56/56'
         File = 'SecurityBaseline-Advanced.ps1'
     },
     @{
-        Path = 'HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Ciphers\$cipher'
+        Path = 'HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Ciphers\NULL'
+        Name = 'Enabled'
+        Type = 'DWord'
+        ApplyValue = 0
+        Description = 'Disable NULL'
+        File = 'SecurityBaseline-Advanced.ps1'
+    },
+    @{
+        Path = 'HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Ciphers\RC2 128/128'
+        Name = 'Enabled'
+        Type = 'DWord'
+        ApplyValue = 0
+        Description = 'Disable RC2 128/128'
+        File = 'SecurityBaseline-Advanced.ps1'
+    },
+    @{
+        Path = 'HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Ciphers\RC2 40/128'
+        Name = 'Enabled'
+        Type = 'DWord'
+        ApplyValue = 0
+        Description = 'Disable RC2 40/128'
+        File = 'SecurityBaseline-Advanced.ps1'
+    },
+    @{
+        Path = 'HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Ciphers\RC2 56/128'
+        Name = 'Enabled'
+        Type = 'DWord'
+        ApplyValue = 0
+        Description = 'Disable RC2 56/128'
+        File = 'SecurityBaseline-Advanced.ps1'
+    },
+    @{
+        Path = 'HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Ciphers\RC4 128/128'
+        Name = 'Enabled'
+        Type = 'DWord'
+        ApplyValue = 0
+        Description = 'Disable RC4 128/128'
+        File = 'SecurityBaseline-Advanced.ps1'
+    },
+    @{
+        Path = 'HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Ciphers\RC4 40/128'
+        Name = 'Enabled'
+        Type = 'DWord'
+        ApplyValue = 0
+        Description = 'Disable RC4 40/128'
+        File = 'SecurityBaseline-Advanced.ps1'
+    },
+    @{
+        Path = 'HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Ciphers\RC4 56/128'
+        Name = 'Enabled'
+        Type = 'DWord'
+        ApplyValue = 0
+        Description = 'Disable RC4 56/128'
+        File = 'SecurityBaseline-Advanced.ps1'
+    },
+    @{
+        Path = 'HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Ciphers\RC4 64/128'
+        Name = 'Enabled'
+        Type = 'DWord'
+        ApplyValue = 0
+        Description = 'Disable RC4 64/128'
+        File = 'SecurityBaseline-Advanced.ps1'
+    },
+    @{
+        Path = 'HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Ciphers\Triple DES 168'
+        Name = 'Enabled'
+        Type = 'DWord'
+        ApplyValue = 0
+        Description = 'Disable Triple DES 168'
+        File = 'SecurityBaseline-Advanced.ps1'
+    },
+    # Batch 4b: Strong Ciphers (2 keys)
+    @{
+        Path = 'HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Ciphers\AES 128/128'
         Name = 'Enabled'
         Type = 'DWord'
         ApplyValue = 0xFFFFFFFF
-        Description = 'Enable $cipher'
+        Description = 'Enable AES 128/128'
+        File = 'SecurityBaseline-Advanced.ps1'
+    },
+    @{
+        Path = 'HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Ciphers\AES 256/256'
+        Name = 'Enabled'
+        Type = 'DWord'
+        ApplyValue = 0xFFFFFFFF
+        Description = 'Enable AES 256/256'
         File = 'SecurityBaseline-Advanced.ps1'
     },
     @{
@@ -2729,8 +2942,9 @@ $script:RegistryChanges = @(
         Description = 'Online Speech Recognition OFF (Privacy)'
         File = 'SecurityBaseline-Telemetry.ps1'
     },
+    # Batch 5a: App Permissions (First 10 of 33)
     @{
-        Path = 'HKLM:\$consentStoreBase\userNotificationListener'
+        Path = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\userNotificationListener'
         Name = 'Value'
         Type = 'String'
         ApplyValue = 'Deny'
@@ -2738,7 +2952,7 @@ $script:RegistryChanges = @(
         File = 'SecurityBaseline-Telemetry.ps1'
     },
     @{
-        Path = 'HKLM:\$consentStoreBase\userAccountInformation'
+        Path = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\userAccountInformation'
         Name = 'Value'
         Type = 'String'
         ApplyValue = 'Deny'
@@ -2746,7 +2960,7 @@ $script:RegistryChanges = @(
         File = 'SecurityBaseline-Telemetry.ps1'
     },
     @{
-        Path = 'HKLM:\$consentStoreBase\contacts'
+        Path = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\contacts'
         Name = 'Value'
         Type = 'String'
         ApplyValue = 'Deny'
@@ -2754,7 +2968,7 @@ $script:RegistryChanges = @(
         File = 'SecurityBaseline-Telemetry.ps1'
     },
     @{
-        Path = 'HKLM:\$consentStoreBase\appointments'
+        Path = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\appointments'
         Name = 'Value'
         Type = 'String'
         ApplyValue = 'Deny'
@@ -2762,7 +2976,7 @@ $script:RegistryChanges = @(
         File = 'SecurityBaseline-Telemetry.ps1'
     },
     @{
-        Path = 'HKLM:\$consentStoreBase\email'
+        Path = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\email'
         Name = 'Value'
         Type = 'String'
         ApplyValue = 'Deny'
@@ -2770,7 +2984,7 @@ $script:RegistryChanges = @(
         File = 'SecurityBaseline-Telemetry.ps1'
     },
     @{
-        Path = 'HKLM:\$consentStoreBase\phoneCall'
+        Path = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\phoneCall'
         Name = 'Value'
         Type = 'String'
         ApplyValue = 'Deny'
@@ -2778,7 +2992,7 @@ $script:RegistryChanges = @(
         File = 'SecurityBaseline-Telemetry.ps1'
     },
     @{
-        Path = 'HKLM:\$consentStoreBase\phoneCallHistory'
+        Path = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\phoneCallHistory'
         Name = 'Value'
         Type = 'String'
         ApplyValue = 'Deny'
@@ -2786,7 +3000,7 @@ $script:RegistryChanges = @(
         File = 'SecurityBaseline-Telemetry.ps1'
     },
     @{
-        Path = 'HKLM:\$consentStoreBase\chat'
+        Path = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\chat'
         Name = 'Value'
         Type = 'String'
         ApplyValue = 'Deny'
@@ -2794,7 +3008,7 @@ $script:RegistryChanges = @(
         File = 'SecurityBaseline-Telemetry.ps1'
     },
     @{
-        Path = 'HKLM:\$consentStoreBase\userDataTasks'
+        Path = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\userDataTasks'
         Name = 'Value'
         Type = 'String'
         ApplyValue = 'Deny'
@@ -2802,19 +3016,92 @@ $script:RegistryChanges = @(
         File = 'SecurityBaseline-Telemetry.ps1'
     },
     @{
-        Path = 'HKLM:\$consentStoreBase\radios'
+        Path = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\radios'
         Name = 'Value'
         Type = 'String'
         ApplyValue = 'Deny'
         Description = 'Apps: Radios Control OFF'
         File = 'SecurityBaseline-Telemetry.ps1'
     },
+    # Batch 5b: App Permissions (11-20 of 33)
     @{
-        Path = 'HKLM:\$consentStoreBase\bluetoothSync'
+        Path = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\bluetoothSync'
         Name = 'Value'
         Type = 'String'
         ApplyValue = 'Deny'
         Description = 'Apps: Other Devices OFF'
+        File = 'SecurityBaseline-Telemetry.ps1'
+    },
+    @{
+        Path = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\documentsLibrary'
+        Name = 'Value'
+        Type = 'String'
+        ApplyValue = 'Deny'
+        Description = 'Apps: Documents Library OFF'
+        File = 'SecurityBaseline-Telemetry.ps1'
+    },
+    @{
+        Path = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\picturesLibrary'
+        Name = 'Value'
+        Type = 'String'
+        ApplyValue = 'Deny'
+        Description = 'Apps: Pictures Library OFF'
+        File = 'SecurityBaseline-Telemetry.ps1'
+    },
+    @{
+        Path = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\videosLibrary'
+        Name = 'Value'
+        Type = 'String'
+        ApplyValue = 'Deny'
+        Description = 'Apps: Videos Library OFF'
+        File = 'SecurityBaseline-Telemetry.ps1'
+    },
+    @{
+        Path = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\broadFileSystemAccess'
+        Name = 'Value'
+        Type = 'String'
+        ApplyValue = 'Deny'
+        Description = 'Apps: File System Access OFF'
+        File = 'SecurityBaseline-Telemetry.ps1'
+    },
+    @{
+        Path = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\downloadsFolder'
+        Name = 'Value'
+        Type = 'String'
+        ApplyValue = 'Deny'
+        Description = 'Apps: Downloads Folder OFF'
+        File = 'SecurityBaseline-Telemetry.ps1'
+    },
+    @{
+        Path = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\musicLibrary'
+        Name = 'Value'
+        Type = 'String'
+        ApplyValue = 'Deny'
+        Description = 'Apps: Music Library OFF'
+        File = 'SecurityBaseline-Telemetry.ps1'
+    },
+    @{
+        Path = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\automaticFileDownloads'
+        Name = 'Value'
+        Type = 'String'
+        ApplyValue = 'Deny'
+        Description = 'Apps: Automatic File Downloads OFF'
+        File = 'SecurityBaseline-Telemetry.ps1'
+    },
+    @{
+        Path = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\activity'
+        Name = 'Value'
+        Type = 'String'
+        ApplyValue = 'Deny'
+        Description = 'Apps: Activity History OFF'
+        File = 'SecurityBaseline-Telemetry.ps1'
+    },
+    @{
+        Path = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\bluetooth'
+        Name = 'Value'
+        Type = 'String'
+        ApplyValue = 'Deny'
+        Description = 'Apps: Bluetooth OFF'
         File = 'SecurityBaseline-Telemetry.ps1'
     },
     @{
@@ -2826,67 +3113,19 @@ $script:RegistryChanges = @(
         File = 'SecurityBaseline-Telemetry.ps1'
     },
     @{
-        Path = 'HKLM:\$consentStoreBase\documentsLibrary'
-        Name = 'Value'
-        Type = 'String'
-        ApplyValue = 'Deny'
-        Description = 'Apps: Documents OFF'
-        File = 'SecurityBaseline-Telemetry.ps1'
-    },
-    @{
-        Path = 'HKLM:\$consentStoreBase\picturesLibrary'
-        Name = 'Value'
-        Type = 'String'
-        ApplyValue = 'Deny'
-        Description = 'Apps: Pictures OFF'
-        File = 'SecurityBaseline-Telemetry.ps1'
-    },
-    @{
-        Path = 'HKLM:\$consentStoreBase\videosLibrary'
-        Name = 'Value'
-        Type = 'String'
-        ApplyValue = 'Deny'
-        Description = 'Apps: Videos OFF'
-        File = 'SecurityBaseline-Telemetry.ps1'
-    },
-    @{
-        Path = 'HKLM:\$consentStoreBase\broadFileSystemAccess'
-        Name = 'Value'
-        Type = 'String'
-        ApplyValue = 'Deny'
-        Description = 'Apps: Broad File System OFF (Maximum Security!)'
-        File = 'SecurityBaseline-Telemetry.ps1'
-    },
-    @{
-        Path = 'HKLM:\$consentStoreBase\downloadsFolder'
-        Name = 'Value'
-        Type = 'String'
-        ApplyValue = 'Deny'
-        Description = 'Apps: Downloads Folder OFF'
-        File = 'SecurityBaseline-Telemetry.ps1'
-    },
-    @{
-        Path = 'HKLM:\$consentStoreBase\musicLibrary'
-        Name = 'Value'
-        Type = 'String'
-        ApplyValue = 'Deny'
-        Description = 'Apps: Music Library OFF'
-        File = 'SecurityBaseline-Telemetry.ps1'
-    },
-    @{
-        Path = 'HKLM:\$consentStoreBase\automaticFileDownloads'
-        Name = 'Value'
-        Type = 'String'
-        ApplyValue = 'Deny'
-        Description = 'Apps: Automatic File Downloads OFF'
-        File = 'SecurityBaseline-Telemetry.ps1'
-    },
-    @{
         Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\AppPrivacy'
         Name = 'LetAppsGetDiagnosticInfo'
         Type = 'DWord'
         ApplyValue = 2
         Description = 'Apps: Diagnostics OFF (Value 2 means User Denied)'
+        File = 'SecurityBaseline-Telemetry.ps1'
+    },
+    @{
+        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\AppPrivacy'
+        Name = 'Value'
+        Type = 'String'
+        ApplyValue = 'Deny'
+        Description = ''
         File = 'SecurityBaseline-Telemetry.ps1'
     },
     @{
