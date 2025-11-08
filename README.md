@@ -610,29 +610,6 @@ Edit module files in `/Modules/` to adjust settings:
 - ⚠️ **Minecraft Server (hosting):** Needs Option 2
 - ⚠️ **P2P Games (hosting sessions):** Needs Option 2
 
-#### ⚠️ ShellHost.exe "Stack Buffer Overflow" Warning
-**Symptom:** After running Wireless Display module, when user clicks "Cast" button (Windows + K or Quick Settings → Cast), Windows shows:  
-*"Das System hat in dieser Anwendung den Überlauf eines stapelbasierten Puffers ermittelt..."*
-
-**Important:** Error ONLY appears when attempting to cast, NOT automatically at system startup
-
-**Cause:** Windows Shell attempts to access disabled Miracast services when Cast button is clicked  
-**Impact:** Cosmetic error message only - NOT an actual security vulnerability  
-**Functionality Lost:** Casting to Smart TV, Miracast, Wireless Display completely disabled
-
-**How to Avoid:**
-- In Interactive Mode: Choose "Custom"
-- Deselect "Wireless Display / Miracast" module
-- Script will skip Miracast hardening
-
-**How to Restore:**
-1. Run `.\Restore-SecurityBaseline.ps1` with your backup file
-2. Services and Registry will be restored automatically
-3. ⚠️ Removed apps (SecondaryTileExperience, PPIProjection) must be manually reinstalled from Microsoft Store
-4. Firewall rules will be reactivated automatically
-
-**Note:** See [KNOWN_ISSUES.md](KNOWN_ISSUES.md) for detailed explanation
-
 ### Logs
 All operations are logged to:
 ```
