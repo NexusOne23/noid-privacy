@@ -36,8 +36,39 @@
 
 ---
 
-![NoID Privacy - Enforce Mode](docs/screenshots/enforce-mode.png)
-*Screenshot: Interactive 'Enforce' run on Windows 11 25H2 – 400+ settings hardened in ~3 minutes*
+![NoID Privacy - Interactive Menu](docs/screenshots/interactive.png)
+*Interactive mode with language selection, backup options, and module customization*
+
+<details>
+<summary><b>📸 See Complete Installation Flow (7 Screenshots)</b></summary>
+
+### Language Selection
+![Language Selection](docs/screenshots/language.png)
+*Runtime language switch between English and German – no separate download needed*
+
+### Main Menu
+![Main Menu](docs/screenshots/interactive.png)
+*Choose between Audit, Enforce, Custom, or Verify modes*
+
+### Backup Creation
+![Backup Prompt](docs/screenshots/backup.png)
+*Complete system state backup before any changes (2-6 minutes)*
+
+![Backup Success](docs/screenshots/backup-success.png)
+*476 registry keys, 313 services, 256 scheduled tasks backed up*
+
+### Configuration Options
+![DNS Provider Selection](docs/screenshots/interactive-dns.png)
+*Choose from 4 DNS-over-HTTPS providers: Cloudflare, AdGuard, NextDNS, Quad9*
+
+![Remote Access Configuration](docs/screenshots/interactive-rdp.png)
+*Configure RDP and firewall based on your use-case (desktop vs remote server)*
+
+### Completion
+![Security Baseline Applied](docs/screenshots/security-baseline-success.png)
+*Security baseline successfully applied – VBS/Credential Guard/BitLocker require reboot*
+
+</details>
 
 > 🇩🇪 **Deutsche Nutzer:** Runtime-Switch EN/DE – alle Menüs und UI-Texte auf Deutsch verfügbar (kein Extra-Download nötig)
 
@@ -144,7 +175,7 @@ cd noid-privacy
 > **Manual:** Right-click each file → Properties → Check "Unblock" → OK  
 > **Details:** [FAQ - Troubleshooting](FAQ.md#-troubleshooting)
 
-**→ [Detailed Installation Guide](QUICKSTART.md)** · **[See All Features](FEATURES.md)** · **[View Changelog](CHANGELOG.md)**
+**→ [Detailed Installation Guide](QUICKSTART.md)** · **[📸 Screenshot Gallery](SCREENSHOTS.md)** · **[See All Features](FEATURES.md)** · **[View Changelog](CHANGELOG.md)**
 
 ---
 
