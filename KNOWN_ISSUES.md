@@ -2,6 +2,33 @@
 
 This document tracks known limitations and issues in **NoID Privacy - Windows 11 25H2 Security Baseline**.
 
+**Severity legend:** low = cosmetic/expected · medium = functional change with workaround · high = blocking
+
+### 🔍 Quick Triage (Most Common Issues)
+
+| Issue                                  | Severity | Impact                                  | Quick Workaround                                |
+|----------------------------------------|---------:|------------------------------------------|-------------------------------------------------|
+| ASR/Controlled Folder Access (Defender-only) | low     | 3rd-party AV blocks Defender features | Manually activate in Windows Security; see AV-Doc |
+| DoH fail-closed (no fallback)        | low     | DNS failure if provider down            | Choose reliable provider, temporarily disable DoH, set DNS manually  |
+| Strict inbound firewall                 | medium  | Incoming connections blocked             | Add needed exceptions in Windows Firewall                 |
+| Miracast/Wireless Display disabled      | medium  | Cast/Screen Mirroring unavailable      | Deselect module in Custom or Restore + Store reinstall   |
+| Restore ~90–95% (registry remnants)      | low     | Cosmetic keys remain                    | Manual cleanup per Restore report          |
+
+## 📑 Table of Contents
+
+- [Quick Triage (Most Common Issues)](#quick-triage-most-common-issues)
+- [Windows Defender Related](#windows-defender-related)
+- [Windows 11 25H2 Specific Issues](#windows-11-25h2-specific-issues)
+- [Security Features](#security-features)
+- [Network & DNS](#network--dns)
+- [System Compatibility](#system-compatibility)
+- [Compatibility Notes](#compatibility-notes)
+- [Script Behavior](#script-behavior)
+- [Third-Party Antivirus](#third-party-antivirus-compatibility)
+- [Installation & Execution](#installation--execution)
+- [Restore Limitations](#restore-limitations)
+- [Reporting Issues](#reporting-issues)
+
 ---
 
 ## 🔍 Current Limitations
@@ -12,16 +39,17 @@ This document tracks known limitations and issues in **NoID Privacy - Windows 11
 - **Issue**: ASR rules cannot always be set via PowerShell script
 - **Symptom**: `AttackSurfaceReductionRules_Ids` property not found
 - **Cause**: Third-party antivirus active, or Defender service not fully available
-- **Why This Happens**: ASR Rules are a **Microsoft Defender exclusive feature** - third-party antivirus products provide their own equivalent protection mechanisms
-- **Third-Party AV Alternatives**:
-  - **Bitdefender**: Advanced Threat Defense, Anti-Exploit
-  - **Kaspersky**: System Watcher, Exploit Prevention
-  - **Norton**: SONAR Behavior Protection
-  - **ESET**: HIPS (Host Intrusion Prevention System)
-  - **Avast/AVG**: Behavior Shield, Ransomware Shield
-- **Workaround**: Manually activate in Windows Security → Virus & threat protection → Manage settings → Attack surface reduction rules (only works with native Defender)
-- **Impact**: Non-critical - third-party AV provides equivalent protection through their own engines
-- **Status**: Expected behavior when third-party AV is installed, documented in script output
+- **Note**: ASR/Controlled Folder Access are **Defender-only**. Third-party AVs enforce similar protections via their own engines.
+- **Workaround**: Manually activate in Windows Security → Virus & threat protection (only works with native Defender)
+- **Impact**: Non-critical - third-party AV provides equivalent protection
+- **Verify ASR/Defender status (native Defender only):**
+  ```powershell
+  Get-MpPreference | Select AttackSurfaceReductionRules_Ids, AttackSurfaceReductionRules_Actions
+  Get-MpComputerStatus | Select RealTimeProtectionEnabled, AntispywareEnabled, IoavProtectionEnabled
+  ```
+- **Severity:** low
+- **Status**: Expected behavior when third-party AV is installed
+- **→ See [ANTIVIRUS_COMPATIBILITY.md](ANTIVIRUS_COMPATIBILITY.md)** for product-specific notes and exclusions
 
 **Defender Error 0x800106ba**
 - **Issue**: Transient error when setting MpPreference
@@ -29,21 +57,18 @@ This document tracks known limitations and issues in **NoID Privacy - Windows 11
 - **Cause**: Defender service initialization timing
 - **Workaround**: Script falls back to registry-based PUA configuration
 - **Impact**: Non-critical - PUA is still activated via registry
+- **Severity:** low
 - **Status**: Handled automatically, cosmetic error only
 
 **Controlled Folder Access Verification**
 - **Issue**: Cannot verify Controlled Folder Access status programmatically
 - **Cause**: Third-party AV or Defender not fully available
-- **Why This Happens**: Controlled Folder Access is a **Microsoft Defender exclusive feature** - third-party antivirus products provide their own ransomware protection mechanisms
-- **Third-Party AV Alternatives**:
-  - **Bitdefender**: Ransomware Remediation, Safe Files
-  - **Kaspersky**: Anti-Ransomware
-  - **Norton**: Ransomware Protection
-  - **ESET**: Ransomware Shield
-  - **Avast/AVG**: Ransomware Shield, Remote Access Shield
+- **Note**: Controlled Folder Access is **Defender-only**. Third-party AVs enforce similar ransomware protection via their own engines.
 - **Workaround**: Manual verification in Windows Security (only works with native Defender)
 - **Impact**: Non-critical - third-party AV provides equivalent ransomware protection
+- **Severity:** low
 - **Status**: Expected behavior when third-party AV is installed
+- **→ See [ANTIVIRUS_COMPATIBILITY.md](ANTIVIRUS_COMPATIBILITY.md)** for product-specific notes
 
 ---
 
@@ -76,10 +101,10 @@ This document tracks known limitations and issues in **NoID Privacy - Windows 11
 ### Enhanced Privilege Protection (UAC)
 
 - **Issue**: Enhanced Privilege Protection Mode not yet active
-- **Cause**: Feature announced in Baseline 25H2 but not yet released
-- **Workaround**: Script sets registry keys for future-proofing
-- **Impact**: Feature will activate in future Windows updates
-- **Status**: Forward-compatible, settings prepared
+- **Cause**: Feature announced in MS Baseline 25H2; registry prepared for future activation
+- **Workaround**: Script sets registry keys for forward-compatibility
+- **Impact**: Feature will activate when Microsoft releases it in future Windows updates
+- **Status**: Forward-compatible, settings prepared (not currently activatable)
 
 ### Windows LAPS
 
@@ -87,6 +112,7 @@ This document tracks known limitations and issues in **NoID Privacy - Windows 11
 - **Cause**: Enterprise/Pro feature
 - **Workaround**: Script detects and skips gracefully
 - **Impact**: Home users: use alternative password management
+- **Severity:** low
 - **Status**: Expected, documented
 
 ---
@@ -108,12 +134,35 @@ This document tracks known limitations and issues in **NoID Privacy - Windows 11
 - **Impact**: VPN functionality preserved
 - **Status**: Expected, correct behavior
 
+### DNS Fallback Behavior
+
+- **Issue**: No automatic fallback to unencrypted DNS if DoH provider is unreachable
+- **Cause**: By design — security-first (fail-closed) approach
+- **Why This Is Correct**: Falling back to plaintext DNS would defeat the purpose of DoH and risk DNS leaks
+- **Impact**: If DoH provider experiences downtime, DNS queries will fail until provider is reachable
+- **Workarounds**: 
+  - Choose a reliable provider with high uptime (Cloudflare/Quad9: 99.99%+ uptime)
+  - Temporarily disable DoH in Windows Settings if emergency access needed
+  - Manual DNS override in Network Adapter settings
+- **Verify DoH status:**
+  ```powershell
+  Get-DnsClientDohServerAddress
+  Resolve-DnsName example.com
+  ```
+- **Severity:** low
+- **Status**: Working as designed - Security > Convenience
+
 ### Firewall Strict Mode Compatibility
 
 - **Issue**: Strict Inbound Firewall blocks ALL incoming connections
 - **Cause**: Security-first design
 - **Workaround**: Configure exceptions in Windows Firewall for needed services
 - **Impact**: Maximum security, may break file sharing, remote desktop
+- **Verify firewall default actions (strict inbound expected):**
+  ```powershell
+  Get-NetFirewallProfile | Select Name, DefaultInboundAction, DefaultOutboundAction
+  ```
+- **Severity:** medium
 - **Status**: By design - documented in script output
 
 ---
@@ -126,7 +175,8 @@ This document tracks known limitations and issues in **NoID Privacy - Windows 11
 - **Cause**: Windows limitation - cannot convert in-place
 - **Process**: Disable → Wait for decryption → Re-enable with AES-256
 - **Duration**: 30-90 minutes depending on drive size
-- **Impact**: Time-consuming but secure
+- **Impact**: Time-consuming but secure and plannable
+- **Severity:** low
 - **Status**: Expected, documented in script output
 
 ### Service Disabling on Protected Systems
@@ -135,6 +185,7 @@ This document tracks known limitations and issues in **NoID Privacy - Windows 11
 - **Cause**: Windows protects critical system services
 - **Workaround**: Script attempts registry-based disable
 - **Impact**: Some services may remain active
+- **Severity:** low
 - **Status**: Expected, script handles gracefully
 
 ---
@@ -146,7 +197,7 @@ This document tracks known limitations and issues in **NoID Privacy - Windows 11
 - **Issue**: Xbox features (Game Bar, Game Mode, etc.) are disabled
 - **Impact**: Xbox app, Game Pass, achievements may not work
 - **Workaround**: Re-enable Xbox services manually if needed
-- **Status**: By design - gaming features sacrificed for security
+- **Status**: By design (opt-out in Interactive mode) - gaming features sacrificed for security
 
 ### ⚠️ Miracast / Wireless Display (Breaking Feature)
 
@@ -163,7 +214,7 @@ After running Wireless Display module, when user clicks "Cast" button (Windows +
 - User clicks "Cast" button in Quick Settings or presses Windows + K
 - Windows Shell (ShellHost.exe) attempts to access disabled Miracast services
 - System throws buffer overflow warning as safety mechanism
-- **This is a COSMETIC error message, NOT an actual security vulnerability**
+- **Note:** The warning is triggered by intentionally disabled components. No exploit has been observed during testing.
 - The warning appears because Windows expects Miracast services to be available when Cast is invoked
 
 **Functionality Permanently Lost:**
@@ -223,6 +274,7 @@ Wireless Display protocols have known security vulnerabilities:
 
 For maximum security (no casting needs), this module disables all wireless display functionality. For users who need casting, skip this module in Custom mode.
 
+**Severity:** medium  
 **Status:** By design - aggressive hardening with documented side effects
 
 ### Remote Access
@@ -230,6 +282,7 @@ For maximum security (no casting needs), this module disables all wireless displ
 - **Issue**: ALL remote access disabled (RDP, WinRM, Remote Assistance)
 - **Impact**: Only physical access or Intune/SCCM management possible
 - **Workaround**: Re-enable specific services if remote access needed
+- **Severity:** medium
 - **Status**: By design - maximum security
 
 ---
@@ -250,6 +303,7 @@ For maximum security (no casting needs), this module disables all wireless displ
 - **Affected**: VBS, Credential Guard, BitLocker, Firewall, Services
 - **Workaround**: Reboot after script completion
 - **Impact**: Features not active until reboot
+- **Severity:** low
 - **Status**: Expected Windows behavior
 
 ---
@@ -260,18 +314,30 @@ Found a bug not listed here? Please report it:
 
 1. **Check**: Verify it's not in this list
 2. **Search**: Check existing [GitHub Issues](https://github.com/NexusOne23/noid-privacy/issues)
-3. **Report**: Create new issue with:
+3. **Report**: [Create new issue](https://github.com/NexusOne23/noid-privacy/issues/new) with:
    - Windows version & build
    - Script version
    - Error message or behavior
    - Steps to reproduce
-   - Log file (if applicable)
+   - Log files (if applicable): `logs/Apply-*.log`, `logs/Verify-*.log`, `logs/Restore-*.log`
+
+**Minimal system info bundle (saves round-trips):**
+```powershell
+# System info
+Get-ComputerInfo | Select OsName,OsVersion,OsBuildNumber,WindowsProductName,WindowsEditionId,OsLocale,Timezone | Format-List
+
+# Defender status (if applicable)
+Get-MpComputerStatus | Select AMRunningMode,RealTimeProtectionEnabled,IoavProtectionEnabled | Format-List
+
+# Firewall status
+Get-NetFirewallProfile | Select Name,DefaultInboundAction,DefaultOutboundAction
+```
 
 ### Security Issues
 
 **DO NOT** report security vulnerabilities publicly!
 - Follow [SECURITY.md](SECURITY.md) for responsible disclosure
-- Use GitHub Security Advisory (preferred)
+- Use [GitHub Security Advisory](https://github.com/NexusOne23/noid-privacy/security/advisories/new) (preferred)
 
 ---
 
@@ -338,6 +404,28 @@ Found a bug not listed here? Please report it:
 
 ## 🔄 Restore Limitations
 
+### Restore Completeness: 90-95%
+
+**Background**: The Restore script recovers the vast majority of changes, but a few registry keys may remain.
+
+- **Success Rate**: 90-95% of all changes are restored
+- **What Stays**: A small number of registry keys (primarily cosmetic settings)
+- **Impact**: Non-critical - system remains fully functional and stable
+- **Why This Happens**: Some keys have complex ownership/permission structures or are recreated by Windows
+- **Workaround**: Manual cleanup of remaining keys (documented in Restore output)
+- **Status**: Non-critical limitation - will be improved in v1.8.2
+
+**What Is Restored:**
+- ✅ Services (100%)
+- ✅ Scheduled Tasks (100%)
+- ✅ Firewall Rules (100%)
+- ✅ DNS Settings (100%)
+- ✅ Hosts File (100%)
+- ✅ User Account States (100%)
+- ✅ **Registry Keys (most, ~90–95%)**
+
+---
+
 ### Security Template Persistence After Restore
 
 **Background**: The Security Template (67 settings applied via `secedit.exe`) cannot be fully reverted by Windows design.
@@ -372,7 +460,7 @@ Found a bug not listed here? Please report it:
    - LDAP client signing required
 
 **Why This Happens:**
-- Windows **does not allow** reverting hardened security policies to less restrictive values
+- Windows **does not allow** reverting hardened security policies to less restrictive values per local security policy behavior
 - This is documented Microsoft behavior (security-by-design)
 - Example: Password complexity ON cannot be turned OFF via `secedit.exe`
 
@@ -382,7 +470,7 @@ Found a bug not listed here? Please report it:
 - ✅ All other settings (Registry, Services, Firewall, DNS) are fully restored
 
 **What Was Restored:**
-- ✅ Registry keys (100% restored)
+- ✅ **Registry keys (most, ~90–95%)**
 - ✅ Services (100% restored)
 - ✅ Firewall rules and profiles (100% restored)
 - ✅ DNS settings (100% restored)
@@ -407,4 +495,4 @@ See [CHANGELOG.md](CHANGELOG.md) for resolved issues and version history.
 
 ---
 
-*Last Updated: November 7, 2025 (v1.8.1)*
+*Last Updated: November 8, 2025 (v1.8.1)*
