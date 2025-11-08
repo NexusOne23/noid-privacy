@@ -53,7 +53,7 @@
 ---
 
 ![NoID Privacy - Enforce Mode](docs/screenshots/enforce-mode.png)
-*Screenshot: Interactive 'Enforce' run on Windows 11 25H2 – 400+ settings hardened in ~3 minutes*
+*Screenshot: Interactive 'Apply' run on Windows 11 25H2 – 400+ settings hardened in ~3 minutes*
 
 <details>
 <summary><b>📸 See Complete Installation Flow (7 Screenshots)</b></summary>
@@ -481,7 +481,7 @@ The project uses a modular architecture with **13 specialized modules**: Core, A
 **What does 100% mean?**
 - All **370 locally-implementable policies** from Microsoft Security Baseline 25H2 are fully configured
 - **Includes 67 secedit settings** automatically deployed via `Import-SecurityTemplate` (Password Policy, Account Lockout, User Rights, Security Options)
-- **335 Registry policies** set via PowerShell
+- **478 Registry keys** set via PowerShell (fully reversible via backup/restore)
 - **23 Advanced Audit policies** configured via `auditpol.exe`
 - **4 Services** disabled (Xbox Gaming Services)
 - Plus 100+ additional hardening settings **beyond** the baseline
@@ -494,12 +494,12 @@ The project uses a modular architecture with **13 specialized modules**: Core, A
 - Microsoft Security Baseline 25H2 contains **429 total policies**
 - **59 policies** are N/A for standalone systems (57 IE11-deprecated + 2 Domain Controller-only)
 - This project implements **100% of what CAN be automated** (370/370) including:
-  - ✅ **secedit automation with Backup/Restore** (67 settings)
-  - ✅ **Registry policies** (335 settings)
+  - ✅ **secedit automation with Backup** (67 settings - ⚠️ restore limited by Windows)
+  - ✅ **Registry keys with full Backup/Restore** (478 keys - fully reversible)
   - ✅ **Advanced Audit** (23 categories)
   - ✅ **Services** (4 Xbox services)
 
-**Bottom line:** You get **every single implementable security policy** from the Microsoft baseline (370/370), including automatic secedit deployment with full backup/restore capability, plus extensive privacy hardening!
+**Bottom line:** You get **every single implementable security policy** from the Microsoft baseline (370/370), including automatic secedit deployment. All 478 registry keys are fully reversible via backup/restore!
 
 </details>
 
@@ -613,8 +613,9 @@ Edit module files in `/Modules/` to adjust settings:
 ### Logs
 All operations are logged to:
 ```
-C:\ProgramData\SecurityBaseline\Logs\SecurityBaseline-Enforce-YYYYMMDD-HHMMSS.log
+C:\ProgramData\SecurityBaseline\Logs\Apply-[Mode]-YYYYMMDD-HHMMSS.log
 ```
+**Example:** `Apply-Enforce-20251108-011849.log` or `Apply-Audit-20251108-011849.log`
 
 ---
 
@@ -806,8 +807,8 @@ The authors are not responsible for any damage or data loss caused by this scrip
 
 #### **What's New:**
 - ✅ **370/370 applicable policies** (was 213/365 = **+73.7% coverage!**)
-- ✅ **67 secedit settings** automated (Password Policy, Account Lockout, LSA, SMB)
-- ✅ **425 registry keys** (was 391 = **+34 keys**)
+- ✅ **67 secedit settings** automated (Password Policy, Account Lockout, LSA, SMB) - backed up but restore limited by Windows
+- ✅ **478 registry keys** (was 391 = **+87 keys**) - fully reversible via backup/restore
 - ✅ **133 verification checks** (optimized from 135)
 - ✅ **CRITICAL FIX:** Credential Guard now actually runs (Hypervisor + LsaCfgFlags)
 - ✅ **Complete documentation overhaul** - 26 files updated, all numbers corrected

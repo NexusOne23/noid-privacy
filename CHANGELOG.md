@@ -92,7 +92,7 @@ All errors were introduced during "quick-win" optimization phase where multiple 
 #### **What's New:**
 - ✅ **370/370 applicable policies** implemented (was 213/365 in v1.7.x = **+73.7% coverage!**)
 - ✅ **67 secedit settings** now automated (Password Policy, Account Lockout, LSA, SMB hardening)
-- ✅ **425 registry keys** configured (was 391 = **+34 keys**)
+- ✅ **478 registry keys** configured (was 391 = **+87 keys**)
 - ✅ **133 verification checks** (was 135, optimized by removing 2 fragile checks)
 - ✅ **Complete documentation overhaul** - all numbers and baseline coverage updated
 
@@ -132,7 +132,7 @@ All errors were introduced during "quick-win" optimization phase where multiple 
 #### **Complete Baseline Coverage Documentation Update**
 - **Scope**: 26 files updated with correct baseline numbers
 - **Updated Numbers Everywhere**:
-  - Registry Keys: 391 → **425** (+34)
+  - Registry Keys: 391 → **478** (+87)
   - Verification Checks: 124 → **133** (+9, then -2 optimization)
   - MS Baseline Total: 365 → **429** (+64, corrected count)
   - Implemented Policies: 213 → **370** (+157!)
@@ -234,7 +234,7 @@ All errors were introduced during "quick-win" optimization phase where multiple 
 **Baseline Coverage:**
 - Total Policies: 365 → **429** (+17.5%)
 - Implemented: 213 → **370** (+73.7%!)
-- Registry Keys: 391 → **425** (+8.7%)
+- Registry Keys: 391 → **478** (+22.3%)
 - Verification: 124 → **133** (+7.3%, then optimized -2)
 - secedit: 0 → **67** (automated!)
 - Coverage: 58.4% → **100%** (of applicable)

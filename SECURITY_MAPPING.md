@@ -12,10 +12,12 @@ This document maps the security configurations implemented in this project to th
 - **Total Policies in MS Baseline 25H2:** 429
 - **Implementable via PowerShell/secedit:** 370 ✅
 - **Implemented in this project:** 370 (100%) ✅
-  - **335 Registry policies** (via PowerShell)
+  - **335 Registry policies** from MS Baseline (implemented via **478 registry keys** in PowerShell)
   - **67 secedit settings** (automatically deployed via `Import-SecurityTemplate`)
   - **23 Advanced Audit categories** (via `auditpol.exe`)
   - **4 Services** (Xbox Gaming Services disabled)
+  
+**Note:** The 478 registry keys implement the 335 MS Baseline policies plus 100+ additional hardening settings beyond the baseline.
 - **N/A for standalone systems:** 59
   - Internet Explorer 11 (57) - Deprecated IE11-specific FeatureControl settings
   - Domain-only policies (2) - LAPS Domain Controller settings (ADPasswordEncryptionEnabled, ADBackupDSRMPassword)
