@@ -36,23 +36,8 @@
 
 ---
 
-## 🛡️ Safe to Test – Fully Reversible
-
-<div align="center">
-
-| **Apply** | **Verify** | **Restore** |
-|:---------:|:----------:|:-----------:|
-| Harden your system<br>2-6 minutes | 133 automated checks<br>Confirm everything works | One command reverts all<br>**0 errors, 540+ settings** |
-
-**Complete Backup/Restore System** – Safe to experiment, instant rollback  
-**→ [Restore Process](Restore-SecurityBaseline.ps1)** · **[Backup Details](#-backup--restore)**
-
-</div>
-
----
-
-![NoID Privacy - Interactive Menu](docs/screenshots/interactive.png)
-*Interactive mode with language selection, backup options, and module customization*
+![NoID Privacy - Enforce Mode](docs/screenshots/enforce-mode.png)
+*Screenshot: Interactive 'Enforce' run on Windows 11 25H2 – 400+ settings hardened in ~3 minutes*
 
 <details>
 <summary><b>📸 See Complete Installation Flow (7 Screenshots)</b></summary>
@@ -86,6 +71,18 @@
 </details>
 
 > 🇩🇪 **Deutsche Nutzer:** Runtime-Switch EN/DE – alle Menüs und UI-Texte auf Deutsch verfügbar (kein Extra-Download nötig)
+
+---
+
+## 🛡️ Safe to Test – Fully Reversible
+
+<div align="center">
+
+| **Apply** | **Verify** | **Restore** |
+|:---------:|:----------:|:-----------:|
+| Harden your system<br>2-6 minutes | 133 automated checks<br>Confirm everything works | One command reverts all<br>**0 errors, 540+ settings** |
+
+</div>
 
 ---
 
