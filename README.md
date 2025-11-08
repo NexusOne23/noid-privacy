@@ -27,10 +27,10 @@
 |:---:|:---:|:---:|:---:|
 | **100% locally-implementable<br>MS Baseline (370/429)*** | **95% Telemetry Reduced** | **30 Tasks Disabled** | **Complete Backup** |
 | 19 ASR Rules (Enforce) | 9 AI Features Locked | Event Logs Optimized | 540+ Settings Restored† |
-| 13 Exploit Mitigations | 37 App Permissions | No Bloatware | **0 Errors** |
+| 13 Exploit Mitigations | 37 App Permissions | No Bloatware | **0 Errors**‡ |
 | Credential Guard + VBS | 107,772 Domains Blocked | Faster Boot | Safe to Experiment |
 
-<sub>* 370 locally-implementable policies (429 total, 59 N/A: domain/IE11) · † 540+ settings: 478 registry keys, 19 ASR rules, 313 services, 256 tasks, etc.</sub>
+<sub>* 370 locally-implementable policies (429 total, 59 N/A: domain/IE11) · † 540+ settings restored in backup: 478 registry keys, 25+ services, 13+ tasks, firewall rules, etc. · ‡ 0 errors in test suite on fresh Win 11 25H2 VM</sub>
 
 **→ [3-Minute Setup](#-quick-start)** · **[See Complete Feature List](FEATURES.md)** · **[Compare with Others](#-why-noid-privacy)**
 
@@ -90,7 +90,7 @@
 
 ## 🚨 Why This Matters
 
-With **5.2M ransomware attacks in 2024**, state-sponsored APTs targeting SMBs (China's APT41, Russia's Cozy Bear, North Korea's Lazarus), and **1,000+ actively exploited vulnerabilities** (CISA KEV), your Windows 11 PC needs enterprise-grade protection.
+With **[5.2M ransomware attacks in 2024](https://www.ic3.gov/Media/PDF/AnnualReport/2024_IC3Report.pdf)** (FBI IC3 Report), state-sponsored APTs targeting SMBs (China's APT41, Russia's Cozy Bear, North Korea's Lazarus), and **1,000+ actively exploited vulnerabilities** (CISA KEV), your Windows 11 PC needs enterprise-grade protection.
 
 **Fortune 500 companies use NSA/CISA hardening guides and Microsoft Security Baseline. You deserve the same.**
 
@@ -132,6 +132,8 @@ notepad install.ps1
 
 > ⚠️ **Important:** This only works in **PowerShell** (not CMD)!  
 > 💡 **Why two methods?** Fast install uses `| iex` (pipe to execute) which is convenient but downloads and executes in one step. Safe install lets you inspect the code first.
+> 
+> 📡 **Internet Required:** Fast install downloads from GitHub. For offline use: Manual install via git clone or download ZIP.
 
 **What it does:**
 1. **[1/5] Checks Administrator privileges** - Exits with clear message if not admin
@@ -320,7 +322,7 @@ This tool targets **Windows 11 25H2 standalone systems**. Not ideal for: Enterpr
 ### ❌ **Not Ideal For**
 
 **Enterprise with Intune/AD**  
-→ Use Group Policy/Intune instead (better for large-scale management)
+→ Use [Microsoft Security Baselines](https://learn.microsoft.com/en-us/windows/security/operating-system-security/device-management/windows-security-configuration-framework/security-compliance-toolkit-10) with Group Policy/Intune instead (better for large-scale management)
 
 **Windows 10 or Older**  
 → This tool targets Windows 11 25H2 specifically
@@ -341,7 +343,7 @@ This tool targets **Windows 11 25H2 standalone systems**. Not ideal for: Enterpr
 - **TPM:** TPM 2.0 (for BitLocker, Credential Guard, VBS)
 - **CPU:** Intel 8th Gen+ or AMD Ryzen 2000+ (for optimal AES-NI support)
 - **RAM:** 8 GB minimum (16 GB recommended for VBS)
-- **Disk:** 256 GB+ (for BitLocker encryption)
+- **Disk:** Sufficient free space for encryption (see [BitLocker Requirements](https://learn.microsoft.com/en-us/windows/security/operating-system-security/data-protection/bitlocker/))
 
 ### Software Requirements
 - **PowerShell:** 5.1 or higher (Windows built-in)
@@ -372,7 +374,7 @@ This tool targets **Windows 11 25H2 standalone systems**. Not ideal for: Enterpr
 ### ⚠️ Third-Party Antivirus Users
 
 > **Using Bitdefender, Kaspersky, Norton, ESET, or other third-party antivirus?**  
-> This script modifies **478 registry keys** and **313 services** – some AVs may block execution or flag changes as suspicious.  
+> This script modifies **478 registry keys** and **25+ services** – some AVs may block execution or flag changes as suspicious.  
 >  
 > **→ Read [Antivirus Compatibility Guide](ANTIVIRUS_COMPATIBILITY.md) first!**  
 > Includes workarounds, exclusions, and tested configurations for major AV products.
