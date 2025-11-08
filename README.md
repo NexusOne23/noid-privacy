@@ -30,7 +30,7 @@
 | 13 Exploit Mitigations | 37 App Permissions | No Bloatware | **0 Errors**‡ |
 | Credential Guard + VBS | 107,772 Domains Blocked | Faster Boot | Safe to Experiment |
 
-<sub>* 370 locally-implementable policies (429 total, 59 N/A: domain/IE11) · † 540+ settings restored in backup: 478 registry keys, 25+ services, 13+ tasks, firewall rules, etc. · ‡ 0 errors in test suite on fresh Win 11 25H2 VM · CISA KEV: See [analysis](CISA_KEV_COVERAGE.md)</sub>
+<sub>* 370 locally-implementable policies (429 total, 59 N/A: domain/IE11) · † 540+ settings restored in backup: 478 registry keys, 25+ services, 13+ tasks, firewall rules, etc. · ‡ 0 errors in test suite on fresh Win 11 25H2 VM · Tracker count: 107,772 domains (as of Nov 2025) · CISA KEV: See [analysis](CISA_KEV_COVERAGE.md)</sub>
 
 **→ [3-Minute Setup](#quick-start)** · **[See Complete Feature List](FEATURES.md)** · **[Compare with Others](#why-noid-privacy)**
 
@@ -125,6 +125,9 @@ irm https://raw.githubusercontent.com/NexusOne23/noid-privacy/main/install.ps1 -
 
 # OPTIONAL: Inspect the file before running
 notepad install.ps1
+
+# OPTIONAL: Verify integrity against release checksum
+Get-FileHash install.ps1 -Algorithm SHA256
 
 # Run installer
 .\install.ps1
@@ -248,7 +251,7 @@ This project minimizes telemetry via Registry, Services, Firewall, and DNS block
 - ✅ **Dual-Stack:** IPv6 + IPv4 (IPv6 preferred when available)
 - ✅ **Per-Adapter:** Only real network adapters (VPN/Virtual excluded)
 - ✅ **Global Policy:** `EnableAutoDoh=2` (Windows-wide enforcement)
-- ✅ **DNSSEC:** Provider-side validation (prevents spoofing)
+- ✅ **DNSSEC:** Provider-side validation (helps prevent spoofing)
 
 **Steven Black Unified Hosts File (Optimized)**
 - ✅ **107,772 malicious/tracking domains blocked** at DNS level (before queries even reach DNS!)
