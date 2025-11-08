@@ -166,15 +166,6 @@
 - KernelCeipTask
 - 25+ more data collection tasks
 
-**Network Restrictions:** Search Privacy
-✅ **Local-Only Search**
-
-- Web Search: OFF (no Bing queries)
-- Cortana: Removed
-- Search Suggestions: OFF
-- Cloud Search: OFF
-- Location in Search: OFF
-
 ### Windows Search Privacy
 ✅ **Local-Only Search**
 
@@ -504,7 +495,7 @@ All data collection tasks disabled
 ## 🎮 Application Control
 
 ### Bloatware Removal
-✅ **50+ Pre-Installed Apps Removed**
+✅ **80+ Pre-Installed Apps Removed**
 
 **Module:** `SecurityBaseline-Bloatware.ps1` → `Remove-BloatwareApps` + `Disable-ConsumerFeatures`
 
@@ -958,7 +949,7 @@ Solitaire, Candy Crush, Bubble Witch
 - Audit: Every change logged
 
 ### Advanced Auditing
-✅ **18 Security Event Categories**
+✅ **23 Security Event Categories**
 
 **Module:** `SecurityBaseline-Advanced.ps1` → `Enable-AdvancedAuditing`
 
