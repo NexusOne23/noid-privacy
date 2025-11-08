@@ -36,6 +36,21 @@
 
 ---
 
+## 🛡️ Safe to Test – Fully Reversible
+
+<div align="center">
+
+| **Apply** | **Verify** | **Restore** |
+|:---------:|:----------:|:-----------:|
+| Harden your system<br>2-6 minutes | 133 automated checks<br>Confirm everything works | One command reverts all<br>**0 errors, 540+ settings** |
+
+**Complete Backup/Restore System** – Safe to experiment, instant rollback  
+**→ [Restore Process](Restore-SecurityBaseline.ps1)** · **[Backup Details](#-backup--restore)**
+
+</div>
+
+---
+
 ![NoID Privacy - Interactive Menu](docs/screenshots/interactive.png)
 *Interactive mode with language selection, backup options, and module customization*
 
@@ -362,6 +377,30 @@ This tool targets **Windows 11 25H2 standalone systems**. Not ideal for: Enterpr
   - ℹ️ Internet only needed for: git clone (initial download)
   
 > **📦 Note on Repository Size:** The compressed hosts file (~2.2 MB) is included in the repo for offline use. Original uncompressed Steven Black hosts files are excluded via .gitignore to keep the repository lean. The script uses the pre-compressed version for optimal performance.
+
+### Tested & Compatible
+
+| OS Version | Account Type | Edition | Status |
+|------------|--------------|---------|--------|
+| **Win 11 25H2 (Build 26100+)** | Local / Microsoft Account | Home / Pro / Enterprise | ✅ **Fully Tested** |
+| Win 11 24H2 (Build 26000+) | Local / Microsoft Account | Pro / Enterprise | ✅ Compatible |
+| Win 11 23H2 (Build 22631+) | Local / Microsoft Account | Pro / Enterprise | ⚠️ Some features N/A |
+
+**Tested Scenarios:**
+- ✅ Standalone workstations (no domain)
+- ✅ Microsoft Entra joined devices
+- ✅ Local accounts with Microsoft Account sync
+- ⚠️ Domain-joined workstations (use Group Policy instead)
+
+**→ [Full Compatibility Details](KNOWN_ISSUES.md)** · **[Report Compatibility Issue](https://github.com/NexusOne23/noid-privacy/issues)**
+
+### ⚠️ Third-Party Antivirus Users
+
+> **Using Bitdefender, Kaspersky, Norton, ESET, or other third-party antivirus?**  
+> This script modifies **478 registry keys** and **313 services** – some AVs may block execution or flag changes as suspicious.  
+>  
+> **→ Read [Antivirus Compatibility Guide](ANTIVIRUS_COMPATIBILITY.md) first!**  
+> Includes workarounds, exclusions, and tested configurations for major AV products.
 
 ---
 
