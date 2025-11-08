@@ -8,19 +8,19 @@
 
 ## 📑 Table of Contents
 
-- [Security Features](#-security-features) - 400+ Settings
-- [Privacy Features](#-privacy-features) - 300+ Settings  
-- [Network Security](#-network-security) - DNS, Firewall, SMB
-- [AI & Tracking Lockdown](#-ai--tracking-lockdown) - 9 AI Features Disabled
-- [Telemetry Control](#-telemetry-control) - 25+ Services, 478 Keys, 30 Tasks
-- [Application Control](#-application-control) - 50+ Apps Removed
-- [Windows Update](#-windows-update) - Secure Auto-Update Configuration
-- [System Hardening](#-system-hardening) - 15+ Additional Protections
-- [Performance Optimization](#-performance-optimization) - Background Tasks, Logs
-- [User Experience](#-user-experience) - Interactive Menu, Multi-Language
-- [Backup & Recovery](#-backup--recovery) - Complete Undo Capability
-- [Advanced Features](#-advanced-features) - LAPS, Auditing, SAC
-- [Verification](#-verification--validation) - Post-Apply Validation
+- [Security Features](#security-features) - 400+ Settings
+- [Privacy Features](#privacy-features) - 300+ Settings  
+- [Network Security](#network-security) - DNS, Firewall, SMB
+- [AI & Tracking Lockdown](#ai--tracking-lockdown) - 9 AI Features Disabled
+- [Telemetry Control](#telemetry-control) - 25+ Services, 478 Keys, 30 Tasks
+- [Application Control](#application-control) - 80+ Apps Removed
+- [Windows Update](#windows-update) - Secure Auto-Update Configuration
+- [System Hardening](#system-hardening) - 15+ Additional Protections
+- [Performance Optimization](#performance-optimization) - Background Tasks, Logs
+- [User Experience](#user-experience) - Interactive Menu, Multi-Language
+- [Backup & Recovery](#backup--recovery) - Complete Undo Capability
+- [Advanced Features](#advanced-features) - LAPS, Auditing, SAC
+- [Verification](#verification--validation) - Post-Apply Validation
 
 ---
 
@@ -73,7 +73,7 @@
 | Advanced ransomware protection | Multi-stage ransomware |
 
 ### BitLocker Encryption
-✅ **XTS-AES-256 Military-Grade Encryption**
+✅ **XTS-AES-256 Full Disk Encryption**
 
 | Configuration | What It Means |
 |---------------|---------------|
@@ -311,9 +311,9 @@ All apps CANNOT access (unless you allow):
 - Features: Threat intelligence blocking, operated by non-profit consortium
 
 #### **DNSSEC Validation**
-- ✅ **Opportunistic Mode:** Balanced security + compatibility
-- ✅ **Prevents:** DNS spoofing, cache poisoning, DNS hijacking
-- ✅ **Windows Native:** Built into Windows DNS client
+- ✅ **Opportunistic mode:** Compatibility balanced
+- ✅ **Helps prevent:** DNS spoofing, cache poisoning via provider-side validation
+- ✅ **Windows policy:** Integrated with DoH strict enforcement
 
 #### **Steven Black Unified Hosts**
 - ✅ **107,772 domains blocked** at DNS level (before queries even reach DNS!)
@@ -325,7 +325,7 @@ All apps CANNOT access (unless you allow):
 **Architecture: Defense in Depth**
 1. **Hosts file** blocks known bad domains (107K+) → Never queries DNS
 2. **DoH Provider** encrypts queries → ISP can't see or manipulate
-3. **DNSSEC** validates responses → Prevents spoofing
+3. **DNSSEC** validates responses → Helps prevent spoofing (provider-side)
 4. **Threat Intel** (Quad9) or **Ad Blocking** (AdGuard) → Extra protection
 
 **Result: Maximum privacy + Maximum security + YOU choose the provider!**
@@ -356,7 +356,7 @@ All apps CANNOT access (unless you allow):
 - ✅ Strong: AES-GCM, ChaCha20-Poly1305 only (AEAD)
 - ✅ Hash: SHA-256/384/512 (no SHA-1)
 
-**User Benefit:** Bank-grade TLS encryption, no weak crypto
+**User Benefit:** Modern TLS 1.2/1.3 with AEAD ciphers only, no weak crypto
 
 ### Legacy Protocols - All Disabled
 ✅ **Attack Surface Minimized**
