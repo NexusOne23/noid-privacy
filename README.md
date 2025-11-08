@@ -32,7 +32,7 @@
 
 <sub>* 370 locally-implementable policies (429 total, 59 N/A: domain/IE11) · † 540+ settings restored in backup: 478 registry keys, 25+ services, 13+ tasks, firewall rules, etc. · ‡ 0 errors in test suite on fresh Win 11 25H2 VM</sub>
 
-**→ [3-Minute Setup](#-quick-start)** · **[See Complete Feature List](FEATURES.md)** · **[Compare with Others](#-why-noid-privacy)**
+**→ [3-Minute Setup](#quick-start)** · **[See Complete Feature List](FEATURES.md)** · **[Compare with Others](#why-noid-privacy)**
 
 </div>
 
@@ -69,7 +69,7 @@
 *Complete system state backup before any changes (2-6 minutes)*
 
 ![Backup Success](docs/screenshots/backup-success.png)
-*476 registry keys, 313 services, 256 scheduled tasks backed up*
+*478 registry keys, 313 services, 256 scheduled tasks backed up*
 
 ### Configuration Options
 ![DNS Provider Selection](docs/screenshots/interactive-dns.png)
@@ -165,7 +165,7 @@ cd noid-privacy
 > Windows marks downloaded files as "blocked" (Zone.Identifier).  
 > **Solution:** Run `Start-NoID-Privacy.bat` - it automatically unblocks all files!  
 > **Manual:** Right-click each file → Properties → Check "Unblock" → OK  
-> **Details:** [FAQ - Troubleshooting](FAQ.md#-troubleshooting)
+> **Details:** [FAQ - Troubleshooting](FAQ.md#troubleshooting)
 
 **→ [Detailed Installation Guide](QUICKSTART.md)** · **[📸 Screenshot Gallery](SCREENSHOTS.md)** · **[See All Features](FEATURES.md)** · **[View Changelog](CHANGELOG.md)**
 
@@ -262,7 +262,7 @@ This project minimizes telemetry via Registry, Services, Firewall, and DNS block
 3. **DNSSEC** → Validates responses (prevents spoofing)
 4. **Threat Intel** (Quad9) or **Ad Blocking** (AdGuard) → Extra protection
 
-**→ [See Full DNS Provider Comparison](FEATURES.md#-network-security)**
+**→ [See Full DNS Provider Comparison](FEATURES.md#network-security)**
 
 </details>
 
@@ -287,7 +287,7 @@ This project minimizes telemetry via Registry, Services, Firewall, and DNS block
 We analyzed the **20 most critical Windows vulnerabilities** from CISA's Known Exploited Vulnerabilities catalog (2024-2025). NoID Privacy protects against **17 through configuration hardening** (ASR rules, protocol disablement, driver blocklist, service hardening). The remaining **3 are patched in Windows 11 25H2** baseline (kernel-level bugs fixed in Aug 2024–Apr 2025). **Result: 20/20 protection out-of-box** with Win11 25H2 + NoID Privacy. See `CISA_KEV_COVERAGE.md` for complete analysis.
 
 **❌ Not for you?**  
-This tool targets **Windows 11 25H2 standalone systems**. Not ideal for: Enterprise with Intune/AD (use Group Policy instead), Windows 10/older, legacy software requiring unsafe protocols, strict MDM reporting. → [Full details below](#-perfect-for)
+This tool targets **Windows 11 25H2 standalone systems**. Not ideal for: Enterprise with Intune/AD (use Group Policy instead), Windows 10/older, legacy software requiring unsafe protocols, strict MDM reporting. → [Full details below](#perfect-for)
 
 ---
 
@@ -782,7 +782,7 @@ The authors are not responsible for any damage or data loss caused by this scrip
 - ✅ **Registry Definition:** Fixed 14 errors (OneDrive descriptions, apostrophes, empty values)
 - ✅ **Registry Keys Expanded:** 425 → 478 keys (+53 extended hardening beyond baseline)
 - ✅ **100% tested on fresh VM:** Backup → Apply → Restore → All SUCCESS
-- ✅ **Production ready:** 0 errors, 540+ restore items, 134/136 verification checks
+- ✅ **Production ready:** 0 errors, 540+ restore items, 133 verification checks
 - ✅ **Documentation updated:** All counts corrected across 5 files (README, CHANGELOG, FEATURES, ANTIVIRUS_COMPATIBILITY, REGISTRY_KEYS)
 
 **→ See [CHANGELOG.md](CHANGELOG.md) for complete v1.8.1 details**

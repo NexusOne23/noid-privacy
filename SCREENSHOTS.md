@@ -57,7 +57,7 @@ Backed up:
 - **Scheduled Tasks:** 256 tasks
 - **Firewall:** 637 rules
 - **Users:** 6 accounts
-- **Registry Backup:** 476 specific keys
+- **Registry Backup:** 478 specific keys
 - **ASR Rules:** All 19 rules
 - **DoH Configuration:** True
 - **DoH Servers:** 8 DNS servers
@@ -209,7 +209,7 @@ If you created a backup, you can restore everything at any time:
 ```
 
 **Restores:**
-- ✅ All 476+ registry keys
+- ✅ All 478 registry keys
 - ✅ All 313 services
 - ✅ All 256 scheduled tasks
 - ✅ All 637 firewall rules
