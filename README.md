@@ -25,12 +25,26 @@
 
 | 🛡️ **SECURITY** | 🔒 **PRIVACY** | ⚡ **PERFORMANCE** | 🔄 **REVERSIBLE** |
 |:---:|:---:|:---:|:---:|
-| **100% locally-implementable<br>MS Baseline (370/429)** | **95% Telemetry Reduced** | **30 Tasks Disabled** | **Complete Backup** |
-| 19 ASR Rules (Enforce) | 9 AI Features Locked | Event Logs Optimized | 540+ Settings Restored |
+| **100% locally-implementable<br>MS Baseline (370/429)*** | **95% Telemetry Reduced** | **30 Tasks Disabled** | **Complete Backup** |
+| 19 ASR Rules (Enforce) | 9 AI Features Locked | Event Logs Optimized | 540+ Settings Restored† |
 | 13 Exploit Mitigations | 37 App Permissions | No Bloatware | **0 Errors** |
 | Credential Guard + VBS | 107,772 Domains Blocked | Faster Boot | Safe to Experiment |
 
-**→ [3-Minute Setup](#-quick-start)** · **[See All 400+ Settings](FEATURES.md)** · **[Compare with Others](#-why-noid-privacy)**
+<sub>* 370 locally-implementable policies (429 total, 59 N/A: domain/IE11) · † 540+ settings: 478 registry keys, 19 ASR rules, 313 services, 256 tasks, etc.</sub>
+
+**→ [3-Minute Setup](#-quick-start)** · **[See Complete Feature List](FEATURES.md)** · **[Compare with Others](#-why-noid-privacy)**
+
+</div>
+
+---
+
+## 🛡️ Safe to Test – Fully Reversible
+
+<div align="center">
+
+| **Apply** | **Verify** | **Restore** |
+|:---------:|:----------:|:-----------:|
+| Harden your system<br>2-6 minutes | 133 automated checks<br>Confirm everything works | One command reverts all<br>**0 errors, 540+ settings** |
 
 </div>
 
@@ -74,49 +88,13 @@
 
 ---
 
-## 🛡️ Safe to Test – Fully Reversible
+## 🚨 Why This Matters
 
-<div align="center">
+With **5.2M ransomware attacks in 2024**, state-sponsored APTs targeting SMBs (China's APT41, Russia's Cozy Bear, North Korea's Lazarus), and **1,000+ actively exploited vulnerabilities** (CISA KEV), your Windows 11 PC needs enterprise-grade protection.
 
-| **Apply** | **Verify** | **Restore** |
-|:---------:|:----------:|:-----------:|
-| Harden your system<br>2-6 minutes | 133 automated checks<br>Confirm everything works | One command reverts all<br>**0 errors, 540+ settings** |
+**Fortune 500 companies use NSA/CISA hardening guides and Microsoft Security Baseline. You deserve the same.**
 
-</div>
-
----
-
-## 🚨 The Threat Landscape (2024-2025)
-
-### Why Security Matters More Than Ever
-
-**Cybercrime is at an all-time high:**
-- 🔴 **5.2 million ransomware attacks in 2024** (FBI IC3 Report)
-- 🔴 **$10.3 billion in damages** from cyber attacks (US alone)
-- 🔴 **State-sponsored APTs** targeting SMBs and individuals
-  - China (APT41), Russia (APT29/Cozy Bear), North Korea (Lazarus Group)
-- 🔴 **Zero-day exploits** in the wild (CISA KEV: 1,000+ actively exploited vulnerabilities)
-
-### Your Windows 11 PC is a Target
-
-**Without hardening, you're vulnerable to:**
-- 💀 **Ransomware** (encrypts your files, demands payment)
-- 💀 **Credential theft** (Mimikatz, LSASS dumping)
-- 💀 **Office macro exploits** (malicious Word/Excel files)
-- 💀 **Phishing** (fake emails with malicious attachments)
-- 💀 **Supply chain attacks** (compromised software updates)
-
-### The Fortune 500 Difference
-
-**Why are Fortune 500 companies safer?**
-- ✅ They follow **NSA/CISA hardening guides** (government-grade security)
-- ✅ They implement **Microsoft Security Baseline** (enterprise-standard)
-- ✅ They enable **ASR rules, Credential Guard, VBS** (advanced protection)
-- ✅ They have **dedicated security teams** and **millions in budget**
-
-**You deserve the same protection.**
-
-**NoID Privacy brings Fortune 500-level security to your PC:**
+NoID Privacy delivers:
 - 🛡️ **NSA Top 10 Hardening**: 10/10 compliance
 - 🛡️ **CISA KEV Protection**: 20/20 most critical vulnerabilities covered
 - 🛡️ **Microsoft Security Baseline 25H2**: 100% compliance (370/429 locally applicable)
