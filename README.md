@@ -6,6 +6,8 @@
 [![Windows 11](https://img.shields.io/badge/Windows%2011-25H2-0078D4.svg)](https://www.microsoft.com/windows/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 [![Version](https://img.shields.io/badge/version-1.8.1-blue.svg)](CHANGELOG.md)
+[![Audit Score](https://img.shields.io/badge/Audit_Score-9.2%2F10-brightgreen?style=flat-square&logo=security&logoColor=white)](Audit/Audit.md)
+[![Commercial Version](https://img.shields.io/badge/NoID_Privacy_PRO-Coming_Q1_2026-blue?style=flat-square&logo=windows&logoColor=white)](https://noid-privacy.com)
 
 ---
 
@@ -699,6 +701,41 @@ Contributions are welcome! Please follow these guidelines:
 - ASCII/Extended Latin characters only (no Unicode symbols)
 - Comprehensive error handling (Try-Catch-Finally)
 - Verbose logging for debugging
+
+---
+
+## 🚀 Coming Soon: NoID Privacy PRO
+
+**Love the PowerShell version? NoID Privacy PRO is coming Q1 2026!**
+
+**→ [Visit noid-privacy.com for details](https://noid-privacy.com)**
+
+### ✨ What's included in PRO:
+- 🎨 **Beautiful Modern GUI** - Windows 11 Fluent Design with dark/light mode
+- ⚡ **1-Click Installation** - No PowerShell knowledge required
+- 📊 **Visual Dashboard** - Live status monitoring and progress bars
+- 💾 **Backup Manager** - Visual backup/restore interface with history
+- 🔄 **Auto-Update System** - Always stay current with latest security updates
+- 💬 **Premium Support** - Email & Priority Support included
+- 🏢 **Enterprise Licensing** - Volume discounts and site licenses available
+
+### 💡 Our Promise:
+**The PowerShell core will always remain free and open source.**  
+The GUI is an optional premium addition for those who prefer a visual interface over command-line tools.
+
+### 🔔 Stay Updated:
+- ⭐ **Star this repo** to follow development progress
+- 👀 **Watch for announcements** - PRO Beta testing starts January 2026
+- 🐛 **Report bugs** to help us improve both versions
+- 💬 **Join the community** - Your feedback shapes the product
+
+### 💰 Pricing:
+- **Home User:** €34.99 (One-time purchase, lifetime license)
+- **Business (5-Pack):** €129.00 (~€26/license, volume discount)
+- **Enterprise (20+):** Custom pricing and site licenses available
+- **Extended Support:** Optional €9.99/year for extended updates beyond 1 year
+
+*Early bird pricing (first 100 customers): €24.99*
 
 ---
 
