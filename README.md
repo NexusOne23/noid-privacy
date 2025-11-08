@@ -44,7 +44,7 @@
 
 | **Apply** | **Verify** | **Restore** |
 |:---------:|:----------:|:-----------:|
-| Harden your system<br>2-6 minutes | 133 automated checks<br>Confirm everything works | One command reverts all<br>**0 errors, 540+ settings** |
+| Harden your system<br>2-6 minutes | 133 automated checks<br>Confirm everything works | One command reverts all<br>**0 errors**‡, 540+ settings |
 
 </div>
 
@@ -259,7 +259,7 @@ This project minimizes telemetry via Registry, Services, Firewall, and DNS block
 **Defense in Depth Architecture:**
 1. **Hosts file** (107K+) → Blocks before DNS query
 2. **DoH Provider** → Encrypts queries (ISP can't see)
-3. **DNSSEC** → Provider validates responses (prevents spoofing)
+3. **DNSSEC** → Provider validates responses (helps prevent spoofing)
 4. **Threat Intel** (Quad9) or **Ad Blocking** (AdGuard) → Extra protection
 
 **→ [See Full DNS Provider Comparison](FEATURES.md#network-security)**
@@ -348,10 +348,11 @@ This tool targets **Windows 11 25H2 standalone systems**. Not ideal for: Enterpr
 ### Software Requirements
 - **PowerShell:** 5.1 or higher (Windows built-in)
 - **Administrator Rights:** Required for all operations
-- **Internet Connection:** NOT required for script execution
-  - ✅ **Hosts file (107K+ domains) included** - compressed to 2.2 MB (from 3 MB original)
-  - ✅ DNS-over-HTTPS is only configured (no download needed)
-  - ℹ️ Internet only needed for: git clone (initial download)
+- **Internet Connection:** Only required for Fast Install/Release download
+  - ✅ **Offline execution:** All files (hosts, scripts) included in archive
+  - ✅ **Hosts file (107K+ domains) included** - compressed to 2.2 MB
+  - ✅ **DNS-over-HTTPS** is only configured (no download needed)
+  - ℹ️ Internet needed for: Fast Install, git clone, or ZIP download
   
 > **📦 Note on Repository Size:** The compressed hosts file (~2.2 MB) is included in the repo for offline use. Original uncompressed Steven Black hosts files are excluded via .gitignore to keep the repository lean. The script uses the pre-compressed version for optimal performance.
 
@@ -572,7 +573,7 @@ Edit module files in `/Modules/` to adjust settings:
 **Cause:** No TPM 2.0 or insufficient disk space  
 **Solution:**
 1. Check TPM: `Get-Tpm`
-2. Ensure 256 GB+ free space
+2. Ensure sufficient free space for encryption
 3. Manual activation: Control Panel → BitLocker
 
 #### 🎮 Gaming & Multiplayer Issues
