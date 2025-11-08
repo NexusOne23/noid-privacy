@@ -706,14 +706,6 @@ The GUI is an optional premium addition for those who prefer a visual interface 
 - 🐛 **Report bugs** to help us improve both versions
 - 💬 **Join the community** - Your feedback shapes the product
 
-### 💰 Pricing:
-- **Home User:** €34.99 (One-time purchase, lifetime license)
-- **Business (5-Pack):** €129.00 (~€26/license, volume discount)
-- **Enterprise (20+):** Custom pricing and site licenses available
-- **Extended Support:** Optional €9.99/year for extended updates beyond 1 year
-
-*Early bird pricing (first 100 customers): €24.99*
-
 ---
 
 ## 📜 License
