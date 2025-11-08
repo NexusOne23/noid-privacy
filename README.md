@@ -30,7 +30,7 @@
 | 13 Exploit Mitigations | 37 App Permissions | No Bloatware | **0 Errors**‡ |
 | Credential Guard + VBS | 107,772 Domains Blocked | Faster Boot | Safe to Experiment |
 
-<sub>* 370 locally-implementable policies (429 total, 59 N/A: domain/IE11) · † 540+ settings restored in backup: 478 registry keys, 25+ services, 13+ tasks, firewall rules, etc. · ‡ 0 errors in test suite on fresh Win 11 25H2 VM</sub>
+<sub>* 370 locally-implementable policies (429 total, 59 N/A: domain/IE11) · † 540+ settings restored in backup: 478 registry keys, 25+ services, 13+ tasks, firewall rules, etc. · ‡ 0 errors in test suite on fresh Win 11 25H2 VM · CISA KEV: See [analysis](CISA_KEV_COVERAGE.md)</sub>
 
 **→ [3-Minute Setup](#quick-start)** · **[See Complete Feature List](FEATURES.md)** · **[Compare with Others](#why-noid-privacy)**
 
@@ -97,7 +97,7 @@ With **[5.2M ransomware attacks in 2024](https://www.ic3.gov/Media/PDF/AnnualRep
 NoID Privacy delivers:
 - 🛡️ **NSA Top 10 Hardening**: 10/10 compliance
 - 🛡️ **CISA KEV Protection**: 20/20 most critical vulnerabilities covered
-- 🛡️ **Microsoft Security Baseline 25H2**: 100% compliance (370/429 locally applicable)
+- 🛡️ **Microsoft Security Baseline 25H2**: 100% of locally-implementable policies (370/429)
 - 🛡️ **Free & Open Source**: No enterprise license needed
 
 → **Same playbook, zero cost, full control.**
@@ -248,7 +248,7 @@ This project minimizes telemetry via Registry, Services, Firewall, and DNS block
 - ✅ **Dual-Stack:** IPv6 + IPv4 (IPv6 preferred when available)
 - ✅ **Per-Adapter:** Only real network adapters (VPN/Virtual excluded)
 - ✅ **Global Policy:** `EnableAutoDoh=2` (Windows-wide enforcement)
-- ✅ **DNSSEC Validation:** Prevents DNS spoofing/poisoning
+- ✅ **DNSSEC:** Provider-side validation (prevents spoofing)
 
 **Steven Black Unified Hosts File (Optimized)**
 - ✅ **107,772 malicious/tracking domains blocked** at DNS level (before queries even reach DNS!)
@@ -259,7 +259,7 @@ This project minimizes telemetry via Registry, Services, Firewall, and DNS block
 **Defense in Depth Architecture:**
 1. **Hosts file** (107K+) → Blocks before DNS query
 2. **DoH Provider** → Encrypts queries (ISP can't see)
-3. **DNSSEC** → Validates responses (prevents spoofing)
+3. **DNSSEC** → Provider validates responses (prevents spoofing)
 4. **Threat Intel** (Quad9) or **Ad Blocking** (AdGuard) → Extra protection
 
 **→ [See Full DNS Provider Comparison](FEATURES.md#network-security)**
@@ -438,7 +438,7 @@ The project uses a modular architecture with **13 specialized modules**: Core, A
 | **Core** | Security baseline, Defender, Firewall, Services | 25 services disabled, 13 firewall rules, 13 exploit mitigations, Admin/Guest account hardening |
 | **ASR** | Attack Surface Reduction rules | 19 ASR rules (Enforce mode), Smart App Control |
 | **Advanced** | VBS, Credential Guard, LAPS, Auditing | Credential Guard, VBS, HVCI, LSA-PPL, BitLocker policies, Windows LAPS, TLS/SSL hardening |
-| **DNS** | Multi-Provider DoH, DNSSEC, Blocklist | 4 providers (Cloudflare/AdGuard/NextDNS/Quad9), 100% strict enforcement, DNSSEC validation, 107,772 blocked domains, Strict Inbound Firewall |
+| **DNS** | Multi-Provider DoH, DNSSEC, Blocklist | 4 providers (Cloudflare/AdGuard/NextDNS/Quad9), 100% strict enforcement, DNSSEC (provider-side), 107,772 blocked domains, Strict Inbound Firewall |
 | **Bloatware** | App removal, Consumer features | 80+ app patterns, Teams Chat/Copilot/Widgets disabled, Consumer Features blocked |
 | **Telemetry** | Privacy protection, App permissions | 25+ services, 478 registry keys (110 telemetry-specific), 37 app permission categories, Camera/Mic controls |
 | **Performance** | Scheduled tasks, Event logs | 30 tasks disabled, Event log optimization, Windows Search local-only, Prefetch/Superfetch tuning |
