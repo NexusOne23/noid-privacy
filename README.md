@@ -5,7 +5,7 @@
 [![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-blue.svg)](https://github.com/PowerShell/PowerShell)
 [![Windows 11](https://img.shields.io/badge/Windows%2011-25H2-0078D4.svg)](https://www.microsoft.com/windows/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-1.8.1-blue.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.8.2-blue.svg)](CHANGELOG.md)
 [![Audit Score](https://img.shields.io/badge/Audit_Score-9.2%2F10-brightgreen?style=flat-square&logo=security&logoColor=white)](Audit/Audit.md)
 [![Commercial Version](https://img.shields.io/badge/NoID_Privacy_PRO-Coming_Q1_2026-blue?style=flat-square&logo=windows&logoColor=white)](https://noid-privacy.com)
 
@@ -867,26 +867,43 @@ The authors are not responsible for any damage or data loss caused by this scrip
 
 ---
 
-## 📈 Project Status
+## Project Status
 
-**Current Version:** 1.8.1 🎉  
-**Last Updated:** November 7, 2025  
-**Status:** Production-Ready ✅
+**Current Version:** 1.8.2  
+**Last Updated:** November 10, 2025  
+**Status:** Production-Ready 
+
+### Feature Release (v1.8.2) - Network Discovery User Choice
+
+**Headline:** Network discovery protocols now user-configurable! Balance Fortune 500 security with home user convenience.
+
+**Impact:** Home users can now enable Chromecast, Miracast, AirPlay, printer discovery while maintaining enterprise-grade security for legacy protocols!
+
+**New Features:**
+- **Network Discovery Menu** - Choose between Maximum Security (Stealth) or Home User (Modern Protocols)
+- **Configurable mDNS** - Enable Chromecast, AirPlay, Spotify Connect, Miracast in Home User mode
+- **Configurable WSD/SSDP** - Enable automatic printer discovery in Home User mode
+- **Configurable Network Discovery** - Enable Explorer network browsing in Home User mode
+- **Security Guaranteed** - NetBIOS and LLMNR **always blocked** (exceeds MS Baseline 25H2)
+- **Enhanced Logging** - SUCCESS SUMMARY now shows all configuration choices (OneDrive, RDP, Network, DNS)
+- **Improved UX** - Main menu texts shortened, better colors, 38 new localization strings (EN/DE)
+
+**→ See [CHANGELOG.md](CHANGELOG.md) for complete v1.8.2 details**
+
+<details>
+<summary><b>Previous Release (v1.8.1)</b></summary>
 
 ### 🐛 Bugfix Release (v1.8.1) - Critical Parser Errors Fixed
 
 **🚀 Headline:** All script-breaking parser errors from Quick-Win phase resolved!
 
-#### **What's Fixed:**
-- ✅ **15 parser errors fixed** - Script completely non-functional → fully operational
-- ✅ **Apply Script:** Fixed undefined `$config` variable crash (interactive mode broken)
-- ✅ **Registry Definition:** Fixed 14 errors (OneDrive descriptions, apostrophes, empty values)
-- ✅ **Registry Keys Expanded:** 425 → 478 keys (+53 extended hardening beyond baseline)
-- ✅ **100% tested on fresh VM:** Backup → Apply → Restore → All SUCCESS
+**Fixed:**
+- ✅ **Interactive mode crash** - $config undefined error (Line 826)
+- ✅ **14 parser errors** - Registry Definition file (8 OneDrive strings, 3 apostrophes, 2 empty values, 1 array format)
+- ✅ **Backup/Restore failures** - All RegistryChanges-Definition parser errors resolved
 - ✅ **Production ready:** 0 errors, 540+ restore items, 133 verification checks
-- ✅ **Documentation updated:** All counts corrected across 5 files (README, CHANGELOG, FEATURES, ANTIVIRUS_COMPATIBILITY, REGISTRY_KEYS)
 
-**→ See [CHANGELOG.md](CHANGELOG.md) for complete v1.8.1 details**
+</details>
 
 <details>
 <summary><b>Previous Updates (click to expand)</b></summary>
@@ -895,14 +912,14 @@ The authors are not responsible for any damage or data loss caused by this scrip
 
 **🚀 Headline:** NoID Privacy now implements **100% of all locally-applicable Microsoft Security Baseline 25H2 policies** (370/370)!
 
-#### **What's New:**
+**What's New:**
 - ✅ **370/370 applicable policies** (was 213/365 = **+73.7% coverage!**)
-- ✅ **67 secedit settings** automated (Password Policy, Account Lockout, LSA, SMB) - backed up but restore limited by Windows
-- ✅ **478 registry keys** (was 391 = **+87 keys**) - fully reversible via backup/restore
+- ✅ **67 secedit settings** automated (Password Policy, Account Lockout, LSA, SMB)
+- ✅ **478 registry keys** (was 391 = **+87 keys**)
 - ✅ **133 verification checks** (optimized from 135)
-- ✅ **CRITICAL FIX:** Credential Guard now actually runs (Hypervisor + LsaCfgFlags)
-- ✅ **Complete documentation overhaul** - 26 files updated, all numbers corrected
-- ✅ **Antivirus compatibility improved** - Generic warnings, all AVs treated equally
+- ✅ **CRITICAL FIX:** Credential Guard now actually runs
+- ✅ **Complete documentation overhaul** - 26 files updated
+- ✅ **Antivirus compatibility improved**
 - ✅ **Hosts file: 107,772 domains** (was 80K = **+34%**)
 
 ### v1.7.21

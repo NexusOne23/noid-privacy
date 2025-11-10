@@ -5,6 +5,93 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.8.2] - 2025-11-10
+
+### ✨ New Features
+
+#### **Network Discovery User Choice** 🏠🔒
+User-configurable network discovery settings to balance Fortune 500-level security with home user convenience.
+
+**Interactive Menu with 2 Options:**
+- **Option 1: Maximum Security (Stealth Mode)** - All discovery protocols blocked (NetBIOS, LLMNR, mDNS, WSD, SSDP, Network Discovery)
+- **Option 2: Home User (Modern Protocols)** - Modern protocols enabled (mDNS, WSD/SSDP, Network Discovery), legacy protocols blocked (NetBIOS, LLMNR)
+
+**What's Now Configurable:**
+- **mDNS** - Enables Chromecast, AirPlay, Spotify Connect, Smart Home discovery, Miracast
+- **WSD/SSDP** - Enables automatic printer discovery (Canon, HP, Epson)
+- **Network Discovery** - Enables Explorer network browsing, PC discovery
+- **Miracast/Wireless Display** - Automatically linked to mDNS setting
+
+**Security Guarantees:**
+- NetBIOS and LLMNR **always blocked** in both modes (Microsoft Baseline 25H2 compliance exceeded)
+- Default in non-interactive mode: **Maximum Security**
+- Core module is **mandatory** (always selected) ensuring consistent security baseline
+
+**Fixes Home User Issues:**
+- ✅ Chromecast/Smart TV discovery now works (Home User mode)
+- ✅ Miracast/Wireless Display now works (Home User mode)
+- ✅ AirPlay now works (Home User mode)
+- ✅ Automatic printer discovery now works (Home User mode)
+- ✅ Explorer network browsing now works (Home User mode)
+- ✅ Steam In-Home Streaming discovery now works (Home User mode)
+
+### 🎨 UX Improvements
+
+**Menu Optimizations:**
+- Main menu texts shortened for better readability (e.g., "RDP" instead of "Remote-Access-Konfiguration")
+- Network Discovery now mentioned in main menu follow-up texts
+- Contra colors changed from Red to Yellow (less alarming, more like warnings)
+
+**Enhanced Logging:**
+- Visible Cyan confirmations after each menu choice (OneDrive, RDP, Network Discovery)
+- Extended SUCCESS SUMMARY now shows all configuration choices:
+  - OneDrive configuration
+  - Remote Access mode
+  - Network Discovery mode (NEW!)
+  - DNS Provider
+
+### 🌍 Localization
+
+**38 New Strings Added (EN/DE):**
+- Network Discovery Menu (title, question, options, pros/cons, recommendations)
+- Shortened main menu texts in both languages
+- All new confirmation messages
+
+### 🔧 Technical Details
+
+**New Script Variables:**
+- `$script:NetworkProfile` - 'maximum-security' or 'home-user'
+- `$script:AllowmDNS` - Controls mDNS blocking
+- `$script:AllowNetworkDiscovery` - Controls Network Discovery
+- `$script:AllowWSD_SSDP` - Controls printer discovery protocols
+
+**Modified Functions:**
+- `Disable-NetworkLegacyProtocols` - Now conditionally blocks mDNS, WSD, SSDP
+- `Enable-NetworkStealthMode` - Now conditionally enables/disables Network Discovery
+- `Disable-WirelessDisplay` - Now checks mDNS setting before disabling Miracast
+
+**Files Changed:**
+- `Apply-Win11-25H2-SecurityBaseline.ps1` (+108 lines)
+- `Modules/SecurityBaseline-Core.ps1` (+167 lines restructured)
+- `Modules/SecurityBaseline-Interactive.ps1` (+85 lines)
+- `Modules/SecurityBaseline-Localization.ps1` (+88 lines)
+- `Modules/SecurityBaseline-WirelessDisplay.ps1` (+11 lines)
+
+**Quality Assurance:**
+- ✅ UTF-8 without BOM encoding verified
+- ✅ ASCII-only (0 non-ASCII characters)
+- ✅ Backup/Restore fully compatible
+- ✅ All code paths tested (Maximum Security + Home User modes)
+- ✅ Idempotent (safe to run multiple times)
+
+### 📊 Compatibility
+
+- **Microsoft Security Baseline 25H2:** Exceeded (NetBIOS+LLMNR always blocked)
+- **Backup/Restore:** Fully compatible (firewall rules captured)
+- **Previous Configurations:** No breaking changes for existing deployments (defaults unchanged)
+
+---
+
 ## [1.8.1] - 2025-11-07
 
 ### 🐛 Critical Bug Fixes (Quick-Win Phase)

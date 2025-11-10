@@ -1431,7 +1431,7 @@ Write-Host "               Maximum Security + Privacy + Performance" -Foreground
 Write-Host "" -ForegroundColor Cyan
 Write-Host "=============================================================================" -ForegroundColor Cyan
 Write-Host ""
-Write-Host "  Version: 1.8.1 | ASR Mode: $Mode" -ForegroundColor Cyan
+Write-Host "  Version: 1.8.2 | ASR Mode: $Mode" -ForegroundColor Cyan
 if ($Interactive) {
     Write-Host "  Interface: Interactive Menu" -ForegroundColor Cyan
 }
