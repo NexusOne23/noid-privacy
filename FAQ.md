@@ -114,37 +114,41 @@ If you have third-party AV, some Defender features (ASR, PUA) may be unavailable
 - ✅ Exploit Protection (system-wide mitigations)
 - ✅ Smart App Control (reputation-based)
 
-### Why is Tamper Protection NOT included?
+### Why is Tamper Protection set to Value 4 (not Value 5)?
 
-**Tamper Protection would prevent you from managing Defender.**
+**Tamper Protection IS enabled - but with user flexibility.**
 
-**What Tamper Protection does:**
-- Locks Windows Defender settings (cannot be disabled)
-- Blocks registry modifications to Defender keys
-- Prevents stopping Defender services
-- Makes it impossible to temporarily disable real-time protection
+**What we configure (Value 4):**
+- ✅ Tamper Protection is **ACTIVE** - protects against unauthorized changes
+- ✅ Malware still **cannot disable Defender** (requires admin + UAC/Credential Guard bypass)
+- ✅ You retain control as administrator (can modify settings via GUI or PowerShell if needed)
+- ✅ Easier troubleshooting if conflicts occur
+- ✅ No Microsoft Account or cloud connection required
 
-**Why we DON'T include it:**
-1. **Too restrictive for daily use**
-   - Cannot temporarily disable Defender for software installation
-   - Cannot quick-disable for troubleshooting
-   - Requires restore script just to install some software
+**What Value 5 would do (Cloud-managed):**
+- ⚠️ **Requires Microsoft Account** + cloud connection
+- ⚠️ Settings become locked even for local administrators
+- ⚠️ Conflicts with organizational policies
+- ⚠️ Not suitable for offline/air-gapped systems
 
-2. **Our target audience doesn't need it**
-   - We target power users and SMB, not enterprise
-   - Power users need flexibility
-   - Restore script available for full reset if needed
+**Why we chose Value 4:**
+1. **Security + Flexibility = Best of Both Worlds**
+   - You get protection against unauthorized changes
+   - But you keep control for legitimate administrative tasks
+   - Can add exclusions via Windows Security GUI (always works)
+   - Can temporarily disable features for troubleshooting
 
-3. **What you CAN do instead:**
-   - Add exclusions via Windows Security GUI (always works)
-   - Use the restore script when you need full Defender control
-   - Controlled Folder Access + ASR rules provide strong protection
+2. **Our target audience needs flexibility**
+   - Power users need control over their systems
+   - SMB environments need offline capability
+   - Standalone systems don't need cloud-managed lockdown
 
-**If you WANT Tamper Protection:**
+**If you WANT maximum lockdown (Value 5):**
 - Enable it manually: Windows Security → Virus & threat protection → Manage settings → Tamper Protection (toggle ON)
-- This is an informed choice you can make after running the script
+- Or via Registry: `Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows Defender\Features" -Name "TamperProtection" -Value 5 -Type DWord`
+- Note: Requires Microsoft Account authentication
 
-**Note:** This is an intentional decision for user flexibility. Enterprise environments should use Group Policy to enforce Tamper Protection centrally.
+**Our Philosophy:** Security with user control, not security theater.
 
 ### Does this protect against all attacks?
 

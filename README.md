@@ -432,6 +432,90 @@ shutdown /r /t 0
 
 ---
 
+## ⚙️ Important Configuration Decisions
+
+### 🔒 Tamper Protection (Enabled with User Flexibility)
+
+**Why we use Value 4:** We prioritize **security with user flexibility** over maximum lockdown.
+
+- ✅ **Our default (Value 4 = Enabled, Local Admin Control):**
+  - Tamper Protection is **ACTIVE** - protects against unauthorized changes
+  - You retain full control as administrator (can modify via GUI or PowerShell if needed)
+  - Easier troubleshooting if conflicts occur
+  - Malware still **cannot disable Defender** (requires admin privileges + UAC/Credential Guard bypass)
+
+- ⚠️ **Maximum Lockdown (Value 5 = Cloud-managed):**
+  - **Microsoft Cloud-managed** - requires Microsoft Account + cloud connection
+  - Settings become locked even for local administrators
+  - Conflicts with organizational policies
+  - Not suitable for offline/air-gapped systems
+
+**Our choice (Value 4):** Tamper Protection is enabled, but local admin retains control for flexibility.
+
+<details>
+<summary><b>How to enable maximum Tamper Protection manually</b></summary>
+
+**Option 1: Via Windows Security GUI**
+```
+Settings → Privacy & Security → Windows Security → Virus & threat protection
+→ Virus & threat protection settings → Manage settings
+→ Tamper Protection: ON
+```
+
+**Option 2: Via Registry (Value 5 = Cloud-managed)**
+```powershell
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows Defender\Features" -Name "TamperProtection" -Value 5 -Type DWord
+```
+
+**Note:** Value 5 requires Microsoft Account authentication and cloud connectivity.
+
+</details>
+
+---
+
+### 🛡️ Third-Party Antivirus Compatibility
+
+If you use **third-party antivirus** (Norton, Kaspersky, Bitdefender, etc.), Windows Defender components are automatically disabled by Windows:
+
+| Component | With 3rd-party AV | Impact on Verify Score |
+|-----------|-------------------|------------------------|
+| **Real-time Protection** | ❌ Disabled | ASR Rules inactive (-19 checks) |
+| **Cloud Protection** | ❌ Disabled | Network Protection may not work (-2 checks) |
+| **ASR Rules** | ❌ Inactive | Expected score: ~75-85% instead of 95-100% |
+| **Other Settings** | ✅ Active | Credential Guard, Firewall, Privacy settings work normally |
+
+**This is expected behavior** - not a failure! Your 3rd-party AV replaces Defender's functions.
+
+**Recommendation:** For maximum protection, use **Windows Defender** (built-in, no cost) + **NoID Privacy hardening** instead of 3rd-party AV.
+
+---
+
+### 🌐 Hosts File Domain Blocking (107,772 Domains)
+
+**Quick Whitelisting Guide:**
+
+If a legitimate website is blocked by the hosts file:
+
+```powershell
+# 1. Find the domain in C:\Windows\System32\drivers\etc\hosts
+notepad C:\Windows\System32\drivers\etc\hosts
+
+# 2. Comment out the line (add # at start)
+# Example: Block tracker.example.com
+# 0.0.0.0 tracker.example.com  ← Add # here
+
+# 3. Save and flush DNS cache
+ipconfig /flushdns
+```
+
+**Alternative:** Use the built-in restore feature to remove domain blocking entirely:
+```powershell
+.\Restore-SecurityBaseline.ps1
+# Select: "Restore DNS/Hosts settings only"
+```
+
+---
+
 ## 🔧 Module Architecture
 
 The project uses a modular architecture with **13 specialized modules**: Core, ASR, Advanced, DNS, Bloatware, Telemetry, Performance, AI, Edge, OneDrive, UAC, WindowsUpdate, WirelessDisplay
@@ -732,6 +816,12 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
   - Deployment modes (Audit/Warn/Block)
   - False positive guidance
   - Event monitoring and troubleshooting
+
+- **[Testing Methodology](METHODOLOGY.md)** - Validation framework and testing approach
+  - Current testing status and audit results
+  - Planned automated test harness
+  - Defense layer validation details
+  - Transparent limitations and roadmap
 
 - **[Known Issues](KNOWN_ISSUES.md)** - Compatibility notes and workarounds
 - **[Security Policy](SECURITY.md)** - Vulnerability disclosure and security practices

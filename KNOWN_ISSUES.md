@@ -286,10 +286,11 @@ Get-NetFirewallProfile | Select Name,DefaultInboundAction,DefaultOutboundAction
   - **Solution:** Add script folder to exclusions
 
 **Expected Verify Results with Third-Party AV:**
-- ✅ **Native Windows Defender:** 118-119/133 PASS
-- ✅ **Bitdefender/Kaspersky/Norton/ESET:** 96-100/133 PASS (expected!)
+- ✅ **Native Windows Defender:** 118-119/133 PASS (95-100% score) ← **Target configuration**
+- ✅ **Bitdefender/Kaspersky/Norton/ESET:** 96-100/133 PASS (75-85% score) ← **This is NORMAL!**
 - ❌ Failed checks: ASR Rules (19x), Network Protection, Cloud Protection, PUA
 - **Why This Is OK:** Third-party AV provides equivalent protection features
+- **Note:** A 75-85% score with 3rd-party AV is **NOT a failure** - it indicates Windows Defender components are correctly disabled while your AV handles those protections
 
 **Tested & Working:**
 - ✅ Bitdefender (RestrictRemoteSAM exclusion recommended)
