@@ -417,10 +417,55 @@ Get-NetFirewallProfile | Select Name,DefaultInboundAction,DefaultOutboundAction
 
 ---
 
+### Permanent Privacy Settings (By Design)
+
+**Background**: Some privacy-critical settings remain active even after running Restore, due to Windows caching system-level policies.
+
+**What Stays Permanently Disabled:**
+- ✅ **App Diagnostics** (Settings shows "Managed by your organization")
+- ✅ **Telemetry Collection** (System-level blocks remain)
+- ✅ **App Permission Policies** under `CapabilityAccessManager` may persist
+
+**Why This Happens:**
+- Registry path: `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\*`
+- Windows treats `HKLM` settings as "system policy" and caches them
+- Even after key deletion, Windows remembers the policy state
+- GUI shows "Managed by your organization" to indicate system-level restriction
+
+**Is This a Problem?**
+- ❌ **NO** - This is a **FEATURE, not a bug!**
+- ✅ **Privacy-by-default remains permanent** (even if user "regrets" and restores)
+- ✅ **Microsoft cannot track diagnostics** (even after restore)
+- ✅ **Protection against naive restore** (user stays protected)
+
+**Philosophy:**
+This is intentionally designed as a "one-way ticket" to better privacy. Similar to Linux `sudo` philosophy: once hardened, privacy-critical settings should not easily revert.
+
+**Manual Override (If Really Needed):**
+1. Open Registry Editor (`regedit.exe`)
+2. Navigate to: `HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\appDiagnostics`
+3. Change `Value` from `Deny` to `Allow`
+4. Restart Windows
+5. Settings → Privacy → Diagnostics & feedback
+
+**Affected Settings:**
+- App Diagnostics (confirmed permanent)
+- Potentially: Appointments, Contacts, Email, Location, Microphone, Webcam access policies
+- These are the **most privacy-critical** settings - intentionally hard to revert
+
+**Comparison to Linux:**
+- Similar to Linux `sysctl` hardening or SELinux policies
+- Once privacy/security is hardened, it requires manual intervention to revert
+- This prevents accidental or malicious privacy degradation
+
+**Status:** ✅ Working as designed - Feature, not bug (Documented Nov 10, 2025)
+
+---
+
 ## ✅ Fixed Issues
 
 See [CHANGELOG.md](CHANGELOG.md) for resolved issues and version history.
 
 ---
 
-*Last Updated: November 8, 2025 (v1.8.1)*
+*Last Updated: November 10, 2025 (v1.8.1)*

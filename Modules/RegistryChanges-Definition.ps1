@@ -235,15 +235,6 @@ $script:RegistryChanges = @(
     }
 ,
     @{
-        Path = 'HKLM:\SYSTEM\CurrentControlSet\Control\Lsa\MSV1_0'
-        Name = 'SCENoApplyLegacyAuditPolicy'
-        Type = 'DWord'
-        ApplyValue = 1
-        Description = 'Force advanced audit subcategory settings (override legacy)'
-        File = 'SecurityBaseline-Advanced.ps1'
-    }
-,
-    @{
         Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Windows\PowerShell\ScriptBlockLogging'
         Name = 'EnableScriptBlockLogging'
         Type = 'DWord'
@@ -4286,6 +4277,62 @@ $script:RegistryChanges = @(
         Type = 'DWord'
         ApplyValue = 2
         Description = 'NetBT: P-node (Point-to-Point, no broadcast)'
+        File = 'SecurityBaseline-Advanced.ps1'
+    },
+    @{
+        Path = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System'
+        Name = 'ConsentPromptBehaviorEnhancedAdmin'
+        Type = 'DWord'
+        ApplyValue = 1
+        Description = 'UAC Enhanced Admin: Prompt for consent (secedit template)'
+        File = 'SecurityBaseline-Core.ps1'
+    },
+    @{
+        Path = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System'
+        Name = 'TypeOfAdminApprovalMode'
+        Type = 'DWord'
+        ApplyValue = 2
+        Description = 'UAC: Type of Admin Approval Mode (secedit template)'
+        File = 'SecurityBaseline-Core.ps1'
+    },
+    @{
+        Path = 'HKLM:\SYSTEM\CurrentControlSet\Services\Netlogon\Parameters'
+        Name = 'requirestrongkey'
+        Type = 'DWord'
+        ApplyValue = 1
+        Description = 'Netlogon: Require strong key (secedit template)'
+        File = 'SecurityBaseline-Advanced.ps1'
+    },
+    @{
+        Path = 'HKLM:\SYSTEM\CurrentControlSet\Services\Netlogon\Parameters'
+        Name = 'sealsecurechannel'
+        Type = 'DWord'
+        ApplyValue = 1
+        Description = 'Netlogon: Seal secure channel (secedit template)'
+        File = 'SecurityBaseline-Advanced.ps1'
+    },
+    @{
+        Path = 'HKLM:\SYSTEM\CurrentControlSet\Services\Netlogon\Parameters'
+        Name = 'signsecurechannel'
+        Type = 'DWord'
+        ApplyValue = 1
+        Description = 'Netlogon: Sign secure channel (secedit template)'
+        File = 'SecurityBaseline-Advanced.ps1'
+    },
+    @{
+        Path = 'HKLM:\SYSTEM\CurrentControlSet\Services\Netlogon\Parameters'
+        Name = 'DisablePasswordChange'
+        Type = 'DWord'
+        ApplyValue = 0
+        Description = 'Netlogon: Enable password change (secedit template)'
+        File = 'SecurityBaseline-Advanced.ps1'
+    },
+    @{
+        Path = 'HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager'
+        Name = 'ProtectionMode'
+        Type = 'DWord'
+        ApplyValue = 1
+        Description = 'Session Manager: Object protection mode (secedit template)'
         File = 'SecurityBaseline-Advanced.ps1'
     }
 )

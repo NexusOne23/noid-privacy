@@ -17,13 +17,14 @@
     - Network Hardening: 3 settings (mDNS, LLMNR, NetBIOS)
     
     BATCH 3 EXPANSION (Oct 30, 2025):
-    - UAC Detailed: 7 settings (comprehensive)
+    - UAC Detailed: 9 settings (comprehensive + secedit template keys)
     - LSA Protection: 3 settings (Anti-Mimikatz)
     - Credential Guard/VBS: 5 settings
     - Windows LAPS: 3 settings
     - Kerberos Security: 2 settings
+    - Netlogon & Session Manager: 5 settings (secedit template keys)
     
-    Total Checks: ~127+ (from ~30)
+    Total Checks: 140 (from ~30)
     
     CHANGELOG (Oct 31, 2025):
     - Added transcript logging for audit trail and debugging
@@ -1034,10 +1035,10 @@ Test-BaselineCheck -Category "Network" -Name "NetBIOS Disabled (Registry Policy)
     -Expected 0
 
 # ===========================
-# UAC (USER ACCOUNT CONTROL) - DETAILED (7 SETTINGS)
+# UAC (USER ACCOUNT CONTROL) - DETAILED (11 SETTINGS)
 # ===========================
 
-Write-Host "`n=== UAC (USER ACCOUNT CONTROL) - DETAILED (7 SETTINGS) ===" -ForegroundColor Yellow
+Write-Host "`n=== UAC (USER ACCOUNT CONTROL) - DETAILED (11 SETTINGS) ===" -ForegroundColor Yellow
 
 $uacPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System"
 
@@ -1090,6 +1091,18 @@ Test-BaselineCheck -Category "UAC" -Name "EPP Mode Configured (Future-Ready)" -I
     } `
     -Expected 2
 
+Test-BaselineCheck -Category "UAC" -Name "Enhanced Admin Behavior (secedit)" -Impact "High" `
+    -Test { 
+        Get-RegistryValueSafe $uacPath "ConsentPromptBehaviorEnhancedAdmin" -DefaultValue 0
+    } `
+    -Expected 1
+
+Test-BaselineCheck -Category "UAC" -Name "Type of Admin Approval Mode (secedit)" -Impact "High" `
+    -Test { 
+        Get-RegistryValueSafe $uacPath "TypeOfAdminApprovalMode" -DefaultValue 0
+    } `
+    -Expected 2
+
 Test-BaselineCheck -Category "UAC" -Name "Microsoft Account Optional (OOBE)" -Impact "Low" `
     -Test { 
         Get-RegistryValueSafe $uacPath "MSAOptional" -DefaultValue 0
@@ -1136,9 +1149,9 @@ Test-BaselineCheck -Category "Power" -Name "Lock Screen Password Required (Machi
     } `
     -Expected "1"
 
-# Hibernate (Conditional: Depends on RDP/Remote Access mode)
-# v1.8.2: If RDP enabled = Hibernate disabled (services must stay running)
-#         If RDP disabled = Hibernate enabled (physical access protection)
+# Hibernate (Conditional: Hardware/VM dependent)
+# v1.8.2: Hibernate may not be available on VMs or certain hardware configurations
+#         This is expected and does not indicate a security issue
 $sleepStates = powercfg /availablesleepstates 2>&1
 $hibernateLines = @($sleepStates | Where-Object { $_ -match '(Hibernate|Ruhezustand)' })
 
@@ -1151,13 +1164,13 @@ else {
     $hibernateAvailable = ($unsupported.Count -eq 0)
     
     if ($hibernateAvailable) {
-        Write-Host "  [!] Hibernate Enabled (RDP disabled mode - physical security)" -ForegroundColor Yellow
-        Write-Host "      Note: System hibernates after inactivity for physical access protection" -ForegroundColor DarkYellow
-        $script:WarningCount++
+        Write-Host "  [OK] Hibernate Available (Physical access protection ready)" -ForegroundColor Green
+        Write-Host "      Note: System can hibernate after inactivity (RAM cleared on hibernate)" -ForegroundColor DarkGray
     }
     else {
-        Write-Host "  [!] Hibernate Disabled (RDP enabled mode - services stay running)" -ForegroundColor Yellow
-        Write-Host "      Note: Remote Access Mode - system stays ON for remote connections" -ForegroundColor DarkYellow
+        Write-Host "  [!] Hibernate Not Available (VM/Hardware limitation)" -ForegroundColor Yellow
+        Write-Host "      Note: Common on VMs or systems with insufficient disk space" -ForegroundColor DarkYellow
+        Write-Host "      Impact: System uses Sleep instead (RAM not cleared)" -ForegroundColor DarkYellow
         $script:WarningCount++
     }
 }
@@ -1211,6 +1224,46 @@ Test-BaselineCheck -Category "LSA" -Name "Everyone Excludes Anonymous Users" -Im
         Get-RegistryValueSafe $lsaPath "EveryoneIncludesAnonymous" -DefaultValue 1
     } `
     -Expected 0
+
+# ===========================
+# NETLOGON & SESSION MANAGER - 5 SETTINGS (secedit template)
+# ===========================
+
+Write-Host "`n=== NETLOGON & SESSION MANAGER - 5 SETTINGS (secedit) ===" -ForegroundColor Yellow
+
+$netlogonPath = "HKLM:\SYSTEM\CurrentControlSet\Services\Netlogon\Parameters"
+
+Test-BaselineCheck -Category "Netlogon" -Name "Require Strong Key" -Impact "High" `
+    -Test { 
+        Get-RegistryValueSafe $netlogonPath "requirestrongkey" -DefaultValue 0
+    } `
+    -Expected 1
+
+Test-BaselineCheck -Category "Netlogon" -Name "Seal Secure Channel" -Impact "High" `
+    -Test { 
+        Get-RegistryValueSafe $netlogonPath "sealsecurechannel" -DefaultValue 0
+    } `
+    -Expected 1
+
+Test-BaselineCheck -Category "Netlogon" -Name "Sign Secure Channel" -Impact "High" `
+    -Test { 
+        Get-RegistryValueSafe $netlogonPath "signsecurechannel" -DefaultValue 0
+    } `
+    -Expected 1
+
+Test-BaselineCheck -Category "Netlogon" -Name "Password Change Enabled" -Impact "Medium" `
+    -Test { 
+        Get-RegistryValueSafe $netlogonPath "DisablePasswordChange" -DefaultValue 0
+    } `
+    -Expected 0
+
+$sessionMgrPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager"
+
+Test-BaselineCheck -Category "SessionManager" -Name "Object Protection Mode Enabled" -Impact "High" `
+    -Test { 
+        Get-RegistryValueSafe $sessionMgrPath "ProtectionMode" -DefaultValue 0
+    } `
+    -Expected 1
 
 # ===========================
 # CREDENTIAL GUARD / VBS - 5 SETTINGS

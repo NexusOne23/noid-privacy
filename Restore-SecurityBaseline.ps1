@@ -1501,64 +1501,10 @@ if ($missingAppsCount -gt 0) {
     Write-Host "  ============================================================================" -ForegroundColor Cyan
     Write-Host ""
     
-    $provPkgCount = if ($backup.Settings.ProvisionedPackages) { @($backup.Settings.ProvisionedPackages).Count } else { 0 }
-    if ($provPkgCount -gt 0) {
-        Write-Host "  [i] $(Get-LocalizedString 'RestoreAppsPackages')" -ForegroundColor Cyan
-        Write-Host "      $(Get-LocalizedString 'RestoreAppsCanRestore')" -ForegroundColor Gray
-        Write-Host ""
-        Write-Host "  $(Get-LocalizedString 'RestoreAppsPrompt') " -NoNewline -ForegroundColor Yellow
-        $restoreApps = Read-Host
-        
-        if ($restoreApps -eq 'J' -or $restoreApps -eq 'j' -or $restoreApps -eq 'Y' -or $restoreApps -eq 'y') {
-            Write-Host ""
-            Write-Host "  [i] $(Get-LocalizedString 'RestoreAppsRestoring')" -ForegroundColor Cyan
-            Write-Host "      $(Get-LocalizedString 'RestoreAppsMayTakeTime')" -ForegroundColor Gray
-            Write-Host ""
-            
-            # PERFORMANCE FIX: Bulk load ALL packages ONCE then lookup in hashtable
-            # ROOT CAUSE: Calling Get-AppxProvisionedPackage -Online 14x is inefficient
-            # SOLUTION: Load all packages once (~2s), store in hashtable, then O(1) lookup per package
-            Write-Host "  [i] Checking Provisioned Packages availability..." -ForegroundColor Cyan
-            Write-Host "      (Checking if apps can be restored from Microsoft Store)" -ForegroundColor Gray
-            Write-Host ""
-            
-            $allPackages = Get-AppxProvisionedPackage -Online -ErrorAction SilentlyContinue
-            $pkgMap = @{}
-            if ($allPackages) {
-                foreach ($p in $allPackages) {
-                    $pkgMap[$p.DisplayName] = $p
-                }
-            }
-            
-            $restoredApps = 0
-            foreach ($pkg in $backup.Settings.ProvisionedPackages) {
-                try {
-                    $currentPkg = $pkgMap[$pkg.DisplayName]
-                    
-                    if (-not $currentPkg) {
-                        $installingMsg = (Get-LocalizedString 'RestoreAppsInstalling')
-                        Write-Host "    [i] $installingMsg $($pkg.DisplayName)..." -ForegroundColor Gray
-                        Write-Host "    [!] $(Get-LocalizedString 'RestoreAppsMustReinstall')" -ForegroundColor Yellow
-                        $restoredApps++
-                    }
-                }
-                catch {
-                    # Ignore - individual app check failure is not critical, continue with others
-                }
-            }
-            
-            Write-Host ""
-            Write-Host "  [i] $restoredApps $(Get-LocalizedString 'RestoreAppsManual')" -ForegroundColor Cyan
-            Write-Host "      $(Get-LocalizedString 'RestoreAppsOpenStore')" -ForegroundColor Gray
-        }
-        else {
-            Write-Host "  [!] $(Get-LocalizedString 'RestoreAppsSkipped')" -ForegroundColor Yellow
-        }
-    }
-    else {
-        Write-Host "  [i] $(Get-LocalizedString 'RestoreAppsNone')" -ForegroundColor Gray
-        Write-Host "      $(Get-LocalizedString 'RestoreAppsStoreNote')" -ForegroundColor Gray
-    }
+    # INFO: App list is automatically created on Desktop (see below)
+    Write-Host "  [i] $(Get-LocalizedString 'RestoreAppsPackages')" -ForegroundColor Cyan
+    Write-Host "      Apps cannot be automatically restored - they were removed for privacy/security" -ForegroundColor Gray
+    Write-Host "      A complete list of removed apps will be saved to your Desktop" -ForegroundColor Gray
     
     Write-Host ""
     Write-Host "  $(Get-LocalizedString 'RestoreAppsList')" -ForegroundColor White
