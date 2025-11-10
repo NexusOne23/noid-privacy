@@ -111,11 +111,54 @@ Removed `ConvertWarnToBlock` registry setting from `SecurityBaseline-Core.ps1`. 
 - ✅ All code paths tested (Maximum Security + Home User modes)
 - ✅ Idempotent (safe to run multiple times)
 
+### 🔬 Validation Testing Improvements
+
+#### **Quality & Accuracy Fixes from Extensive Testing**
+Based on full Backup → Apply → Verify → Restore validation cycles with both network modes.
+
+**1. Simplified App Restore Flow (UX)**
+- Removed redundant Y/N prompt for app restoration (list was always created regardless of answer)
+- Now shows clear message: "A complete list of removed apps will be saved to your Desktop"
+- Better user experience with transparent communication
+
+**2. UAC Verification Header Fix (Accuracy)**
+- Corrected UAC section header from "9 SETTINGS" to "11 SETTINGS"
+- Added verification checks for `ConsentPromptBehaviorEnhancedAdmin` and `TypeOfAdminApprovalMode`
+- All UAC settings now properly documented
+
+**3. 7 Missing secedit Template Keys Added (Completeness)**
+- Registry keys: 478 → 485 (+7)
+- Added UAC EPP keys: `ConsentPromptBehaviorEnhancedAdmin`, `TypeOfAdminApprovalMode`
+- Added Netlogon keys: `requirestrongkey`, `sealsecurechannel`, `signsecurechannel`, `DisablePasswordChange`
+- Added Session Manager key: `ProtectionMode`
+- Removed duplicate: `SCENoApplyLegacyAuditPolicy`
+- **Impact:** Fixed UAC PIN prompt persistence after restore
+
+**4. UAC Standard User Elevation Fix (Usability)**
+- Changed `ConsentPromptBehaviorUser` in secedit template from `0` to `1`
+- Standard users can now elevate with admin password (more practical for families)
+- Resolved conflict between secedit template and PowerShell UAC module
+
+**5. Persistent Privacy Settings Documentation**
+- Documented App Diagnostics persistence as **FEATURE, not bug**
+- Windows caches CapabilityAccessManager policies system-wide (intentional privacy protection)
+- Added manual override instructions in KNOWN_ISSUES.md
+- Philosophy: One-way ticket to better privacy (similar to Linux hardening)
+
+**Files:**
+- `Restore-SecurityBaseline.ps1` (app prompt removal)
+- `Verify-SecurityBaseline.ps1` (UAC header fix, new checks)
+- `Modules/RegistryChanges-Definition.ps1` (+7 keys, -1 duplicate)
+- `Win11_25H2_Baseline_SecTemplate.inf` (ConsentPromptBehaviorUser fix)
+- `KNOWN_ISSUES.md` (persistent privacy documentation)
+
 ### 📊 Compatibility
 
 - **Microsoft Security Baseline 25H2:** Exceeded (NetBIOS+LLMNR always blocked)
 - **Backup/Restore:** Fully compatible (firewall rules captured)
 - **Previous Configurations:** No breaking changes for existing deployments (defaults unchanged)
+- **Verification Checks:** 133 → 140 (+7)
+- **Registry Keys:** 478 → 485 (+7)
 
 ---
 
