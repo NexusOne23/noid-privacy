@@ -816,10 +816,6 @@ function Set-DefenderBaselineSettings {
     [void](Set-RegistryValue -Path "$defenderPath\Real-Time Protection" -Name "EDRBlockMode" -Value 1 -Type DWord `
         -Description "EDR Block Mode")
     
-    # NIS: Convert warn to block
-    [void](Set-RegistryValue -Path "$defenderPath\NIS" -Name "ConvertWarnToBlock" -Value 1 -Type DWord `
-        -Description "NIS Warn->Block")
-    
     # Real-Time Protection
     [void](Set-RegistryValue -Path "$defenderPath\Real-Time Protection" -Name "DisableRealtimeMonitoring" -Value 0 -Type DWord `
         -Description "Real-Time Protection AN")

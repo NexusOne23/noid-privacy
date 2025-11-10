@@ -35,6 +35,33 @@ User-configurable network discovery settings to balance Fortune 500-level securi
 - ✅ Explorer network browsing now works (Home User mode)
 - ✅ Steam In-Home Streaming discovery now works (Home User mode)
 
+### 🐛 Bug Fixes
+
+#### **CRITICAL: Silent File Blocks Without Notification**
+Fixed Windows Defender silently blocking/quarantining files without user notification.
+
+**Issue:**
+- Files (especially dev tools: `.exe`, `.dll`, `.ino`, `.bat`, `.js`) disappeared without warning
+- No notification popup
+- Not visible in Windows Security Protection History
+- Caused by `ConvertWarnToBlock = 1` registry setting (NIS)
+
+**Root Cause:**
+The `ConvertWarnToBlock` setting automatically converted Defender warnings into immediate blocks without user interaction, combined with:
+- PUA Protection (marks unsigned tools as potentially unwanted)
+- Cloud Protection Level 2 (aggressive heuristics)
+- Block at First Seen (zero-day protection)
+
+**Fix:**
+Removed `ConvertWarnToBlock` registry setting from `SecurityBaseline-Core.ps1`. Users now receive proper notifications and can choose Allow/Block/Quarantine for detected threats.
+
+**Impact:**
+- ✅ All security features remain active (PUA, Cloud Protection, Real-Time Protection)
+- ✅ Users now get notifications for threat detections
+- ✅ Users can control decisions (Allow/Block/Quarantine)
+- ✅ No more silent file deletions
+- ✅ Better user experience without compromising security
+
 ### 🎨 UX Improvements
 
 **Menu Optimizations:**
