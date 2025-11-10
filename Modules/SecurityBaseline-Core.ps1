@@ -828,9 +828,13 @@ function Set-DefenderBaselineSettings {
     [void](Set-RegistryValue -Path "$defenderPath\Scan" -Name "CheckExclusions" -Value 1 -Type DWord `
         -Description "Scan Exclusions too")
     
-    # Cloud Protection High
-    [void](Set-RegistryValue -Path "$defenderPath\MpEngine" -Name "MpCloudBlockLevel" -Value 2 -Type DWord `
-        -Description "Cloud Protection Level High")
+    # Cloud Protection Default (MS Baseline 25H2 recommendation)
+    # Level 0 = Default (balanced security/usability)
+    # Level 1 = Moderate (slightly more aggressive)
+    # Level 2 = High (very aggressive, many false positives) - TOO AGGRESSIVE!
+    # Level 4 = Zero Tolerance (blocks everything unknown) - EXTREME!
+    [void](Set-RegistryValue -Path "$defenderPath\MpEngine" -Name "MpCloudBlockLevel" -Value 0 -Type DWord `
+        -Description "Cloud Protection Level: Default (balanced)")
     
     # PUA Protection - BEST PRACTICE: Use Set-MpPreference instead of Registry Policy!
     # Registry Policy (HKLM\Policies) would gray out GUI
@@ -927,14 +931,12 @@ function Set-DefenderBaselineSettings {
         Write-Verbose "Tamper Protection: Error setting value"
     }
     
-    # 2. Network Inspection: Convert Warn to Block
-    $nisPath = "$defenderPath\NIS"
-    Set-RegistryValue -Path $nisPath -Name "ConvertWarnToBlock" -Value 1 -Type DWord `
-        -Description "Network Inspection: Auto-convert warnings to blocks"
-    
-    # 3. Exclusions visible to local users (Control)
+    # 2. Exclusions visible to local users (Transparency)
+    # IMPORTANT: This controls visibility in Windows Security GUI
+    # Value 1 = Users can see exclusions (transparency, good for standalone systems)
+    # Combined with HideExclusionsFromLocalAdmins below for fine-grained control
     Set-RegistryValue -Path $defenderPath -Name "ExclusionsVisibleToLocalUsers" -Value 1 -Type DWord `
-        -Description "Exclusions visible to local users (transparency)"
+        -Description "Exclusions visible in Windows Security GUI (transparency)"
     
     # 4. Real-time Protection during OOBE (Out-Of-Box Experience)
     $rtpPath = "$defenderPath\Real-Time Protection"
@@ -966,9 +968,13 @@ function Set-DefenderBaselineSettings {
         -Description "Defender: Local admins can set exclusions (baseline recommendation)"
     
     # 2. Hide Exclusions from Local Admins
-    # Prevents local admins from viewing exclusion lists (security)
-    Set-RegistryValue -Path $defenderPath -Name "HideExclusionsFromLocalAdmins" -Value 1 -Type DWord `
-        -Description "Defender: Hide exclusions from local admins"
+    # CHANGED FROM MS BASELINE: Value 0 (show) instead of 1 (hide)
+    # Reason: For standalone/power-user systems, admins should see their own exclusions
+    # Enterprise with AD/Intune: Use Value 1 to hide GP-managed exclusions
+    # Standalone systems: Use Value 0 for transparency (user sees what they configured)
+    # This setting controls programmatic access (PowerShell/WMI), not GUI
+    Set-RegistryValue -Path $defenderPath -Name "HideExclusionsFromLocalAdmins" -Value 0 -Type DWord `
+        -Description "Defender: Show exclusions to local admins (standalone transparency)"
     
     # 3. Disable Routinely Taking Action (MS Baseline 25H2: Value 0)
     # Value 0 = Defender auto-cleans threats (user-friendly, recommended)

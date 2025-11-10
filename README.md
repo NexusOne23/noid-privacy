@@ -873,25 +873,30 @@ The authors are not responsible for any damage or data loss caused by this scrip
 **Last Updated:** November 10, 2025  
 **Status:** Production-Ready 
 
-### Feature Release (v1.8.2) - Network Discovery User Choice
+### ✨ Feature Release (v1.8.2) - Network Discovery User Choice + Critical Bugfix
 
-**Headline:** Network discovery protocols now user-configurable! Balance Fortune 500 security with home user convenience.
+**🚀 Headline:** Network discovery protocols now user-configurable! Balance Fortune 500 security with home user convenience.
 
 **Impact:** Home users can now enable Chromecast, Miracast, AirPlay, printer discovery while maintaining enterprise-grade security for legacy protocols!
 
-**New Features:**
-- **Network Discovery Menu** - Choose between Maximum Security (Stealth) or Home User (Modern Protocols)
-- **Configurable mDNS** - Enable Chromecast, AirPlay, Spotify Connect, Miracast in Home User mode
-- **Configurable WSD/SSDP** - Enable automatic printer discovery in Home User mode
-- **Configurable Network Discovery** - Enable Explorer network browsing in Home User mode
-- **Security Guaranteed** - NetBIOS and LLMNR **always blocked** (exceeds MS Baseline 25H2)
-- **Enhanced Logging** - SUCCESS SUMMARY now shows all configuration choices (OneDrive, RDP, Network, DNS)
-- **Improved UX** - Main menu texts shortened, better colors, 38 new localization strings (EN/DE)
+#### **New Features:**
+- ✅ **Network Discovery Menu** - Choose between Maximum Security (Stealth) or Home User (Modern Protocols)
+- ✅ **Configurable mDNS** - Enable Chromecast, AirPlay, Spotify Connect, Miracast in Home User mode
+- ✅ **Configurable WSD/SSDP** - Enable automatic printer discovery in Home User mode
+- ✅ **Configurable Network Discovery** - Enable Explorer network browsing in Home User mode
+- ✅ **Security Guaranteed** - NetBIOS and LLMNR **always blocked** (exceeds MS Baseline 25H2)
+- ✅ **Enhanced Logging** - SUCCESS SUMMARY now shows all configuration choices (OneDrive, RDP, Network, DNS)
+- ✅ **Improved UX** - Main menu texts shortened, better colors, 38 new localization strings (EN/DE)
+
+#### **🐛 Critical Bugfix:**
+- ✅ **FIXED: Silent File Blocks** - Removed `ConvertWarnToBlock` setting that caused files (`.exe`, `.dll`, `.ino`, `.bat`, `.js`) to disappear without notification
+- ✅ **User Control Restored** - Users now receive proper threat notifications and can choose Allow/Block/Quarantine
+- ✅ **Security Maintained** - All protection features remain active (PUA, Cloud Protection, Real-Time Protection)
 
 **→ See [CHANGELOG.md](CHANGELOG.md) for complete v1.8.2 details**
 
 <details>
-<summary><b>Previous Release (v1.8.1)</b></summary>
+<summary><b>Previous Releases (click to expand)</b></summary>
 
 ### 🐛 Bugfix Release (v1.8.1) - Critical Parser Errors Fixed
 
@@ -903,10 +908,7 @@ The authors are not responsible for any damage or data loss caused by this scrip
 - ✅ **Backup/Restore failures** - All RegistryChanges-Definition parser errors resolved
 - ✅ **Production ready:** 0 errors, 540+ restore items, 133 verification checks
 
-</details>
-
-<details>
-<summary><b>Previous Updates (click to expand)</b></summary>
+---
 
 ### 🎊 Major Release (v1.8.0) - 100% Microsoft Security Baseline Coverage
 

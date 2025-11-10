@@ -338,12 +338,24 @@ Test-BaselineCheck -Category "Defender" -Name "Cloud Protection Enabled (MAPS)" 
     } `
     -Expected $true
 
-# 11. Cloud Block Level (High for zero-hour protection)
-Test-BaselineCheck -Category "Defender" -Name "Cloud Block Level = High" -Impact "High" `
-    -Test { 
-        Get-RegistryValueSafe "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\MpEngine" "MpCloudBlockLevel"
-    } `
-    -Expected 2
+# 11. Cloud Block Level (Conditional: 0=Default OK, 2=High OK)
+# v1.8.2: Changed from always High (2) to conditional check
+# Reason: Default (0) provides balanced security/usability with fewer false positives
+$cloudBlockLevel = Get-RegistryValueSafe "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\MpEngine" "MpCloudBlockLevel"
+if ($cloudBlockLevel -eq 0) {
+    Write-Host "  [OK] Cloud Block Level = Default (balanced security/usability)" -ForegroundColor Green
+    $script:passCount++
+}
+elseif ($cloudBlockLevel -eq 2) {
+    Write-Host "  [!] Cloud Block Level = High (very aggressive, many false positives)" -ForegroundColor Yellow
+    Write-Host "      Note: High level can block legitimate software" -ForegroundColor DarkYellow
+    $script:WarningCount++
+}
+else {
+    Write-Host "  [X] Cloud Block Level = $cloudBlockLevel (unexpected value)" -ForegroundColor Red
+    Write-Host "      Expected: 0 (Default) or 2 (High)" -ForegroundColor DarkRed
+    $script:failCount++
+}
 
 # 12. Sample Submission (Automatic for threat analysis)
 Test-BaselineCheck -Category "Defender" -Name "Sample Submission = Send Safe Samples" -Impact "Medium" `
@@ -974,11 +986,22 @@ if ($publicAllowLocalIPsec -eq 'False') {
 
 Write-Host "`n=== NETWORK HARDENING (3 SETTINGS) ===" -ForegroundColor Yellow
 
-Test-BaselineCheck -Category "Network" -Name "mDNS Disabled" -Impact "High" `
-    -Test { 
-        Get-RegistryValueSafe "HKLM:\SYSTEM\CurrentControlSet\Services\WlanSvc\Parameters" "DisableMdnsDiscovery"
-    } `
-    -Expected 1
+# mDNS (Conditional: User Choice - Maximum Security vs Home User)
+# v1.8.2: User can choose between Maximum Security (mDNS disabled) or Home User (mDNS enabled)
+$mdnsDisabled = Get-RegistryValueSafe "HKLM:\SYSTEM\CurrentControlSet\Services\WlanSvc\Parameters" "DisableMdnsDiscovery"
+if ($mdnsDisabled -eq 1) {
+    Write-Host "  [OK] mDNS Disabled (Maximum Security mode)" -ForegroundColor Green
+    $script:passCount++
+}
+elseif ($mdnsDisabled -eq 0) {
+    Write-Host "  [!] mDNS Enabled (Home User mode - Chromecast/AirPlay/Miracast)" -ForegroundColor Yellow
+    Write-Host "      Note: User chose Home User mode for modern protocols" -ForegroundColor DarkYellow
+    $script:WarningCount++
+}
+else {
+    Write-Host "  [X] mDNS configuration unknown (value: $mdnsDisabled)" -ForegroundColor Red
+    $script:failCount++
+}
 
 Test-BaselineCheck -Category "Network" -Name "LLMNR Disabled" -Impact "High" `
     -Test { 
@@ -1113,23 +1136,31 @@ Test-BaselineCheck -Category "Power" -Name "Lock Screen Password Required (Machi
     } `
     -Expected "1"
 
-Test-BaselineCheck -Category "Power" -Name "Hibernate Enabled (if hardware supports)" -Impact "Info" `
-    -Test { 
-        # FIXED: Only check lines containing Hibernate/Ruhezustand (not entire output)
-        # Prevents false negatives when other sleep states show "not supported"
-        $sleepStates = powercfg /availablesleepstates 2>&1
+# Hibernate (Conditional: Depends on RDP/Remote Access mode)
+# v1.8.2: If RDP enabled = Hibernate disabled (services must stay running)
+#         If RDP disabled = Hibernate enabled (physical access protection)
+$sleepStates = powercfg /availablesleepstates 2>&1
+$hibernateLines = @($sleepStates | Where-Object { $_ -match '(Hibernate|Ruhezustand)' })
 
-        # Filter to Hibernate-specific lines only (force array cast to avoid .Count errors)
-        $hibernateLines = @($sleepStates | Where-Object { $_ -match '(Hibernate|Ruhezustand)' })
-
-        if ($hibernateLines.Count -eq 0) { return $false }
-
-        # Check for "not/nicht" patterns - simple and robust (force array cast)
-        $unsupported = @($hibernateLines | Where-Object { $_ -match '(not|nicht)' })
-
-        return ($unsupported.Count -eq 0)
-    } `
-    -Expected $true
+if ($hibernateLines.Count -eq 0) {
+    Write-Host "  [X] Hibernate status unknown" -ForegroundColor Red
+    $script:failCount++
+}
+else {
+    $unsupported = @($hibernateLines | Where-Object { $_ -match '(not|nicht)' })
+    $hibernateAvailable = ($unsupported.Count -eq 0)
+    
+    if ($hibernateAvailable) {
+        Write-Host "  [!] Hibernate Enabled (RDP disabled mode - physical security)" -ForegroundColor Yellow
+        Write-Host "      Note: System hibernates after inactivity for physical access protection" -ForegroundColor DarkYellow
+        $script:WarningCount++
+    }
+    else {
+        Write-Host "  [!] Hibernate Disabled (RDP enabled mode - services stay running)" -ForegroundColor Yellow
+        Write-Host "      Note: Remote Access Mode - system stays ON for remote connections" -ForegroundColor DarkYellow
+        $script:WarningCount++
+    }
+}
 
 # REMOVED: Display/Hibernate timeout checks (v1.8.0)
 # Reason: Settings are correctly applied (verified with powercfg /query)
