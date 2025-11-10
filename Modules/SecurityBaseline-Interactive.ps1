@@ -91,7 +91,7 @@ function Show-MainMenu {
     Write-Host "         $menuAuditDesc" -ForegroundColor Gray
     
     $menuAuditFollow = Get-LocalizedString 'MainMenuAuditFollow'
-    if (-not $menuAuditFollow) { $menuAuditFollow = "-> DNS, OneDrive & Remote Access configuration follows" }
+    if (-not $menuAuditFollow) { $menuAuditFollow = "-> DNS, RDP, Network & OneDrive config follows" }
     Write-Host "         $menuAuditFollow" -ForegroundColor DarkCyan
     Write-Host ""
     
@@ -104,7 +104,7 @@ function Show-MainMenu {
     Write-Host "         $menuEnforceDesc" -ForegroundColor Gray
     
     $menuEnforceFollow = Get-LocalizedString 'MainMenuEnforceFollow'
-    if (-not $menuEnforceFollow) { $menuEnforceFollow = "-> DNS, OneDrive & Remote Access configuration follows" }
+    if (-not $menuEnforceFollow) { $menuEnforceFollow = "-> DNS, RDP, Network & OneDrive config follows" }
     Write-Host "         $menuEnforceFollow" -ForegroundColor DarkCyan
     Write-Host ""
     
@@ -117,7 +117,7 @@ function Show-MainMenu {
     Write-Host "         $menuCustomDesc" -ForegroundColor Gray
     
     $menuCustomFollow = Get-LocalizedString 'MainMenuCustomFollow'
-    if (-not $menuCustomFollow) { $menuCustomFollow = "-> DNS, OneDrive & Remote Access configuration follows" }
+    if (-not $menuCustomFollow) { $menuCustomFollow = "-> ASR, DNS, RDP, Network & OneDrive config follows" }
     Write-Host "         $menuCustomFollow" -ForegroundColor DarkCyan
     Write-Host ""
     
@@ -1873,6 +1873,85 @@ function Show-RemoteAccessMenu {
     Write-Host ""
     
     $prompt = Get-LocalizedString 'RemoteMenuPrompt'
+    do {
+        $choice = Read-Host "$prompt"
+    } while ($choice -notin @('1','2'))
+    
+    return $choice
+}
+
+function Show-NetworkDiscoveryMenu {
+    <#
+    .SYNOPSIS
+        Shows Network Discovery & Device Communication menu
+    .DESCRIPTION
+        Allows user to choose between Maximum Security or Home User convenience
+        Affects: mDNS (Chromecast/AirPlay/Miracast), Network Discovery, WSD/SSDP (Printer), Wireless Display
+        Fully localized (EN/DE) with Get-LocalizedString
+    .OUTPUTS
+        String: '1' (Maximum Security - Stealth Mode), '2' (Home User - Modern Protocols)
+    #>
+    [CmdletBinding()]
+    param()
+    
+    $title = Get-LocalizedString 'NetworkMenuTitle'
+    $question = Get-LocalizedString 'NetworkMenuQuestion'
+    
+    Write-Host "`n===========================================================" -ForegroundColor Cyan
+    Write-Host "  $title" -ForegroundColor Cyan
+    Write-Host "===========================================================" -ForegroundColor Cyan
+    Write-Host ""
+    Write-Host "$question" -ForegroundColor White
+    Write-Host ""
+    
+    # Option 1 - Maximum Security
+    Write-Host "  [1] $(Get-LocalizedString 'NetworkMenuOption1')" -ForegroundColor Yellow
+    Write-Host "      $(Get-LocalizedString 'NetworkMenuOption1Baseline')" -ForegroundColor Gray
+    Write-Host "      $(Get-LocalizedString 'NetworkMenuOption1Extra1')" -ForegroundColor Gray
+    Write-Host "      $(Get-LocalizedString 'NetworkMenuOption1Extra2')" -ForegroundColor Gray
+    Write-Host "      $(Get-LocalizedString 'NetworkMenuOption1Extra3')" -ForegroundColor Gray
+    Write-Host "      $(Get-LocalizedString 'NetworkMenuOption1Extra4')" -ForegroundColor Gray
+    Write-Host ""
+    Write-Host "      $(Get-LocalizedString 'NetworkMenuOption1Pro1')" -ForegroundColor Green
+    Write-Host "      $(Get-LocalizedString 'NetworkMenuOption1Pro2')" -ForegroundColor Green
+    Write-Host "      $(Get-LocalizedString 'NetworkMenuOption1Pro3')" -ForegroundColor Green
+    Write-Host ""
+    Write-Host "      $(Get-LocalizedString 'NetworkMenuOption1Con1')" -ForegroundColor Yellow
+    Write-Host "      $(Get-LocalizedString 'NetworkMenuOption1Con2')" -ForegroundColor Yellow
+    Write-Host "      $(Get-LocalizedString 'NetworkMenuOption1Con3')" -ForegroundColor Yellow
+    Write-Host "      $(Get-LocalizedString 'NetworkMenuOption1Con4')" -ForegroundColor Yellow
+    Write-Host "      $(Get-LocalizedString 'NetworkMenuOption1Con5')" -ForegroundColor Yellow
+    Write-Host "      $(Get-LocalizedString 'NetworkMenuOption1Con6')" -ForegroundColor Yellow
+    Write-Host ""
+    Write-Host "      $(Get-LocalizedString 'NetworkMenuOption1Recommended')" -ForegroundColor Cyan
+    Write-Host ""
+    
+    # Option 2 - Home User
+    Write-Host "  [2] $(Get-LocalizedString 'NetworkMenuOption2')" -ForegroundColor Yellow
+    Write-Host "      $(Get-LocalizedString 'NetworkMenuOption2Baseline')" -ForegroundColor Gray
+    Write-Host "      $(Get-LocalizedString 'NetworkMenuOption2BestPractice')" -ForegroundColor Gray
+    Write-Host "      $(Get-LocalizedString 'NetworkMenuOption2Modern')" -ForegroundColor Gray
+    Write-Host "      $(Get-LocalizedString 'NetworkMenuOption2Convenience1')" -ForegroundColor Gray
+    Write-Host "      $(Get-LocalizedString 'NetworkMenuOption2Convenience2')" -ForegroundColor Gray
+    Write-Host ""
+    Write-Host "      $(Get-LocalizedString 'NetworkMenuOption2Pro1')" -ForegroundColor Green
+    Write-Host "      $(Get-LocalizedString 'NetworkMenuOption2Pro2')" -ForegroundColor Green
+    Write-Host "      $(Get-LocalizedString 'NetworkMenuOption2Pro3')" -ForegroundColor Green
+    Write-Host "      $(Get-LocalizedString 'NetworkMenuOption2Pro4')" -ForegroundColor Green
+    Write-Host "      $(Get-LocalizedString 'NetworkMenuOption2Pro5')" -ForegroundColor Green
+    Write-Host "      $(Get-LocalizedString 'NetworkMenuOption2Pro6')" -ForegroundColor Green
+    Write-Host ""
+    Write-Host "      $(Get-LocalizedString 'NetworkMenuOption2Note1')" -ForegroundColor Yellow
+    Write-Host "      $(Get-LocalizedString 'NetworkMenuOption2Note2')" -ForegroundColor Yellow
+    Write-Host ""
+    Write-Host "      $(Get-LocalizedString 'NetworkMenuOption2Recommended')" -ForegroundColor Cyan
+    Write-Host ""
+    
+    Write-Host "  $(Get-LocalizedString 'NetworkMenuInfo1')" -ForegroundColor Cyan
+    Write-Host "  $(Get-LocalizedString 'NetworkMenuInfo2')" -ForegroundColor Cyan
+    Write-Host ""
+    
+    $prompt = Get-LocalizedString 'NetworkMenuPrompt'
     do {
         $choice = Read-Host "$prompt"
     } while ($choice -notin @('1','2'))

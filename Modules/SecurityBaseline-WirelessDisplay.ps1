@@ -25,8 +25,17 @@ function Disable-WirelessDisplay {
     [OutputType([void])]
     param()
     
-    Write-Section "$(Get-LocalizedString 'WDDisableTitle')"
+    Write-Section "Wireless Display Configuration"
     
+    # Check if user allowed mDNS (which means they want device discovery including Miracast)
+    if ($script:AllowmDNS) {
+        Write-Info "Wireless Display: ENABLED (Home User mode - mDNS allowed)"
+        Write-Success "Miracast, AirPlay, Cast to Device: Available"
+        Write-Info "Note: Miracast requires mDNS (Port 5353) for device discovery"
+        return  # Skip wireless display disabling
+    }
+    
+    Write-Info "Wireless Display: DISABLED (Maximum Security mode)"
     Write-Info "$(Get-LocalizedString 'WDDisableAllLevels')"
     
     # === LEVEL 1: SERVICES ===

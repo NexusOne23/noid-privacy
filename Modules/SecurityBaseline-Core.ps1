@@ -1771,13 +1771,11 @@ function Disable-NetworkLegacyProtocols {
     [void](Set-RegistryValue -Path $winHttpPath -Name "DisableWpad" -Value 1 -Type DWord `
         -Description "WinHTTP WPAD deaktivieren")
     
-    # ===== TRIPLE-KILL: Firewall rules for ALL legacy protocols =====
-    Write-Info "Creating firewall rules (Triple-Kill Mode)..."
+    # ===== FIREWALL RULES: Conditional based on Network Profile =====
+    Write-Info "Creating firewall rules..."
     
-    # All rules have unique NoID- prefix for idempotency
+    # NetBIOS & LLMNR: ALWAYS block (MS Baseline + Best Practice)
     $firewallRules = @(
-        @{Name="NoID-Block-mDNS-In"; Direction="Inbound"; Protocol="UDP"; LocalPort=5353; RemotePort=$null}
-        @{Name="NoID-Block-mDNS-Out"; Direction="Outbound"; Protocol="UDP"; LocalPort=5353; RemotePort=5353}
         @{Name="NoID-Block-LLMNR-In"; Direction="Inbound"; Protocol="UDP"; LocalPort=5355; RemotePort=$null}
         @{Name="NoID-Block-LLMNR-Out"; Direction="Outbound"; Protocol="UDP"; LocalPort=5355; RemotePort=5355}
         @{Name="NoID-Block-NetBIOS-NS-In"; Direction="Inbound"; Protocol="UDP"; LocalPort=137; RemotePort=$null}
@@ -1785,11 +1783,39 @@ function Disable-NetworkLegacyProtocols {
         @{Name="NoID-Block-NetBIOS-DGM-In"; Direction="Inbound"; Protocol="UDP"; LocalPort=138; RemotePort=$null}
         @{Name="NoID-Block-NetBIOS-DGM-Out"; Direction="Outbound"; Protocol="UDP"; LocalPort=138; RemotePort=138}
         @{Name="NoID-Block-NetBIOS-SSN-In"; Direction="Inbound"; Protocol="TCP"; LocalPort=139; RemotePort=$null}
-        @{Name="NoID-Block-SSDP-In"; Direction="Inbound"; Protocol="UDP"; LocalPort=1900; RemotePort=$null}
-        @{Name="NoID-Block-SSDP-Out"; Direction="Outbound"; Protocol="UDP"; LocalPort=1900; RemotePort=1900}
-        @{Name="NoID-Block-WSD-In"; Direction="Inbound"; Protocol="UDP"; LocalPort=3702; RemotePort=$null}
-        @{Name="NoID-Block-WSD-Out"; Direction="Outbound"; Protocol="UDP"; LocalPort=3702; RemotePort=3702}
     )
+    
+    # mDNS: CONDITIONAL (only block in Maximum Security mode)
+    if (-not $script:AllowmDNS) {
+        Write-Info "Blocking mDNS (Maximum Security mode)"
+        $firewallRules += @(
+            @{Name="NoID-Block-mDNS-In"; Direction="Inbound"; Protocol="UDP"; LocalPort=5353; RemotePort=$null}
+            @{Name="NoID-Block-mDNS-Out"; Direction="Outbound"; Protocol="UDP"; LocalPort=5353; RemotePort=5353}
+        )
+    } else {
+        Write-Info "Allowing mDNS (Home User mode - Chromecast/AirPlay/Miracast enabled)"
+        # Remove existing mDNS block rules if they exist
+        Remove-NetFirewallRule -DisplayName "NoID-Block-mDNS-In" -ErrorAction SilentlyContinue
+        Remove-NetFirewallRule -DisplayName "NoID-Block-mDNS-Out" -ErrorAction SilentlyContinue
+    }
+    
+    # WSD/SSDP: CONDITIONAL (only block in Maximum Security mode)
+    if (-not $script:AllowWSD_SSDP) {
+        Write-Info "Blocking WSD/SSDP (Maximum Security mode)"
+        $firewallRules += @(
+            @{Name="NoID-Block-SSDP-In"; Direction="Inbound"; Protocol="UDP"; LocalPort=1900; RemotePort=$null}
+            @{Name="NoID-Block-SSDP-Out"; Direction="Outbound"; Protocol="UDP"; LocalPort=1900; RemotePort=1900}
+            @{Name="NoID-Block-WSD-In"; Direction="Inbound"; Protocol="UDP"; LocalPort=3702; RemotePort=$null}
+            @{Name="NoID-Block-WSD-Out"; Direction="Outbound"; Protocol="UDP"; LocalPort=3702; RemotePort=3702}
+        )
+    } else {
+        Write-Info "Allowing WSD/SSDP (Home User mode - Printer discovery enabled)"
+        # Remove existing WSD/SSDP block rules if they exist
+        Remove-NetFirewallRule -DisplayName "NoID-Block-SSDP-In" -ErrorAction SilentlyContinue
+        Remove-NetFirewallRule -DisplayName "NoID-Block-SSDP-Out" -ErrorAction SilentlyContinue
+        Remove-NetFirewallRule -DisplayName "NoID-Block-WSD-In" -ErrorAction SilentlyContinue
+        Remove-NetFirewallRule -DisplayName "NoID-Block-WSD-Out" -ErrorAction SilentlyContinue
+    }
     
     $createdRules = 0
     $existingRules = 0
@@ -1826,19 +1852,28 @@ function Disable-NetworkLegacyProtocols {
         }
     }
     
-    Write-Success "Triple-Kill Firewall rules: $createdRules newly created, $($firewallRules.Count - $createdRules) already existing"
+    Write-Success "Firewall rules: $createdRules newly created, $($firewallRules.Count - $createdRules) already existing"
     
-    # Disable WlanSvc mDNS (Windows 11 specific)
+    # WlanSvc mDNS: CONDITIONAL (only disable in Maximum Security mode)
     $wlanPath = "HKLM:\SYSTEM\CurrentControlSet\Services\WlanSvc\Parameters"
-    [void](Set-RegistryValue -Path $wlanPath -Name "DisableMdnsDiscovery" -Value 1 -Type DWord `
-        -Description "WlanSvc mDNS Discovery deaktivieren")
+    if (-not $script:AllowmDNS) {
+        [void](Set-RegistryValue -Path $wlanPath -Name "DisableMdnsDiscovery" -Value 1 -Type DWord `
+            -Description "WlanSvc mDNS Discovery disabled (Maximum Security)")
+    } else {
+        [void](Set-RegistryValue -Path $wlanPath -Name "DisableMdnsDiscovery" -Value 0 -Type DWord `
+            -Description "WlanSvc mDNS Discovery enabled (Home User)")
+    }
     
-    # LLMNR (already in Set-SMBHardening, but ensure)
+    # LLMNR: ALWAYS disable (Best Practice)
     $llmnrPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\DNSClient"
     [void](Set-RegistryValue -Path $llmnrPath -Name "EnableMulticast" -Value 0 -Type DWord `
-        -Description "LLMNR deaktivieren (redundant check)")
+        -Description "LLMNR disabled (Best Practice)")
     
-    Write-Success "Legacy network protocols disabled (WPAD/mDNS/LLMNR)"  
+    if (-not $script:AllowmDNS) {
+        Write-Success "Legacy network protocols disabled (NetBIOS/LLMNR/mDNS/WSD/SSDP blocked)"
+    } else {
+        Write-Success "Legacy protocols blocked (NetBIOS/LLMNR), Modern protocols allowed (mDNS/WSD/SSDP)"
+    }  
 }
 
 function Enable-NetworkStealthMode {
@@ -1856,45 +1891,68 @@ function Enable-NetworkStealthMode {
     [OutputType([void])]
     param()
     
-    Write-Section "Network Stealth Mode (invisible in network)"
+    Write-Section "Network Discovery & Visibility Configuration"
     
-    Write-Info "Disabling Network Discovery and Broadcasting..."
-    
-    # Disable Network Discovery completely (Registry)
-    $netDiscPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Network\NewNetworkWindowOff"
-    if (-not (Test-Path -Path $netDiscPath)) {
+    if ($script:AllowNetworkDiscovery) {
+        # Home User: Allow Network Discovery
+        Write-Info "Network Discovery: ENABLED (Home User mode)"
+        Write-Info "Explorer network browsing: Working (DNS/IP-based)"
+        Write-Success "Network visibility: ENABLED for home convenience"
+        
+        # Enable Network Discovery firewall rules
         try {
-            $null = New-Item -Path $netDiscPath -Force -ErrorAction Stop
-            Write-Verbose "Network Discovery registry key created"
+            Enable-NetFirewallRule -DisplayGroup "Network Discovery" -ErrorAction SilentlyContinue
+            Write-Verbose "Network Discovery firewall rules enabled"
         }
         catch {
-            Write-Verbose "Error creating Network Discovery key: $_"
+            Write-Verbose "Network Discovery firewall error: $_"
         }
-    }
-    
-    # Network Discovery via Group Policy
-    $ndGpPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Network Connections"
-    [void](Set-RegistryValue -Path $ndGpPath -Name "NC_ShowSharedAccessUI" -Value 0 -Type DWord `
-        -Description "Network Discovery UI deaktivieren")
-    
-    # Disable File and Printer Sharing (Firewall rules)
-    try {
-        Write-Info "Disabling File and Printer Sharing firewall rules..."
         
-        # SilentlyContinue if rules don't exist (Windows 11 25H2)
-        Disable-NetFirewallRule -DisplayGroup "File and Printer Sharing" -ErrorAction SilentlyContinue
-        Disable-NetFirewallRule -DisplayGroup "Network Discovery" -ErrorAction SilentlyContinue
-        
-        Write-Success "File and Printer Sharing firewall rules disabled"
+        # Note: File Sharing firewall rules remain user-controllable via Settings
     }
-    catch {
-        Write-Verbose "Firewall rules error: $_"
+    else {
+        # Maximum Security: Full Stealth Mode
+        Write-Info "Network Discovery: DISABLED (Maximum Security - Stealth Mode)"
+        Write-Info "Disabling Network Discovery and Broadcasting..."
+        
+        # Disable Network Discovery completely (Registry)
+        $netDiscPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Network\NewNetworkWindowOff"
+        if (-not (Test-Path -Path $netDiscPath)) {
+            try {
+                $null = New-Item -Path $netDiscPath -Force -ErrorAction Stop
+                Write-Verbose "Network Discovery registry key created"
+            }
+            catch {
+                Write-Verbose "Error creating Network Discovery key: $_"
+            }
+        }
+        
+        # Network Discovery via Group Policy
+        $ndGpPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Network Connections"
+        [void](Set-RegistryValue -Path $ndGpPath -Name "NC_ShowSharedAccessUI" -Value 0 -Type DWord `
+            -Description "Network Discovery UI disabled")
+        
+        # Disable File and Printer Sharing (Firewall rules)
+        try {
+            Write-Info "Disabling File and Printer Sharing firewall rules..."
+            
+            # SilentlyContinue if rules don't exist (Windows 11 25H2)
+            Disable-NetFirewallRule -DisplayGroup "File and Printer Sharing" -ErrorAction SilentlyContinue
+            Disable-NetFirewallRule -DisplayGroup "Network Discovery" -ErrorAction SilentlyContinue
+            
+            Write-Success "File and Printer Sharing firewall rules disabled"
+        }
+        catch {
+            Write-Verbose "Firewall rules error: $_"
+        }
+        
+        Write-Success "Network Stealth Mode enabled (invisible in network, WLAN works)"
     }
     
     # Network Location Awareness (NLA) - keep core only
     # DO NOT disable! Required for WLAN
     
-    # HomeGroup Services (Legacy - Windows 11 no longer has these)
+    # HomeGroup Services (Legacy - Windows 11 no longer has these) - ALWAYS disable
     $homegroupServices = @("HomeGroupListener", "HomeGroupProvider")
     foreach ($hgSvc in $homegroupServices) {
         if (Stop-ServiceSafe -ServiceName $hgSvc) {
@@ -1905,36 +1963,33 @@ function Enable-NetworkStealthMode {
         }
     }
     
-    # Network List Manager Policies (reduce automatic network profile switching)
+    # Network List Manager Policies - ALWAYS apply
     $nlmPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Network Connections"
     [void](Set-RegistryValue -Path $nlmPath -Name "NC_AllowNetBridge_NLA" -Value 0 -Type DWord `
-        -Description "Network Bridge deaktivieren")
+        -Description "Network Bridge disabled")
     
-    # Disable Wi-Fi Sense (automatic sharing of WLAN passwords)
+    # Disable Wi-Fi Sense - ALWAYS apply (automatic sharing of WLAN passwords)
     $wifiSensePath = "HKLM:\SOFTWARE\Microsoft\WcmSvc\wifinetworkmanager\config"
     [void](Set-RegistryValue -Path $wifiSensePath -Name "AutoConnectAllowedOEM" -Value 0 -Type DWord `
-        -Description "Wi-Fi Sense Auto-Connect deaktivieren")
+        -Description "Wi-Fi Sense Auto-Connect disabled")
     
-    # Disable Windows Connect Now (WCN)
+    # Disable Windows Connect Now (WCN) - ALWAYS apply
     $wcnPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WCN\Registrars"
     [void](Set-RegistryValue -Path $wcnPath -Name "EnableRegistrars" -Value 0 -Type DWord `
-        -Description "Windows Connect Now deaktivieren")
+        -Description "Windows Connect Now disabled")
     
     [void](Set-RegistryValue -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WCN\UI" -Name "DisableWcnUi" -Value 1 -Type DWord `
-        -Description "WCN UI deaktivieren")
+        -Description "WCN UI disabled")
     
-    # Disable Peer-to-Peer Networking (Registry-Level)
+    # Disable Peer-to-Peer Networking - ALWAYS apply (Registry-Level)
     $p2pPath = "HKLM:\SOFTWARE\Policies\Microsoft\Peernet"
     [void](Set-RegistryValue -Path $p2pPath -Name "Disabled" -Value 1 -Type DWord `
-        -Description "Peer-to-Peer Networking deaktivieren")
+        -Description "Peer-to-Peer Networking disabled")
     
-    # Prevent automatic network authentication
+    # Prevent automatic network authentication - ALWAYS apply
     $autoAuthPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System"
     [void](Set-RegistryValue -Path $autoAuthPath -Name "DisableAutomaticRestartSignOn" -Value 1 -Type DWord `
-        -Description "Automatische Netzwerk-Authentifizierung deaktivieren")
-    
-    Write-Success "Network Stealth Mode enabled (invisible in network, WLAN works)"
-    Write-Info "Broadcasting disabled: mDNS, LLMNR, NetBIOS, SSDP, UPnP, Network Discovery, WSD"
+        -Description "Automatic network authentication disabled")
 }
 
 function Disable-UnnecessaryServices {

@@ -191,6 +191,14 @@ $script:createRestorePoint = $false  # Default: false (can be overridden by Inte
 $script:DisableRDP = $true        # Default: true (disable RDP for maximum security)
 $script:StrictFirewall = $true    # Default: true (block all inbound including localhost)
 
+# Network Discovery & Device Communication Configuration
+# DEFAULT: Maximum Security (all discovery disabled) for non-interactive mode
+# INTERACTIVE: User can choose based on use case (Smart Home, Printer, Gaming)
+$script:NetworkProfile = 'maximum-security'  # Options: 'maximum-security', 'home-user'
+$script:AllowmDNS = $false              # Default: false (block Chromecast, AirPlay, Miracast)
+$script:AllowNetworkDiscovery = $false  # Default: false (block Explorer network browsing)
+$script:AllowWSD_SSDP = $false          # Default: false (block printer auto-discovery)
+
 # Clear Error Collection IMMEDIATELY (before any operations that might fail)
 # REASON: $Error accumulates ALL errors including non-fatal ones
 # WITHOUT clear: We'd count errors from previous script runs!
@@ -1128,7 +1136,7 @@ if ($Interactive) {
     }
     
     # ===== CREATE SYSTEM RESTORE POINT (IF NO BACKUP WAS MADE) =====
-    # CRITICAL: Must happen AFTER backup choice and BEFORE Extra-Menüs!
+    # CRITICAL: Must happen AFTER backup choice and BEFORE Extra-Menus!
     # Restore Point Setting from config
     if ($config.ContainsKey('CreateRestorePoint')) {
         $script:createRestorePoint = $config.CreateRestorePoint
@@ -1211,6 +1219,14 @@ if ($Interactive) {
             $config.OneDriveAction = $oneDriveChoice
         }
         
+        # Log user's choice visibly
+        $oneDriveText = switch($oneDriveChoice) {
+            '1' { "Privacy Hardening (Recommended)" }
+            '2' { "Complete Removal (Advanced)" }
+            '3' { "Skip (No Changes)" }
+            default { "Unknown ($oneDriveChoice)" }
+        }
+        Write-Host "[i] OneDrive Configuration: $oneDriveText" -ForegroundColor Cyan
         Write-Verbose "OneDrive action selected: $oneDriveChoice"
         
         # Remote Access & Firewall Configuration (always show in Enforce/Custom)
@@ -1229,13 +1245,46 @@ if ($Interactive) {
             # Maximum Security: Disable RDP + Strict Firewall
             $script:DisableRDP = $true
             $script:StrictFirewall = $true
+            Write-Host "[i] Remote Access: Maximum Security (RDP disabled, strict firewall)" -ForegroundColor Cyan
             Write-Verbose "Remote Access: RDP will be DISABLED, Firewall ultra-strict"
         }
         else {
             # Allow Remote Access: Keep RDP + Allow localhost
             $script:DisableRDP = $false
             $script:StrictFirewall = $false
+            Write-Host "[i] Remote Access: RDP Enabled (localhost allowed, hibernate off)" -ForegroundColor Cyan
             Write-Verbose "Remote Access: RDP will stay ENABLED, Firewall allows localhost"
+        }
+        
+        # Network Discovery & Device Communication Configuration (always show in Enforce/Custom)
+        $networkChoice = Show-NetworkDiscoveryMenu
+        
+        # Store Network Discovery choice
+        if (-not $config.ContainsKey('NetworkProfile')) {
+            $config.Add('NetworkProfile', $networkChoice)
+        }
+        else {
+            $config.NetworkProfile = $networkChoice
+        }
+        
+        # Set script-level variables based on user choice
+        if ($networkChoice -eq '1') {
+            # Maximum Security: Stealth Mode (current behavior)
+            $script:NetworkProfile = 'maximum-security'
+            $script:AllowmDNS = $false
+            $script:AllowNetworkDiscovery = $false
+            $script:AllowWSD_SSDP = $false
+            Write-Host "[i] Network Discovery: Maximum Security (Stealth Mode - all protocols blocked)" -ForegroundColor Cyan
+            Write-Verbose "Network: Maximum Security (Stealth Mode - NetBIOS/LLMNR/mDNS/WSD/SSDP blocked)"
+        }
+        else {
+            # Home User: Modern Protocols Only (NetBIOS/LLMNR still blocked!)
+            $script:NetworkProfile = 'home-user'
+            $script:AllowmDNS = $true
+            $script:AllowNetworkDiscovery = $true
+            $script:AllowWSD_SSDP = $true
+            Write-Host "[i] Network Discovery: Home User (modern protocols enabled, legacy blocked)" -ForegroundColor Cyan
+            Write-Verbose "Network: Home User (NetBIOS/LLMNR blocked, mDNS/WSD/SSDP allowed)"
         }
         
         Write-Host ""
@@ -1423,7 +1472,7 @@ try {
     # ROOT CAUSE: Function returns $true which can pollute caller's return array
     Test-SystemRequirements | Out-Null
     
-    # NOTE: System Restore Point was already created earlier (before Extra-Menüs)
+    # NOTE: System Restore Point was already created earlier (before Extra-Menus)
     # See Line ~1141-1174 for the actual creation code
     
     # Dynamischer Module Counter
@@ -2017,11 +2066,64 @@ Run script again after resolving errors - it is idempotent (safe to re-run).
             # Transcript Path (outside the here-string!)
             $transcriptInfo = if ($script:transcriptPath) { $script:transcriptPath } else { 'No transcript log created (early completion)' }
             
+            # Build configuration choices string (if available from Interactive Mode)
+            $configChoices = ""
+            if ($config -and $config.Count -gt 0) {
+                $choices = @()
+                
+                # OneDrive
+                if ($config.ContainsKey('OneDriveAction')) {
+                    $oneDriveText = switch($config.OneDriveAction) {
+                        '1' { "Privacy Hardening" }
+                        '2' { "Complete Removal" }
+                        '3' { "Skip (No Changes)" }
+                        default { "Unknown" }
+                    }
+                    $choices += "  - OneDrive: $oneDriveText"
+                }
+                
+                # Remote Access
+                if ($config.ContainsKey('RemoteAccessMode')) {
+                    $remoteText = switch($config.RemoteAccessMode) {
+                        '1' { "Maximum Security (RDP disabled)" }
+                        '2' { "RDP Enabled (localhost allowed)" }
+                        default { "Unknown" }
+                    }
+                    $choices += "  - Remote Access: $remoteText"
+                }
+                
+                # Network Discovery (NEW!)
+                if ($config.ContainsKey('NetworkProfile')) {
+                    $networkText = switch($config.NetworkProfile) {
+                        '1' { "Maximum Security (Stealth Mode)" }
+                        '2' { "Home User (Modern Protocols)" }
+                        default { "Unknown" }
+                    }
+                    $choices += "  - Network Discovery: $networkText"
+                }
+                
+                # DNS Provider
+                if ($config.ContainsKey('DnsProvider')) {
+                    $dnsText = switch($config.DnsProvider) {
+                        '1' { "Cloudflare" }
+                        '2' { "AdGuard" }
+                        '3' { "NextDNS" }
+                        '4' { "Quad9" }
+                        default { "Unknown" }
+                    }
+                    $choices += "  - DNS Provider: $dnsText"
+                }
+                
+                if ($choices.Count -gt 0) {
+                    $configChoices = "`n`nConfiguration Choices:`n" + ($choices -join "`n")
+                }
+            }
+            
             $statusInfo = @"
 Last Run: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')
 Status: SUCCESS (All critical changes applied)
 Mode: $Mode
-Selected Modules: $($SelectedModules -join ', ')
+Selected Modules: $($SelectedModules -join ', ')$configChoices
 
 ========================================
 SUCCESS SUMMARY
