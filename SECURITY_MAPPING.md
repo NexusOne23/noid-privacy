@@ -170,7 +170,12 @@ These settings **exceed** the Microsoft Security Baseline for additional hardeni
 - **Print Spooler:** RPC hardening (PrintNightmare mitigation)
 - **Administrative Shares:** C$, ADMIN$ disabled
 - **Built-in Accounts:** Renamed + 64-char passwords + disabled
-- **Legacy Protocols:** WPAD, mDNS blocked (via Registry + Firewall)
+- **Legacy Protocol Hardening:** Defense-in-Depth via 13 firewall rules + registry keys
+  - NetBIOS (ports 137-139): Registry disabled + 7 firewall rules
+  - LLMNR (port 5355): Registry disabled + 2 firewall rules
+  - WPAD: Registry disabled
+  - SMBv1: Registry disabled
+  - mDNS/SSDP/WSD: Configurable (6 firewall rules)
 
 ---
 

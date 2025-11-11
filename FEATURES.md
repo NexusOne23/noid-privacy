@@ -349,20 +349,26 @@ All apps CANNOT access (unless you allow):
 
 **User Benefit:** Modern TLS 1.2/1.3 with AEAD ciphers only, no weak crypto
 
-### Legacy Protocols - All Disabled
-✅ **Attack Surface Minimized**
+### Legacy Protocol Hardening
+✅ **Defense-in-Depth: Registry + Firewall**
 
 **Modules:** 
 - `SecurityBaseline-Core.ps1` → `Disable-NetworkLegacyProtocols`
 - `SecurityBaseline-Advanced.ps1` → `Disable-WDigest`
 
-- LLMNR: OFF (MITM credential theft)
-- NetBIOS: OFF (network poisoning)
-- WPAD: OFF (proxy attacks)
-- WDigest: OFF (plaintext passwords in RAM)
-- mDNS: OFF (multicast DNS)
-- SSDP: OFF (UPnP discovery)
-- WSD: OFF (Web Services Discovery)
+**Always Blocked (Registry + Firewall):**
+- **NetBIOS** (Ports 137-139): OFF - Network poisoning, credential theft
+- **LLMNR** (Port 5355): OFF - MITM attacks, credential theft
+- **WPAD**: OFF - Proxy hijacking attacks
+- **SMBv1**: OFF - WannaCry, NotPetya ransomware vector
+- **WDigest**: OFF - Plaintext passwords in RAM
+
+**Configurable (User Choice):**
+- **mDNS** (Port 5353): Stealth OFF / Home User ON (Chromecast, AirPlay)
+- **SSDP** (Port 1900): Stealth OFF / Home User ON (UPnP, Smart Home)
+- **WSD** (Port 3702): Stealth OFF / Home User ON (Printer discovery)
+
+**Implementation:** 13 firewall rules + 8+ registry keys = Defense-in-Depth
 
 ### Network Stealth Mode
 ✅ **Invisible on Network**

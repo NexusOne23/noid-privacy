@@ -13,8 +13,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 User-configurable network discovery settings to balance Fortune 500-level security with home user convenience.
 
 **Interactive Menu with 2 Options:**
-- **Option 1: Maximum Security (Stealth Mode)** - All discovery protocols blocked (NetBIOS, LLMNR, mDNS, WSD, SSDP, Network Discovery)
-- **Option 2: Home User (Modern Protocols)** - Modern protocols enabled (mDNS, WSD/SSDP, Network Discovery), legacy protocols blocked (NetBIOS, LLMNR)
+- **Option 1: Maximum Security (Stealth Mode)** - All discovery protocols blocked (NetBIOS, LLMNR, mDNS, WSD, SSDP, Network Discovery) via 13 firewall rules + registry
+- **Option 2: Home User (Modern Protocols)** - Modern protocols enabled (mDNS, WSD/SSDP, Network Discovery), legacy attack vectors blocked (NetBIOS, LLMNR) via registry + firewall
 
 **What's Now Configurable:**
 - **mDNS** - Enables Chromecast, AirPlay, Spotify Connect, Smart Home discovery, Miracast

@@ -394,7 +394,7 @@ After successful installation and reboot:
 5. ✅ Bloatware: Pre-installed apps removed
 6. ✅ BitLocker: Encryption policies configured
 7. ✅ VBS/Credential Guard: Active (if supported)
-8. ✅ Network: Stealth mode, legacy protocols disabled
+8. ✅ Network: Stealth mode configurable, legacy protocol hardening (13 firewall rules + registry)
 9. ✅ DNS: DNS-over-HTTPS, DNSSEC, blocklist active
 10. ✅ Edge: Security hardening applied
 

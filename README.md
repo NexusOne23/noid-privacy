@@ -186,8 +186,8 @@ cd noid-privacy
 - **13 Exploit Mitigations** → Memory-based attacks fail (DEP, SEHOP, ASLR, CFG, Heap Protection, Image Load Protection, Bottom-Up ASLR, High Entropy, etc.)
 - **Credential Protection** → Your passwords can't be stolen from memory (Credential Guard + LSA Protection + Mimikatz mitigation)
 - **BitLocker XTS-AES-256** → Stolen laptop = useless encrypted brick (TPM 2.0 + optional PIN)
-- **Strict Firewall** → Nothing gets in without your permission (block all incoming + 13 legacy protocol blocks)
-- **Modern Network Only** → TLS 1.2/1.3, SMB encryption, no legacy protocols (LLMNR/NetBIOS/WPAD/mDNS disabled)
+- **Strict Firewall** → Nothing gets in without your permission (block all incoming + 13 firewall rules block attack vectors)
+- **Legacy Protocol Hardening** → Defense-in-Depth: Registry disables protocols + Firewall blocks ports (NetBIOS, LLMNR, WPAD, SMBv1 always blocked; mDNS/WSD/SSDP configurable)
 
 **Bottom line:** You get Fortune-500-style hardening on a standalone device
 

@@ -184,7 +184,7 @@ The following changes require a reboot:
 - **13 Exploit Mitigations:** Memory-based attack prevention
 - **Credential Guard + VBS:** Password theft protection
 - **BitLocker XTS-AES-256:** Full disk encryption
-- **Strict Firewall:** All inbound blocked + 13 legacy protocol blocks
+- **Strict Firewall:** All inbound blocked + 13 firewall rules block legacy attack vectors
 
 ### Privacy (🔒)
 - **Telemetry Minimized:** 25+ services + 30 tasks + 478 registry keys
