@@ -102,3 +102,6 @@ Windows 11 v25H2 Security Baseline/
 Internal/
 Website/
 companion-app/
+
+# Local backup script (not for repo)
+BACKUP-BEFORE-REINSTALL.ps1
