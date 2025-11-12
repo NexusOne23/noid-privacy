@@ -11,6 +11,7 @@ This document tracks known limitations and issues in **NoID Privacy - Windows 11
 | ASR/Controlled Folder Access (Defender-only) | low     | 3rd-party AV blocks Defender features | Manually activate in Windows Security; see AV-Doc |
 | DoH fail-closed (no fallback)        | low     | DNS failure if provider down            | Choose reliable provider, temporarily disable DoH, set DNS manually  |
 | Strict inbound firewall                 | medium  | Incoming connections blocked             | Add needed exceptions in Windows Firewall                 |
+| Remote access with local admin          | low     | File sharing between PCs may not work    | Use Microsoft Account or temporarily set LocalAccountTokenFilterPolicy=1 |
 | Miracast/Wireless Display disabled      | medium  | Cast/Screen Mirroring unavailable      | Deselect module in Custom or Restore + Store reinstall   |
 | Restore ~90–95% (registry remnants)      | low     | Cosmetic keys remain                    | Manual cleanup per Restore report          |
 
@@ -211,6 +212,41 @@ For maximum security (no casting needs), this module disables all wireless displ
 - **Workaround**: Re-enable specific services if remote access needed
 - **Severity:** medium
 - **Status**: By design - maximum security
+
+### Remote Access with Local Admin Accounts
+
+- **Issue**: File sharing and Remote Desktop using local admin accounts may not work
+- **Symptom**: Access denied when accessing `\\PCName\C$` or RDP from another PC using local admin credentials
+- **Cause**: `LocalAccountTokenFilterPolicy = 0` (anti-Pass-the-Hash protection per MS Security Guide)
+- **Affected Scenarios**:
+  - Accessing PC via `\\PCName\C$` from another PC using local admin
+  - Remote Desktop (RDP) with local admin account
+  - PowerShell Remoting with local admin account
+  - Network file sharing between PCs using local admin accounts
+- **NOT Affected**:
+  - ✅ Local login on the PC itself (works normally)
+  - ✅ UAC prompts for local applications (works normally)
+  - ✅ Microsoft Account / Domain Account remote access (works normally)
+  - ✅ Any local application or installer (works normally)
+- **Workarounds**:
+  1. **Use Microsoft Accounts** (recommended) - not affected by this policy
+  2. **Use Domain Accounts** (Enterprise) - not affected by this policy
+  3. **Temporarily allow (one-time):**
+     ```powershell
+     Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name "LocalAccountTokenFilterPolicy" -Value 1
+     # ... perform remote access task ...
+     Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name "LocalAccountTokenFilterPolicy" -Value 0
+     ```
+  4. **Permanently allow (less secure):** Run `.\Restore-SecurityBaseline.ps1`, then manually set to Value 1
+- **Security Trade-off**: ⚠️ Setting `LocalAccountTokenFilterPolicy = 1` enables Pass-the-Hash attacks over network!
+- **Target Users**: Standalone workstations (95% of users) are NOT affected - this only impacts small offices sharing files between PCs using local admin accounts
+- **Verify current setting:**
+  ```powershell
+  Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System" -Name "LocalAccountTokenFilterPolicy"
+  # Value 0 = Secure (default) | Value 1 = Allows remote access with local admin
+  ```
+- **Severity:** low (affects only specific multi-PC scenarios with local accounts)
+- **Status**: By design - MS Security Guide recommended setting for anti-Pass-the-Hash protection
 
 ---
 
