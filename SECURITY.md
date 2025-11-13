@@ -250,8 +250,8 @@ We currently do **not** offer a paid bug bounty program. However:
 
 ---
 
-**Last Updated**: November 7, 2025  
-**Version**: 2.0 (Comprehensive Security Policy Update, NoID Privacy v1.8.1)
+**Last Updated**: November 13, 2025  
+**Version**: 2.0 (Comprehensive Security Policy Update, NoID Privacy v1.8.3)
 
 **Changelog:**
 - Added comprehensive severity classification system

@@ -31,8 +31,8 @@
     - Logs saved to: C:\ProgramData\SecurityBaseline\Logs\Verify-*.log
     
 .NOTES
-    Version:        1.8.2
-    Last Update:    November 10, 2025
+    Version:        1.8.3
+    Last Update:    November 13, 2025
     Baseline:       Microsoft Security Baseline 25H2 (Sept 30, 2025)
 #>
 

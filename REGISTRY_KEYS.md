@@ -384,7 +384,7 @@
 
 **Key Highlights:**
 - `HKLM:\SOFTWARE\NoIDPrivacy\Config` (1 key)
-- Version = 1.8.1 (Script version tracking)
+- Version = 1.8.3 (Script version tracking)
 
 ---
 

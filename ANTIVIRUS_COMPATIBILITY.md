@@ -1,6 +1,6 @@
 # Antivirus Compatibility & Known False Positives
 
-**Last Updated:** November 7, 2025 | **Version:** 1.8.1
+**Last Updated:** November 13, 2025 | **Version:** 1.8.3
 
 ---
 
@@ -609,7 +609,7 @@ ConvertFrom-SddlString -Sddl "O:BAG:BAD:(A;;RC;;;BA)"
 
 ## 🔄 Last Updated
 
-**Date:** November 7, 2025  
-**Version:** 1.8.1  
+**Date:** November 13, 2025  
+**Version:** 1.8.3  
 **Scope:** All third-party antivirus products (Bitdefender, Kaspersky, Norton, ESET, etc.)  
 **Status:** Documented - Expected behavior and workarounds provided

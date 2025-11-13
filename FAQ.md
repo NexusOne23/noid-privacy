@@ -641,5 +641,5 @@ Git-cloned files don't have Zone.Identifier!
 
 ---
 
-**Last Updated**: November 7, 2025  
-**Version:** 1.8.1
+**Last Updated**: November 13, 2025  
+**Version:** 1.8.3

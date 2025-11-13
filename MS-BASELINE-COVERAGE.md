@@ -1,8 +1,8 @@
 # 📊 MS SECURITY BASELINE 25H2: Coverage & Standalone Applicability
 
 **Source:** Microsoft Security Baseline Windows 11 v25H2 (Official)  
-**Analysis Date:** November 5, 2025  
-**NoID Privacy Version:** v1.8.1  
+**Analysis Date:** November 13, 2025  
+**NoID Privacy Version:** v1.8.3  
 **Status:** ✅ **100% VERIFIED & UP-TO-DATE**
 
 ---

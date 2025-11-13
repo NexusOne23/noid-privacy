@@ -5,7 +5,7 @@
 [![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-blue.svg)](https://github.com/PowerShell/PowerShell)
 [![Windows 11](https://img.shields.io/badge/Windows%2011-25H2-0078D4.svg)](https://www.microsoft.com/windows/)
 [![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
-[![Version](https://img.shields.io/badge/version-1.8.2-blue.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.8.3-blue.svg)](CHANGELOG.md)
 [![Audit Score](https://img.shields.io/badge/Audit_Score-9.2%2F10-brightgreen?style=flat-square&logo=security&logoColor=white)](Audit/Audit.md)
 [![Commercial Version](https://img.shields.io/badge/NoID_Privacy_PRO-Coming_Q1_2026-blue?style=flat-square&logo=windows&logoColor=white)](https://noid-privacy.com)
 
@@ -869,8 +869,8 @@ The authors are not responsible for any damage or data loss caused by this scrip
 
 ## Project Status
 
-**Current Version:** 1.8.2  
-**Last Updated:** November 10, 2025  
+**Current Version:** 1.8.3  
+**Last Updated:** November 13, 2025  
 **Status:** Production-Ready 
 
 ### ✨ Feature Release (v1.8.2) - Network Discovery User Choice + Critical Bugfix

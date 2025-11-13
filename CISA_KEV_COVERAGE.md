@@ -1,7 +1,7 @@
 # 🛡️ CISA KEV Coverage Analysis
 
-**Last Updated:** November 7, 2025  
-**NoID Privacy Version:** v1.8.1  
+**Last Updated:** November 13, 2025  
+**NoID Privacy Version:** v1.8.3  
 **Coverage:** ✅ **20/20 major Windows CVEs (with Windows 11 25H2)**
 
 ---

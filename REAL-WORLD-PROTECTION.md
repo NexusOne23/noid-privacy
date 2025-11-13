@@ -624,8 +624,8 @@ While malware like Gootloader continues to evolve and bypass traditional antivir
 
 ## 📝 Version Information
 
-**Current Version:** 1.8.1  
-**Last Updated:** November 8, 2025  
+**Current Version:** 1.8.3  
+**Last Updated:** November 13, 2025  
 **Windows Support:** Windows 11 (Build 22000+)  
 **Baseline:** Microsoft Security Baseline 25H2  
 **CIS Benchmark Score:** 9.2/10
