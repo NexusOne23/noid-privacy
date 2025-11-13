@@ -1048,10 +1048,8 @@ Test-BaselineCheck -Category "UAC" -Name "UAC Enabled (EnableLUA)" -Impact "Crit
     } `
     -Expected 1
 
-Test-BaselineCheck -Category "UAC" -Name "UAC Always Notify (Slider TOP)" -Impact "High" `
-    -Test { 
-        Get-RegistryValueSafe $uacPath "ConsentPromptBehaviorAdmin" -DefaultValue 5
-    } `
+Test-BaselineCheck -Category "UAC" -Name "UAC Consent Prompt (Secure Desktop)" -Impact "High" `
+    -Test { Get-RegistryValueSafe $uacPath "ConsentPromptBehaviorAdmin" -DefaultValue 2 } `
     -Expected 2
 
 Test-BaselineCheck -Category "UAC" -Name "UAC Secure Desktop Enabled" -Impact "High" `
@@ -1091,11 +1089,9 @@ Test-BaselineCheck -Category "UAC" -Name "EPP Mode Configured (Future-Ready)" -I
     } `
     -Expected 2
 
-Test-BaselineCheck -Category "UAC" -Name "Enhanced Admin Behavior (secedit)" -Impact "High" `
-    -Test { 
-        Get-RegistryValueSafe $uacPath "ConsentPromptBehaviorEnhancedAdmin" -DefaultValue 0
-    } `
-    -Expected 1
+Test-BaselineCheck -Category "UAC" -Name "Enhanced Admin Behavior (Windows 11 25H2)" -Impact "High" `
+    -Test { Get-RegistryValueSafe $uacPath "ConsentPromptBehaviorEnhancedAdmin" -DefaultValue 0 } `
+    -Expected 2
 
 Test-BaselineCheck -Category "UAC" -Name "Type of Admin Approval Mode (secedit)" -Impact "High" `
     -Test { 
@@ -1315,35 +1311,61 @@ Test-BaselineCheck -Category "CredentialGuard" -Name "Vulnerable Driver Blocklis
     -Expected 1
 
 # ===========================
-# WINDOWS LAPS (LOCAL ADMIN PASSWORD SOLUTION) - 3 SETTINGS
+# WINDOWS LAPS (LOCAL ADMIN PASSWORD SOLUTION) - CONDITIONAL
 # ===========================
 
-Write-Host "`n=== WINDOWS LAPS (LOCAL ADMIN PASSWORD SOLUTION) - 3 SETTINGS ===" -ForegroundColor Yellow
+Write-Host "`n=== WINDOWS LAPS (LOCAL ADMIN PASSWORD SOLUTION) ===" -ForegroundColor Yellow
 
-$lapsPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\LAPS\Config"
+# Check if system is suitable for LAPS (same logic as Apply-Script)
+$isDomainJoined = (Get-CimInstance -ClassName Win32_ComputerSystem).PartOfDomain
+$dsregStatus = dsregcmd /status 2>&1 | Out-String
+$isEntraJoined = $dsregStatus -match 'AzureAdJoined\s*:\s*YES'
 
-if (Test-Path $lapsPath) {
-    
-    Test-BaselineCheck -Category "LAPS" -Name "LAPS Enabled" -Impact "High" `
-        -Test { 
-            Get-RegistryValueSafe $lapsPath "Enabled"
-        } `
-        -Expected 1
-    
-    Test-BaselineCheck -Category "LAPS" -Name "LAPS Password Complexity = Maximum (4)" -Impact "Medium" `
-        -Test { 
-            Get-RegistryValueSafe $lapsPath "PasswordComplexity"
-        } `
-        -Expected 4
-    
-    Test-BaselineCheck -Category "LAPS" -Name "LAPS Backup to AD/Entra Enabled" -Impact "Medium" `
-        -Test { 
-            Get-RegistryValueSafe $lapsPath "BackupDirectory"
-        } `
-        -Expected 2
-        
+# Check for Microsoft Account admins
+$hasMicrosoftAccountAdmin = $false
+try {
+    $adminGroup = Get-LocalGroupMember -Group "Administratoren" -ErrorAction SilentlyContinue
+    if (-not $adminGroup) {
+        $adminGroup = Get-LocalGroupMember -Group "Administrators" -ErrorAction SilentlyContinue
+    }
+    foreach ($admin in $adminGroup) {
+        if ($admin.PrincipalSource -eq 'MicrosoftAccount') {
+            $hasMicrosoftAccountAdmin = $true
+            break
+        }
+    }
+} catch { }
+
+# LAPS only makes sense on Domain/Entra-joined systems
+if (-not $isDomainJoined -and -not $isEntraJoined -and $hasMicrosoftAccountAdmin) {
+    Write-Host "  [SKIP] LAPS checks skipped - Not suitable for standalone systems with Microsoft Accounts" -ForegroundColor Yellow
+    Write-Host "         LAPS is designed for Domain/Entra-joined devices" -ForegroundColor DarkGray
 } else {
-    Write-Host "  [!] Windows LAPS not available (Home edition or not configured)" -ForegroundColor Yellow
+    $lapsPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\LAPS\Config"
+    
+    if (Test-Path $lapsPath) {
+        
+        Test-BaselineCheck -Category "LAPS" -Name "LAPS Enabled" -Impact "High" `
+            -Test { 
+                Get-RegistryValueSafe $lapsPath "Enabled"
+            } `
+            -Expected 1
+        
+        Test-BaselineCheck -Category "LAPS" -Name "LAPS Password Complexity = Maximum (4)" -Impact "Medium" `
+            -Test { 
+                Get-RegistryValueSafe $lapsPath "PasswordComplexity"
+            } `
+            -Expected 4
+        
+        Test-BaselineCheck -Category "LAPS" -Name "LAPS Backup to AD/Entra Enabled" -Impact "Medium" `
+            -Test { 
+                Get-RegistryValueSafe $lapsPath "BackupDirectory"
+            } `
+            -Expected 2
+            
+    } else {
+        Write-Host "  [!] Windows LAPS not available (Home edition or not configured)" -ForegroundColor Yellow
+    }
 }
 
 # ===========================

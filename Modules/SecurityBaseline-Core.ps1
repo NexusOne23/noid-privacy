@@ -1905,6 +1905,21 @@ function Enable-NetworkStealthMode {
         try {
             Enable-NetFirewallRule -DisplayGroup "Network Discovery" -ErrorAction SilentlyContinue
             Write-Verbose "Network Discovery firewall rules enabled"
+            
+            # Enable mDNS/SSDP/WSD Allow-rules explicitly (Home User Mode)
+            if ($script:AllowmDNS) {
+                Get-NetFirewallRule | Where-Object {
+                    $_.DisplayName -match "^mDNS" -and $_.Action -eq "Allow"
+                } | Enable-NetFirewallRule -ErrorAction SilentlyContinue
+                Write-Verbose "mDNS Allow-rules enabled (Home User mode)"
+            }
+            
+            if ($script:AllowWSD_SSDP) {
+                Get-NetFirewallRule | Where-Object {
+                    ($_.DisplayName -match "SSDP|WSD") -and $_.Action -eq "Allow"
+                } | Enable-NetFirewallRule -ErrorAction SilentlyContinue
+                Write-Verbose "SSDP/WSD Allow-rules enabled (Home User mode)"
+            }
         }
         catch {
             Write-Verbose "Network Discovery firewall error: $_"
@@ -1936,7 +1951,7 @@ function Enable-NetworkStealthMode {
         
         # Disable File and Printer Sharing (Firewall rules)
         try {
-            Write-Info "Disabling File and Printer Sharing firewall rules..."
+            Write-Verbose "Disabling File and Printer Sharing + Network Discovery rules..."
             
             # SilentlyContinue if rules don't exist (Windows 11 25H2)
             Disable-NetFirewallRule -DisplayGroup "File and Printer Sharing" -ErrorAction SilentlyContinue
@@ -1946,6 +1961,53 @@ function Enable-NetworkStealthMode {
         }
         catch {
             Write-Verbose "Firewall rules error: $_"
+        }
+        
+        # CRITICAL FIX v1.8.3: Disable Windows Standard Allow-rules for mDNS/LLMNR/SSDP/WSD
+        # These rules conflict with our Block-rules and should be disabled in Maximum Security mode
+        try {
+            Write-Info "Disabling Windows Standard Allow-rules for legacy protocols..."
+            
+            $disabledCount = 0
+            
+            # Disable all mDNS Allow-rules (Maximum Security mode only!)
+            if (-not $script:AllowmDNS) {
+                $mdnsRules = Get-NetFirewallRule | Where-Object {
+                    $_.DisplayName -match "mDNS" -and 
+                    $_.Action -eq "Allow" -and 
+                    $_.Enabled -eq $true
+                }
+                foreach ($rule in $mdnsRules) {
+                    Disable-NetFirewallRule -DisplayName $rule.DisplayName -ErrorAction SilentlyContinue
+                    $disabledCount++
+                    Write-Verbose "  Disabled: $($rule.DisplayName)"
+                }
+            }
+            
+            # Disable all LLMNR/SSDP/WSD Allow-rules (Maximum Security mode only!)
+            if (-not $script:AllowWSD_SSDP) {
+                $legacyRules = Get-NetFirewallRule | Where-Object {
+                    ($_.DisplayName -match "LLMNR|SSDP|WSD|Netzwerkerkennung") -and 
+                    $_.Action -eq "Allow" -and 
+                    $_.Enabled -eq $true -and
+                    $_.DisplayName -notmatch "NoID-"  # Don't touch our own rules
+                }
+                foreach ($rule in $legacyRules) {
+                    Disable-NetFirewallRule -DisplayName $rule.DisplayName -ErrorAction SilentlyContinue
+                    $disabledCount++
+                    Write-Verbose "  Disabled: $($rule.DisplayName)"
+                }
+            }
+            
+            if ($disabledCount -gt 0) {
+                Write-Success "Windows Standard Allow-rules disabled: $disabledCount rules"
+                Write-Info "NoID Block-rules are now the ONLY active rules for these protocols"
+            } else {
+                Write-Verbose "No conflicting Allow-rules found (already clean or Home User mode)"
+            }
+        }
+        catch {
+            Write-Verbose "Error disabling standard firewall rules: $_"
         }
         
         Write-Success "Network Stealth Mode enabled (invisible in network, WLAN works)"

@@ -123,6 +123,88 @@ function Set-EdgeSecurityBaseline {
     Set-RegistryValue -Path $edgePolicyPath -Name "BlockThirdPartyCookies" -Value 0 -Type DWord `
         -Description "Allow Third-Party Cookies (normal websites work)"
     
+    # === CRITICAL FIX v1.8.3: SYNC & PRIVACY SETTINGS (POLICIES - GREYED OUT!) ===
+    Write-Info "$(Get-LocalizedString 'EdgeSyncPrivacyConfig')"
+    
+    # CRITICAL: Disable ALL Edge Sync types (but ALLOW Sign-In for Passkeys!)
+    # SyncDisabled = 1 would block Microsoft Account Sign-In & Passkeys!
+    # INSTEAD: Use SyncTypesListDisabled to block ALL sync types individually
+    # This allows Sign-In/Passkeys while blocking data upload!
+    
+    # Disable ALL sync types individually (blocks sync, allows sign-in!)
+    try {
+        $syncTypes = @(
+            "bookmarks",
+            "passwords",
+            "history",
+            "openTabs",
+            "extensions",
+            "collections",
+            "settings",
+            "addresses",
+            "payment_methods"
+        )
+        New-Item -Path $edgePolicyPath -Force -ErrorAction SilentlyContinue | Out-Null
+        $item = Get-ItemProperty -Path $edgePolicyPath -ErrorAction SilentlyContinue
+        if ($item -and ($item.PSObject.Properties.Name -contains "SyncTypesListDisabled")) {
+            Remove-ItemProperty -Path $edgePolicyPath -Name "SyncTypesListDisabled" -Force
+        }
+        New-ItemProperty -Path $edgePolicyPath -Name "SyncTypesListDisabled" -Value $syncTypes -PropertyType MultiString -Force | Out-Null
+        Write-Verbose "All Edge Sync types disabled (MultiString)"
+    }
+    catch {
+        Write-Verbose "Could not set SyncTypesListDisabled: $_"
+    }
+    
+    # CRITICAL: Disable Search Suggestions (sends queries to Bing!)
+    Set-RegistryValue -Path $edgePolicyPath -Name "SearchSuggestEnabled" -Value 0 -Type DWord `
+        -Description "CRITICAL: Disable Search Suggestions (no queries to Bing!)"
+    
+    # CRITICAL: Disable Bing in Address Bar (prevents data leakage!)
+    Set-RegistryValue -Path $edgePolicyPath -Name "AddressBarMicrosoftSearchInBingProviderEnabled" -Value 0 -Type DWord `
+        -Description "CRITICAL: Disable Bing Search in Address Bar"
+    
+    # Disable Personalization Reporting (telemetry!)
+    Set-RegistryValue -Path $edgePolicyPath -Name "PersonalizationReportingEnabled" -Value 0 -Type DWord `
+        -Description "Disable Personalization Reporting (telemetry)"
+    
+    # Disable Metrics Reporting (telemetry!)
+    Set-RegistryValue -Path $edgePolicyPath -Name "MetricsReportingEnabled" -Value 0 -Type DWord `
+        -Description "Disable Metrics Reporting (telemetry)"
+    
+    # Disable User Feedback
+    Set-RegistryValue -Path $edgePolicyPath -Name "UserFeedbackAllowed" -Value 0 -Type DWord `
+        -Description "Disable User Feedback collection"
+    
+    # Disable "Show me search and site suggestions using my typed characters"
+    Set-RegistryValue -Path $edgePolicyPath -Name "SearchSuggestionsEnabled" -Value 0 -Type DWord `
+        -Description "Disable search/site suggestions"
+    
+    # Disable Edge Shopping (privacy leak!)
+    Set-RegistryValue -Path $edgePolicyPath -Name "EdgeShoppingAssistantEnabled" -Value 0 -Type DWord `
+        -Description "Disable Edge Shopping Assistant"
+    
+    # Disable Network Predictions (DNS prefetching sends data!)
+    Set-RegistryValue -Path $edgePolicyPath -Name "NetworkPredictionOptions" -Value 2 -Type DWord `
+        -Description "Disable Network Predictions (2 = Never)"
+    
+    # Disable "Improve my Microsoft Edge browsing experience" (telemetry!)
+    Set-RegistryValue -Path $edgePolicyPath -Name "DiagnosticData" -Value 0 -Type DWord `
+        -Description "Disable Diagnostic Data collection"
+    
+    Write-Success "$(Get-LocalizedString 'EdgeSyncDisabled')"
+    Write-Info "$(Get-LocalizedString 'EdgeSearchSuggestDisabled')"
+    Write-Info "$(Get-LocalizedString 'EdgeNoDataToMS')"
+    Write-Host ""
+    Write-Host "$(Get-LocalizedString 'EdgeMSAccountWarningTitle')" -ForegroundColor Yellow
+    Write-Host "$(Get-LocalizedString 'EdgeMSAccountWarningText')" -ForegroundColor White
+    Write-Host "$(Get-LocalizedString 'EdgeMSAccountStep1')" -ForegroundColor Cyan
+    Write-Host "$(Get-LocalizedString 'EdgeMSAccountStep2')" -ForegroundColor Cyan
+    Write-Host "$(Get-LocalizedString 'EdgeMSAccountStep3')" -ForegroundColor Cyan
+    Write-Host "$(Get-LocalizedString 'EdgeMSAccountURL')" -ForegroundColor Gray
+    Write-Host "$(Get-LocalizedString 'EdgeMSAccountStep4')" -ForegroundColor Cyan
+    Write-Host ""
+    
     # === DNS over HTTPS (POLICIES - GREYED OUT!) ===
     Write-Info "$(Get-LocalizedString 'EdgeDNSConfig')"
     

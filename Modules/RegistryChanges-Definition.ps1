@@ -15,7 +15,7 @@ Set-StrictMode -Version Latest
 .NOTES
     Generated: 2025-11-07 08:35:27
     Updated: 2025-11-07 (ProcMon Analysis: Removed 13 obsolete keys, fixed 10 cipher paths, added 19 missing keys)
-    Total Entries: 478 (all unique, static, fully backupable)
+    Total Entries: 492 (all unique, static, fully backupable)
     
     CHANGES:
     - Removed 13 keys: Set-MpPreference API keys (not registry), Test keys, wrong paths
@@ -2368,6 +2368,78 @@ $script:RegistryChanges = @(
     }
 ,
     @{
+        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Edge'
+        Name = 'SearchSuggestEnabled'
+        Type = 'DWord'
+        ApplyValue = 0
+        Description = 'CRITICAL: Disable Search Suggestions (no queries to Bing!)'
+        File = 'SecurityBaseline-Edge.ps1'
+    }
+,
+    @{
+        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Edge'
+        Name = 'AddressBarMicrosoftSearchInBingProviderEnabled'
+        Type = 'DWord'
+        ApplyValue = 0
+        Description = 'CRITICAL: Disable Bing Search in Address Bar'
+        File = 'SecurityBaseline-Edge.ps1'
+    }
+,
+    @{
+        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Edge'
+        Name = 'PersonalizationReportingEnabled'
+        Type = 'DWord'
+        ApplyValue = 0
+        Description = 'Disable Personalization Reporting (telemetry)'
+        File = 'SecurityBaseline-Edge.ps1'
+    }
+,
+    @{
+        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Edge'
+        Name = 'MetricsReportingEnabled'
+        Type = 'DWord'
+        ApplyValue = 0
+        Description = 'Disable Metrics Reporting (telemetry)'
+        File = 'SecurityBaseline-Edge.ps1'
+    }
+,
+    @{
+        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Edge'
+        Name = 'UserFeedbackAllowed'
+        Type = 'DWord'
+        ApplyValue = 0
+        Description = 'Disable User Feedback collection'
+        File = 'SecurityBaseline-Edge.ps1'
+    }
+,
+    @{
+        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Edge'
+        Name = 'NetworkPredictionOptions'
+        Type = 'DWord'
+        ApplyValue = 2
+        Description = 'Disable Network Predictions (2 = Never)'
+        File = 'SecurityBaseline-Edge.ps1'
+    }
+,
+    @{
+        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Edge'
+        Name = 'DiagnosticData'
+        Type = 'DWord'
+        ApplyValue = 0
+        Description = 'Disable Diagnostic Data collection'
+        File = 'SecurityBaseline-Edge.ps1'
+    }
+,
+    @{
+        Path = 'HKLM:\SOFTWARE\Policies\Microsoft\Edge'
+        Name = 'EdgeShoppingAssistantEnabled'
+        Type = 'DWord'
+        ApplyValue = 0
+        Description = 'Disable Edge Shopping Assistant'
+        File = 'SecurityBaseline-Edge.ps1'
+    }
+,
+    @{
         Path = 'HKCU:\SOFTWARE\Policies\Microsoft\OneDrive'
         Name = 'DisableTutorial'
         Type = 'DWord'
@@ -2598,6 +2670,33 @@ $script:RegistryChanges = @(
         Type = 'DWord'
         ApplyValue = 0
         Description = 'Settings Suggested Content OFF (3)'
+        File = 'SecurityBaseline-Telemetry.ps1'
+    }
+,
+    @{
+        Path = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager'
+        Name = 'SubscribedContent-314559Enabled'
+        Type = 'DWord'
+        ApplyValue = 0
+        Description = 'Windows Spotlight Lock Screen features OFF'
+        File = 'SecurityBaseline-Telemetry.ps1'
+    }
+,
+    @{
+        Path = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager'
+        Name = 'SilentInstalledAppsEnabled'
+        Type = 'DWord'
+        ApplyValue = 0
+        Description = 'Store: Silent App Install OFF'
+        File = 'SecurityBaseline-Telemetry.ps1'
+    }
+,
+    @{
+        Path = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager'
+        Name = 'SystemPaneSuggestionsEnabled'
+        Type = 'DWord'
+        ApplyValue = 0
+        Description = 'System Panel Suggestions OFF'
         File = 'SecurityBaseline-Telemetry.ps1'
     }
 ,
@@ -3146,7 +3245,25 @@ $script:RegistryChanges = @(
         Name = 'ConsentPromptBehaviorAdmin'
         Type = 'DWord'
         ApplyValue = 2
-        Description = 'UAC: Always notify (Slider at top) - Prompt for credentials on secure desktop'
+        Description = 'UAC: Prompt for consent on the secure desktop'
+        File = 'SecurityBaseline-UAC.ps1'
+    }
+,
+    @{
+        Path = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System'
+        Name = 'ConsentPromptBehaviorEnhancedAdmin'
+        Type = 'DWord'
+        ApplyValue = 2
+        Description = 'UAC Enhanced Mode: Administrator Protection (Windows 11 25H2)'
+        File = 'SecurityBaseline-UAC.ps1'
+    }
+,
+    @{
+        Path = 'HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System'
+        Name = 'TypeOfAdminApprovalMode'
+        Type = 'DWord'
+        ApplyValue = 2
+        Description = 'UAC: Enhanced Admin Approval Mode (Windows 11 25H2)'
         File = 'SecurityBaseline-UAC.ps1'
     }
 ,

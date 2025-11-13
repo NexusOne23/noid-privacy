@@ -27,6 +27,70 @@ function Enable-WindowsLAPS {
     
     Write-Section "Windows LAPS (Local Admin Password Solution)"
     
+    # CRITICAL FIX v1.8.3: Check if system is suitable for LAPS
+    # PROBLEM: LAPS creates local admin users (ADMIN_*) on Microsoft Account systems!
+    # SOLUTION: Only enable LAPS on Domain-Joined or Entra ID-Joined systems
+    
+    # Check 1: Is system Domain-Joined?
+    $isDomainJoined = $false
+    try {
+        $computerSystem = Get-WmiObject -Class Win32_ComputerSystem -ErrorAction Stop
+        if ($computerSystem.PartOfDomain) {
+            $isDomainJoined = $true
+            Write-Verbose "System is Domain-Joined: $($computerSystem.Domain)"
+        }
+    }
+    catch {
+        Write-Verbose "Could not check domain membership: $_"
+    }
+    
+    # Check 2: Is system Entra ID-Joined?
+    $isEntraJoined = $false
+    try {
+        $dsregStatus = dsregcmd /status 2>$null
+        if ($dsregStatus -match 'AzureAdJoined\s*:\s*YES') {
+            $isEntraJoined = $true
+            Write-Verbose "System is Entra ID-Joined"
+        }
+    }
+    catch {
+        Write-Verbose "Could not check Entra ID membership: $_"
+    }
+    
+    # Check 3: Are current admin users Microsoft Accounts?
+    $hasMicrosoftAccountAdmin = $false
+    try {
+        $adminGroup = Get-LocalGroupMember -Group "Administratoren" -ErrorAction SilentlyContinue
+        if (-not $adminGroup) {
+            $adminGroup = Get-LocalGroupMember -Group "Administrators" -ErrorAction SilentlyContinue
+        }
+        
+        foreach ($admin in $adminGroup) {
+            if ($admin.PrincipalSource -eq 'MicrosoftAccount') {
+                $hasMicrosoftAccountAdmin = $true
+                Write-Verbose "Found Microsoft Account admin: $($admin.Name)"
+            }
+        }
+    }
+    catch {
+        Write-Verbose "Could not check admin group: $_"
+    }
+    
+    # DECISION: Skip LAPS on standalone systems with Microsoft Account users
+    # WHY: LAPS will create local admin users (ADMIN_*) which confuses users!
+    if (-not $isDomainJoined -and -not $isEntraJoined -and $hasMicrosoftAccountAdmin) {
+        Write-Warning "Windows LAPS skipped - Not suitable for standalone systems with Microsoft Accounts"
+        Write-Info "REASON: LAPS would create local admin users (ADMIN_*) which is confusing"
+        Write-Info "RECOMMENDATION: Use LAPS only on Domain-Joined or Entra ID-Joined systems"
+        Write-Info "ALTERNATIVE: Keep Built-in Administrator disabled (already configured)"
+        Write-Host ""
+        Write-Info "If you REALLY want LAPS on this system:"
+        Write-Info "  1. Convert to local admin account (disconnect Microsoft Account)"
+        Write-Info "  2. OR: Join system to Domain/Entra ID"
+        Write-Info "  3. Then re-run script to enable LAPS"
+        return
+    }
+    
     # Check if Windows LAPS is available (not available in Home edition)
     # Best Practice 25H2: Feature detection before configuration
     $lapsAvailable = $false

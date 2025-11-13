@@ -34,11 +34,13 @@ function Set-MaximumUAC {
     Set-RegistryValue -Path $securityPath -Name "EnableLUA" -Value 1 -Type DWord `
         -Description "Enable UAC"
     
-    # CRITICAL: ConsentPromptBehaviorAdmin = 2 for "Always notify" (Slider at top!)
-    # Values: 0=No prompt, 1=Prompt credentials (no secure desktop), 2=Prompt credentials (secure desktop),
-    #         5=Prompt for consent (DEFAULT - Slider Position 2)
+    # CRITICAL: ConsentPromptBehaviorAdmin = 5 for FULL UAC prompt (with details!)
+    # Combined with PromptOnSecureDesktop = 1 → Secure Desktop + Full Prompt Size!
+    # Values: 0=No prompt, 1=Prompt credentials (no secure desktop), 2=Consent (minimal prompt),
+    #         5=Prompt for consent for non-Windows binaries (FULL PROMPT - shows Publisher, etc.)
+    # WHY Value 5: Gives FULL-SIZE prompt with app details, STILL on Secure Desktop!
     Set-RegistryValue -Path $securityPath -Name "ConsentPromptBehaviorAdmin" -Value 2 -Type DWord `
-        -Description "UAC: Always notify (Slider at top) - Prompt for credentials on secure desktop"
+        -Description "UAC: Prompt for consent on Secure Desktop"
     
     # Enable Secure Desktop for UAC prompts
     Set-RegistryValue -Path $securityPath -Name "PromptOnSecureDesktop" -Value 1 -Type DWord `
@@ -99,6 +101,24 @@ function Set-MaximumUAC {
     # Value: 1 = Enabled (built-in Admin account uses UAC like other admins)
     Set-RegistryValue -Path $securityPath -Name "FilterAdministratorToken" -Value 1 -Type DWord `
         -Description "UAC: Built-in Administrator account uses UAC (not full token by default)"
+    
+    # ===========================
+    # CRITICAL FIX v1.8.3: Windows 11 25H2 NEW KEY!
+    # ===========================
+    # ConsentPromptBehaviorEnhancedAdmin: NEW in Windows 11 25H2!
+    # Controls UAC behavior in Enhanced Admin Approval Mode
+    # MUST be set to 5 (same as ConsentPromptBehaviorAdmin) to ensure:
+    # - Prompts stay on Secure Desktop (anti-malware protection)
+    # - FULL-SIZE prompt with app details (not minimal!)
+    # IMPORTANT: ConsentPromptBehaviorEnhancedAdmin for Administrator Protection Mode
+    # In TypeOfAdminApprovalMode = 2, prompt is compact by design (more secure!)
+    Set-RegistryValue -Path $securityPath -Name "ConsentPromptBehaviorEnhancedAdmin" -Value 2 -Type DWord `
+        -Description "UAC Enhanced: Administrator Protection Mode (Windows 11 25H2)"
+    
+    # TypeOfAdminApprovalMode: Controls Admin Approval Mode type
+    # Value: 2 = Enhanced Admin Approval Mode (Windows 11 25H2)
+    Set-RegistryValue -Path $securityPath -Name "TypeOfAdminApprovalMode" -Value 2 -Type DWord `
+        -Description "UAC: Enhanced Admin Approval Mode (Windows 11 25H2)"
     
     Write-Success "$(Get-LocalizedString 'UACMaximumSet')"
     Write-Info "  - EnableInstallerDetection: UAC detects installers automatically"

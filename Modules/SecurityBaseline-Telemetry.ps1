@@ -269,6 +269,21 @@ function Set-TelemetryRegistry {
     Set-RegistryValue -Path $contentPath -Name "SubscribedContent-353696Enabled" -Value 0 -Type DWord `
         -Description "Settings Suggested Content OFF (3)"
     
+    # === WINDOWS WELCOME EXPERIENCE (v1.8.3) ===
+    # Disable Windows Welcome Experience (Tips after updates)
+    Set-RegistryValue -Path $contentPath -Name "SubscribedContent-310093Enabled" -Value 0 -Type DWord `
+        -Description "Windows Welcome Experience OFF"
+    Set-RegistryValue -Path $contentPath -Name "SubscribedContent-314559Enabled" -Value 0 -Type DWord `
+        -Description "Windows Spotlight Lock Screen features OFF"
+    
+    # Disable Silent App Install (kein automatischer App-Download via Store)
+    Set-RegistryValue -Path $contentPath -Name "SilentInstalledAppsEnabled" -Value 0 -Type DWord `
+        -Description "Store: Silent App Install OFF"
+    
+    # Disable System Panel Suggestions
+    Set-RegistryValue -Path $contentPath -Name "SystemPaneSuggestionsEnabled" -Value 0 -Type DWord `
+        -Description "System Panel Suggestions OFF"
+    
     # Toggle 5: Show notifications in Settings app (NEW in 25H2!)
     # CRITICAL FIX: Wrong key! Must be AccountNotifications (Source: ElevenForum)
     $settingsNotifPath = "HKCU:\Software\Microsoft\Windows\CurrentVersion\SystemSettings\AccountNotifications"
@@ -364,6 +379,7 @@ function Remove-TelemetryTasks {
         Entfernt alle Telemetrie-bezogenen Scheduled Tasks
     .DESCRIPTION
         Best Practice 25H2: Deaktiviert/Entfernt alle Tasks die Telemetrie senden
+        v1.8.3: Uses Disable-ScheduledTaskSmart for protected tasks
     #>
     [CmdletBinding()]
     [OutputType([void])]
@@ -372,6 +388,7 @@ function Remove-TelemetryTasks {
     Write-Section "$(Get-LocalizedString 'TelemetryTasksTitle')"
     
     Write-Info "$(Get-LocalizedString 'TelemetryTasksDisabling')"
+    Write-Verbose "Using smart disable with ownership management for protected tasks"
     
     # List of telemetry tasks (Best Practice 2025)
     $telemetryTasks = @(
@@ -429,10 +446,16 @@ function Remove-TelemetryTasks {
             if ($task) {
                 # Best Practice 25H2: Idempotency - only disable if not already disabled)
                 if ($task.State -ne 'Disabled') {
-                    # Disable task
-                    [void](Disable-ScheduledTask -TaskName $task.TaskName -TaskPath $task.TaskPath -ErrorAction Stop)
-                    Write-Verbose "$(Get-LocalizedString 'TelemetryTasksDeactivated' $taskPath)"
-                    $disabledCount++
+                    # v1.8.3: Use smart disable with ownership management
+                    # Handles both normal and TrustedInstaller/SYSTEM-protected tasks
+                    if (Disable-ScheduledTaskSmart -TaskPath $parentPath -TaskName $taskName -Description "Telemetry Task") {
+                        Write-Verbose "$(Get-LocalizedString 'TelemetryTasksDeactivated' $taskPath)"
+                        $disabledCount++
+                    }
+                    else {
+                        # Failed even with ownership management
+                        Write-Warning "Failed to disable task: $taskPath"
+                    }
                 }
                 else {
                     Write-Verbose "$(Get-LocalizedString 'TelemetryTasksAlreadyDisabled' $taskPath)"
@@ -915,6 +938,11 @@ function Disable-PrivacyExperienceSettings {
     Set-RegistryValue -Path $cloudContentPath -Name "DisableWindowsConsumerFeatures" -Value 1 -Type DWord -Description "Consumer Features deaktivieren"
     Set-RegistryValue -Path $cloudContentPath -Name "DisableSoftLanding" -Value 1 -Type DWord -Description "Vorgeschlagene Inhalte deaktivieren"
     Set-RegistryValue -Path $cloudContentPath -Name "DisableThirdPartySuggestions" -Value 1 -Type DWord -Description "Drittanbieter-Vorschlaege deaktivieren"
+    
+    # === MICROSOFT STORE ADDITIONAL PRIVACY (v1.8.3) ===
+    # Disable Cloud-based personalization for Store
+    Set-RegistryValue -Path $cloudContentPath -Name "DisableCloudOptimizedContent" -Value 1 -Type DWord `
+        -Description "Cloud-optimized Store content OFF"
     
     Write-Success "$(Get-LocalizedString 'TelemetryPrivacyExpComplete')"
 }

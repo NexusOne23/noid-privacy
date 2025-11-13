@@ -40,6 +40,8 @@ function Optimize-ScheduledTasks {
     .NOTES
         Telemetrie-Tasks (CEIP, Appraiser, etc.) sind im Telemetry-Modul.
         Hier nur Performance-spezifische Tasks (Maps, Media, etc.)
+        
+        v1.8.3: Uses Disable-ScheduledTaskSmart for protected tasks
     #>
     [CmdletBinding()]
     [OutputType([void])]
@@ -49,6 +51,7 @@ function Optimize-ScheduledTasks {
     
     Write-Info "Performance-specific Scheduled Tasks will be disabled..."
     Write-Info "Telemetry Tasks are disabled separately in the Telemetry module"
+    Write-Verbose "Using smart disable with ownership management for protected tasks"
     
     # List of PERFORMANCE tasks to disable (Best Practice 2025)
     # NOTE: Telemetry tasks are in Telemetry module!
@@ -193,14 +196,23 @@ function Optimize-ScheduledTasks {
             if (-not $scheduledTask) {
                 # Task does not exist - skip
                 Write-Verbose "     Task not found: $fullPath (skipped)"
+                $notFoundCount++
                 continue
             }
             
             # Task exists - disable if necessary
             if ($scheduledTask.State -ne 'Disabled') {
-                Disable-ScheduledTask -TaskPath $task.Path -TaskName $task.Name -ErrorAction Stop | Out-Null
-                $disabledCount++
-                Write-Verbose "     Disabled: $fullPath ($($task.Reason))"
+                # v1.8.3: Use smart disable with ownership management
+                # This handles both normal tasks and TrustedInstaller/SYSTEM-protected tasks
+                if (Disable-ScheduledTaskSmart -TaskPath $task.Path -TaskName $task.Name -Description $task.Reason) {
+                    $disabledCount++
+                    Write-Verbose "     Disabled: $fullPath ($($task.Reason))"
+                }
+                else {
+                    # Failed even with ownership management
+                    $errorCount++
+                    Write-Warning "     Failed to disable: $fullPath"
+                }
             }
             else {
                 Write-Verbose "     Already disabled: $fullPath"
@@ -208,6 +220,7 @@ function Optimize-ScheduledTasks {
         }
         catch {
             Write-Verbose "     Error with task $fullPath : $_"
+            $errorCount++
         }
     }
     
