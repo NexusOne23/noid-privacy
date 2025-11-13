@@ -7,61 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.8.3] - 2025-11-13
 
-### 🐛 Critical Bug Fixes
+### � Minor Fixes & Improvements
 
-#### **ADMIN_nexus Profile Creation Fixed**
-Fixed critical bug where orphan ADMIN_nexus profile was created during baseline application.
-
-**Root Cause:**
-- Security template (`Win11_25H2_Baseline_SecTemplate.inf`) contained orphaned PrintSpooler SID reference
-- When applying user rights, Windows tried to resolve this SID and created ADMIN_nexus profile as fallback
-
-**Fix:**
-- Removed orphaned SID from security template
-- Template now only contains valid, resolvable SIDs
-- Verified fix: No more ADMIN_* profiles created
-
-**Impact:** Eliminates confusion and prevents orphan user profiles on Microsoft Account systems
-
-#### **UAC Settings Reverted to Secure Defaults**
-Fixed UAC prompt behavior to match Microsoft Security Baseline 25H2 recommendations.
-
-**Issue:**
-- UAC prompt was small/compact despite `ConsentPromptBehaviorAdmin = 5` setting
-- Root cause: Windows 11 25H2 Administrator Protection Mode (`TypeOfAdminApprovalMode = 2`) ignores value 5
-- Microsoft's baseline uses value 2 (Prompt for consent on secure desktop)
-
-**Fix:**
-- Reverted `ConsentPromptBehaviorAdmin` from 5 to 2 (MS Baseline compliant)
-- Reverted `ConsentPromptBehaviorEnhancedAdmin` from 5 to 2
-- Compact prompt is by design for increased security in Administrator Protection Mode
-
-**Impact:** Aligned with MS Security Baseline 25H2, proper UAC behavior
-
-#### **Edge Passkey Authentication Fixed**
-Fixed Microsoft Edge blocking passkey sign-in and Microsoft Account authentication.
-
-**Issue:**
-- Edge `SyncDisabled = 1` completely blocked Microsoft Account sign-in
-- Passkey authentication (Windows Hello) failed
-- Users couldn't sign into Microsoft Account in Edge
-
-**Root Cause:**
-- `SyncDisabled = 1` is too aggressive - blocks ALL MS Account features, not just sync
-- Microsoft's design: Account sign-in is prerequisite for sync, so blocking sync blocks sign-in
-
-**Fix:**
-- Removed `SyncDisabled` registry key completely
-- Kept `SyncTypesListDisabled` which allows sign-in but blocks specific sync types (bookmarks, passwords, history, etc.)
-- Privacy maintained: Sync still blocked, but authentication works
-
-**Impact:** 
-- ✅ Passkey/Windows Hello authentication now works
-- ✅ Microsoft Account sign-in now works
-- ✅ SSO features now work
-- 🔒 Sync remains blocked for privacy (bookmarks, passwords, history)
-
-### 📊 Registry Audit
+#### **Registry Audit & Cleanup**
 
 **Current Registry Keys:** 492 (reduced from 495)
 - Removed 3 keys:

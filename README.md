@@ -873,15 +873,14 @@ The authors are not responsible for any damage or data loss caused by this scrip
 **Last Updated:** November 13, 2025  
 **Status:** Production-Ready 
 
-### 🐛 Bugfix Release (v1.8.3) - Critical Fixes: ADMIN_nexus, UAC, Edge Passkeys
+### 🔧 Maintenance Release (v1.8.3) - Registry Audit & Minor Improvements
 
-**🚀 Headline:** Three critical bugs fixed - orphan profile creation, UAC prompt behavior, and Edge authentication!
+**🚀 Headline:** Code cleanup and registry key optimization!
 
-**Critical Fixes:**
-- 🐛 **ADMIN_nexus Profile** - Fixed orphaned security template SID causing profile creation
-- 🐛 **UAC Prompt** - Reverted to MS Baseline values (Administrator Protection Mode compliance)
-- 🐛 **Edge Passkeys** - Removed SyncDisabled (blocks auth), kept SyncTypesListDisabled (blocks sync)
-- 📊 **Registry Audit** - Reduced to 492 keys (removed 3 duplicates/obsolete)
+**Changes:**
+- 📊 **Registry Audit** - Reduced to 492 keys (removed 3 duplicates/obsolete entries)
+- 🔧 **Minor Fixes** - Code cleanup and documentation improvements
+- 📝 **Version Update** - Consistent versioning across all files
 
 **→ See [CHANGELOG.md](CHANGELOG.md) for complete v1.8.3 details**
 
