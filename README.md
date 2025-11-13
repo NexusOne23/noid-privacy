@@ -718,7 +718,7 @@ This project uses GitHub Actions for automated quality checks and releases:
 - Automatic GitHub Release creation
 - Changelog generation from commits
 - Release archive with SHA256 checksums
-- Usage: `git tag v1.8.2 && git push --tags`
+- Usage: `git tag v1.8.3 && git push --tags`
 
 **Code Signing** (Prepared for SignPath Foundation)
 - Status: Pending approval (Application submitted Oct 30, 2025)
@@ -873,6 +873,21 @@ The authors are not responsible for any damage or data loss caused by this scrip
 **Last Updated:** November 13, 2025  
 **Status:** Production-Ready 
 
+### 🐛 Bugfix Release (v1.8.3) - Critical Fixes: ADMIN_nexus, UAC, Edge Passkeys
+
+**🚀 Headline:** Three critical bugs fixed - orphan profile creation, UAC prompt behavior, and Edge authentication!
+
+**Critical Fixes:**
+- 🐛 **ADMIN_nexus Profile** - Fixed orphaned security template SID causing profile creation
+- 🐛 **UAC Prompt** - Reverted to MS Baseline values (Administrator Protection Mode compliance)
+- 🐛 **Edge Passkeys** - Removed SyncDisabled (blocks auth), kept SyncTypesListDisabled (blocks sync)
+- 📊 **Registry Audit** - Reduced to 492 keys (removed 3 duplicates/obsolete)
+
+**→ See [CHANGELOG.md](CHANGELOG.md) for complete v1.8.3 details**
+
+<details>
+<summary><b>Previous Releases (click to expand)</b></summary>
+
 ### ✨ Feature Release (v1.8.2) - Network Discovery User Choice + Critical Bugfix
 
 **🚀 Headline:** Network discovery protocols now user-configurable! Balance Fortune 500 security with home user convenience.
@@ -894,9 +909,6 @@ The authors are not responsible for any damage or data loss caused by this scrip
 - ✅ **Security Maintained** - All protection features remain active (PUA, Cloud Protection, Real-Time Protection)
 
 **→ See [CHANGELOG.md](CHANGELOG.md) for complete v1.8.2 details**
-
-<details>
-<summary><b>Previous Releases (click to expand)</b></summary>
 
 ### 🐛 Bugfix Release (v1.8.1) - Critical Parser Errors Fixed
 
