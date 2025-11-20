@@ -6,7 +6,7 @@ REM
 REM This script launches NoIDPrivacy-Interactive.ps1 with
 REM Administrator privileges (auto-elevation).
 REM
-REM Author: NoID Privacy Pro Team
+REM Author: NexusOne23
 REM Version: 2.1.0
 REM ========================================
 

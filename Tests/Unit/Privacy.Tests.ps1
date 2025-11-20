@@ -7,7 +7,7 @@
     Tests return values, DryRun behavior, mode selection, and compliance.
     
 .NOTES
-    Author: NoID Privacy Pro Team
+    Author: NexusOne23
     Version: 2.1.0
     Requires: Pester 5.0+
 #>

@@ -9,13 +9,13 @@
     GUID = '8e3f4c2a-9b1d-4e7a-a2c5-6f8b3d9e1a4c'
     
     # Author of this module
-    Author = 'NoID Privacy Pro Team'
+    Author = 'NexusOne23'
     
     # Company or vendor of this module
-    CompanyName = 'NoID Privacy Pro'
+    CompanyName = 'Open Source Project'
     
     # Copyright statement for this module
-    Copyright = '(c) 2025 NoID Privacy Pro Team. All rights reserved.'
+    Copyright = '(c) 2025 NexusOne23. Licensed under GPL-3.0.'
     
     # Description of the functionality provided by this module
     Description = 'Microsoft Edge Security Hardening based on MS Edge v139 Security Baseline. Applies 20 security policies to harden Microsoft Edge browser using native PowerShell (no LGPO.exe dependency). Includes SmartScreen enforcement, site isolation, SSL/TLS hardening, extension blocking, and IE mode restrictions.'

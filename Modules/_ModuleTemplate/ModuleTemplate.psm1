@@ -8,7 +8,7 @@
     and follow PowerShell 5.1 best practices.
     
 .NOTES
-    Author: NoID Privacy Pro Team
+    Author: NexusOne23
     Version: 1.0.0
     Requires: PowerShell 5.1+
     

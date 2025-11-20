@@ -9,13 +9,13 @@
     GUID = '00000000-0000-0000-0000-000000000000'
     
     # Author of this module
-    Author = 'NoID Privacy Pro Team'
+    Author = 'NexusOne23'
     
     # Company or vendor of this module
-    CompanyName = 'NoID Privacy Pro'
+    CompanyName = 'Open Source Project'
     
     # Copyright statement for this module
-    Copyright = '(c) 2025 NoID Privacy Pro Team. All rights reserved.'
+    Copyright = '(c) 2025 NexusOne23. Licensed under GPL-3.0.'
     
     # Description of the functionality provided by this module
     Description = 'Template module for NoID Privacy Pro hardening modules. Implements BACKUP/APPLY/VERIFY/RESTORE pattern.'

@@ -7,7 +7,7 @@
     from JSON configuration files.
     
 .NOTES
-    Author: NoID Privacy Pro Team
+    Author: NexusOne23
     Version: 2.1.0
     Requires: PowerShell 5.1+
 #>

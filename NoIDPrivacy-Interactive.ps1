@@ -11,7 +11,7 @@
     - Guided workflow
     
 .NOTES
-    Author: NoID Privacy Pro Team
+    Author: NexusOne23
     Version: 2.1.0
     Requires: PowerShell 5.1+, Administrator
     For CLI mode use: NoIDPrivacy.ps1 -Module <name>

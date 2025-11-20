@@ -22,7 +22,7 @@
     PSCustomObject with compliance status and details
     
 .NOTES
-    Author: NoID Privacy Pro Team
+    Author: NexusOne23
     Version: 2.1.0
     Can be run without Administrator privileges
 #>

@@ -7,7 +7,7 @@
     All test files must end with .Tests.ps1
     
 .NOTES
-    Author: NoID Privacy Pro Team
+    Author: NexusOne23
     Version: 2.1.0
     Requires: Pester 5.0+
 #>

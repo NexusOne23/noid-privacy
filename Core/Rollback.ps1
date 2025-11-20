@@ -7,7 +7,7 @@
     Creates backups before changes and provides rollback capabilities.
     
 .NOTES
-    Author: NoID Privacy Pro Team
+    Author: NexusOne23
     Version: 2.1.0
     Requires: PowerShell 5.1+
 #>

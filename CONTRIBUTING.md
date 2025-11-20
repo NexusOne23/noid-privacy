@@ -143,7 +143,7 @@ v2.1.0 - Initial Release
     RootModule = 'AdvancedSecurity.psm1'
     ModuleVersion = '2.1.0'
     GUID = 'a1b2c3d4-e5f6-7890-abcd-ef1234567890'
-    Author = 'NoID Privacy Pro Team'
+    Author = 'NexusOne23'
     Description = 'Advanced Security hardening beyond Microsoft Security Baseline'
     
     FunctionsToExport = @(

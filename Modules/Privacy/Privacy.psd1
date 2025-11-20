@@ -2,9 +2,9 @@
     RootModule = 'Privacy.psm1'
     ModuleVersion = '2.1.0'
     GUID = 'a9f7c8d3-2e5b-4a1f-9c3d-7e8f5a6b2c4d'
-    Author = 'NoID Privacy Pro'
-    CompanyName = 'NoID Privacy'
-    Copyright = '(c) 2025 NoID Privacy. All rights reserved.'
+    Author = 'NexusOne23'
+    CompanyName = 'Open Source Project'
+    Copyright = '(c) 2025 NexusOne23. Licensed under GPL-3.0.'
     Description = 'Privacy & Telemetry hardening module with Bloatware removal and OneDrive configuration. Supports 3 modes: MSRecommended (default), Strict (maximum privacy), and Paranoid (hardcore).'
     
     PowerShellVersion = '5.1'

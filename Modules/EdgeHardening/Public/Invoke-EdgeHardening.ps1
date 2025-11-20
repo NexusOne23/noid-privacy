@@ -47,7 +47,7 @@
     PSCustomObject with results including success status and any errors
     
 .NOTES
-    Author: NoID Privacy Pro Team
+    Author: NexusOne23
     Version: 2.1.0
     Requires: PowerShell 5.1+, Administrator privileges
     

@@ -20,7 +20,7 @@ function Block-FingerProtocol {
         Blocks outbound finger protocol connections
         
     .NOTES
-        Author: NoID Privacy Pro Team
+        Author: NexusOne23
         Version: 2.1.0
         Requires: Administrator privileges
         

@@ -7,7 +7,7 @@
     file output, and optional console output with color coding.
     
 .NOTES
-    Author: NoID Privacy Pro Team
+    Author: NexusOne23
     Version: 2.1.0
     Requires: PowerShell 5.1+
 #>

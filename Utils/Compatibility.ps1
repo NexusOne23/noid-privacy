@@ -7,7 +7,7 @@
     and core framework functions. Maps old function names to new names.
     
 .NOTES
-    Author: NoID Privacy Pro Team
+    Author: NexusOne23
     Version: 2.1.0
     Requires: PowerShell 5.1+
 #>

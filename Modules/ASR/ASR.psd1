@@ -2,9 +2,9 @@
     RootModule = 'ASR.psm1'
     ModuleVersion = '2.1.0'
     GUID = 'b2c3d4e5-f6a7-8901-bcde-f23456789012'
-    Author = 'NoID Privacy Pro Team'
-    CompanyName = 'NoID Privacy Pro'
-    Copyright = '(c) 2025 NoID Privacy Pro. All rights reserved.'
+    Author = 'NexusOne23'
+    CompanyName = 'Open Source Project'
+    Copyright = '(c) 2025 NexusOne23. Licensed under GPL-3.0.'
     Description = 'Attack Surface Reduction (ASR) - All 19 Microsoft Defender ASR rules in Block mode for maximum protection against modern threats'
     
     PowerShellVersion = '5.1'

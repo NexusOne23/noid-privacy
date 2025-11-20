@@ -1,4 +1,4 @@
-﻿<#
+<#
 .SYNOPSIS
     Complete verification of all applied hardening settings
     
@@ -26,7 +26,7 @@
     AdvancedSecurity: 42
     
 .NOTES
-    Author: NoID Privacy Pro Team
+    Author: NexusOne23
     Version: 2.1.0
 #>
 

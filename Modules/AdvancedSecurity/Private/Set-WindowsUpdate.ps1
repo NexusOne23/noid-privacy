@@ -19,7 +19,7 @@ function Set-WindowsUpdate {
         Set-WindowsUpdate
         
     .NOTES
-        Author: NoID Privacy Pro Team
+        Author: NexusOne23
         Version: 2.1.0
         Requires: Administrator privileges
         Based on: Windows Settings > Windows Update > Advanced options

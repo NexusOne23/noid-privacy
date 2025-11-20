@@ -8,13 +8,13 @@
     GUID              = 'e7f5a3d2-8c9b-4f1e-a6d3-9b2c8f4e5a1d'
     
     # Author
-    Author            = 'NoID Privacy Pro Team'
+    Author            = 'NexusOne23'
     
     # Company
-    CompanyName       = 'NoID Privacy'
+    CompanyName       = 'Open Source Project'
     
     # Copyright
-    Copyright         = '(c) 2025 NoID Privacy. All rights reserved.'
+    Copyright         = '(c) 2025 NexusOne23. Licensed under GPL-3.0.'
     
     # Description
     Description       = 'Advanced Security hardening beyond Microsoft Security Baseline: RDP hardening, WDigest protection, Admin Shares disable, Risky Ports/Services, Legacy TLS/WPAD/PSv2, SRP .lnk protection (CVE-2025-9491), Windows Update (3 simple GUI settings), Finger Protocol block. 42 settings total (37 legacy + SRP 2 + Windows Update 3). Profile-based execution (Home/Enterprise/AirGapped) with domain-safety checks and full backup/restore.'
