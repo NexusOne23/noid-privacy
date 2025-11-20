@@ -29,8 +29,8 @@
 ### Components:
 
 #### Registry Policies (335 settings)
-- Computer Configuration policies (300+ settings)
-- User Configuration policies (35 settings)
+- Computer Configuration policies (330 settings)
+- User Configuration policies (5 settings)
 - Windows Defender Antivirus baseline
 - Windows Firewall configuration
 - BitLocker drive encryption settings

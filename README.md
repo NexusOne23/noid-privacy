@@ -70,7 +70,7 @@
 - System Image (wbadmin, Macrium Reflect, Acronis)
 - Hyper-V/VMware: Checkpoint/Snapshot
 
-** The tool will prompt you to confirm backup exists before proceeding!**
+**⚠️ IMPORTANT: Create your backup BEFORE running the tool. The tool does NOT verify backup existence.**
 
 ---
 
@@ -211,9 +211,9 @@
 
 **What sets us apart:**
 - **100% Coverage** All 583 settings verified (not just applied!)
-- **Zero Errors** Professional code quality (external audit: 9.5/10)
+- **Professional Code Quality** Advanced functions, comprehensive error handling
 - **Complete Restore** Registry, Services, Tasks, Files - everything
-- **Production-Ready** Zero known issues after deep code analysis
+- **Production-Ready** Tested on Windows 11 25H2, PowerShell 5.1+
 
 **Before v2.1.0:** 89.4% verification coverage (62 settings missing) 
 **After v2.1.0:** 100% verification coverage (all 583 settings verified) 

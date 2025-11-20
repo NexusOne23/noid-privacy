@@ -129,12 +129,12 @@ NoID Privacy Pro implements multiple security layers:
 
 ### Third-Party Software Compatibility
 - ⚠️ ASR rules may block unknown installers
-- ⚠️ Strict firewall rules may affect some applications
+- ⚠️ Some hardening settings may affect application functionality
 - ✅ **Solution**: Temporarily disable specific ASR rules (see README)
 
 ### Rollback Limitations
-- ⚠️ Bloatware removal is partially reversible
-- ⚠️ Windows Updates cannot be "un-installed"
+- ⚠️ Bloatware removal is partially reversible (policy-based on 25H2+ Enterprise/Education)
+- ⚠️ Some changes require manual reverification after restore
 - ✅ **Solution**: Test in VM first, maintain system backups
 
 ---
@@ -147,12 +147,17 @@ NoID Privacy Pro implements multiple security layers:
 
 ---
 
-## 🔍 Security Audit History
+## 🔍 Code Quality
 
-### External Audits
-- **v2.1.0**: Code quality audit - 9.5/10 score (November 2025)
-- **PSScriptAnalyzer**: Zero warnings/errors
-- **Pester Tests**: 100% pass rate
+### Testing & Validation
+- **PSScriptAnalyzer**: Available for static analysis
+- **Pester Tests**: Unit and integration tests available in `Tests/` directory
+- **Verification**: 583 automated compliance checks in production
+
+Run tests yourself:
+```powershell
+.\Tests\Run-Tests.ps1
+```
 
 ### Vulnerability Disclosures
 *No security vulnerabilities reported to date.*

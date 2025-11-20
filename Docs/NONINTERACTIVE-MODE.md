@@ -279,28 +279,21 @@ $env:NOIDPRIVACY_NONINTERACTIVE = "true"
 
 ## Return Codes
 
-The framework returns standard exit codes for automation:
-
-| Exit Code | Meaning |
-|-----------|---------|
-| `0` | Success - all modules executed successfully |
-| `1` | Partial failure - some modules failed |
-| `2` | Prerequisites failed - system requirements not met |
-| `3` | Configuration error - invalid config.json |
-| `10` | User cancelled (interactive mode only) |
+**Note:** Exit codes are currently not implemented. Error handling should be done via try/catch blocks and checking the log files.
 
 ### **Example: Error Handling in Scripts**
 
 ```powershell
-.\NoIDPrivacy.ps1 -Module All
-
-if ($LASTEXITCODE -eq 0) {
+try {
+    .\NoIDPrivacy.ps1 -Module All -ErrorAction Stop
     Write-Output "Hardening completed successfully"
-} elseif ($LASTEXITCODE -eq 1) {
-    Write-Warning "Hardening completed with errors"
-} else {
-    Write-Error "Hardening failed critically"
-    exit $LASTEXITCODE
+}
+catch {
+    Write-Error "Hardening failed: $_"
+    # Check logs for details
+    $latestLog = Get-ChildItem "Logs" -Filter "NoIDPrivacy-*.log" | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+    Get-Content $latestLog.FullName | Select-String "ERROR"
+    exit 1
 }
 ```
 
@@ -343,7 +336,12 @@ Always maintain rollback capability:
 ```powershell
 # Before mass deployment, test rollback
 .\NoIDPrivacy.ps1 -Module DNS
-.\NoIDPrivacy.ps1 -Restore -BackupId "DNS_20250116_120000"
+
+# Restore from latest backup (uses Core\Rollback.ps1)
+.\Core\Rollback.ps1 -RestoreLatest
+
+# Or restore specific module
+.\Modules\DNS\Public\Restore-DNSSettings.ps1
 
 # Verify rollback worked
 .\Tools\Verify-Complete-Hardening.ps1
