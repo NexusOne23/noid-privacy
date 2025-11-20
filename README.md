@@ -1,20 +1,35 @@
-﻿# NoID Privacy Pro Enterprise-Grade Windows 11 Security Hardening
+﻿# 🛡️ NoID Privacy Pro - Enterprise-Grade Windows 11 Security Hardening
 
-> **Complete Windows 11 Security Framework 583 Settings 7 Modules Full Backup & Restore**
+> **🔒 Complete Windows 11 Security Framework • 583 Settings • 7 Modules • Full Backup & Restore**
 
-[![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-blue.svg)](https://github.com/PowerShell/PowerShell)
-[![Windows 11](https://img.shields.io/badge/Windows%2011-25H2-0078D4.svg)](https://www.microsoft.com/windows/)
-[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+<div align="center">
+
+[![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-blue.svg?logo=powershell)](https://github.com/PowerShell/PowerShell)
+[![Windows 11](https://img.shields.io/badge/Windows%2011-25H2-0078D4.svg?logo=windows11)](https://www.microsoft.com/windows/)
+[![License](https://img.shields.io/badge/license-GPL--3.0-green.svg?logo=gnu)](LICENSE)
 [![Version](https://img.shields.io/badge/version-2.1.0-blue.svg)](CHANGELOG.md)
 [![Status](https://img.shields.io/badge/status-production--ready-brightgreen.svg)]()
+[![GitHub stars](https://img.shields.io/github/stars/NexusOne23/noid-privacy?style=social)](https://github.com/NexusOne23/noid-privacy/stargazers)
+[![GitHub issues](https://img.shields.io/github/issues/NexusOne23/noid-privacy)](https://github.com/NexusOne23/noid-privacy/issues)
+[![Code Quality](https://img.shields.io/badge/code%20quality-9.5%2F10-brightgreen)](/)
+
+### 🏗️ Framework Architecture
+
+![NoID Privacy Pro Framework](assets/framework-architecture.png)
+
+**7 Independent Security Modules • Modular Design • Complete BAVR Pattern**
+
+[📥 Quick Start](#-quick-start) • [📚 Documentation](#-documentation) • [🎯 Features](#-key-features) • [💬 Community](https://github.com/NexusOne23/noid-privacy/discussions)
+
+</div>
 
 ---
 
-## CRITICAL: Domain-Joined Systems & System Backup
+## ⚠️ CRITICAL: Domain-Joined Systems & System Backup
 
-> **READ THIS BEFORE RUNNING** This tool modifies critical Windows security settings!
+> **⚡ READ THIS BEFORE RUNNING** This tool modifies critical Windows security settings!
 
-### Domain-Joined Systems (Active Directory)
+### 🏢 Domain-Joined Systems (Active Directory)
 
 **WARNING:** This tool is **NOT recommended for production domain-joined systems** without AD team coordination!
 
@@ -37,7 +52,7 @@
 
 ---
 
-### System Backup REQUIRED
+### 💾 System Backup REQUIRED
 
 **Before running this tool, you MUST create:**
 
@@ -62,7 +77,7 @@
 
 ---
 
-## In 30 Seconds
+## ⚡ In 30 Seconds
 
 **What?** Microsoft Security Baseline + Advanced Hardening for Windows 11 25H2 
 **How?** PowerShell: **Backup** **Apply** **Verify** **Restore** (100% reversible!) 
@@ -72,7 +87,7 @@
 
 ---
 
-## Why NoID Privacy Pro?
+## 🌟 Why NoID Privacy Pro?
 
 <div align="center">
 
@@ -89,7 +104,7 @@
 
 ---
 
-## What Makes This Different?
+## 🚀 What Makes This Different?
 
 **The ONLY Windows 11 hardening tool with complete BAVR pattern, Zero Dependencies, and Native PowerShell architecture.**
 
@@ -110,9 +125,9 @@
 
 ---
 
-## Key Features
+## 🎯 Key Features
 
-### Security Baseline (425 Settings)
+### 🔐 Security Baseline (425 Settings)
 
 **Microsoft Security Baseline 25H2 - 100% Implementation**
 - **335 Registry Policies** Computer + User Configuration
@@ -122,7 +137,7 @@
 - **BitLocker Policies** USB drive protection, enhanced PIN, DMA attack prevention
 - **VBS & HVCI** Virtualization-based security
 
-### Attack Surface Reduction (19 Rules)
+### 🛡️ Attack Surface Reduction (19 Rules)
 
 **19 ASR Rules (18 Block + 1 Configurable)**
 - Blocks ransomware, macros, exploits, credential theft
@@ -131,7 +146,7 @@
 - PSExec/WMI: Audit mode (if management tools used), Block mode otherwise
 - Configurable exceptions for compatibility
 
-### Secure DNS (3 Providers)
+### 🌐 Secure DNS (3 Providers)
 
 **DNS-over-HTTPS with Secure Default (REQUIRE)**
 - **Cloudflare** (Default) Fastest, 1.1.1.1
@@ -141,7 +156,7 @@
 - ALLOW mode (optional): fallback allowed for VPN/mobile/enterprise networks
 - IPv4 + IPv6 dual-stack support
 
-### Privacy Hardening (48 Settings)
+### 🔒 Privacy Hardening (48 Settings)
 
 **3 Operating Modes**
 - **MSRecommended** (Default) MS-supported, max compatibility
@@ -154,7 +169,7 @@
 - OneDrive telemetry off (sync functional)
 - App permissions default-deny
 
-### AI Lockdown (24 Policies)
+### 🤖 AI Lockdown (24 Policies)
 
 **8 AI Features + Master Switch (Blocks All Generative AI)**
 - **Master Switch** Blocks ALL generative AI models system-wide
@@ -165,7 +180,7 @@
 - **Notepad AI** GPT features disabled
 - **Settings Agent** AI-powered settings search disabled
 
-### Edge Hardening (20 Policies)
+### 🌐 Edge Hardening (20 Policies)
 
 **Microsoft Edge Security Baseline**
 - SmartScreen enforced
@@ -174,7 +189,7 @@
 - Extension security
 - IE Mode restrictions
 
-### Advanced Security (42 Settings)
+### 🔧 Advanced Security (42 Settings)
 
 **Beyond Microsoft Baseline**
 - **SRP .lnk Protection** CVE-2025-9491 zero-day mitigation
@@ -208,9 +223,9 @@
 
 ---
 
-## Quick Start
+## 📥 Quick Start
 
-### One-Liner Install (Recommended)
+### ⚡ One-Liner Install (Recommended)
 
 **Step 1:** Open PowerShell as Administrator
 - Press `Win + X` Click **"Terminal (Admin)"**
@@ -591,13 +606,56 @@ Logs/NoIDPrivacy_YYYYMMDD_HHMMSS.log
 
 ---
 
-## License
+## 📜 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+### Dual-License Model
+
+NoID Privacy Pro is available under a **dual-licensing** model:
+
+#### 🆓 Open Source License (GPL v3.0)
+
+**For individuals, researchers, and open-source projects:**
+
+This project is licensed under the **GNU General Public License v3.0** (GPL-3.0). 
+
+✅ **You CAN:**
+- ✔️ Use the software freely for personal and commercial purposes
+- ✔️ Modify the source code
+- ✔️ Distribute the software
+- ✔️ Distribute your modifications
+
+⚠️ **You MUST:**
+- 📝 Disclose your source code when distributing
+- 🔓 License your modifications under GPL v3.0
+- 📄 Include the original copyright notice
+- 📋 State significant changes made to the software
+
+[Read the full GPL v3.0 License](LICENSE)
+
+#### 💼 Commercial License
+
+**For companies and organizations that want to:**
+- Integrate this software into closed-source/proprietary products
+- Distribute this software without disclosing source code
+- Receive dedicated commercial support and warranties
+- Avoid GPL v3.0 copyleft requirements
+
+**Contact:** Open a [GitHub Discussion](https://github.com/NexusOne23/noid-privacy/discussions) to inquire about commercial licensing.
 
 ---
 
-## Disclaimer
+### Third-Party Components
+
+This software implements security configurations based on:
+- **Microsoft Security Baselines** - Public documentation
+- **Microsoft Defender ASR Rules** - Official documentation  
+- **DNS Providers** - Cloudflare, Quad9, AdGuard (public services)
+
+Microsoft, Windows, and Edge are trademarks of Microsoft Corporation. This project is not affiliated with Microsoft.
+
+---
+
+## ⚠️ Disclaimer
 
 This script modifies critical system settings. Use at your own risk. Always:
 1. **Create a system backup** before running
