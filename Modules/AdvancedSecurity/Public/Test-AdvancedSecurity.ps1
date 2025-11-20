@@ -1,0 +1,114 @@
+function Test-AdvancedSecurity {
+    <#
+    .SYNOPSIS
+        Test Advanced Security compliance
+    
+    .DESCRIPTION
+        Runs all compliance tests for Advanced Security hardening and returns
+        a comprehensive report of the current security posture.
+        
+        Tests include:
+        - RDP Security (NLA enforcement, SSL/TLS, disable status)
+        - WDigest Protection (credential caching disabled)
+        - Administrative Shares (disabled and removed)
+        - Risky Firewall Ports (LLMNR, NetBIOS, UPnP/SSDP closed)
+        - Risky Network Services (SSDPSRV, upnphost, lmhosts stopped)
+    
+    .EXAMPLE
+        Test-AdvancedSecurity
+        Runs all compliance tests and displays results
+    
+    .EXAMPLE
+        $results = Test-AdvancedSecurity
+        $results | Format-Table
+    
+    .OUTPUTS
+        Array of PSCustomObjects with compliance results
+    #>
+    [CmdletBinding()]
+    param()
+    
+    try {
+        Write-Host ""
+        Write-Host "============================================" -ForegroundColor Cyan
+        Write-Host "  ADVANCED SECURITY COMPLIANCE TEST" -ForegroundColor Cyan
+        Write-Host "============================================" -ForegroundColor Cyan
+        Write-Host ""
+        
+        $results = @()
+        
+        # 1. RDP Security
+        Write-Host "Testing RDP Security..." -ForegroundColor Gray
+        $rdpTest = Test-RdpSecurity
+        $results += $rdpTest
+        
+        # 2. WDigest Protection
+        Write-Host "Testing WDigest Protection..." -ForegroundColor Gray
+        $wdigestTest = Test-WDigest
+        $results += $wdigestTest
+        
+        # 3. Admin Shares
+        Write-Host "Testing Administrative Shares..." -ForegroundColor Gray
+        $adminSharesTest = Test-AdminShares
+        $results += $adminSharesTest
+        
+        # 4. Risky Ports
+        Write-Host "Testing Risky Firewall Ports..." -ForegroundColor Gray
+        $riskyPortsTest = Test-RiskyPorts
+        $results += $riskyPortsTest
+        
+        # 5. Risky Services
+        Write-Host "Testing Risky Network Services..." -ForegroundColor Gray
+        $riskyServicesTest = Test-RiskyServices
+        $results += $riskyServicesTest
+        
+        # 6. SRP Configuration (CVE-2025-9491)
+        Write-Host "Testing SRP Configuration (CVE-2025-9491)..." -ForegroundColor Gray
+        $srpTest = Test-SRPCompliance
+        $results += $srpTest
+        
+        # 7. Windows Update Configuration
+        Write-Host "Testing Windows Update Configuration..." -ForegroundColor Gray
+        $wuTest = Test-WindowsUpdate
+        $results += $wuTest
+        
+        # Summary
+        Write-Host ""
+        Write-Host "============================================" -ForegroundColor Cyan
+        Write-Host "  COMPLIANCE SUMMARY" -ForegroundColor Cyan
+        Write-Host "============================================" -ForegroundColor Cyan
+        Write-Host ""
+        
+        $compliantCount = ($results | Where-Object { $_.Compliant -eq $true }).Count
+        $totalTests = $results.Count
+        $compliancePercent = [math]::Round(($compliantCount / $totalTests) * 100, 1)
+        
+        Write-Host "Total Tests:    $totalTests" -ForegroundColor White
+        Write-Host "Compliant:      $compliantCount" -ForegroundColor Green
+        Write-Host "Non-Compliant:  $($totalTests - $compliantCount)" -ForegroundColor Red
+        Write-Host "Compliance:     $compliancePercent%" -ForegroundColor $(if ($compliancePercent -ge 80) { 'Green' } elseif ($compliancePercent -ge 50) { 'Yellow' } else { 'Red' })
+        Write-Host ""
+        
+        # Detailed results table
+        Write-Host "DETAILED RESULTS:" -ForegroundColor White
+        Write-Host ""
+        
+        $tableFormat = @{Expression = { $_.Feature }; Label = "Feature"; Width = 30 },
+        @{Expression = { $_.Status }; Label = "Status"; Width = 20 },
+        @{Expression = { if ($_.Compliant) { "[X]" }else { "[ ]" } }; Label = "Compliant"; Width = 10 }
+        
+        $results | Format-Table $tableFormat -AutoSize
+        
+        Write-Host ""
+        
+        return $results
+    }
+    catch {
+        Write-Log -Level ERROR -Message "Failed to run compliance tests: $_" -Module "AdvancedSecurity" -Exception $_.Exception
+        Write-Host ""
+        Write-Host "ERROR: Failed to run compliance tests" -ForegroundColor Red
+        Write-Host $_.Exception.Message -ForegroundColor Gray
+        Write-Host ""
+        return $null
+    }
+}

@@ -1,0 +1,36 @@
+{
+  "Description": "BitLocker removable drive encryption policies",
+  "Documentation": "https://learn.microsoft.com/en-us/windows/security/information-protection/bitlocker/",
+  
+  "RemovableDriveProtection": {
+    "RDVDenyWriteAccess": {
+      "Description": "Deny write access to removable drives not protected by BitLocker",
+      "Behavior": {
+        "When_Enabled_1": "USB drives are READ-ONLY until encrypted. Shows prompt: 'Encrypt this drive with BitLocker?'",
+        "When_Disabled_0": "USB drives work normally (no prompt, no encryption requirement)"
+      },
+      "DefaultValue": 0,
+      "RecommendedFor": {
+        "HomeUsers": 0,
+        "Enterprise": 1,
+        "HighSecurity": 1
+      },
+      "SecurityImpact": {
+        "DataExfiltrationRisk": "HIGH if disabled - USB drives can be used without encryption",
+        "MalwareRisk": "MEDIUM - ASR and Defender still scan USB drives",
+        "Usability": "HIGH impact - users expect normal USB behavior"
+      },
+      "AlternativeSecurity": [
+        "ASR Rules block executable content from USB",
+        "Defender Antivirus scans removable drives (DisableRemovableDriveScanning=0)",
+        "Users can still manually encrypt with BitLocker (right-click → Turn on BitLocker)"
+      ]
+    }
+  },
+  
+  "ApplyBehavior": {
+    "Interactive": true,
+    "PromptUser": true,
+    "PromptMessage": "BitLocker USB Protection:\n\nDo you want to require BitLocker encryption for USB drives?\n\nYES: USB drives will be READ-ONLY until encrypted (shows encryption prompt)\nNO:  USB drives work normally (manual encryption available)\n\nRecommended for HOME USERS: NO\nRecommended for ENTERPRISE: YES"
+  }
+}

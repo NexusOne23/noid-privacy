@@ -1,0 +1,67 @@
+#Requires -Version 5.1
+#Requires -RunAsAdministrator
+
+<#
+.SYNOPSIS
+    Privacy & Telemetry hardening module loader
+
+.DESCRIPTION
+    Loads all Privacy module functions for Windows 11 telemetry control,
+    personalization settings, bloatware removal, and OneDrive configuration.
+    
+    Supports 3 operating modes:
+    - MSRecommended: Fully supported by Microsoft (default)
+    - Strict: Maximum privacy (AllowTelemetry=0 only on Enterprise/Education, other settings work everywhere)
+    - Paranoid: Hardcore mode (not recommended)
+
+.NOTES
+    Module: Privacy
+    Version: 2.1.0
+    Author: NoID Privacy Pro
+#>
+
+# Get module root path
+$script:ModuleRoot = $PSScriptRoot
+
+# Import private functions
+$privateFunctions = @(
+    'Backup-PrivacySettings',
+    'Restore-PrivacySettings',
+    'Set-TelemetrySettings',
+    'Set-PersonalizationSettings',
+    'Set-AppPrivacySettings',
+    'Set-OneDriveSettings',
+    'Set-PolicyBasedAppRemoval',
+    'Disable-TelemetryServices',
+    'Disable-TelemetryTasks',
+    'Remove-Bloatware',
+    'Restore-Bloatware'
+)
+
+foreach ($function in $privateFunctions) {
+    $functionPath = Join-Path $ModuleRoot "Private\$function.ps1"
+    if (Test-Path $functionPath) {
+        . $functionPath
+    }
+}
+
+# Import Test-PrivacyCompliance (located in module root)
+$testCompliancePath = Join-Path $ModuleRoot "Test-PrivacyCompliance.ps1"
+if (Test-Path $testCompliancePath) {
+    . $testCompliancePath
+}
+
+# Import public functions
+$publicFunctions = @(
+    'Invoke-PrivacyHardening'
+)
+
+foreach ($function in $publicFunctions) {
+    $functionPath = Join-Path $ModuleRoot "Public\$function.ps1"
+    if (Test-Path $functionPath) {
+        . $functionPath
+    }
+}
+
+# Export public functions + Test-PrivacyCompliance (needed for Invoke-PrivacyHardening verification)
+Export-ModuleMember -Function @($publicFunctions + 'Test-PrivacyCompliance')

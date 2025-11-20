@@ -1,0 +1,243 @@
+{
+  "Mode": "Paranoid",
+  "Description": "Hardcore privacy - Works on all editions (NOT recommended for production)",
+  "BestFor": "Air-gapped systems, extreme privacy requirements only",
+  "Warnings": [
+    "AllowTelemetry=0: Enterprise/Education only (Pro falls back to Required=1)",
+    "Force Deny Mic/Camera: BREAKS Teams/Zoom/Skype on ALL editions",
+    "WerSvc disabled: NO error reporting to Microsoft on ALL editions",
+    "Scheduled tasks disabled: May affect compatibility analysis on ALL editions",
+    "Support severely limited: NOT recommended for production systems",
+    "May cause stability issues: Use only in controlled environments"
+  ],
+  
+  "DataCollection": {
+    "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\DataCollection": {
+      "AllowTelemetry": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "Diagnostic data OFF"
+      },
+      "LimitDiagnosticLogCollection": {
+        "Type": "DWord",
+        "Value": 1,
+        "Description": "Limit additional diagnostic log collection"
+      },
+      "DoNotShowFeedbackNotifications": {
+        "Type": "DWord",
+        "Value": 1,
+        "Description": "No feedback popups"
+      }
+    }
+  },
+  
+  "Personalization": {
+    "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\CloudContent": {
+      "DisableTailoredExperiencesWithDiagnosticData": {
+        "Type": "DWord",
+        "Value": 1,
+        "Description": "No personalized tips from diagnostic data"
+      },
+      "DisableWindowsSpotlightFeatures": {
+        "Type": "DWord",
+        "Value": 1,
+        "Description": "Disable all Windows Spotlight features"
+      },
+      "DisableWindowsSpotlightOnSettings": {
+        "Type": "DWord",
+        "Value": 1,
+        "Description": "No Spotlight on Settings page"
+      },
+      "DisableWindowsSpotlightOnActionCenter": {
+        "Type": "DWord",
+        "Value": 1,
+        "Description": "No Spotlight on Action Center"
+      },
+      "DisableThirdPartySuggestions": {
+        "Type": "DWord",
+        "Value": 1,
+        "Description": "No third-party suggestions"
+      },
+      "DisableSpotlightCollectionOnDesktop": {
+        "Type": "DWord",
+        "Value": 1,
+        "Description": "No Spotlight collection on desktop"
+      }
+    },
+    "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\AdvertisingInfo": {
+      "DisabledByGroupPolicy": {
+        "Type": "DWord",
+        "Value": 1,
+        "Description": "Disable Advertising ID (via Group Policy)"
+      }
+    },
+    "HKCU:\\Software\\Policies\\Microsoft\\Windows\\Explorer": {
+      "DisableSoftLanding": {
+        "Type": "DWord",
+        "Value": 1,
+        "Description": "No tips and suggestions bubbles"
+      }
+    }
+  },
+  
+  "SearchAndCloud": {
+    "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Windows Search": {
+      "DisableWebSearch": {
+        "Type": "DWord",
+        "Value": 1,
+        "Description": "No web search in Start menu"
+      },
+      "ConnectedSearchUseWeb": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "No connected search to web"
+      },
+      "AllowCloudSearch": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "No cloud search"
+      },
+      "AllowCortana": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "Disable Cortana (legacy)"
+      }
+    }
+  },
+  
+  "InputAndSync": {
+    "HKLM:\\SOFTWARE\\Policies\\Microsoft\\InputPersonalization": {
+      "AllowInputPersonalization": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "No cloud-based input personalization"
+      }
+    },
+    "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\System": {
+      "EnableActivityFeed": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "Disable activity feed"
+      },
+      "PublishUserActivities": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "Don't publish user activities"
+      },
+      "UploadUserActivities": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "Don't upload user activities to cloud"
+      }
+    },
+    "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\SettingSync": {
+      "DisableSettingSync": {
+        "Type": "DWord",
+        "Value": 1,
+        "Description": "Disable settings sync"
+      },
+      "DisableSettingSyncUserOverride": {
+        "Type": "DWord",
+        "Value": 1,
+        "Description": "User cannot override sync disable"
+      }
+    }
+  },
+  
+  "LocationAndAppPrivacy": {
+    "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\LocationAndSensors": {
+      "DisableLocation": {
+        "Type": "DWord",
+        "Value": 1,
+        "Description": "Disable location services"
+      }
+    },
+    "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\AppPrivacy": {
+      "LetAppsAccessLocation": {
+        "Type": "DWord",
+        "Value": 2,
+        "Description": "Force Deny location access for apps"
+      },
+      "LetAppsAccessRadios": {
+        "Type": "DWord",
+        "Value": 2,
+        "Description": "Force Deny radio access for apps"
+      },
+      "LetAppsAccessCallHistory": {
+        "Type": "DWord",
+        "Value": 2,
+        "Description": "Force Deny call history access"
+      },
+      "LetAppsAccessMicrophone": {
+        "Type": "DWord",
+        "Value": 2,
+        "Description": "Force Deny microphone (BREAKS Teams/Zoom/Skype!)"
+      },
+      "LetAppsAccessCamera": {
+        "Type": "DWord",
+        "Value": 2,
+        "Description": "Force Deny camera (BREAKS video conferencing!)"
+      },
+      "LetAppsAccessContacts": {
+        "Type": "DWord",
+        "Value": 2,
+        "Description": "Force Deny contacts access"
+      },
+      "LetAppsAccessCalendar": {
+        "Type": "DWord",
+        "Value": 2,
+        "Description": "Force Deny calendar access"
+      },
+      "LetAppsAccessEmail": {
+        "Type": "DWord",
+        "Value": 2,
+        "Description": "Force Deny email access"
+      },
+      "LetAppsAccessMessaging": {
+        "Type": "DWord",
+        "Value": 2,
+        "Description": "Force Deny messaging access"
+      },
+      "LetAppsAccessTrustedDevices": {
+        "Type": "DWord",
+        "Value": 2,
+        "Description": "Force Deny trusted devices access"
+      },
+      "LetAppsSyncWithDevices": {
+        "Type": "DWord",
+        "Value": 2,
+        "Description": "Force Deny device sync"
+      }
+    }
+  },
+  
+  "Services": [
+    {
+      "Name": "DiagTrack",
+      "DisplayName": "Connected User Experiences and Telemetry",
+      "StartupType": "Disabled",
+      "Description": "Telemetry service - disabled in Paranoid mode"
+    },
+    {
+      "Name": "dmwappushservice",
+      "DisplayName": "Device Management Wireless Application Protocol (WAP) Push message Routing Service",
+      "StartupType": "Disabled",
+      "Description": "WAP Push service - disabled in Paranoid mode"
+    },
+    {
+      "Name": "WerSvc",
+      "DisplayName": "Windows Error Reporting Service",
+      "StartupType": "Disabled",
+      "Description": "Error reporting service - DISABLED IN PARANOID (breaks error analysis!)"
+    }
+  ],
+  
+  "ScheduledTasks": [
+    "\\Microsoft\\Windows\\Application Experience\\Microsoft Compatibility Appraiser",
+    "\\Microsoft\\Windows\\Application Experience\\ProgramDataUpdater",
+    "\\Microsoft\\Windows\\Application Experience\\StartupAppTask",
+    "\\Microsoft\\Windows\\Customer Experience Improvement Program\\Consolidator",
+    "\\Microsoft\\Windows\\Customer Experience Improvement Program\\UsbCeip",
+    "\\Microsoft\\Windows\\DiskDiagnostic\\Microsoft-Windows-DiskDiagnosticDataCollector"
+  ]
+}

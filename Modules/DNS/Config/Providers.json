@@ -1,0 +1,137 @@
+{
+  "version": "1.0.0",
+  "providers": {
+    "cloudflare": {
+      "name": "Cloudflare",
+      "description": "Fastest global DNS resolver with privacy focus",
+      "ipv4": {
+        "primary": "1.1.1.1",
+        "secondary": "1.0.0.1"
+      },
+      "ipv6": {
+        "primary": "2606:4700:4700::1111",
+        "secondary": "2606:4700:4700::1001"
+      },
+      "doh": {
+        "template": "https://cloudflare-dns.com/dns-query",
+        "supported": true
+      },
+      "ratings": {
+        "speed": 5,
+        "privacy": 5,
+        "security": 4,
+        "filtering": 2
+      },
+      "features": [
+        "Zero logging policy",
+        "DNSSEC validation (server-side)",
+        "Fastest anycast network globally",
+        "Malware blocking available (1.1.1.2 variant)",
+        "Adult content blocking available (1.1.1.3 variant)"
+      ],
+      "jurisdiction": "USA (Privacy-friendly policies)",
+      "best_for": "Maximum speed with strong privacy",
+      "documentation": "https://developers.cloudflare.com/1.1.1.1/"
+    },
+    "quad9": {
+      "name": "Quad9",
+      "description": "Security-focused DNS with Swiss privacy protection",
+      "ipv4": {
+        "primary": "9.9.9.9",
+        "secondary": "149.112.112.112"
+      },
+      "ipv6": {
+        "primary": "2620:fe::fe",
+        "secondary": "2620:fe::9"
+      },
+      "doh": {
+        "template": "https://dns.quad9.net/dns-query",
+        "supported": true
+      },
+      "ratings": {
+        "speed": 4,
+        "privacy": 5,
+        "security": 5,
+        "filtering": 4
+      },
+      "features": [
+        "Swiss jurisdiction (strongest privacy laws)",
+        "Threat intelligence from 20+ sources",
+        "DNSSEC validation (server-side)",
+        "Automatic malware/phishing blocking",
+        "No logging, independently audited"
+      ],
+      "jurisdiction": "Switzerland (Best-in-class privacy laws)",
+      "best_for": "Maximum security and privacy protection",
+      "documentation": "https://quad9.net/"
+    },
+    "adguard": {
+      "name": "AdGuard DNS",
+      "description": "Privacy-focused DNS with built-in ad and tracker blocking",
+      "ipv4": {
+        "primary": "94.140.14.14",
+        "secondary": "94.140.15.15"
+      },
+      "ipv6": {
+        "primary": "2a10:50c0::ad1:ff",
+        "secondary": "2a10:50c0::ad2:ff"
+      },
+      "doh": {
+        "template": "https://dns.adguard-dns.com/dns-query",
+        "supported": true
+      },
+      "ratings": {
+        "speed": 4,
+        "privacy": 5,
+        "security": 4,
+        "filtering": 5
+      },
+      "features": [
+        "Built-in ad blocking",
+        "Tracker and analytics blocking",
+        "DNSSEC support (server-side)",
+        "EU/GDPR compliant",
+        "No logging policy"
+      ],
+      "jurisdiction": "Cyprus (EU jurisdiction, GDPR compliant)",
+      "best_for": "Ad and tracker blocking with privacy",
+      "documentation": "https://adguard-dns.io/"
+    }
+  },
+  "default_provider": "cloudflare",
+  "rating_descriptions": {
+    "speed": {
+      "5": "Exceptional - Fastest global performance",
+      "4": "Excellent - Very fast response times",
+      "3": "Good - Adequate performance",
+      "2": "Fair - Slower than average",
+      "1": "Poor - Slow response times"
+    },
+    "privacy": {
+      "5": "Exceptional - Zero logging, strong jurisdiction, independently audited",
+      "4": "Excellent - Minimal logging, good privacy policies",
+      "3": "Good - Some logging, reasonable policies",
+      "2": "Fair - Extensive logging",
+      "1": "Poor - Privacy concerns"
+    },
+    "security": {
+      "5": "Exceptional - Multiple threat feeds, DNSSEC, automatic blocking",
+      "4": "Excellent - DNSSEC validation, basic threat protection",
+      "3": "Good - DNSSEC only",
+      "2": "Fair - Limited security features",
+      "1": "Poor - No security features"
+    },
+    "filtering": {
+      "5": "Exceptional - Comprehensive ad, tracker, and malware blocking",
+      "4": "Excellent - Malware and phishing blocking",
+      "3": "Good - Basic filtering available",
+      "2": "Fair - Limited filtering options",
+      "1": "Poor - No filtering"
+    }
+  },
+  "notes": {
+    "dnssec": "All providers perform server-side DNSSEC validation. No client-side NRPT configuration required.",
+    "doh": "DNS over HTTPS (DoH) encrypts DNS queries for privacy. Fallback to unencrypted DNS is disabled for security.",
+    "ipv6": "IPv6 addresses are always configured alongside IPv4. Windows will use IPv6 when available."
+  }
+}

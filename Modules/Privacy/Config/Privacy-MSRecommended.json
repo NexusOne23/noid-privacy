@@ -1,0 +1,205 @@
+{
+  "Mode": "MSRecommended",
+  "Description": "Balanced Privacy - Disables telemetry/ads/tracking, but lets USER decide on functional features",
+  "BestFor": "Home users, small businesses - maximum usability with strong privacy",
+  "Warnings": [
+    "Settings Sync defaults to OFF but user can enable in Windows Settings. App Privacy and Location are user-controlled."
+  ],
+  
+  "DataCollection": {
+    "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\DataCollection": {
+      "AllowTelemetry": {
+        "Type": "DWord",
+        "Value": 1,
+        "Description": "Required diagnostic data only (MS recommended)"
+      },
+      "LimitDiagnosticLogCollection": {
+        "Type": "DWord",
+        "Value": 1,
+        "Description": "Limit additional diagnostic log collection"
+      },
+      "DoNotShowFeedbackNotifications": {
+        "Type": "DWord",
+        "Value": 1,
+        "Description": "No feedback popups"
+      }
+    }
+  },
+  
+  "Personalization": {
+    "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\CloudContent": {
+      "DisableTailoredExperiencesWithDiagnosticData": {
+        "Type": "DWord",
+        "Value": 1,
+        "Description": "No personalized tips from diagnostic data"
+      },
+      "DisableWindowsSpotlightFeatures": {
+        "Type": "DWord",
+        "Value": 1,
+        "Description": "Disable all Windows Spotlight features"
+      },
+      "DisableWindowsSpotlightOnSettings": {
+        "Type": "DWord",
+        "Value": 1,
+        "Description": "No Spotlight on Settings page"
+      },
+      "DisableWindowsSpotlightOnActionCenter": {
+        "Type": "DWord",
+        "Value": 1,
+        "Description": "No Spotlight on Action Center"
+      },
+      "DisableThirdPartySuggestions": {
+        "Type": "DWord",
+        "Value": 1,
+        "Description": "No third-party suggestions"
+      },
+      "DisableSpotlightCollectionOnDesktop": {
+        "Type": "DWord",
+        "Value": 1,
+        "Description": "No Spotlight collection on desktop"
+      }
+    },
+    "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\AdvertisingInfo": {
+      "DisabledByGroupPolicy": {
+        "Type": "DWord",
+        "Value": 1,
+        "Description": "Disable Advertising ID (via Group Policy)"
+      }
+    },
+    "HKCU:\\Software\\Policies\\Microsoft\\Windows\\Explorer": {
+      "DisableSoftLanding": {
+        "Type": "DWord",
+        "Value": 1,
+        "Description": "No tips and suggestions bubbles"
+      }
+    }
+  },
+  
+  "SearchAndCloud": {
+    "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Windows Search": {
+      "DisableWebSearch": {
+        "Type": "DWord",
+        "Value": 1,
+        "Description": "No web search in Start menu"
+      },
+      "ConnectedSearchUseWeb": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "No connected search to web"
+      },
+      "AllowCloudSearch": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "No cloud search"
+      },
+      "AllowCortana": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "Disable Cortana (legacy, Win11 has no Cortana)"
+      }
+    }
+  },
+  
+  "InputAndSync": {
+    "HKLM:\\SOFTWARE\\Policies\\Microsoft\\InputPersonalization": {
+      "AllowInputPersonalization": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "No cloud-based input personalization"
+      }
+    },
+    "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\System": {
+      "EnableActivityFeed": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "Disable activity feed"
+      },
+      "PublishUserActivities": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "Don't publish user activities"
+      },
+      "UploadUserActivities": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "Don't upload user activities to cloud"
+      }
+    },
+    "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\SettingSync": {
+      "DisableSettingSync": {
+        "Type": "DWord",
+        "Value": 2,
+        "Description": "Settings sync default off, but user can enable (0=Force On, 1=Force Off, 2=User decides, default off)"
+      },
+      "DisableSettingSyncUserOverride": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "Allow user to override sync settings (0=User can change, 1=User locked)"
+      }
+    }
+  },
+  
+  "LocationAndAppPrivacy": {
+    "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\AppPrivacy": {
+      "LetAppsAccessLocation": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "User decides location access (0=User decides, 1=Force Allow, 2=Force Deny)"
+      },
+      "LetAppsAccessRadios": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "User decides radio (Bluetooth/WiFi) access"
+      },
+      "LetAppsAccessCallHistory": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "User decides call history access"
+      },
+      "LetAppsAccessMicrophone": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "User decides microphone access (for Teams/Zoom)"
+      },
+      "LetAppsAccessCamera": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "User decides camera access (for video apps)"
+      },
+      "LetAppsAccessContacts": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "User decides contacts access"
+      },
+      "LetAppsAccessCalendar": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "User decides calendar access"
+      },
+      "LetAppsAccessEmail": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "User decides email access"
+      },
+      "LetAppsAccessMessaging": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "User decides messaging access"
+      },
+      "LetAppsAccessTrustedDevices": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "User decides trusted devices access"
+      },
+      "LetAppsSyncWithDevices": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "User decides device sync"
+      }
+    }
+  },
+  
+  "Services": [],
+  
+  "ScheduledTasks": []
+}

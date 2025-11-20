@@ -1,0 +1,643 @@
+﻿# NoID Privacy Pro Enterprise-Grade Windows 11 Security Hardening
+
+> **Complete Windows 11 Security Framework 583 Settings 7 Modules Full Backup & Restore**
+
+[![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-blue.svg)](https://github.com/PowerShell/PowerShell)
+[![Windows 11](https://img.shields.io/badge/Windows%2011-25H2-0078D4.svg)](https://www.microsoft.com/windows/)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
+[![Version](https://img.shields.io/badge/version-2.1.0-blue.svg)](CHANGELOG.md)
+[![Status](https://img.shields.io/badge/status-production--ready-brightgreen.svg)]()
+
+---
+
+## CRITICAL: Domain-Joined Systems & System Backup
+
+> **READ THIS BEFORE RUNNING** This tool modifies critical Windows security settings!
+
+### Domain-Joined Systems (Active Directory)
+
+**WARNING:** This tool is **NOT recommended for production domain-joined systems** without AD team coordination!
+
+**Why?**
+- This tool modifies **local Group Policies**
+- Domain Group Policies **override local policies every 90 minutes**
+- Your hardening **may be reset automatically** by domain GPOs
+- Can lead to configuration conflicts and "flapping" behavior
+
+**RECOMMENDED USE CASES:**
+- Standalone systems (Home/Workgroup)
+- Home/Personal PCs (not domain-joined)
+- Virtual machines (testing/lab environments)
+- Air-gapped systems
+- Test/development domain-joined systems (non-production)
+
+**For Enterprise/Domain Environments:** 
+ **Integrate these settings into your Domain Group Policies instead!** 
+ Coordinate with your Active Directory team before using this tool
+
+---
+
+### System Backup REQUIRED
+
+**Before running this tool, you MUST create:**
+
+1. **Windows System Restore Point** (recommended)
+2. **Full System Image/Backup** (critical!)
+3. **VM Snapshot** (if running in virtual machine)
+
+**Why?**
+- This tool creates **internal backups** for rollback (Registry, Services, Tasks)
+- However, a **full system backup** protects against:
+ - Unforeseen system issues
+ - Hardware failures during hardening
+ - Configuration conflicts
+ - Critical errors
+
+**Backup Tools:**
+- Windows Backup (Settings System Storage Backup)
+- System Image (wbadmin, Macrium Reflect, Acronis)
+- Hyper-V/VMware: Checkpoint/Snapshot
+
+** The tool will prompt you to confirm backup exists before proceeding!**
+
+---
+
+## In 30 Seconds
+
+**What?** Microsoft Security Baseline + Advanced Hardening for Windows 11 25H2 
+**How?** PowerShell: **Backup** **Apply** **Verify** **Restore** (100% reversible!) 
+**For whom?** Professionals, power users, SMBs **without Intune/Active Directory**
+
+**583 Security Settings 7 Modules 100% BAVR Coverage Production-Ready**
+
+---
+
+## Why NoID Privacy Pro?
+
+<div align="center">
+
+| **SECURITY** | **PRIVACY** | **RELIABILITY** | **REVERSIBLE** |
+|:---:|:---:|:---:|:---:|
+| **Microsoft Baseline 25H2** | **AI Lockdown** | **100% BAVR Coverage** | **Complete Backup** |
+| 425 Security Settings | 8 AI Features + Master Switch | Backup-Apply-Verify-Restore | 583 Settings Restored |
+| 19 ASR Rules | Telemetry Minimized | Zero-Day Protection | 0 Data Loss |
+| Zero-Day CVE-2025-9491 | OneDrive Hardened | Professional Quality | Safe to Test |
+
+** [3-Minute Quick Start](#-quick-start)** **[Full Feature List](Docs/FEATURES.md)**
+
+</div>
+
+---
+
+## What Makes This Different?
+
+**The ONLY Windows 11 hardening tool with complete BAVR pattern, Zero Dependencies, and Native PowerShell architecture.**
+
+| Feature | **NoID Privacy Pro** | HardeningKitty | ChrisTitus winutil | O&O ShutUp10++ |
+|:---|:---:|:---:|:---:|:---:|
+| **Core Focus** | **Security Enforcement** | Audit / Checking | Tweaking / Debloat | Privacy Toggles |
+| **MS Baseline 25H2** | **100% Apply (Native)** | Audit Only | Partial (Tweaks) | No |
+| **Architecture** | **Native PowerShell** | Needs Modules | External Tools | Closed Binary |
+| **Dependencies** | **ZERO (Self-Contained)** | LGPO.exe / PolicyFileEditor | Winget / Choco | N/A |
+| **BAVR Pattern** | **100% Coverage** | Audit Mode | No Verify | No Verify |
+| **Backup Strategy** | **Full System State** | None | Registry Only | Profiles Only |
+| **Verification** | **583 Auto-Checks** | Excellent Audit | None | None |
+| **AI Lockdown (24H2)** | **Deep (Safe/Reg)** | No | Aggressive (Risky) | Basic |
+| **Risk Level** | **Enterprise Safe** | Low | High (Aggressive) | Low |
+
+** BAVR Pattern = Backup-Apply-Verify-Restore** (Our unique safety guarantee)
+** Zero Dependency = No LGPO.exe, no DLLs, no external downloads required.** Runs on air-gapped systems out of the box.
+
+---
+
+## Key Features
+
+### Security Baseline (425 Settings)
+
+**Microsoft Security Baseline 25H2 - 100% Implementation**
+- **335 Registry Policies** Computer + User Configuration
+- **67 Security Template Settings** Password Policy, Account Lockout, User Rights, Security Options
+- **23 Advanced Audit Policies** Complete security event logging
+- **Credential Guard** Passwords can't be stolen from memory
+- **BitLocker Policies** USB drive protection, enhanced PIN, DMA attack prevention
+- **VBS & HVCI** Virtualization-based security
+
+### Attack Surface Reduction (19 Rules)
+
+**19 ASR Rules (18 Block + 1 Configurable)**
+- Blocks ransomware, macros, exploits, credential theft
+- Office/Adobe/Email protection
+- Script & executable blocking
+- PSExec/WMI: Audit mode (if management tools used), Block mode otherwise
+- Configurable exceptions for compatibility
+
+### Secure DNS (3 Providers)
+
+**DNS-over-HTTPS with Secure Default (REQUIRE)**
+- **Cloudflare** (Default) Fastest, 1.1.1.1
+- **Quad9** Malware blocking, GDPR-compliant
+- **AdGuard** Ad/tracker blocking built-in
+- REQUIRE mode (default): no unencrypted fallback
+- ALLOW mode (optional): fallback allowed for VPN/mobile/enterprise networks
+- IPv4 + IPv6 dual-stack support
+
+### Privacy Hardening (48 Settings)
+
+**3 Operating Modes**
+- **MSRecommended** (Default) MS-supported, max compatibility
+- **Strict** Maximum privacy (AllowTelemetry=0 Enterprise/Education only, Force Deny breaks UCC apps)
+- **Paranoid** Hardcore (not recommended)
+
+**Features:**
+- Telemetry minimized to Security-Essential level
+- Bloatware removal (policy-based on 25H2+ Ent/Edu)
+- OneDrive telemetry off (sync functional)
+- App permissions default-deny
+
+### AI Lockdown (24 Policies)
+
+**8 AI Features + Master Switch (Blocks All Generative AI)**
+- **Master Switch** Blocks ALL generative AI models system-wide
+- **Windows Recall** Complete deactivation (component removal + protection)
+- **Windows Copilot** System-wide disabled + hardware key remapped
+- **Click to Do** Screenshot AI analysis disabled
+- **Paint AI** Cocreator, Generative Fill, Image Creator all blocked
+- **Notepad AI** GPT features disabled
+- **Settings Agent** AI-powered settings search disabled
+
+### Edge Hardening (20 Policies)
+
+**Microsoft Edge Security Baseline**
+- SmartScreen enforced
+- Tracking Prevention strict
+- SSL/TLS hardening
+- Extension security
+- IE Mode restrictions
+
+### Advanced Security (42 Settings)
+
+**Beyond Microsoft Baseline**
+- **SRP .lnk Protection** CVE-2025-9491 zero-day mitigation
+- **RDP Hardening** Disabled by default, TLS + NLA enforced
+- **Legacy Protocol Blocking** SMBv1, NetBIOS, LLMNR, WPAD, PowerShell v2
+- **TLS Hardening** 1.0/1.1 OFF, 1.2/1.3 ON
+- **Windows Update** Interactive configuration
+- **Finger Protocol** Blocked (ClickFix malware protection)
+
+---
+
+## BAVR Pattern - Our Unique Approach
+
+**Every change is tracked, verified, and 100% reversible!**
+
+```
+[1/4] BACKUP Full system state backup before changes
+[2/4] APPLY Settings applied with comprehensive logging
+[3/4] VERIFY 583 automated checks confirm success
+[4/4] RESTORE One command reverts everything
+```
+
+**What sets us apart:**
+- **100% Coverage** All 583 settings verified (not just applied!)
+- **Zero Errors** Professional code quality (external audit: 9.5/10)
+- **Complete Restore** Registry, Services, Tasks, Files - everything
+- **Production-Ready** Zero known issues after deep code analysis
+
+**Before v2.1.0:** 89.4% verification coverage (62 settings missing) 
+**After v2.1.0:** 100% verification coverage (all 583 settings verified) 
+
+---
+
+## Quick Start
+
+### One-Liner Install (Recommended)
+
+**Step 1:** Open PowerShell as Administrator
+- Press `Win + X` Click **"Terminal (Admin)"**
+
+**Step 2:** Run installer
+
+```powershell
+# Download and run (Windows 11 25H2 recommended)
+irm https://raw.githubusercontent.com/NexusOne23/noid-privacy/main/install.ps1 | iex
+```
+
+**What it does:**
+1. Checks Administrator privileges
+2. Verifies Windows 11 25H2
+3. Downloads latest release from GitHub
+4. Extracts & unblocks all files
+5. Starts interactive mode
+
+**Alternative - Manual Install:**
+
+```powershell
+# 1. Clone repository
+git clone https://github.com/NexusOne23/noid-privacy.git
+cd noid-privacy
+
+# 2. Run as Admin
+.\Start-NoIDPrivacy.bat
+
+# 3. Verify after reboot
+.\Tools\Verify-Complete-Hardening.ps1
+```
+
+> **Downloaded ZIP?** Run `Start-NoIDPrivacy.bat` - it automatically unblocks all files!
+
+---
+
+## Usage Examples
+
+### Interactive Mode (Recommended)
+
+```powershell
+# Start interactive menu
+.\Start-NoIDPrivacy.bat
+
+# Follow prompts:
+# 1. Select modules (all or custom)
+# 2. Choose settings (DNS provider, Privacy mode, etc.)
+# 3. Automatic backup apply verify
+# 4. Reboot prompt
+```
+
+### Direct Execution
+
+```powershell
+# Apply all modules
+.\NoIDPrivacy.ps1 -Module All
+
+# Apply specific module
+.\NoIDPrivacy.ps1 -Module Privacy
+
+# Dry-run (no changes)
+.\NoIDPrivacy.ps1 -Module All -DryRun
+```
+
+### Verification
+
+```powershell
+# Full verification (583 checks)
+.\Tools\Verify-Complete-Hardening.ps1
+
+# Expected output (all modules enabled):
+# SecurityBaseline: 425/425 verified
+# ASR: 19/19 verified
+# DNS: 5/5 verified
+# Privacy: 48/48 verified
+# AntiAI: 24/24 verified
+# EdgeHardening: 20/20 verified
+# AdvancedSecurity: 42/42 verified
+# Total: 583/583 (100%)
+```
+
+### Restore
+
+```powershell
+# Restore from latest backup
+.\Core\Rollback.ps1 -RestoreLatest
+
+# Or via interactive menu
+.\Start-NoIDPrivacy.bat
+# Select "Restore from backup"
+```
+
+---
+
+## Module Overview
+
+| Module | Settings | Description | Status |
+|--------|----------|-------------|--------|
+| **SecurityBaseline** | 425 | Microsoft Security Baseline 25H2 | v2.1.0 |
+| **ASR** | 19 | Attack Surface Reduction Rules | v2.1.0 |
+| **DNS** | 5 | Secure DNS with DoH encryption | v2.1.0 |
+| **Privacy** | 48 | Telemetry, Bloatware, OneDrive hardening | v2.1.0 |
+| **AntiAI** | 24 | AI lockdown (8 features + master switch, 24 policies) | v2.1.0 |
+| **EdgeHardening** | 20 | Microsoft Edge security | v2.1.0 |
+| **AdvancedSecurity** | 42 | Beyond MS Baseline (SRP, Legacy protocols) | v2.1.0 |
+| **TOTAL** | **583** | **Complete Framework** | **Production** |
+
+**Release Highlights:**
+
+ **v2.1.0:** 100% verification coverage (all 583 settings verified)
+ **v2.1.0:** Improved Advanced Security module with SRP .lnk protection
+ **v2.1.0:** Enhanced RDP hardening with TLS + NLA enforced
+ **v2.1.0:** Legacy protocol blocking (SMBv1, NetBIOS, LLMNR, WPAD, PowerShell v2)
+ **v2.1.0:** TLS hardening (1.0/1.1 OFF, 1.2/1.3 ON)
+ **v2.1.0:** Windows Update interactive configuration
+ **v2.1.0:** Finger Protocol blocked (ClickFix malware protection)
+
+** [Detailed Module Documentation](Docs/FEATURES.md)**
+
+---
+
+## Perfect For
+
+### **Ideal Use Cases**
+
+**Small/Medium Business (SMB)** 
+ No Active Directory/Intune licenses 
+ Cloud-first (Microsoft 365, Google Workspace) 
+ Remote/hybrid work security 
+ Compliance without enterprise infrastructure
+
+**Freelancers & Consultants** 
+ Client data protection 
+ Secure workstations without domain 
+ Professional security standards 
+ Safe experimentation (complete backup)
+
+**Power Users & Privacy-Conscious** 
+ Real security, not just "debloat" 
+ AI/Telemetry lockdown 
+ Understand every setting 
+ Full control + reversibility
+
+**IT Pros Without Intune** 
+ Standalone Windows 11 hardening 
+ Microsoft Baseline compliance locally 
+ Quick deploy for clients 
+ No domain controller required
+
+### **Not Ideal For**
+
+**Enterprise with Intune/AD** 
+ Use [Microsoft Security Baselines](https://learn.microsoft.com/en-us/windows/security/operating-system-security/device-management/windows-security-configuration-framework/security-compliance-toolkit-10) with Group Policy instead
+
+**Windows 10 or Older** 
+ This tool is designed for Windows 11 (24H2/25H2 recommended, 23H2 compatible)
+
+**Legacy Software Dependencies** 
+ If you rely on unsafe SMB1/RPC/DCOM
+
+**Strict MDM Reporting** 
+ If compliance must be centrally reported
+
+---
+
+## Requirements
+
+**System Requirements:**
+- **OS:** Windows 11 25H2 (Build 26200+) or 24H2 (Build 26100+) recommended
+- **PowerShell:** 5.1+ (built-in)
+- **Admin Rights:** Required
+- **TPM:** 2.0 (for BitLocker, Credential Guard, VBS)
+- **RAM:** 8 GB minimum (16 GB recommended for VBS)
+
+**Tested & Compatible:**
+
+| OS Version | Status |
+|------------|--------|
+| Windows 11 25H2 (Build 26200+) | **Fully Tested** |
+| Windows 11 24H2 (Build 26100+) | Compatible |
+| Windows 11 23H2 (Build 22631+) | Some features N/A |
+
+---
+
+## Security & Quality
+
+### Code Quality
+
+- **External Audit:** 9.5/10 score
+- **PSScriptAnalyzer:** Clean (zero warnings)
+- **Pester Tests:** Pester v5 suite (`.\\Tests\\Run-Tests.ps1`)
+- **Zero Known Issues:** After deep code analysis
+- **Production-Ready:** Professional error handling
+- **Best Practices:** Advanced Functions, CmdletBinding, Comprehensive Logging
+
+### What This Tool Does
+
+ Hardens Windows 11 to enterprise standards 
+ Implements Microsoft Security Baseline 25H2 
+ Protects against zero-day exploits (CVE-2025-9491) 
+ Minimizes telemetry to Security-Essential level 
+ Locks down AI features (Recall, Copilot, etc.) 
+ Configures BitLocker policies, Credential Guard, VBS 
+
+### What This Tool Does NOT Do
+
+ Install third-party antivirus (uses Windows Defender) 
+ Configure domain-specific policies 
+ Modify BIOS/UEFI settings 
+ Break critical Windows functionality 
+ Prevent re-enabling features 
+
+### Reversibility
+
+- **What CAN be restored:** Services, Registry, Firewall, DNS, Tasks, AI features
+- **What CAN be auto-restored:** Most removed bloatware apps via `winget` during session restore (where mappings exist)
+- **What may still need manual reinstall:** Unmapped/third-party bloatware apps (use Microsoft Store)
+- **Backup System:** Complete system state before applying
+- **REMOVED_APPS_LIST.txt:** Created during bloatware removal with a full list of removed apps for manual reinstall if needed
+- **Documented Changes:** All changes logged
+
+---
+
+## Configuration
+
+### Default Settings
+
+All settings configured for **maximum security with maintained usability**:
+- Services: Telemetry services controlled, critical services protected
+- Firewall: Inbound blocked, outbound allowed
+- Privacy: Default-deny for app permissions (user can enable individually)
+- BitLocker: Policies set, user must enable manually
+- AI Features: Disabled via Registry (100% reversible)
+
+### Customization
+
+All module settings can be customized via JSON files in `Modules/*/Config/`:
+
+```powershell
+# Example: Adjust DNS provider
+Edit: Modules/DNS/Config/Providers.json
+
+# Example: Modify Privacy mode
+Edit: Modules/Privacy/Config/Privacy-MSRecommended.json
+
+# Example: Configure ASR exceptions
+Edit: Modules/ASR/Config/ASR-Rules.json
+```
+
+---
+
+## Troubleshooting
+
+> **Can't install software after hardening?** See [Temporarily Disable ASR Rule](#temporarily-disable-asr-rule-for-software-installation) for step-by-step solution
+
+### Common Issues
+
+**"Access Denied" errors** 
+ Not running as Administrator 
+ Right-click PowerShell "Run as Administrator"
+
+**VBS/Credential Guard not active after reboot** 
+ Hardware incompatibility (no TPM 2.0 or virtualization disabled) 
+ Enable virtualization in BIOS/UEFI 
+ Verify: `.\Tools\Verify-Complete-Hardening.ps1`
+
+**BitLocker not activating** 
+ No TPM 2.0 or insufficient disk space 
+ Check TPM: `Get-Tpm` 
+ Manual activation: Control Panel BitLocker
+
+**ASR blocking legitimate software installation** 
+ ASR rule "Block executable files unless they meet prevalence" blocks unknown installers 
+ See [Temporarily Disable ASR Rule](#temporarily-disable-asr-rule-for-software-installation) below
+
+---
+
+### Temporarily Disable ASR Rule for Software Installation
+
+**Problem:** ASR blocks installation of legitimate software (e.g., downloaded installers not in Microsoft's reputation database)
+
+**Blocked Rule:** `01443614-cd74-433a-b99e-2ecdc07bfc25` ("Block executable files unless they meet prevalence, age, or trusted list")
+
+**Solution:** Temporarily set the rule to AUDIT mode (warns only, doesn't block)
+
+**Step 1: Disable Tamper Protection** (GUI method - easiest)
+1. Press `Win` key Type "Windows Security" Enter
+2. Go to: **Virus & threat protection**
+3. Click: **Manage settings**
+4. Scroll down to: **Tamper Protection** Toggle **OFF**
+
+**Step 2: Set ASR Rule to AUDIT** (PowerShell as Admin)
+
+```powershell
+# Get current ASR configuration
+$currentIds = (Get-MpPreference).AttackSurfaceReductionRules_Ids
+$currentActions = (Get-MpPreference).AttackSurfaceReductionRules_Actions
+
+# Convert to arrays
+$ids = @($currentIds)
+$actions = @($currentActions)
+
+# Find the prevalence rule
+$targetGuid = "01443614-cd74-433a-b99e-2ecdc07bfc25"
+$index = [array]::IndexOf($ids, $targetGuid)
+
+# Set to AUDIT (2 = Audit, 1 = Block)
+$actions[$index] = 2
+
+# Apply changes
+Set-MpPreference -AttackSurfaceReductionRules_Ids $ids -AttackSurfaceReductionRules_Actions $actions
+
+Write-Host " ASR Prevalence Rule: AUDIT (Installation now possible)" -ForegroundColor Green
+```
+
+**Step 3: Install your software**
+
+**Step 4: Re-enable the ASR Rule** (PowerShell as Admin)
+
+```powershell
+# Get current ASR configuration
+$currentIds = (Get-MpPreference).AttackSurfaceReductionRules_Ids
+$currentActions = (Get-MpPreference).AttackSurfaceReductionRules_Actions
+
+# Convert to arrays
+$ids = @($currentIds)
+$actions = @($currentActions)
+
+# Find the prevalence rule
+$targetGuid = "01443614-cd74-433a-b99e-2ecdc07bfc25"
+$index = [array]::IndexOf($ids, $targetGuid)
+
+# Set back to BLOCK
+$actions[$index] = 1
+
+# Apply changes
+Set-MpPreference -AttackSurfaceReductionRules_Ids $ids -AttackSurfaceReductionRules_Actions $actions
+
+Write-Host " ASR Prevalence Rule: BLOCK (Protection restored)" -ForegroundColor Green
+```
+
+**Step 5: Re-enable Tamper Protection** (Windows Security Toggle ON)
+
+** IMPORTANT:** Always re-enable both the ASR rule AND Tamper Protection after installation!
+
+---
+
+### Logs
+
+All operations logged to:
+```
+Logs/NoIDPrivacy_YYYYMMDD_HHMMSS.log
+```
+
+**Example:** `NoIDPrivacy_20251117_142345.log`
+
+---
+
+## Documentation
+
+### Core Documentation
+- **[Features](Docs/FEATURES.md)** - Complete 583-setting reference
+- **[Changelog](CHANGELOG.md)** - Version history
+- **[Quick Start](#-quick-start)** - Installation guide (see above)
+- **[Troubleshooting](#-troubleshooting)** - Common issues (see above)
+
+### Community
+- **[GitHub Issues](https://github.com/NexusOne23/noid-privacy/issues)** - Bug reports, feature requests
+- **[Discussions](https://github.com/NexusOne23/noid-privacy/discussions)** - Questions and ideas
+
+---
+
+## Acknowledgments
+
+- **Microsoft Security Baseline Team** for Windows 11 25H2 guidance
+- **PowerShell Community** for best practices and patterns
+- **Open Source Contributors** for testing and feedback
+
+---
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## Disclaimer
+
+This script modifies critical system settings. Use at your own risk. Always:
+1. **Create a system backup** before running
+2. **Test in a VM** first
+3. **Review the code** to understand changes
+4. **Verify compatibility** with your environment
+
+The authors are not responsible for any damage or data loss.
+
+---
+
+## Project Status
+
+**Current Version:** 2.1.0 
+**Last Updated:** November 20, 2025 
+**Status:** Production-Ready
+
+### Release Highlights v2.1.0
+
+ All 7 modules production-ready (583 settings) 
+ 100% BAVR coverage (was 89.4%) 
+ Zero-day protection (CVE-2025-9491 via SRP) 
+ Zero known issues after deep code analysis 
+ Professional code quality (external audit: 9.5/10) 
+ Complete verification: EdgeHardening (20) + AdvancedSecurity (42) 
+ Bloatware reinstall list with instructions
+
+** [See Full Changelog](CHANGELOG.md)**
+
+---
+
+<div align="center">
+
+**Made with for the Windows Security Community**
+
+[Report Bug](https://github.com/NexusOne23/noid-privacy/issues) [Request Feature](https://github.com/NexusOne23/noid-privacy/issues) [Discussions](https://github.com/NexusOne23/noid-privacy/discussions)
+
+ **Star this repo** if you find it useful!
+
+</div>
+
+
+

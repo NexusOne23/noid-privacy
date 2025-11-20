@@ -1,0 +1,25 @@
+{
+  "Description": "Mapping between internal app names (Remove-Bloatware) and Winget IDs for automated restoration",
+  "Version": "1.1",
+  "Notes": "System components (XboxIdentityProvider, Xbox.TCUI, XboxSpeechToTextOverlay) are NOT included as they cannot be reinstalled via winget - they are restored automatically with Gaming Services",
+  "Mappings": {
+    "Microsoft.BingNews": "Microsoft.BingNews",
+    "Microsoft.BingWeather": "Microsoft.BingWeather_8wekyb3d8bbwe",
+    "Microsoft.MicrosoftSolitaireCollection": "Microsoft.SolitaireCollection",
+    "Microsoft.MicrosoftStickyNotes": "9NBLGGH4QGHW",
+    "Microsoft.GamingApp": "Microsoft.GamingApp_8wekyb3d8bbwe",
+    "Microsoft.XboxApp": "9MV0B5HZVK9Z",
+    "Microsoft.XboxGamingOverlay": "9NZKPSTSNW4P",
+    "Microsoft.ZuneMusic": "Microsoft.ZuneMusic",
+    "Microsoft.ZuneVideo": "Microsoft.ZuneVideo",
+    "Microsoft.WindowsFeedbackHub": "Microsoft.WindowsFeedbackHub_8wekyb3d8bbwe",
+    "Microsoft.GetHelp": "Microsoft.GetHelp",
+    "Microsoft.Getstarted": "Microsoft.GetStarted",
+    "Microsoft.MixedReality.Portal": "9NG1H8B3ZC7M",
+    "Microsoft.People": "Microsoft.People",
+    "Microsoft.YourPhone": "Microsoft.YourPhone",
+    "Clipchamp.Clipchamp": "Clipchamp.Clipchamp",
+    "SpotifyAB.SpotifyMusic": "Spotify.Spotify",
+    "TikTok.TikTok": "ByteDance.TikTok"
+  }
+}

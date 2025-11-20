@@ -1,0 +1,38 @@
+{
+  "DoHPolicy": {
+    "Mode": "REQUIRE",
+    "Description": "DNS-over-HTTPS enforcement mode",
+    "Options": {
+      "REQUIRE": {
+        "Value": 3,
+        "Description": "REQUIRE DoH (no unencrypted fallback) - Maximum security",
+        "BestFor": "Home users, single-network systems, maximum privacy",
+        "Warning": "May cause connectivity issues in corporate networks, captive portals, or mobile hotspots"
+      },
+      "ALLOW": {
+        "Value": 2,
+        "Description": "ALLOW DoH (fallback to UDP if DoH fails) - Balanced",
+        "BestFor": "VPN users, mobile devices, multi-network systems, enterprise environments",
+        "Warning": "Less secure - DNS queries may fall back to unencrypted UDP"
+      },
+      "PROHIBIT": {
+        "Value": 1,
+        "Description": "PROHIBIT DoH (disable encrypted DNS) - Not recommended",
+        "BestFor": "Legacy systems, specific enterprise requirements only",
+        "Warning": "All DNS queries will be unencrypted"
+      }
+    },
+    "Recommendation": "Use REQUIRE for home networks, ALLOW for VPN/mobile/enterprise"
+  },
+  "AllowFallbackToUdp": {
+    "REQUIRE": false,
+    "ALLOW": true,
+    "PROHIBIT": true
+  },
+  "Notes": [
+    "REQUIRE mode (default): Best privacy, but may break in corporate/captive portal networks or with VPNs",
+    "ALLOW mode: Good balance for VPN users, mobile users and enterprise environments",
+    "Users with VPNs or on multiple networks should choose ALLOW mode",
+    "PROHIBIT mode is NOT recommended - only for specific legacy requirements"
+  ]
+}

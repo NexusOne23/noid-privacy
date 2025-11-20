@@ -1,0 +1,39 @@
+@{
+    RootModule = 'ASR.psm1'
+    ModuleVersion = '2.1.0'
+    GUID = 'b2c3d4e5-f6a7-8901-bcde-f23456789012'
+    Author = 'NoID Privacy Pro Team'
+    CompanyName = 'NoID Privacy Pro'
+    Copyright = '(c) 2025 NoID Privacy Pro. All rights reserved.'
+    Description = 'Attack Surface Reduction (ASR) - All 19 Microsoft Defender ASR rules in Block mode for maximum protection against modern threats'
+    
+    PowerShellVersion = '5.1'
+    
+    RequiredModules = @()
+    
+    FunctionsToExport = @(
+        'Invoke-ASRRules'
+    )
+    
+    CmdletsToExport = @()
+    VariablesToExport = @()
+    AliasesToExport = @()
+    
+    PrivateData = @{
+        PSData = @{
+            Tags = @('Security', 'ASR', 'AttackSurfaceReduction', 'Defender', 'Windows11', 'Ransomware')
+            LicenseUri = ''
+            ProjectUri = ''
+            ReleaseNotes = @"
+v2.1.0 - Production Release
+- All 19 ASR rules implementation
+- Hybrid approach: Registry backup + Set-MpPreference application
+- SCCM/Configuration Manager detection
+- Cloud protection verification
+- Exclusions management support
+- Full BACKUP/APPLY/VERIFY/RESTORE support
+- Security Baseline overlap detection and logging
+"@
+        }
+    }
+}

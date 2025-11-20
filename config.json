@@ -1,0 +1,80 @@
+{
+  "version": "2.1.0",
+  "modules": {
+    "SecurityBaseline": {
+      "enabled": true,
+      "priority": 1,
+      "status": "IMPLEMENTED"
+    },
+    "ASR": {
+      "enabled": true,
+      "priority": 2,
+      "status": "IMPLEMENTED"
+    },
+    "DNS": {
+      "enabled": true,
+      "priority": 3,
+      "provider": "",
+      "status": "IMPLEMENTED"
+    },
+    "Privacy": {
+      "enabled": true,
+      "priority": 4,
+      "mode": "",
+      "status": "IMPLEMENTED"
+    },
+    "AntiAI": {
+      "enabled": true,
+      "priority": 5,
+      "status": "IMPLEMENTED",
+      "description": "Disable all Windows 11 AI features (Recall, Copilot, Paint AI, etc.)"
+    },
+    "EdgeHardening": {
+      "enabled": true,
+      "priority": 6,
+      "status": "IMPLEMENTED",
+      "description": "Microsoft Edge v139 Security Baseline: 20 security policies including SmartScreen enforcement, site isolation, SSL/TLS hardening, extension blocklist, IE Mode restrictions, and Spectre mitigations. No LGPO.exe dependency.",
+      "version": "2.1.0",
+      "baseline": "Edge v139",
+      "policies": 20,
+      "features": {
+        "smartscreen_enforcement": true,
+        "site_isolation": true,
+        "ssl_error_blocking": true,
+        "extension_blocklist": true,
+        "ie_mode_restrictions": true,
+        "spectre_mitigations": true,
+        "application_encryption": true,
+        "auth_scheme_restrictions": true
+      }
+    },
+    "AdvancedSecurity": {
+      "enabled": true,
+      "priority": 7,
+      "status": "IMPLEMENTED",
+      "description": "Advanced Security hardening beyond MS Baseline: RDP NLA/Disable, WDigest protection, Admin Shares disable, Risky ports/services, Legacy TLS disable, WPAD disable, PowerShell v2 removal, SRP .lnk protection, Windows Update (3 GUI settings), Finger Protocol block. Opt-in by design (use -Profile Home/Enterprise/AirGapped)",
+      "version": "2.1.0",
+      "policies": 42,
+      "features": {
+        "rdp_hardening": true,
+        "wdigest_protection": true,
+        "admin_shares_disable": true,
+        "risky_ports_closure": true,
+        "risky_services_stop": true,
+        "legacy_tls_disable": true,
+        "wpad_disable": true,
+        "powershell_v2_removal": true,
+        "srp_lnk_protection": true,
+        "windows_update_config": true,
+        "finger_protocol_block": true
+      },
+      "profiles": ["Home", "EnterpriseConservative", "AirGappedMax"]
+    }
+  },
+  "options": {
+    "dryRun": false,
+    "createBackup": true,
+    "verboseLogging": true,
+    "autoReboot": false
+  }
+}

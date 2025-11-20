@@ -1,0 +1,37 @@
+﻿[
+    {
+        "GPO":  "MSFT Windows 11 25H2 - User",
+        "KeyName":  "[Software\\Policies\\Microsoft\\Windows\\CloudContent",
+        "ValueName":  "DisableThirdPartySuggestions",
+        "Type":  "REG_DWORD",
+        "Data":  1
+    },
+    {
+        "GPO":  "MSFT Windows 11 25H2 - User",
+        "KeyName":  "[Software\\Policies\\Microsoft\\Windows\\CurrentVersion\\PushNotifications",
+        "ValueName":  "NoToastApplicationNotificationOnLockScreen",
+        "Type":  "REG_DWORD",
+        "Data":  1
+    },
+    {
+        "GPO":  "MSFT Internet Explorer 11 - User",
+        "KeyName":  "[Software\\Policies\\Microsoft\\Internet Explorer\\Control Panel",
+        "ValueName":  "FormSuggest Passwords",
+        "Type":  "REG_DWORD",
+        "Data":  1
+    },
+    {
+        "GPO":  "MSFT Internet Explorer 11 - User",
+        "KeyName":  "[Software\\Policies\\Microsoft\\Internet Explorer\\Main",
+        "ValueName":  "FormSuggest PW Ask",
+        "Type":  "REG_SZ",
+        "Data":  "no"
+    },
+    {
+        "GPO":  "MSFT Internet Explorer 11 - User",
+        "KeyName":  "[Software\\Policies\\Microsoft\\Internet Explorer\\Main",
+        "ValueName":  "FormSuggest Passwords",
+        "Type":  "REG_SZ",
+        "Data":  "no"
+    }
+]
