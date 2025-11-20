@@ -271,9 +271,14 @@ Write-Host @"
 
 "@ -ForegroundColor Green
 
-# Auto-start interactive menu (user-friendly default)
-Write-ColorOutput "▶️  Starting NoID Privacy Pro interactive menu..." -Color $ColorInfo
-Start-Sleep -Seconds 2
+Write-Host ""
+Write-Host ""
+Write-ColorOutput "Press any key to start NoID Privacy Pro interactive menu..." -Color $ColorInfo -NoNewline
+$null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+Write-Host ""
+
+# Auto-start interactive menu after user confirmation
+Write-ColorOutput "▶️  Starting NoID Privacy Pro..." -Color $ColorInfo
 
 try {
     Push-Location $InstallPath
@@ -286,4 +291,5 @@ catch {
     Write-ColorOutput "   .\Start-NoIDPrivacy.bat" -Color $ColorInfo
 }
 
+Write-Host ""
 Write-ColorOutput "🛡️  NoID Privacy Pro - Keeping Windows 11 secure and private!" -Color $ColorSuccess
