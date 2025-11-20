@@ -271,21 +271,19 @@ Write-Host @"
 
 "@ -ForegroundColor Green
 
-# Auto-start if requested
-if ($AutoStart) {
-    Write-ColorOutput "▶️  Auto-starting NoID Privacy Pro..." -Color $ColorInfo
+# Auto-start interactive menu (user-friendly default)
+Write-ColorOutput "▶️  Starting NoID Privacy Pro interactive menu..." -Color $ColorInfo
+Start-Sleep -Seconds 2
+
+try {
     Push-Location $InstallPath
     & .\Start-NoIDPrivacy.bat
     Pop-Location
 }
-else {
-    Write-ColorOutput @"
-
-Ready to start? Run:
-▶️  cd "$InstallPath"
-▶️  .\Start-NoIDPrivacy.bat
-
-"@ -Color $ColorInfo
+catch {
+    Write-ColorOutput "⚠️  Could not auto-start. Please run manually:" -Color $ColorWarning
+    Write-ColorOutput "   cd `"$InstallPath`"" -Color $ColorInfo
+    Write-ColorOutput "   .\Start-NoIDPrivacy.bat" -Color $ColorInfo
 }
 
 Write-ColorOutput "🛡️  NoID Privacy Pro - Keeping Windows 11 secure and private!" -Color $ColorSuccess
