@@ -9,9 +9,6 @@
 [![License](https://img.shields.io/badge/license-GPL--3.0-green.svg?logo=gnu)](LICENSE)
 [![Version](https://img.shields.io/badge/version-2.1.0-blue.svg)](CHANGELOG.md)
 [![Status](https://img.shields.io/badge/status-production--ready-brightgreen.svg)]()
-[![GitHub stars](https://img.shields.io/github/stars/NexusOne23/noid-privacy?style=social)](https://github.com/NexusOne23/noid-privacy/stargazers)
-[![GitHub issues](https://img.shields.io/github/issues/NexusOne23/noid-privacy)](https://github.com/NexusOne23/noid-privacy/issues)
-[![Code Quality](https://img.shields.io/badge/code%20quality-9.5%2F10-brightgreen)](/)
 
 ### 🏗️ Framework Architecture
 
