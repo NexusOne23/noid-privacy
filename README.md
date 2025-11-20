@@ -592,9 +592,11 @@ Logs/NoIDPrivacy_YYYYMMDD_HHMMSS.log
 - **[Quick Start](#-quick-start)** - Installation guide (see above)
 - **[Troubleshooting](#-troubleshooting)** - Common issues (see above)
 
-### Community
-- **[GitHub Issues](https://github.com/NexusOne23/noid-privacy/issues)** - Bug reports, feature requests
-- **[Discussions](https://github.com/NexusOne23/noid-privacy/discussions)** - Questions and ideas
+### 💬 Community
+
+- **[💬 Discussions](https://github.com/NexusOne23/noid-privacy/discussions)** - Questions, ideas, and commercial licensing inquiries
+- **[🐛 Issues](https://github.com/NexusOne23/noid-privacy/issues)** - Bug reports only
+- **[📚 Documentation](Docs/FEATURES.md)** - Complete feature reference
 
 ---
 
@@ -640,7 +642,7 @@ This project is licensed under the **GNU General Public License v3.0** (GPL-3.0)
 - Receive dedicated commercial support and warranties
 - Avoid GPL v3.0 copyleft requirements
 
-**Contact:** Open a [GitHub Discussion](https://github.com/NexusOne23/noid-privacy/discussions) to inquire about commercial licensing.
+**Contact:** Open a [💬 GitHub Discussion](https://github.com/NexusOne23/noid-privacy/discussions) to inquire about commercial licensing.
 
 ---
 
