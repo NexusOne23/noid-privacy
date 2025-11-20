@@ -11,6 +11,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### 🎉 Major Release - Complete Framework with Zero-Day Protection
 
+**⚠️ BREAKING CHANGE: License Change**
+- **License changed from MIT (v1.x) to GPL v3.0 (v2.x+)**
+- **Reason:** Complete rewrite from scratch (100% new codebase)
+- **Impact:** v2.1.0+ requires GPL v3.0 compliance for derivatives
+- **Note:** v1.8.x releases remain under MIT license (unchanged)
+- **Dual-Licensing:** Commercial licenses available for closed-source use
+
 Complete implementation of all 7 planned modules (583 security settings) with full BAVR pattern compliance and production-ready quality.
 
 ### ✅ Added
