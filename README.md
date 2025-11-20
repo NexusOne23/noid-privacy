@@ -1,4 +1,4 @@
-﻿# 🛡️ NoID Privacy Pro - Enterprise-Grade Windows 11 Security Hardening
+﻿# 🛡️ NoID Privacy Pro - Enterprise-Grade Windows 11 Security & Privacy Hardening Tool
 
 > **🔒 Complete Windows 11 Security Framework • 583 Settings • 7 Modules • Full Backup & Restore**
 
