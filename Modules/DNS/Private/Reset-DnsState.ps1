@@ -19,7 +19,13 @@ function Reset-DnsState {
     
     Write-Log -Level DEBUG -Message "Cleaning up DNS state (all providers)..." -Module "DNS"
     
-    # 1. Delete ALL known DoH server registrations
+    # 1. Clear network caches FIRST (remove stale mappings before any changes)
+    Write-Log -Level DEBUG -Message "Clearing DNS, ARP and NetBIOS caches..." -Module "DNS"
+    ipconfig /flushdns 2>$null | Out-Null    # DNS cache (domain → IP)
+    arp -d * 2>$null | Out-Null              # ARP cache (IP → MAC address)
+    nbtstat -R 2>$null | Out-Null            # NetBIOS name cache (Windows names)
+    
+    # 2. Delete ALL known DoH server registrations
     $allKnownIps = @(
         # Cloudflare (Standard)
         '1.1.1.1', '1.0.0.1', '2606:4700:4700::1111', '2606:4700:4700::1001',
@@ -46,7 +52,7 @@ function Reset-DnsState {
         }
     }
     
-    # 2. Clean per-adapter DoH registry keys (all GUIDs)
+    # 3. Clean per-adapter DoH registry keys (all GUIDs)
     # CRITICAL: We clean these because Enable-DoH + manual DohFlags setting will recreate them
     $basePath = 'HKLM:\SYSTEM\CurrentControlSet\Services\Dnscache\InterfaceSpecificParameters'
     if (Test-Path $basePath) {
@@ -61,7 +67,8 @@ function Reset-DnsState {
         }
     }
     
-    # 3. Optional: Reset adapters to automatic DHCP DNS
+    # 4. Optional: Reset adapters to automatic DHCP DNS
+    $adapterWasReset = $false
     if (-not $KeepAdapterDns) {
         Write-Log -Level DEBUG -Message "Resetting adapters to automatic DNS..." -Module "DNS"
         Get-DnsClient -ErrorAction SilentlyContinue |
@@ -71,6 +78,7 @@ function Reset-DnsState {
                     Set-DnsClientServerAddress -InterfaceAlias $_.InterfaceAlias `
                         -ResetServerAddresses -ErrorAction Stop
                     Write-Log -Level DEBUG -Message "  Reset: $($_.InterfaceAlias)" -Module "DNS"
+                    $adapterWasReset = $true
                 }
                 catch {
                     Write-Log -Level DEBUG -Message "  Failed to reset: $($_.InterfaceAlias)" -Module "DNS"
@@ -78,12 +86,13 @@ function Reset-DnsState {
             }
     }
     
-    # 4. Clear related caches (DNS, ARP, NetBIOS)
-    # IMPORTANT: These caches must be cleared together to prevent stale network mappings
-    Write-Log -Level DEBUG -Message "Clearing DNS, ARP and NetBIOS caches..." -Module "DNS"
-    ipconfig /flushdns 2>$null | Out-Null    # DNS cache (domain → IP)
-    arp -d * 2>$null | Out-Null              # ARP cache (IP → MAC address)
-    nbtstat -R 2>$null | Out-Null            # NetBIOS name cache (Windows names)
+    # 5. Clear caches AGAIN if adapter was reset (DHCP may have created new cache entries)
+    if ($adapterWasReset) {
+        Write-Log -Level DEBUG -Message "Clearing caches again after adapter reset..." -Module "DNS"
+        ipconfig /flushdns 2>$null | Out-Null
+        arp -d * 2>$null | Out-Null
+        nbtstat -R 2>$null | Out-Null
+    }
     
     Write-Log -Level DEBUG -Message "DNS state cleanup complete" -Module $script:ModuleName
 }
