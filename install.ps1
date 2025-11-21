@@ -1,4 +1,4 @@
-<#
+﻿<#
 .SYNOPSIS
     NoID Privacy Pro - One-Line Installer
     
@@ -68,34 +68,29 @@ function Test-Administrator {
 
 function Get-LatestRelease {
     try {
-        Write-ColorOutput "📥 Fetching latest release from GitHub..." -Color $ColorInfo
+        Write-ColorOutput "Fetching latest release from GitHub..." -Color $ColorInfo
         $release = Invoke-RestMethod -Uri "https://api.github.com/repos/NexusOne23/noid-privacy/releases/latest" -UseBasicParsing
         return $release
     }
     catch {
-        Write-ColorOutput "⚠️  No releases found. Using main branch instead..." -Color $ColorWarning
+        Write-ColorOutput "No releases found. Using main branch instead..." -Color $ColorWarning
         return $null
     }
 }
 
 # Banner
-Write-Host @"
-
-╔═══════════════════════════════════════════════════════════════╗
-║                                                               ║
-║        🛡️  NoID Privacy Pro - One-Line Installer            ║
-║                                                               ║
-║   Enterprise-Grade Windows 11 Security & Privacy Hardening   ║
-║                                                               ║
-╚═══════════════════════════════════════════════════════════════╝
-
-"@ -ForegroundColor Cyan
+Write-Host ""
+Write-Host "===============================================================" -ForegroundColor Cyan
+Write-Host "        NoID Privacy Pro - One-Line Installer                 " -ForegroundColor Cyan
+Write-Host "   Enterprise-Grade Windows 11 Security & Privacy Hardening   " -ForegroundColor Cyan
+Write-Host "===============================================================" -ForegroundColor Cyan
+Write-Host ""
 
 # Step 1: Check Administrator
 if (-not $SkipAdminCheck) {
-    Write-ColorOutput "🔐 Checking administrator privileges..." -Color $ColorInfo
+    Write-ColorOutput "Checking administrator privileges..." -Color $ColorInfo
     if (-not (Test-Administrator)) {
-        Write-ColorOutput "❌ ERROR: Administrator rights required!" -Color $ColorError
+        Write-ColorOutput "ERROR: Administrator rights required!" -Color $ColorError
         Write-ColorOutput "   Please run PowerShell as Administrator and try again." -Color $ColorWarning
         Write-ColorOutput @"
 
@@ -107,26 +102,26 @@ To run as Administrator:
 "@ -Color $ColorInfo
         exit 1
     }
-    Write-ColorOutput "✅ Administrator privileges confirmed" -Color $ColorSuccess
+    Write-ColorOutput "Administrator privileges confirmed" -Color $ColorSuccess
 }
 
 # Step 2: Check PowerShell Version
-Write-ColorOutput "🔍 Checking PowerShell version..." -Color $ColorInfo
+Write-ColorOutput "Checking PowerShell version..." -Color $ColorInfo
 $psVersion = $PSVersionTable.PSVersion
 if ($psVersion.Major -lt 5 -or ($psVersion.Major -eq 5 -and $psVersion.Minor -lt 1)) {
-    Write-ColorOutput "❌ ERROR: PowerShell 5.1 or higher required!" -Color $ColorError
+    Write-ColorOutput "ERROR: PowerShell 5.1 or higher required!" -Color $ColorError
     Write-ColorOutput "   Current version: $($psVersion.ToString())" -Color $ColorWarning
     exit 1
 }
-Write-ColorOutput "✅ PowerShell version OK ($($psVersion.ToString()))" -Color $ColorSuccess
+Write-ColorOutput "PowerShell version OK ($($psVersion.ToString()))" -Color $ColorSuccess
 
 # Step 3: Check Windows Version
-Write-ColorOutput "🪟 Checking Windows version..." -Color $ColorInfo
+Write-ColorOutput "Checking Windows version..." -Color $ColorInfo
 $osInfo = Get-ComputerInfo
 $buildNumber = [int]$osInfo.OsBuildNumber
 
 if ($buildNumber -lt 22000) {
-    Write-ColorOutput "❌ ERROR: Windows 11 required!" -Color $ColorError
+    Write-ColorOutput "ERROR: Windows 11 required!" -Color $ColorError
     Write-ColorOutput "   Current build: $buildNumber (Windows 10 or older)" -Color $ColorWarning
     exit 1
 }
@@ -136,23 +131,23 @@ $osVersion = if ($buildNumber -ge 26200) { "25H2" }
              elseif ($buildNumber -ge 22631) { "23H2" }
              else { "Unknown" }
 
-Write-ColorOutput "✅ Windows 11 $osVersion detected (Build $buildNumber)" -Color $ColorSuccess
+Write-ColorOutput "Windows 11 $osVersion detected (Build $buildNumber)" -Color $ColorSuccess
 
 # Step 4: Create Install Directory
-Write-ColorOutput "📁 Creating installation directory..." -Color $ColorInfo
+Write-ColorOutput "Creating installation directory..." -Color $ColorInfo
 if (Test-Path $InstallPath) {
-    Write-ColorOutput "⚠️  Directory already exists: $InstallPath" -Color $ColorWarning
+    Write-ColorOutput "Directory already exists: $InstallPath" -Color $ColorWarning
     $response = Read-Host "   Overwrite existing installation? (Y/N)"
     if ($response -ne 'Y') {
-        Write-ColorOutput "❌ Installation cancelled by user" -Color $ColorWarning
+        Write-ColorOutput "Installation cancelled by user" -Color $ColorWarning
         exit 0
     }
-    Write-ColorOutput "🗑️  Removing old installation..." -Color $ColorInfo
+    Write-ColorOutput "Removing old installation..." -Color $ColorInfo
     Remove-Item -Path $InstallPath -Recurse -Force
 }
 
 New-Item -ItemType Directory -Path $InstallPath -Force | Out-Null
-Write-ColorOutput "✅ Install directory created: $InstallPath" -Color $ColorSuccess
+Write-ColorOutput "Install directory created: $InstallPath" -Color $ColorSuccess
 
 # Step 5: Download Latest Release or Main Branch
 $downloadUrl = $null
@@ -161,32 +156,32 @@ $downloadPath = Join-Path $env:TEMP "NoIDPrivacy.zip"
 $release = Get-LatestRelease
 
 if ($release) {
-    Write-ColorOutput "📦 Latest release: $($release.tag_name)" -Color $ColorInfo
+    Write-ColorOutput "Latest release: $($release.tag_name)" -Color $ColorInfo
     $zipAsset = $release.assets | Where-Object { $_.name -like "*.zip" } | Select-Object -First 1
     
     if ($zipAsset) {
         $downloadUrl = $zipAsset.browser_download_url
-        Write-ColorOutput "📥 Downloading release: $($zipAsset.name)" -Color $ColorInfo
+        Write-ColorOutput "Downloading release: $($zipAsset.name)" -Color $ColorInfo
     }
 }
 
 if (-not $downloadUrl) {
-    Write-ColorOutput "📥 Downloading from main branch..." -Color $ColorInfo
+    Write-ColorOutput "Downloading from main branch..." -Color $ColorInfo
     $downloadUrl = "https://github.com/NexusOne23/noid-privacy/archive/refs/heads/main.zip"
 }
 
 try {
     Invoke-WebRequest -Uri $downloadUrl -OutFile $downloadPath -UseBasicParsing
-    Write-ColorOutput "✅ Download complete" -Color $ColorSuccess
+    Write-ColorOutput "Download complete" -Color $ColorSuccess
 }
 catch {
-    Write-ColorOutput "❌ ERROR: Download failed!" -Color $ColorError
+    Write-ColorOutput "ERROR: Download failed!" -Color $ColorError
     Write-ColorOutput "   $($_.Exception.Message)" -Color $ColorWarning
     exit 1
 }
 
 # Step 6: Extract Archive
-Write-ColorOutput "📂 Extracting files..." -Color $ColorInfo
+Write-ColorOutput "Extracting files..." -Color $ColorInfo
 try {
     Expand-Archive -Path $downloadPath -DestinationPath $InstallPath -Force
     
@@ -206,79 +201,74 @@ try {
     }
     
     Remove-Item -Path $downloadPath -Force
-    Write-ColorOutput "✅ Files extracted successfully" -Color $ColorSuccess
+    Write-ColorOutput "Files extracted successfully" -Color $ColorSuccess
 }
 catch {
-    Write-ColorOutput "❌ ERROR: Extraction failed!" -Color $ColorError
+    Write-ColorOutput "ERROR: Extraction failed!" -Color $ColorError
     Write-ColorOutput "   $($_.Exception.Message)" -Color $ColorWarning
     exit 1
 }
 
 # Step 7: Unblock Files
-Write-ColorOutput "🔓 Unblocking PowerShell scripts..." -Color $ColorInfo
+Write-ColorOutput "Unblocking PowerShell scripts..." -Color $ColorInfo
 Get-ChildItem -Path $InstallPath -Recurse -Include *.ps1, *.psm1, *.psd1 | Unblock-File
-Write-ColorOutput "✅ All files unblocked" -Color $ColorSuccess
+Write-ColorOutput "All files unblocked" -Color $ColorSuccess
 
 # Step 8: Display Success Message
-Write-Host @"
-
-╔═══════════════════════════════════════════════════════════════╗
-║                                                               ║
-║           ✅ INSTALLATION COMPLETE!                          ║
-║                                                               ║
-╚═══════════════════════════════════════════════════════════════╝
-
-📍 Installation Path: $InstallPath
-
-🚀 Next Steps:
-
-1️⃣  Review the documentation:
-   📖 README: $InstallPath\README.md
-
-2️⃣  Create a system backup (CRITICAL!):
-   💾 System Restore Point
-   💾 Full system image
-   💾 VM snapshot (if applicable)
-
-3️⃣  Run the interactive setup:
-   ▶️  cd "$InstallPath"
-   ▶️  .\Start-NoIDPrivacy.bat
-
-4️⃣  Or run directly with PowerShell:
-   ▶️  cd "$InstallPath"
-   ▶️  .\NoIDPrivacy.ps1 -Module All
-
-5️⃣  After execution, verify settings:
-   ✅ .\Tools\Verify-Complete-Hardening.ps1
-
-⚠️  IMPORTANT WARNINGS:
-
-• This tool modifies CRITICAL system settings
-• BACKUP your system BEFORE running
-• Test in a VM first (recommended)
-• Domain-joined systems: Coordinate with IT
-• Read SECURITY.md for security considerations
-
-📚 Documentation:
-• README.md - Complete guide
-• CHANGELOG.md - Version history  
-• SECURITY.md - Security policy
-• LICENSE - GPL v3.0 dual-license
-
-💬 Community & Support:
-• GitHub Issues: https://github.com/NexusOne23/noid-privacy/issues
-• Discussions: https://github.com/NexusOne23/noid-privacy/discussions
-
-"@ -ForegroundColor Green
+Write-Host ""
+Write-Host "===============================================================" -ForegroundColor Green
+Write-Host "                 INSTALLATION COMPLETE!                        " -ForegroundColor Green
+Write-Host "===============================================================" -ForegroundColor Green
+Write-Host ""
+Write-Host "Installation Path: $InstallPath" -ForegroundColor Green
+Write-Host ""
+Write-Host "Next Steps:" -ForegroundColor Green
+Write-Host ""
+Write-Host "1. Review the documentation:" -ForegroundColor Green
+Write-Host "   README: $InstallPath\README.md" -ForegroundColor Green
+Write-Host ""
+Write-Host "2. Create a system backup (CRITICAL!):" -ForegroundColor Green
+Write-Host "   - System Restore Point" -ForegroundColor Green
+Write-Host "   - Full system image" -ForegroundColor Green
+Write-Host "   - VM snapshot (if applicable)" -ForegroundColor Green
+Write-Host ""
+Write-Host "3. Run the interactive setup:" -ForegroundColor Green
+Write-Host "   cd `"$InstallPath`"" -ForegroundColor Green
+Write-Host "   .\Start-NoIDPrivacy.bat" -ForegroundColor Green
+Write-Host ""
+Write-Host "4. Or run directly with PowerShell:" -ForegroundColor Green
+Write-Host "   cd `"$InstallPath`"" -ForegroundColor Green
+Write-Host "   .\NoIDPrivacy.ps1 -Module All" -ForegroundColor Green
+Write-Host ""
+Write-Host "5. After execution, verify settings:" -ForegroundColor Green
+Write-Host "   .\Tools\Verify-Complete-Hardening.ps1" -ForegroundColor Green
+Write-Host ""
+Write-Host "IMPORTANT WARNINGS:" -ForegroundColor Yellow
+Write-Host ""
+Write-Host "- This tool modifies CRITICAL system settings" -ForegroundColor Yellow
+Write-Host "- BACKUP your system BEFORE running" -ForegroundColor Yellow
+Write-Host "- Test in a VM first (recommended)" -ForegroundColor Yellow
+Write-Host "- Domain-joined systems: Coordinate with IT" -ForegroundColor Yellow
+Write-Host "- Read SECURITY.md for security considerations" -ForegroundColor Yellow
+Write-Host ""
+Write-Host "Documentation:" -ForegroundColor Cyan
+Write-Host "- README.md - Complete guide" -ForegroundColor Cyan
+Write-Host "- CHANGELOG.md - Version history" -ForegroundColor Cyan
+Write-Host "- SECURITY.md - Security policy" -ForegroundColor Cyan
+Write-Host "- LICENSE - GPL v3.0 dual-license" -ForegroundColor Cyan
+Write-Host ""
+Write-Host "Community & Support:" -ForegroundColor Cyan
+Write-Host "- GitHub Issues: https://github.com/NexusOne23/noid-privacy/issues" -ForegroundColor Cyan
+Write-Host "- Discussions: https://github.com/NexusOne23/noid-privacy/discussions" -ForegroundColor Cyan
 
 Write-Host ""
 Write-Host ""
-Write-ColorOutput "Press any key to start NoID Privacy Pro interactive menu..." -Color $ColorInfo -NoNewline
+Write-ColorOutput "Press any key to start interactive menu..." -Color $ColorInfo -NoNewline
 $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
 Write-Host ""
 
 # Auto-start interactive menu after user confirmation
-Write-ColorOutput "▶️  Starting NoID Privacy Pro..." -Color $ColorInfo
+Write-ColorOutput "Starting NoID Privacy Pro..." -Color $ColorInfo
 
 try {
     Push-Location $InstallPath
@@ -286,10 +276,10 @@ try {
     Pop-Location
 }
 catch {
-    Write-ColorOutput "⚠️  Could not auto-start. Please run manually:" -Color $ColorWarning
+    Write-ColorOutput "Could not auto-start. Please run manually:" -Color $ColorWarning
     Write-ColorOutput "   cd `"$InstallPath`"" -Color $ColorInfo
     Write-ColorOutput "   .\Start-NoIDPrivacy.bat" -Color $ColorInfo
 }
 
 Write-Host ""
-Write-ColorOutput "🛡️  NoID Privacy Pro - Keeping Windows 11 secure and private!" -Color $ColorSuccess
+Write-ColorOutput "NoID Privacy Pro - Keeping Windows 11 secure and private!" -Color $ColorSuccess
