@@ -103,22 +103,18 @@
 
 ## 🚀 What Makes This Different?
 
-**Windows 11 hardening toolkit with full BAVR pattern (Backup → Apply → Verify → Restore), zero external binaries, and a 100% native PowerShell architecture.**
+**Full BAVR pattern (Backup → Apply → Verify → Restore) • Zero external binaries • 100% native PowerShell**
 
 | Feature | **NoID Privacy Pro** | HardeningKitty | ChrisTitus winutil | O&O ShutUp10++ |
 |:---|:---:|:---:|:---:|:---:|
-| **Core Focus** | **Security enforcement (baseline, ASR, DNS, privacy)** | Baseline audit & hardening (CIS/MS lists) | System setup, tweaks & debloat | Privacy & telemetry control |
-| **MS Baselines** | **Implements Windows 11 25H2 Security Baseline (425+ settings)** | Supports CIS/Microsoft security baselines (Windows 10/11; audit + apply via finding lists) | No official MS baseline mapping (individual tweaks) | No MS baseline mapping (privacy presets only) |
-| **Architecture** | **Native PowerShell scripts/modules** | PowerShell module + CSV finding lists | PowerShell script with GUI; uses external tools for installs | Closed-source Windows desktop app |
-| **Dependencies** | **No external EXEs; runs on stock Windows 11 PowerShell** | PowerShell only; optional GPMC/Policy tools for GPO export | Uses winget/chocolatey and online repos for software installs | Portable EXE; no installation, no extra runtime dependencies |
-| **BAVR Pattern** | **Built-in Backup → Apply → Verify → Restore for all modules** | Audit + Config backup + HailMary apply + partial restore (per finding list) | Creates Windows System Restore point before tweaks (no automated compliance audit) | Can rely on System Restore + export/import of setting profiles (no baseline compliance audit) |
-| **Backup Strategy** | **Module-specific backups (registry, services, firewall, DNS, SRP, etc.) via Rollback.ps1** | Per-setting backup to CSV finding list; restore via HailMary (not a full system image) | Windows System Restore point for global rollback | System Restore point (recommended) + export/import of configuration profile |
-| **Verification** | **583 automated checks (baseline/ASR/DNS/privacy/etc.)** | Comprehensive audit mode with severity scoring & CSV report | No dedicated baseline/compliance scan (relies on UI/logs) | No dedicated baseline/compliance scan (relies on visible toggles) |
-| **AI Lockdown (24H2)** | **Anti-AI module (24 policies) for Copilot+/Recall & AI integrations** | No dedicated AI lockdown profile documented | Various tweaks available; no dedicated AI lockdown profile | Multiple privacy toggles, including disabling Copilot+/Recall and related features |
-| **Change Impact / Warnings** | **Designed for Microsoft-supported configs with built-in rollback for all module changes** | Explicit warnings before HailMary; recommends backup/image and careful testing | Documentation recommends creating a System Restore point before applying tweaks | Vendor and reviews warn that some settings may disable features; recommends System Restore and careful use |
+| **Focus** | **MS Baseline 25H2 + ASR + DNS + Privacy (583 settings)** | CIS/MS baseline audit & CSV-based hardening | System tweaks, debloat & app installs | Privacy toggles & telemetry control |
+| **BAVR Pattern** | **Backup → Apply → Verify → Restore (all modules)** | Audit + HailMary apply + partial restore | System Restore point (no verify) | System Restore + profile export |
+| **Verification** | **583 automated compliance checks** | Audit mode with severity scoring | No compliance scan | No compliance scan |
+| **Dependencies** | **Zero (runs on stock PS 5.1/7+)** | PowerShell only | winget/chocolatey required | Portable EXE (closed-source) |
+| **AI Lockdown** | **24 policies (Copilot+/Recall/24H2)** | No dedicated AI profile | Individual AI tweaks | Multiple AI/Copilot toggles |
 
-** BAVR Pattern = Backup-Apply-Verify-Restore** (Our unique safety guarantee)
-** Zero Dependency = No LGPO.exe, no DLLs, no external downloads required.** Runs on air-gapped systems out of the box.
+** BAVR = Backup-Apply-Verify-Restore** (Every change is reversible) 
+** Air-Gapped Ready** No LGPO.exe, no DLLs, no external downloads
 
 ---
 
