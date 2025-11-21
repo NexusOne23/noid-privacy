@@ -1,4 +1,6 @@
-﻿<#
+﻿#Requires -Version 5.1
+
+<#
 .SYNOPSIS
     NoID Privacy Pro - One-Line Installer
     
@@ -17,19 +19,18 @@
     Requires: PowerShell 5.1+, Windows 11, Admin Rights
 #>
 
-[CmdletBinding()]
-param(
-    [Parameter(Mandatory = $false)]
-    [string]$InstallPath = "$env:USERPROFILE\NoIDPrivacy",
-    
-    [Parameter(Mandatory = $false)]
-    [switch]$SkipAdminCheck,
-    
-    [Parameter(Mandatory = $false)]
-    [switch]$AutoStart
-)
-
-#Requires -Version 5.1
+function Install-NoIDPrivacy {
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $false)]
+        [string]$InstallPath = "$env:USERPROFILE\NoIDPrivacy",
+        
+        [Parameter(Mandatory = $false)]
+        [switch]$SkipAdminCheck,
+        
+        [Parameter(Mandatory = $false)]
+        [switch]$AutoStart
+    )
 
 $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'
@@ -283,3 +284,7 @@ catch {
 
 Write-Host ""
 Write-ColorOutput "NoID Privacy Pro - Keeping Windows 11 secure and private!" -Color $ColorSuccess
+}
+
+# Call the function
+Install-NoIDPrivacy @PSBoundParameters
