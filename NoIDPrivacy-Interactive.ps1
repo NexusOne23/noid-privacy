@@ -234,27 +234,24 @@ function Invoke-RebootPrompt {
     Write-Host ""
     
     if ($Context -eq 'Hardening') {
-        Write-ColorText "  The following settings require a reboot to take full effect:" -Color White
+        Write-ColorText "  The applied security changes require a system reboot to take full effect." -Color White
         Write-Host ""
-        Write-ColorText "    [1] Audit Policies (23 policies)" -Color Yellow
-        Write-ColorText "        - Advanced Audit Policy Configuration via auditpol.exe" -Color Gray
-        Write-ColorText "        - Status: Pending system reboot for activation" -Color Cyan
-        Write-ColorText "        - After reboot: 23/23 policies will be active (expected)" -Color Green
+        Write-ColorText "  Settings that require reboot:" -Color Gray
         Write-Host ""
-        Write-ColorText "    [2] Group Policy Settings" -Color Yellow
-        Write-ColorText "        - Some Group Policy settings only activate after reboot" -Color Gray
+        Write-ColorText "    - Audit Policies" -Color Yellow -NoNewline
+        Write-ColorText " (Advanced auditing configuration)" -Color Gray
+        Write-ColorText "    - Group Policy Settings" -Color Yellow -NoNewline
+        Write-ColorText " (Registry policies and system settings)" -Color Gray
+        Write-ColorText "    - Security Templates" -Color Yellow -NoNewline
+        Write-ColorText " (User rights and system access policies)" -Color Gray
+        Write-ColorText "    - Service Configurations" -Color Yellow -NoNewline
+        Write-ColorText " (Windows service startup changes)" -Color Gray
         Write-Host ""
-        Write-ColorText "    [3] Security Template Settings" -Color Yellow
-        Write-ColorText "        - User Rights Assignments" -Color Gray
-        Write-ColorText "        - System Access Policies" -Color Gray
-        Write-Host ""
-        Write-ColorText "  Note: NoID Privacy Pro now protects " -Color White -NoNewline
-        Write-ColorText "583 settings across 7 modules" -Color Green
-        Write-ColorText "        Some of these (audit policies, security template, certain Group Policy" -Color Gray
-        Write-ColorText "        settings) only become fully effective after a reboot." -Color Gray
+        Write-ColorText "  All applied changes are active but become " -Color Gray -NoNewline
+        Write-ColorText "fully effective after reboot." -Color White
         Write-Host ""
         Write-Host ""        
-        Write-ColorText "  For an exact post-reboot compliance rate, run:" -Color White
+        Write-ColorText "  To verify full compliance after reboot, run:" -Color White
         Write-ColorText "    .\Tools\Verify-Complete-Hardening.ps1" -Color Cyan
     }
     else {

@@ -21,9 +21,15 @@ function Reset-DnsState {
     
     # 1. Clear network caches FIRST (remove stale mappings before any changes)
     Write-Log -Level DEBUG -Message "Clearing DNS, ARP and NetBIOS caches..." -Module "DNS"
-    ipconfig /flushdns 2>$null | Out-Null    # DNS cache (domain → IP)
-    arp -d * 2>$null | Out-Null              # ARP cache (IP → MAC address)
-    nbtstat -R 2>$null | Out-Null            # NetBIOS name cache (Windows names)
+    
+    # DNS cache
+    ipconfig /flushdns 2>$null | Out-Null
+    
+    # ARP cache (use netsh - more reliable than arp -d * on international Windows)
+    netsh interface ip delete arpcache 2>$null | Out-Null
+    
+    # NetBIOS name cache
+    nbtstat -R 2>$null | Out-Null
     
     # 2. Delete ALL known DoH server registrations
     $allKnownIps = @(
@@ -90,7 +96,7 @@ function Reset-DnsState {
     if ($adapterWasReset) {
         Write-Log -Level DEBUG -Message "Clearing caches again after adapter reset..." -Module "DNS"
         ipconfig /flushdns 2>$null | Out-Null
-        arp -d * 2>$null | Out-Null
+        netsh interface ip delete arpcache 2>$null | Out-Null
         nbtstat -R 2>$null | Out-Null
     }
     
