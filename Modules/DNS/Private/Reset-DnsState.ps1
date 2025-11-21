@@ -78,5 +78,12 @@ function Reset-DnsState {
             }
     }
     
+    # 4. Clear related caches (DNS, ARP, NetBIOS)
+    # IMPORTANT: These caches must be cleared together to prevent stale network mappings
+    Write-Log -Level DEBUG -Message "Clearing DNS, ARP and NetBIOS caches..." -Module "DNS"
+    ipconfig /flushdns 2>$null | Out-Null    # DNS cache (domain → IP)
+    arp -d * 2>$null | Out-Null              # ARP cache (IP → MAC address)
+    nbtstat -R 2>$null | Out-Null            # NetBIOS name cache (Windows names)
+    
     Write-Log -Level DEBUG -Message "DNS state cleanup complete" -Module $script:ModuleName
 }
