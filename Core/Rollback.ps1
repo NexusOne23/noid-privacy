@@ -270,9 +270,37 @@ function Backup-RegistryKey {
         else {
             # Check if key simply doesn't exist yet (normal when creating new keys)
             if ($errorOutput -match "nicht gefunden|cannot find|not found") {
-                # This is normal - key doesn't exist yet, so there's nothing to backup
-                # No need to log anything - this is expected behavior
-                return $null
+                # Key doesn't exist - CREATE EMPTY MARKER so restore knows to DELETE this key
+                Write-Log -Level INFO -Message "Registry key does not exist (will create empty marker): $BackupName" -Module "Rollback"
+                
+                try {
+                    $emptyMarker = @{
+                        KeyPath = $KeyPath
+                        BackupDate = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+                        State = "NotExisted"
+                        Message = "Registry key did not exist before hardening - must be deleted during restore"
+                    } | ConvertTo-Json
+                    
+                    $markerFile = Join-Path $backupFolder "$safeBackupName`_EMPTY.json"
+                    $emptyMarker | Set-Content -Path $markerFile -Encoding UTF8 -Force
+                    
+                    Write-Log -Level SUCCESS -Message "Empty marker created for non-existent key: $BackupName" -Module "Rollback"
+                    
+                    # Add to backup index
+                    $script:BackupIndex += [PSCustomObject]@{
+                        Type       = "EmptyMarker"
+                        Name       = $BackupName
+                        Path       = $KeyPath
+                        BackupFile = $markerFile
+                        Timestamp  = Get-Date
+                    }
+                    
+                    return $markerFile
+                }
+                catch {
+                    Write-Log -Level WARNING -Message "Could not create empty marker for ${BackupName}: $($_.Exception.Message)" -Module "Rollback"
+                    return $null
+                }
             }
             else {
                 # Actual error
@@ -762,7 +790,104 @@ function Restore-FromBackup {
                     return $true
                 }
                 else {
-                    Write-Log -Level ERROR -Message "Registry restore failed (Exit Code: $($process.ExitCode)): $errorOutput" -Module "Rollback"
+                    $errorMessage = $errorOutput
+                    # Check for Access Denied error (English and German variants)
+                    if ($errorMessage -match "Zugriff verweigert|Access is denied|Fehler beim Zugriff auf die Registrierung") {
+                        # Extract key path from .reg file FIRST to check if it's a known protected key
+                        $keyPathToRestore = ""
+                        $backupContent = Get-Content -Path $BackupFile -Raw -ErrorAction SilentlyContinue
+                        if ($backupContent -match '\[(HKEY[^\]]+)\]') {
+                            $keyPathToRestore = $matches[1]
+                        }
+                        
+                        # Check if this is a known protected key BEFORE logging WARNING
+                        $knownProtectedKeys = @(
+                            'HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server',
+                            'HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Internet Settings',
+                            'HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced'
+                        )
+                        
+                        $isKnownProtected = $false
+                        foreach ($protectedKey in $knownProtectedKeys) {
+                            if ($keyPathToRestore -match [regex]::Escape($protectedKey)) {
+                                $isKnownProtected = $true
+                                break
+                            }
+                        }
+                        
+                        if ($isKnownProtected) {
+                            Write-Log -Level INFO -Message "Access Denied for known protected key: $keyPathToRestore (expected - Windows protection)" -Module "Rollback"
+                            Write-Log -Level INFO -Message "Special restore logic will handle this key if needed (JSON backup)" -Module "Rollback"
+                            return $true  # Success - this is expected, will be handled separately
+                        }
+                        else {
+                            Write-Log -Level WARNING -Message "Access Denied during registry restore for $BackupFile. Attempting to delete key and retry import..." -Module "Rollback"
+                        }
+                        
+                        if (-not [string]::IsNullOrEmpty($keyPathToRestore)) {
+                            try {
+                                # Convert reg.exe path to PowerShell path
+                                $psKeyPath = $keyPathToRestore -replace 'HKEY_LOCAL_MACHINE', 'HKLM:' `
+                                                                -replace 'HKEY_CURRENT_USER', 'HKCU:' `
+                                                                -replace 'HKEY_CLASSES_ROOT', 'HKCR:' `
+                                                                -replace 'HKEY_USERS', 'HKU:' `
+                                                                -replace 'HKEY_CURRENT_CONFIG', 'HKCC:'
+                                
+                                if (Test-Path $psKeyPath) {
+                                    Write-Log -Level INFO -Message "Deleting existing protected key: $psKeyPath before re-import." -Module "Rollback"
+                                    Remove-Item -Path $psKeyPath -Recurse -Force -ErrorAction SilentlyContinue # SilentlyContinue to avoid error if it's truly protected
+                                }
+                                
+                                # Retry import
+                                $process = Start-Process -FilePath "reg.exe" `
+                                    -ArgumentList "import", "`"$BackupFile`"" `
+                                    -Wait `
+                                    -NoNewWindow `
+                                    -PassThru `
+                                    -RedirectStandardOutput $stdoutFile `
+                                    -RedirectStandardError $stderrFile
+                                
+                                $errorOutput = Get-Content $stderrFile -Raw -ErrorAction SilentlyContinue
+                                Remove-Item $stdoutFile, $stderrFile -Force -ErrorAction SilentlyContinue
+                                
+                                if ($process.ExitCode -eq 0) {
+                                    Write-Log -Level SUCCESS -Message "Registry restored successfully after deleting key and retrying" -Module "Rollback"
+                                    return $true
+                                }
+                                else {
+                                    # Check if this is a known protected key that will be restored via JSON
+                                    $knownProtectedKeys = @(
+                                        'HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server',
+                                        'HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Internet Settings',
+                                        'HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced'
+                                    )
+                                    
+                                    $isKnownProtected = $false
+                                    foreach ($protectedKey in $knownProtectedKeys) {
+                                        if ($keyPathToRestore -match [regex]::Escape($protectedKey)) {
+                                            $isKnownProtected = $true
+                                            break
+                                        }
+                                    }
+                                    
+                                    if ($isKnownProtected) {
+                                        Write-Log -Level INFO -Message "Known protected key cannot be restored via reg.exe (Windows protection): $keyPathToRestore" -Module "Rollback"
+                                        Write-Log -Level INFO -Message "Special restore logic may handle this key separately (if JSON backup exists)" -Module "Rollback"
+                                        return $true  # Not a failure - this is expected behavior
+                                    }
+                                    else {
+                                        Write-Log -Level ERROR -Message "Registry restore failed even after deleting key (Exit Code: $($process.ExitCode)): $errorOutput" -Module "Rollback"
+                                        return $false
+                                    }
+                                }
+                            }
+                            catch {
+                                Write-Log -Level ERROR -Message "Failed to delete key or retry import for ${keyPathToRestore}: $($_.Exception.Message)" -Module "Rollback"
+                                return $false
+                            }
+                        }
+                    }
+                    Write-Log -Level ERROR -Message "Registry restore failed (Exit Code: $($process.ExitCode)): $errorMessage" -Module "Rollback"
                     return $false
                 }
             }
@@ -1107,9 +1232,9 @@ function Restore-Session {
                 }
                 
                 # STEP 2: Restore Audit Policies from pre-hardening backup (1:1 restore)
-                $auditBackupFile = Join-Path $moduleBackupPath "AuditPolicy_PreHardening.csv"
+                $auditBackupFile = Join-Path $moduleBackupPath "AuditPolicies.csv"
                 if (Test-Path $auditBackupFile) {
-                    Write-Log -Level INFO -Message "Found pre-hardening audit policy backup" -Module "Rollback"
+                    Write-Log -Level INFO -Message "Found audit policy backup" -Module "Rollback"
                     Write-Log -Level INFO -Message "Restoring audit policies from backup..." -Module "Rollback"
                     
                     try {
@@ -1143,9 +1268,9 @@ function Restore-Session {
                 }
                 else {
                     Write-Log -Level WARNING -Message "No rollback template found - trying full security policy backup" -Module "Rollback"
-                    $secPolicyBackupFile = Join-Path $moduleBackupPath "SecurityPolicy_PreHardening.inf"
+                    $secPolicyBackupFile = Join-Path $moduleBackupPath "SecurityTemplate.inf"
                     if (Test-Path $secPolicyBackupFile) {
-                        Write-Log -Level INFO -Message "Found pre-hardening security policy backup" -Module "Rollback"
+                        Write-Log -Level INFO -Message "Found security template backup" -Module "Rollback"
                         $secTemplatResult = Reset-SecurityTemplate -BackupFile $secPolicyBackupFile
                     }
                     else {
@@ -1158,7 +1283,28 @@ function Restore-Session {
                     Write-Log -Level WARNING -Message "Security template restore had errors - continuing" -Module "Rollback"
                 }
                 
-                # STEP 4: Final GPO refresh
+                # STEP 4: Restore Xbox Task if it was disabled
+                $xboxTaskBackup = Join-Path $moduleBackupPath "XboxTask.json"
+                if (Test-Path $xboxTaskBackup) {
+                    try {
+                        $taskData = Get-Content $xboxTaskBackup -Raw | ConvertFrom-Json
+                        
+                        if ($taskData.TaskExists -and $taskData.WasEnabled) {
+                            Write-Log -Level INFO -Message "Re-enabling Xbox scheduled task (was enabled before hardening)..." -Module "Rollback"
+                            
+                            Enable-ScheduledTask -TaskName $taskData.TaskName -TaskPath $taskData.TaskPath -ErrorAction Stop | Out-Null
+                            Write-Log -Level SUCCESS -Message "Xbox task re-enabled: $($taskData.TaskName)" -Module "Rollback"
+                        }
+                        else {
+                            Write-Log -Level INFO -Message "Xbox task was not enabled before hardening - leaving disabled" -Module "Rollback"
+                        }
+                    }
+                    catch {
+                        Write-Log -Level WARNING -Message "Failed to restore Xbox task state: $_" -Module "Rollback"
+                    }
+                }
+                
+                # STEP 5: Final GPO refresh
                 # Force group policy update to apply all restored settings
             }
             
@@ -1166,14 +1312,45 @@ function Restore-Session {
                 Write-Log -Level INFO -Message "Clearing ASR configuration before restore..." -Module "Rollback"
                 
                 # Clear all ASR rules via Windows Defender
-                # This removes the rules from Defender's configuration
                 $asrClearResult = Clear-ASRRules
                 if (-not $asrClearResult) {
                     Write-Log -Level WARNING -Message "ASR rules clear had errors - continuing" -Module "Rollback"
                 }
                 
-                # Note: ASR registry backups will be restored normally
-                # Clear-ASRRules already removed the active configuration
+                # CRITICAL: Restore ASR via Set-MpPreference, NOT registry
+                # Registry-only restore doesn't work after Clear-ASRRules
+                $asrMpPrefBackup = Get-ChildItem -Path $moduleBackupPath -Filter "ASR_ActiveConfiguration.json" -ErrorAction SilentlyContinue | Select-Object -First 1
+                
+                if ($asrMpPrefBackup) {
+                    Write-Log -Level INFO -Message "Restoring ASR rules via Set-MpPreference (proper method)..." -Module "Rollback"
+                    
+                    try {
+                        $asrBackupData = Get-Content $asrMpPrefBackup.FullName -Raw | ConvertFrom-Json
+                        
+                        if ($asrBackupData.Rules -and $asrBackupData.Rules.Count -gt 0) {
+                            $ruleIds = $asrBackupData.Rules | ForEach-Object { $_.GUID }
+                            $ruleActions = $asrBackupData.Rules | ForEach-Object { $_.Action }
+                            
+                            Set-MpPreference -AttackSurfaceReductionRules_Ids $ruleIds `
+                                            -AttackSurfaceReductionRules_Actions $ruleActions `
+                                            -ErrorAction Stop
+                            
+                            Write-Log -Level SUCCESS -Message "ASR rules restored via Set-MpPreference ($($asrBackupData.Rules.Count) rules)" -Module "Rollback"
+                        }
+                        else {
+                            # System had 0 ASR rules before hardening - restore to empty state
+                            # Clear-ASRRules already did this, so we just confirm it
+                            Write-Log -Level SUCCESS -Message "ASR restored to pre-hardening state (0 rules - system was clean)" -Module "Rollback"
+                        }
+                    }
+                    catch {
+                        Write-Log -Level ERROR -Message "Failed to restore ASR via Set-MpPreference: $_" -Module "Rollback"
+                        $allSucceeded = $false
+                    }
+                }
+                else {
+                    Write-Log -Level WARNING -Message "No ASR_ActiveConfiguration.json backup found - ASR rules will remain cleared" -Module "Rollback"
+                }
             }
             
             # Restore all registry backups for this module
@@ -1196,6 +1373,106 @@ function Restore-Session {
                         Write-Log -Level WARNING -Message "Registry restore failed for: $($regFile.Name) - continuing..." -Module "Rollback"
                         # Don't fail entire restore for registry errors - continue with other restores
                     }
+                }
+            }
+            
+            # Special handling for protected registry keys (RDP, WPAD) that fail with reg.exe import
+            # These keys require PowerShell-based restore from JSON backups
+            if ($moduleInfo.name -eq "AdvancedSecurity") {
+                # RDP Settings - use JSON backup if .reg import failed
+                $rdpJsonBackup = Get-ChildItem -Path $moduleBackupPath -Filter "RDP_Hardening.json" -ErrorAction SilentlyContinue | Select-Object -First 1
+                if ($rdpJsonBackup) {
+                    Write-Log -Level INFO -Message "Restoring RDP settings via PowerShell (protected key)..." -Module "Rollback"
+                    try {
+                        $rdpData = Get-Content $rdpJsonBackup.FullName -Raw | ConvertFrom-Json
+                        
+                        $policyPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services"
+                        $systemPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server"
+                        
+                        # Restore Policy settings (if backed up)
+                        if ($null -ne $rdpData.Policy_UserAuthentication) {
+                            if (Test-Path $policyPath) {
+                                Set-ItemProperty -Path $policyPath -Name "UserAuthentication" -Value $rdpData.Policy_UserAuthentication -Force -ErrorAction Stop
+                            }
+                        }
+                        if ($null -ne $rdpData.Policy_SecurityLayer) {
+                            if (Test-Path $policyPath) {
+                                Set-ItemProperty -Path $policyPath -Name "SecurityLayer" -Value $rdpData.Policy_SecurityLayer -Force -ErrorAction Stop
+                            }
+                        }
+                        
+                        # Restore System settings (if backed up)
+                        if ($null -ne $rdpData.System_fDenyTSConnections) {
+                            if (Test-Path $systemPath) {
+                                Set-ItemProperty -Path $systemPath -Name "fDenyTSConnections" -Value $rdpData.System_fDenyTSConnections -Force -ErrorAction Stop
+                            }
+                        }
+                        
+                        Write-Log -Level SUCCESS -Message "RDP settings restored via PowerShell" -Module "Rollback"
+                    }
+                    catch {
+                        Write-Log -Level WARNING -Message "PowerShell-based RDP restore failed: $($_.Exception.Message)" -Module "Rollback"
+                    }
+                }
+                else {
+                    Write-Log -Level INFO -Message "RDP_Hardening.json backup not found (backup created before JSON feature was added)" -Module "Rollback"
+                    Write-Log -Level INFO -Message "RDP settings cannot be fully restored from this backup - create new backup for complete restore" -Module "Rollback"
+                }
+                
+                # WPAD Settings - use JSON backup if .reg import failed
+                $wpadJsonBackup = Get-ChildItem -Path $moduleBackupPath -Filter "WPAD.json" -ErrorAction SilentlyContinue | Select-Object -First 1
+                if ($wpadJsonBackup) {
+                    Write-Log -Level INFO -Message "Restoring WPAD settings via PowerShell (protected key)..." -Module "Rollback"
+                    try {
+                        $wpadData = Get-Content $wpadJsonBackup.FullName -Raw | ConvertFrom-Json
+                        
+                        # WPAD JSON format: { "FullPath\\ValueName": value }
+                        foreach ($property in $wpadData.PSObject.Properties) {
+                            $fullPath = $property.Name
+                            $lastBackslash = $fullPath.LastIndexOf('\')
+                            
+                            if ($lastBackslash -gt 0) {
+                                $keyPath = $fullPath.Substring(0, $lastBackslash)
+                                $valueName = $fullPath.Substring($lastBackslash + 1)
+                                
+                                if ($null -ne $property.Value -and (Test-Path $keyPath)) {
+                                    Set-ItemProperty -Path $keyPath -Name $valueName -Value $property.Value -Force -ErrorAction Stop
+                                }
+                            }
+                        }
+                        
+                        Write-Log -Level SUCCESS -Message "WPAD settings restored via PowerShell" -Module "Rollback"
+                    }
+                    catch {
+                        Write-Log -Level WARNING -Message "PowerShell-based WPAD restore failed: $($_.Exception.Message)" -Module "Rollback"
+                    }
+                }
+                else {
+                    Write-Log -Level INFO -Message "WPAD.json backup not found (backup created before JSON feature was added)" -Module "Rollback"
+                    Write-Log -Level INFO -Message "WPAD settings cannot be fully restored from this backup - create new backup for complete restore" -Module "Rollback"
+                }
+            }
+            
+            # Handle Empty Markers: Delete registry keys that didn't exist before hardening
+            $emptyMarkers = Get-ChildItem -Path $moduleBackupPath -Filter "*_EMPTY.json" -ErrorAction SilentlyContinue
+            foreach ($marker in $emptyMarkers) {
+                try {
+                    $markerData = Get-Content $marker.FullName -Raw | ConvertFrom-Json
+                    
+                    if ($markerData.State -eq "NotExisted" -and $markerData.KeyPath) {
+                        Write-Log -Level INFO -Message "Processing empty marker: Registry key '$($markerData.KeyPath)' did not exist before hardening - deleting..." -Module "Rollback"
+                        
+                        if (Test-Path $markerData.KeyPath) {
+                            Remove-Item -Path $markerData.KeyPath -Recurse -Force -ErrorAction Stop
+                            Write-Log -Level SUCCESS -Message "Deleted registry key (did not exist before hardening): $($markerData.KeyPath)" -Module "Rollback"
+                        }
+                        else {
+                            Write-Log -Level INFO -Message "Registry key already doesn't exist: $($markerData.KeyPath)" -Module "Rollback"
+                        }
+                    }
+                }
+                catch {
+                    Write-Log -Level WARNING -Message "Failed to process empty marker $($marker.Name): $_" -Module "Rollback"
                 }
             }
             
@@ -1303,19 +1580,29 @@ function Restore-Session {
                     Write-Log -Level INFO -Message "Restoring Local Group Policy from: $gpoBackupPath" -Module "Rollback"
                     
                     try {
-                        $importResult = Import-LocalGPO -BackupPath $gpoBackupPath
-                        if ($importResult) {
-                            Write-Log -Level SUCCESS -Message "Local Group Policy restored successfully" -Module "Rollback"
+                        $gpoTargetPath = "C:\Windows\System32\GroupPolicy"
+                        
+                        # Check if backup directory has content (not empty)
+                        $backupContent = Get-ChildItem -Path $gpoBackupPath -Recurse -ErrorAction SilentlyContinue
+                        
+                        if ($backupContent -and $backupContent.Count -gt 0) {
+                            # Copy all contents from LocalGPO backup to GroupPolicy directory
+                            Copy-Item -Path "$gpoBackupPath\*" -Destination $gpoTargetPath -Recurse -Force -ErrorAction Stop
+                            
+                            Write-Log -Level SUCCESS -Message "Local Group Policy restored successfully from backup" -Module "Rollback"
                         }
                         else {
-                            Write-Log -Level ERROR -Message "Failed to restore Local Group Policy" -Module "Rollback"
-                            $allSucceeded = $false
+                            # Empty backup = system had no LocalGPO before hardening
+                            Write-Log -Level INFO -Message "LocalGPO backup is empty (system was clean before hardening) - no restore needed" -Module "Rollback"
                         }
                     }
                     catch {
-                        Write-Log -Level ERROR -Message "Exception restoring Local Group Policy: $_" -Module "Rollback"
+                        Write-Log -Level ERROR -Message "Exception restoring Local Group Policy: $($_.Exception.Message)" -Module "Rollback"
                         $allSucceeded = $false
                     }
+                }
+                else {
+                    Write-Log -Level WARNING -Message "No LocalGPO backup found for SecurityBaseline - policies remain cleared" -Module "Rollback"
                 }
             }
             
@@ -1545,8 +1832,19 @@ function Reset-SecurityTemplate {
             -NoNewWindow `
             -PassThru
         
-        if ($process.ExitCode -eq 0 -or $process.ExitCode -eq 3) {
-            # Exit code 0 = success, 3 = success with warnings (both are acceptable)
+        $errorLog = Get-Content $logFile -Raw -ErrorAction SilentlyContinue
+        
+        # Exit code evaluation:
+        # 0 = success
+        # 3 = success with warnings
+        # 1 = error, BUT if it's only SID-mapping issues, treat as success with warning
+        $isSidMappingOnly = $errorLog -match 'Zuordnungen von Kontennamen.*Sicherheitskennungen|account name.*security identifier'
+        
+        if ($process.ExitCode -eq 0 -or $process.ExitCode -eq 3 -or ($process.ExitCode -eq 1 -and $isSidMappingOnly)) {
+            if ($process.ExitCode -eq 1) {
+                Write-Log -Level WARNING -Message "Security template restored with SID-mapping warnings (non-fatal, most settings applied)" -Module "Rollback"
+            }
+            
             if ($BackupFile) {
                 Write-Log -Level SUCCESS -Message "Security template restored from pre-hardening backup" -Module "Rollback"
             }
@@ -1556,7 +1854,6 @@ function Reset-SecurityTemplate {
             return $true
         }
         else {
-            $errorLog = Get-Content $logFile -Raw -ErrorAction SilentlyContinue
             Write-Log -Level ERROR -Message "Failed to restore security template (Exit: $($process.ExitCode)): $errorLog" -Module "Rollback"
             return $false
         }

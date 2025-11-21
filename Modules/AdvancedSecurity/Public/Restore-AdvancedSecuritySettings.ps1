@@ -32,6 +32,12 @@ function Restore-AdvancedSecuritySettings {
         $filename = Split-Path $BackupFilePath -Leaf
         Write-Log -Level INFO -Message "Processing Advanced Security backup: $filename" -Module "AdvancedSecurity"
         
+        # Skip Empty Marker files - these are already processed by generic Empty Marker logic in Core/Rollback.ps1
+        if ($filename -match "_EMPTY\.json$") {
+            Write-Log -Level DEBUG -Message "Skipping Empty Marker file (already processed): $filename" -Module "AdvancedSecurity"
+            return $true  # Success - nothing to do here
+        }
+        
         # Load backup data
         $backupData = Get-Content -Path $BackupFilePath -Raw | ConvertFrom-Json
         

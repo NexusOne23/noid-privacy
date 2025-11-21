@@ -345,33 +345,35 @@ Some UI elements in Paint and Photos apps may **still be visible** but non-funct
 
 #### 10. Windows Update Configuration (3 Simple GUI Settings)
 
-**Matches Windows Settings GUI exactly** - NO forced schedules, NO auto-reboot, NO hidden policies
+**Aligns with Windows Settings GUI toggles** – NO forced schedules, NO auto-reboot, and only the documented policy keys needed to drive the visible switches
 
 **Settings Applied:**
 
-**1. Get Latest Updates Immediately (ON)**
+**1. Get Latest Updates Immediately (ON, managed by policy)**
+- Registry: `HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate`
+- Keys:
+  - `AllowOptionalContent = 1`
+  - `SetAllowOptionalContent = 1`
+- Effect: Enables optional/content configuration updates so the toggle "Get the latest updates as soon as they're available" is effectively ON and enforced by policy
+- GUI Path: Settings > Windows Update > Advanced options > Get the latest updates as soon as they're available (will show as managed by your organization)
+
+**2. Microsoft Update for Other Products (ON, user-toggleable)**
 - Registry: `HKLM:\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings`
-- Key: `IsContinuousInnovationOptedIn = 1`
-- Effect: Receive feature updates immediately (no deferral)
-- GUI Path: Settings > Windows Update > Advanced options > Get the latest updates as soon as they're available
-
-**2. Microsoft Update for Other Products (ON)**
-- Registry: `HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU`
 - Key: `AllowMUUpdateService = 1`
-- Effect: Get updates for Office, drivers, and other Microsoft products
-- GUI Path: Settings > Windows Update > Advanced options > Receive updates for other Microsoft products
+- Effect: Get updates for Office, drivers, and other Microsoft products when updating Windows
+- GUI Path: Settings > Windows Update > Advanced options > Receive updates for other Microsoft products (user can still toggle)
 
-**3. Delivery Optimization - Downloads from Other Devices (OFF)**
+**3. Delivery Optimization - Downloads from Other Devices (OFF, managed by policy)**
 - Registry: `HKLM:\SOFTWARE\Policies\Microsoft\Windows\DeliveryOptimization`
 - Key: `DODownloadMode = 0`
-- Effect: HTTP only (Microsoft servers) - NO P2P, NO LAN sharing
-- GUI Path: Settings > Windows Update > Advanced options > Delivery Optimization > Allow downloads from other devices = OFF
+- Effect: HTTP only (Microsoft servers) – no peer-to-peer, no LAN sharing
+- GUI Path: Settings > Windows Update > Advanced options > Delivery Optimization > Allow downloads from other devices = OFF (managed by your organization)
 
-**User Control:**
+**User Control & Transparency:**
 - ✅ NO forced installation schedules
 - ✅ NO auto-reboot policies
-- ✅ User retains full control via Windows Settings GUI
-- ✅ Only enables what you see in Windows Settings
+- ✅ Microsoft Update toggle remains user-controlled in the GUI
+- ✅ Windows clearly indicates where policies manage settings ("Some settings are managed by your organization")
 
 **Why This Approach?**
 - Follows Microsoft Best Practice - matches GUI behavior

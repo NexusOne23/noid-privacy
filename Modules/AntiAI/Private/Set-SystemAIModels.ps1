@@ -28,7 +28,7 @@ function Set-SystemAIModels {
     
     Write-Log -Level DEBUG -Message "Setting Generative AI Master Switch (Force Deny all apps)" -Module "AntiAI"
     
-    $result = @{
+    $result = [PSCustomObject]@{
         Success = $false
         Applied = 0
         Errors = @()

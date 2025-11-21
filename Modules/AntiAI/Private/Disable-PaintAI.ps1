@@ -29,7 +29,7 @@ function Disable-PaintAI {
     
     Write-Log -Level DEBUG -Message "Disabling Paint AI features (Cocreator, Generative Fill, Image Creator)" -Module "AntiAI"
     
-    $result = @{
+    $result = [PSCustomObject]@{
         Success = $false
         Applied = 0
         Errors = @()

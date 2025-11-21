@@ -50,6 +50,33 @@ function Restore-Bloatware {
 
         $successCount = 0
         $failCount = 0
+        
+        # SPECIAL HANDLING: Xbox/Gaming apps require Gaming Services to be installed first
+        # This prevents user prompts when opening Gaming App for the first time
+        $gamingApps = @($appsWithWinget | Where-Object { $_.AppName -match "Xbox|Gaming" })
+        if ($gamingApps.Count -gt 0) {
+            Write-Host "  [>] Detected Xbox/Gaming apps - installing Gaming Services first..." -ForegroundColor Cyan
+            Write-Log -Level INFO -Message "Installing Gaming Services (framework) to prevent user prompts" -Module "Privacy"
+            
+            try {
+                # Gaming Services Store ID: 9MWPM2CQNLHN
+                $proc = Start-Process -FilePath "winget" -ArgumentList @("install", "--id", "9MWPM2CQNLHN", "--accept-package-agreements", "--accept-source-agreements", "--silent") -Wait -NoNewWindow -PassThru -ErrorAction Stop
+                
+                if ($proc.ExitCode -eq 0) {
+                    Write-Host "      [OK] Gaming Services (includes Xbox.TCUI, XboxSpeechToTextOverlay)" -ForegroundColor Green
+                    Write-Log -Level SUCCESS -Message "Gaming Services installed - Xbox framework components ready" -Module "Privacy"
+                }
+                else {
+                    Write-Host "      [WARN] Gaming Services install had issues - Gaming apps may prompt on first launch" -ForegroundColor Yellow
+                    Write-Log -Level WARNING -Message "Gaming Services install failed (ExitCode: $($proc.ExitCode)) - continuing anyway" -Module "Privacy"
+                }
+            }
+            catch {
+                Write-Log -Level WARNING -Message "Could not install Gaming Services: $_" -Module "Privacy"
+            }
+            
+            Write-Host ""
+        }
 
         foreach ($app in $appsWithWinget) {
             $id = $app.WingetId
@@ -58,7 +85,29 @@ function Restore-Bloatware {
             Write-Host "  [>] Installing $name ($id)..." -ForegroundColor White
 
             try {
-                # Note: Removed --source restriction to allow winget auto-detection (some apps not in msstore)
+                # STEP 1: Check if app exists in winget catalog first (avoid unnecessary install attempts)
+                $searchStdout = Join-Path $env:TEMP "winget_search_$([guid]::NewGuid()).txt"
+                $searchStderr = Join-Path $env:TEMP "winget_search_err_$([guid]::NewGuid()).txt"
+                
+                $searchProc = Start-Process -FilePath "winget" `
+                    -ArgumentList @("search", "--id", $id, "--exact") `
+                    -Wait -NoNewWindow -PassThru `
+                    -RedirectStandardOutput $searchStdout `
+                    -RedirectStandardError $searchStderr `
+                    -ErrorAction Stop
+                
+                # Cleanup temp files
+                Remove-Item $searchStdout, $searchStderr -Force -ErrorAction SilentlyContinue
+                
+                # ExitCode -1978335212 = No package found
+                if ($searchProc.ExitCode -eq -1978335212 -or $searchProc.ExitCode -ne 0) {
+                    Write-Host "      [SKIP] $name (not available in winget catalog)" -ForegroundColor DarkGray
+                    Write-Log -Level INFO -Message "App not available in winget catalog: $name ($id) - skipping" -Module "Privacy"
+                    $failCount++  # Count as "failed" for summary, but not a real error
+                    continue
+                }
+                
+                # STEP 2: App exists - proceed with installation
                 $proc = Start-Process -FilePath "winget" -ArgumentList @("install", "--id", $id, "--accept-package-agreements", "--accept-source-agreements", "--silent") -Wait -NoNewWindow -PassThru -ErrorAction Stop
 
                 if ($proc.ExitCode -eq 0) {
@@ -67,6 +116,7 @@ function Restore-Bloatware {
                     $successCount++
                 }
                 else {
+                    # Installation failed despite app being available
                     Write-Host "      [FAIL] $name (ExitCode: $($proc.ExitCode))" -ForegroundColor Yellow
                     Write-Log -Level WARNING -Message "Failed to restore app via winget: $name ($id) ExitCode=$($proc.ExitCode)" -Module "Privacy"
                     $failCount++

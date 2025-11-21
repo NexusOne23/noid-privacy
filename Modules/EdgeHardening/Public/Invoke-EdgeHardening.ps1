@@ -102,6 +102,7 @@ function Invoke-EdgeHardening {
             Errors             = @()
             BackupCreated      = $false
             ComplianceVerified = $false
+            CompliancePercent  = 0
             Duration           = $null
         }
     }
@@ -260,9 +261,13 @@ function Invoke-EdgeHardening {
                     
                     if ($verifyResult.Compliant) {
                         $result.ComplianceVerified = $true
+                        $result.CompliancePercent = $verifyResult.CompliancePercentage
                         Write-Host "  Verification: $($verifyResult.Message)" -ForegroundColor Green
                     }
                     else {
+                        # Still verified, just not 100% compliant
+                        $result.ComplianceVerified = $true  # Changed: We DID verify, just not perfect
+                        $result.CompliancePercent = $verifyResult.CompliancePercentage
                         Write-Host "  Verification: $($verifyResult.Message)" -ForegroundColor Yellow
                         Write-ModuleLog -Level "WARNING" -Message "Compliance verification: $($verifyResult.Message)"
                         
@@ -293,16 +298,31 @@ function Invoke-EdgeHardening {
             # Check for Skipped policies (e.g., delvals GPO marker, extension blocklist)
             $skippedCount = if ($policyResult.Skipped) { $policyResult.Skipped } else { 0 }
             
-            # Total policies: 18 core + 2 extension blocklist (if not skipped)
-            # When AllowExtensions = true, extension blocklist (2 entries) is skipped
-            $totalPoliciesInBaseline = 18 + $(if ($AllowExtensions) { 0 } else { 2 })
+            # Total policies in JSON: Always 20 (18 core + 1 **delvals + 1 extension blocklist)
+            # All 20 are verified, but some may be optional (counted as compliant even if not set)
+            $totalPoliciesInBaseline = 20
             
             # Success logic: Green if no errors occurred (skips are allowed/expected for GPO markers)
             $isCleanRun = ($result.Errors.Count -eq 0)
 
             Write-Host "Policies:      $($result.PoliciesApplied) applied ($skippedCount skipped, Total: $totalPoliciesInBaseline)" -ForegroundColor $(if ($isCleanRun) { 'Green' } else { 'Yellow' })
             Write-Host "Backup:        $(if ($result.BackupCreated) { 'Created' } else { 'Skipped' })" -ForegroundColor $(if ($result.BackupCreated) { 'Green' } else { 'Yellow' })
-            Write-Host "Verification:  $(if ($result.ComplianceVerified) { 'PASSED' } elseif ($SkipVerify) { 'Skipped' } else { 'Not verified' })" -ForegroundColor $(if ($result.ComplianceVerified) { 'Green' } elseif ($SkipVerify) { 'Gray' } else { 'Yellow' })
+            
+            # Verification summary with percentage for partial compliance
+            if ($result.ComplianceVerified) {
+                if ($result.CompliancePercent -eq 100) {
+                    Write-Host "Verification:  PASSED (100%)" -ForegroundColor Green
+                }
+                else {
+                    Write-Host "Verification:  Partial ($($result.CompliancePercent)%)" -ForegroundColor Yellow
+                }
+            }
+            elseif ($SkipVerify) {
+                Write-Host "Verification:  Skipped" -ForegroundColor Gray
+            }
+            else {
+                Write-Host "Verification:  Not run" -ForegroundColor Yellow
+            }
             
             if ($result.Errors.Count -gt 0) {
                 Write-Host "Errors:        $($result.Errors.Count)" -ForegroundColor Red

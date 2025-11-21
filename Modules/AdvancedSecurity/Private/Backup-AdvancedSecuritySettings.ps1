@@ -102,8 +102,17 @@ function Backup-AdvancedSecuritySettings {
         }
         
         # 8. Firewall Rules Snapshot
-        Write-Host "  [AdvancedSecurity] Creating firewall rules snapshot for risky ports (79, 137-139, 1900, 2869, 5355)..." -ForegroundColor Yellow
-        Write-Host "  [AdvancedSecurity] This step may take up to 60 seconds on some systems..." -ForegroundColor DarkYellow
+        Write-Host ""
+        Write-Host "  ============================================" -ForegroundColor Cyan
+        Write-Host "  FIREWALL RULES BACKUP - PLEASE WAIT" -ForegroundColor Cyan
+        Write-Host "  ============================================" -ForegroundColor Cyan
+        Write-Host "  Creating snapshot for risky ports..." -ForegroundColor White
+        Write-Host "  Ports: 79, 137-139, 1900, 2869, 5355" -ForegroundColor Gray
+        Write-Host ""
+        Write-Host "  [!] This operation takes 60-120 seconds" -ForegroundColor Yellow
+        Write-Host "  System is working - do not interrupt!" -ForegroundColor Yellow
+        Write-Host "  ============================================" -ForegroundColor Cyan
+        Write-Host ""
         Write-Log -Level INFO -Message "Backing up firewall rules snapshot for risky ports (79, 137, 138, 139, 1900, 2869, 5355)..." -Module "AdvancedSecurity"
         $firewallRules = Get-NetFirewallRule | Where-Object {
             $portFilter = $_ | Get-NetFirewallPortFilter
@@ -120,6 +129,9 @@ function Backup-AdvancedSecuritySettings {
         
         $firewallBackup = Register-Backup -Type "Firewall_Rules" -Data $firewallData -Name "RiskyPorts_Firewall"
         if ($firewallBackup) { $backupCount++ }
+        
+        Write-Host "  [OK] Firewall rules backup completed ($($firewallRules.Count) rules processed)" -ForegroundColor Green
+        Write-Host ""
         
         # 9. SMB Shares Snapshot
         Write-Log -Level DEBUG -Message "Backing up SMB shares snapshot..." -Module "AdvancedSecurity"
@@ -141,10 +153,13 @@ function Backup-AdvancedSecuritySettings {
         # Setting 1: Get latest updates immediately
         $wuUXBackup = Backup-RegistryKey -KeyPath "HKLM:\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings" -BackupName "WindowsUpdate_UX_Settings"
         if ($wuUXBackup) { $backupCount++ }
+
+        # Setting 1 Policy: Windows Update optional content/config updates
+        $wuPoliciesBackup = Backup-RegistryKey -KeyPath "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate" -BackupName "WindowsUpdate_Policies"
+        if ($wuPoliciesBackup) { $backupCount++ }
         
-        # Setting 2: Microsoft Update for other products
-        $wuAUBackup = Backup-RegistryKey -KeyPath "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU" -BackupName "WindowsUpdate_AU_Settings"
-        if ($wuAUBackup) { $backupCount++ }
+        # Setting 2: Microsoft Update for other products (moved to UX\Settings - same as Setting 1)
+        # No separate backup needed - already backed up in WindowsUpdate_UX_Settings
         
         # Setting 3: Delivery Optimization
         $wuDOBackup = Backup-RegistryKey -KeyPath "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DeliveryOptimization" -BackupName "WindowsUpdate_DeliveryOptimization"

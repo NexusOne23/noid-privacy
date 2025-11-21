@@ -34,6 +34,7 @@ function Test-SRPCompliance {
         
         # Check if SRP policy exists
         if (-not (Test-Path $policyRoot)) {
+            Write-Log -Level WARNING -Message "SRP Check Failed: Policy root not found ($policyRoot)" -Module "AdvancedSecurity"
             return [PSCustomObject]@{
                 Feature = "SRP CVE-2025-9491"
                 Status = "Not Configured"
@@ -45,6 +46,7 @@ function Test-SRPCompliance {
         # Check Default Level
         $defaultLevel = Get-ItemProperty -Path $policyRoot -Name "DefaultLevel" -ErrorAction SilentlyContinue
         if ($null -eq $defaultLevel -or $defaultLevel.DefaultLevel -ne 262144) {
+            Write-Log -Level WARNING -Message "SRP Check Failed: DefaultLevel is not Unrestricted (262144)" -Module "AdvancedSecurity"
             return [PSCustomObject]@{
                 Feature = "SRP CVE-2025-9491"
                 Status = "Misconfigured"
@@ -57,6 +59,7 @@ function Test-SRPCompliance {
         $pathRulesRoot = $config.RegistryPaths.PathRules
         
         if (-not (Test-Path $pathRulesRoot)) {
+            Write-Log -Level WARNING -Message "SRP Check Failed: PathRules root not found ($pathRulesRoot)" -Module "AdvancedSecurity"
             return [PSCustomObject]@{
                 Feature = "SRP CVE-2025-9491"
                 Status = "Incomplete"
@@ -84,6 +87,7 @@ function Test-SRPCompliance {
         }
         
         if ($hasBuggyKeys) {
+            Write-Log -Level WARNING -Message "SRP Check Failed: Windows 11 buggy keys present (RuleCount/LastWriteTime)" -Module "AdvancedSecurity"
             return [PSCustomObject]@{
                 Feature = "SRP CVE-2025-9491"
                 Status = "Windows 11 Bug Detected"
@@ -102,6 +106,7 @@ function Test-SRPCompliance {
             }
         }
         else {
+            Write-Log -Level WARNING -Message "SRP Check Failed: Insufficient rules found ($ruleCount, expected 2+)" -Module "AdvancedSecurity"
             return [PSCustomObject]@{
                 Feature = "SRP CVE-2025-9491"
                 Status = "Incomplete"

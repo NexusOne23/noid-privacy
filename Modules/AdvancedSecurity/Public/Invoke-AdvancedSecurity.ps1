@@ -709,20 +709,36 @@ function Invoke-AdvancedSecurity {
             
             # PHASE 3: VERIFY
             Write-Host "[3/4] VERIFY - Checking compliance..." -ForegroundColor Cyan
+            Write-Host ""
             
             if ($appliedFeatures.Count -gt 0) {
                 try {
                     $verifyResult = Test-AdvancedSecurity
                     
-                    if ($verifyResult -and $verifyResult.CompliantCount -gt 0) {
-                        Write-Host "  $($verifyResult.CompliantCount)/$($verifyResult.TotalChecks) checks passed" -ForegroundColor Green
+                    # Test-AdvancedSecurity now outputs full table + returns structured object
+                    # No need to print summary here - it's already shown above
+                    if ($verifyResult -and $verifyResult.Compliance -lt 100) {
+                        # Log details to file for troubleshooting
+                        Write-Log -Level WARNING -Message "Advanced Security Compliance: $($verifyResult.CompliantCount)/$($verifyResult.TotalChecks) passed ($($verifyResult.Compliance)%)" -Module "AdvancedSecurity"
+                        
+                        if ($verifyResult.Results) {
+                            foreach ($test in $verifyResult.Results) {
+                                if (-not $test.Compliant) {
+                                    Write-Log -Level WARNING -Message "  [NON-COMPLIANT] $($test.Feature): $($test.Status) - $($test.Details)" -Module "AdvancedSecurity"
+                                }
+                            }
+                        }
+                        
+                        Write-Host ""
+                        Write-Host "  Note: $($verifyResult.TotalChecks - $verifyResult.CompliantCount) check(s) non-compliant" -ForegroundColor Yellow
+                        Write-Host "  This may require reboot or additional configuration" -ForegroundColor Gray
                     }
-                    else {
-                        Write-Host "  Verification completed" -ForegroundColor Gray
+                    elseif ($verifyResult) {
+                        Write-Log -Level SUCCESS -Message "Advanced Security Compliance: 100% passed" -Module "AdvancedSecurity"
                     }
                 }
                 catch {
-                    Write-Host "  Verification skipped" -ForegroundColor Gray
+                    Write-Host "  Verification skipped (error occurred)" -ForegroundColor Gray
                 }
             }
             else {

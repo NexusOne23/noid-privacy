@@ -55,10 +55,18 @@ function Test-WindowsUpdate {
                     }
                     else {
                         $details += "$($setting.Name): NOT SET"
+                        Write-Log -Level WARNING -Message "Windows Update Check Failed: $($setting.Name)" -Module "AdvancedSecurity"
+                        if ($null -eq $actual) {
+                            Write-Log -Level WARNING -Message "  - Value '$valueName' not found in $regPath" -Module "AdvancedSecurity"
+                        } else {
+                            Write-Log -Level WARNING -Message "  - Value '$valueName' mismatch. Expected: $($valueData.Value), Actual: $($actual.$valueName)" -Module "AdvancedSecurity"
+                        }
                     }
                 }
                 else {
                     $details += "$($setting.Name): NOT SET (reg path missing)"
+                    Write-Log -Level WARNING -Message "Windows Update Check Failed: $($setting.Name)" -Module "AdvancedSecurity"
+                    Write-Log -Level WARNING -Message "  - Registry Path Missing: $regPath" -Module "AdvancedSecurity"
                 }
             }
         }

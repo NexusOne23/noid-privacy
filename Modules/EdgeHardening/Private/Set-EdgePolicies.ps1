@@ -74,10 +74,10 @@ function Set-EdgePolicies {
         }
         
         # Calculate actual policy count that will be applied
-        # Total JSON entries: 20 (18 core + 2 extension blocklist)
-        # - If AllowExtensions: 18 policies (2 extension entries skipped)
-        # - If NOT AllowExtensions: 18 policies (1 **delvals GPO marker skipped, 1 extension policy applied)
-        $actualPolicyCount = if ($AllowExtensions) { 18 } else { 18 }
+        # Total JSON entries: 20 (18 core + 1 **delvals marker + 1 extension blocklist)
+        # - If AllowExtensions: 18 policies (1 **delvals + 1 extension skipped)
+        # - If NOT AllowExtensions: 19 policies (1 **delvals skipped, 1 extension applied)
+        $actualPolicyCount = if ($AllowExtensions) { 18 } else { 19 }
         
         Write-Host "    Applying $actualPolicyCount Edge security policies..." -ForegroundColor Cyan
         
@@ -161,7 +161,8 @@ function Set-EdgePolicies {
             }
             catch {
                 $result.Errors += "Failed to set $($policy.KeyName)\$($policy.ValueName): $($_.Exception.Message)"
-                Write-Log -Level DEBUG -Message "Failed to set $($policy.KeyName)\$($policy.ValueName): $_" -Module "EdgeHardening"
+                Write-Log -Level WARNING -Message "Failed to set $($policy.KeyName)\$($policy.ValueName): $_" -Module "EdgeHardening"
+                Write-Host "  [ERROR] $($policy.ValueName): $($_.Exception.Message)" -ForegroundColor Red
             }
         }
         

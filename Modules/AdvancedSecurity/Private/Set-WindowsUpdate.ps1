@@ -4,13 +4,15 @@ function Set-WindowsUpdate {
         Configures Windows Update using simple GUI-equivalent settings
         
     .DESCRIPTION
-        Applies 3 simple Windows Update settings that match the Windows Settings GUI:
-        1. Get the latest updates as soon as they're available (ON)
-        2. Receive updates for other Microsoft products (ON)
-        3. Delivery Optimization - Downloads from other devices (OFF)
+        Applies 3 simple Windows Update settings that align with the Windows Settings GUI:
+        1. Get the latest updates as soon as they're available (ON, enforced via policy)
+        2. Receive updates for other Microsoft products (ON, user-toggleable)
+        3. Delivery Optimization - Downloads from other devices (OFF, enforced via policy)
         
-        NO forced schedules, NO auto-reboot policies, NO hidden deferrals.
-        User keeps full control via Windows Settings GUI.
+        NO forced schedules and NO auto-reboot policies are configured.
+        Installation timing remains user-controlled via the Windows Update GUI; where
+        policies are used, Windows clearly indicates that "Some settings are managed
+        by your organization".
         
     .PARAMETER DryRun
         Preview changes without applying them
@@ -65,14 +67,9 @@ function Set-WindowsUpdate {
             foreach ($valueName in $setting.Values.PSObject.Properties.Name) {
                 $valueData = $setting.Values.$valueName
                 
-                $existing = Get-ItemProperty -Path $regPath -Name $valueName -ErrorAction SilentlyContinue
-                
-                if ($null -ne $existing) {
-                    Set-ItemProperty -Path $regPath -Name $valueName -Value $valueData.Value -Force | Out-Null
-                }
-                else {
-                    New-ItemProperty -Path $regPath -Name $valueName -Value $valueData.Value -PropertyType DWord -Force | Out-Null
-                }
+                # Always use New-ItemProperty with -Force to ensure correct type and value
+                # -Force will overwrite existing keys
+                New-ItemProperty -Path $regPath -Name $valueName -Value $valueData.Value -PropertyType DWord -Force | Out-Null
                 
                 Write-Log -Level SUCCESS -Message "$($setting.Name): $valueName = $($valueData.Value)" -Module "AdvancedSecurity"
                 $settingsApplied++
@@ -81,17 +78,27 @@ function Set-WindowsUpdate {
         
         Write-Log -Level SUCCESS -Message "Windows Update configured: $settingsApplied registry keys set" -Module "AdvancedSecurity"
         
+        # Restart Windows Update service to apply changes immediately
+        Write-Log -Level INFO -Message "Restarting Windows Update service to apply changes..." -Module "AdvancedSecurity"
+        try {
+            Restart-Service -Name wuauserv -Force -ErrorAction Stop | Out-Null
+            Write-Log -Level SUCCESS -Message "Windows Update service restarted successfully" -Module "AdvancedSecurity"
+        }
+        catch {
+            Write-Log -Level WARNING -Message "Could not restart Windows Update service: $($_.Exception.Message)" -Module "AdvancedSecurity"
+        }
+        
         Write-Host ""
         Write-Host "================================================" -ForegroundColor Green
         Write-Host "  Windows Update Configured (3 Settings)" -ForegroundColor Green
         Write-Host "================================================" -ForegroundColor Green
         Write-Host ""
-        Write-Host "[1] Get latest updates immediately:  ON" -ForegroundColor Gray
-        Write-Host "[2] Microsoft Update (Office, etc.): ON" -ForegroundColor Gray
-        Write-Host "[3] P2P Delivery Optimization:       OFF" -ForegroundColor Gray
+        Write-Host "[1] Get latest updates immediately:  ON (Policy)" -ForegroundColor Gray
+        Write-Host "[2] Microsoft Update (Office, etc.): ON (User can toggle)" -ForegroundColor Gray
+        Write-Host "[3] P2P Delivery Optimization:       OFF (Policy)" -ForegroundColor Gray
         Write-Host ""
-        Write-Host "User retains full control via Windows Settings GUI" -ForegroundColor White
-        Write-Host "No forced schedules, no auto-reboot policies" -ForegroundColor White
+        Write-Host "Installation timing remains user-controlled (no forced schedules, no auto-reboot policies)." -ForegroundColor White
+        Write-Host "Windows will indicate where settings are managed by policy in the GUI." -ForegroundColor White
         Write-Host ""
         
         return $true

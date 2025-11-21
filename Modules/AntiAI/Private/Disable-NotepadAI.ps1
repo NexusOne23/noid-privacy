@@ -30,7 +30,7 @@ function Disable-NotepadAI {
     
     Write-Log -Level DEBUG -Message "Disabling Notepad AI features (Write, Summarize, Rewrite, Explain)" -Module "AntiAI"
     
-    $result = @{
+    $result = [PSCustomObject]@{
         Success = $false
         Applied = 0
         Errors = @()

@@ -32,7 +32,7 @@ function Backup-AntiAISettings {
     
     Write-Log -Level DEBUG -Message "Starting AntiAI settings backup to: $BackupPath" -Module "AntiAI"
     
-    $result = @{
+    $result = [PSCustomObject]@{
         Success = $true
         BackupFiles = @()
         Errors = @()

@@ -1028,9 +1028,18 @@ try {
                 $dnsInfo = Get-DnsClientServerAddress -InterfaceIndex $adapter.InterfaceIndex -AddressFamily IPv4 -ErrorAction SilentlyContinue
                 if ($dnsInfo) {
                     foreach ($entry in $dnsInfo) {
-                        if ($entry.ServerAddresses -and $entry.AddressOrigin -eq 'Manual') {
-                            $staticDNS = $true
-                            break
+                        # Accept 'Manual', 'Static', or any configured DNS that matches known providers
+                        # Windows may report 'Static' or 'Manual' depending on timing and method
+                        if ($entry.ServerAddresses -and $entry.ServerAddresses.Count -gt 0) {
+                            # Check if it's not DHCP (empty or localhost fallback)
+                            $isDHCP = ($entry.ServerAddresses.Count -eq 0) -or 
+                                     ($entry.ServerAddresses -contains '127.0.0.1') -or
+                                     ($entry.AddressOrigin -eq 'DHCP')
+                            
+                            if (-not $isDHCP) {
+                                $staticDNS = $true
+                                break
+                            }
                         }
                     }
                 }
@@ -1571,8 +1580,8 @@ try {
     
     # Windows Update (3 checks) - ALWAYS required - matches AdvancedSecurity module Config/WindowsUpdate.json
     $wuChecks = @(
-        @{ Path = "HKLM:\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings"; Name = "IsContinuousInnovationOptedIn"; Expected = 1; Desc = "WU: Get latest updates immediately"; Optional = $false }
-        @{ Path = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate\AU"; Name = "AllowMUUpdateService"; Expected = 1; Desc = "WU: Microsoft Update (Office, drivers)"; Optional = $false }
+        @{ Path = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate"; Name = "AllowOptionalContent"; Expected = 1; Desc = "WU: Get latest updates immediately (Policy)"; Optional = $false }
+        @{ Path = "HKLM:\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings"; Name = "AllowMUUpdateService"; Expected = 1; Desc = "WU: Microsoft Update (Office, drivers)"; Optional = $false }
         @{ Path = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DeliveryOptimization"; Name = "DODownloadMode"; Expected = 0; Desc = "WU: P2P Delivery Optimization OFF"; Optional = $false }
     )
     

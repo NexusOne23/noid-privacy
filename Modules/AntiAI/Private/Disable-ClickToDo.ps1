@@ -27,7 +27,7 @@ function Disable-ClickToDo {
     
     Write-Log -Level DEBUG -Message "Disabling Click to Do (screenshot AI analysis)" -Module "AntiAI"
     
-    $result = @{
+    $result = [PSCustomObject]@{
         Success = $false
         Applied = 0
         Errors = @()

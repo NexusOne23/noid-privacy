@@ -238,7 +238,7 @@ function Invoke-RebootPrompt {
         Write-Host ""
         Write-ColorText "    [1] Audit Policies (23 policies)" -Color Yellow
         Write-ColorText "        - Advanced Audit Policy Configuration via auditpol.exe" -Color Gray
-        Write-ColorText "        - Status: ⏳ Pending system reboot for activation" -Color Cyan
+        Write-ColorText "        - Status: Pending system reboot for activation" -Color Cyan
         Write-ColorText "        - After reboot: 23/23 policies will be active (expected)" -Color Green
         Write-Host ""
         Write-ColorText "    [2] Group Policy Settings" -Color Yellow

@@ -32,10 +32,10 @@ Complete implementation of all 7 planned modules (583 security settings) with fu
   - Compliance testing: `Test-SRPCompliance`
   - Protection against actively exploited vulnerability (no patch available)
   
-- **Windows Update Configuration** - 3 simple GUI-equivalent settings
-  - Get latest updates immediately: `IsContinuousInnovationOptedIn = 1`
-  - Microsoft Update for other products: `AllowMUUpdateService = 1`
-  - Delivery Optimization P2P off: `DODownloadMode = 0`
+- **Windows Update Configuration** – 3 simple settings aligned with the Windows Update GUI
+  - Get latest updates as soon as they're available: policy-based optional content/config updates (enforced via `AllowOptionalContent`/`SetAllowOptionalContent`)
+  - Microsoft Update for other products: enables `AllowMUUpdateService = 1` in the Windows Update UX settings
+  - Delivery Optimization P2P off: `DODownloadMode = 0` under DeliveryOptimization policies (no downloads from other PCs)
   - Compliance testing: `Test-WindowsUpdate`
   
 - **Finger Protocol Block** - ClickFix malware protection

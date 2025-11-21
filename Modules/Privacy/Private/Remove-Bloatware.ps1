@@ -194,14 +194,21 @@ function Remove-BloatwareClassic {
             # Filter provisioned apps from cached list (fast!)
             $provisionedApps = @($allProvisionedApps | Where-Object { $_.DisplayName -like $appPattern })
             foreach ($app in $provisionedApps) {
-                try {
-                    Remove-AppxProvisionedPackage -Online -PackageName $app.PackageName -ErrorAction Stop | Out-Null
-                    Write-Log -Level SUCCESS -Message "Removed provisioned: $($app.DisplayName)" -Module "Privacy"
-                    Write-Host "  [OK] Provisioned: $($app.DisplayName)" -ForegroundColor Green
+                # Double-check: Verify package still exists before removal attempt
+                # This prevents "path not found" errors when Remove-AppxPackage -AllUsers already removed the provisioned package
+                $stillExists = Get-AppxProvisionedPackage -Online -ErrorAction SilentlyContinue | Where-Object { $_.PackageName -eq $app.PackageName }
+                
+                if ($stillExists) {
+                    try {
+                        Remove-AppxProvisionedPackage -Online -PackageName $app.PackageName -ErrorAction Stop | Out-Null
+                        Write-Log -Level SUCCESS -Message "Removed provisioned: $($app.DisplayName)" -Module "Privacy"
+                        Write-Host "  [OK] Provisioned: $($app.DisplayName)" -ForegroundColor Green
+                    }
+                    catch {
+                        Write-Log -Level WARNING -Message "Failed to remove provisioned $($app.DisplayName): $_" -Module "Privacy"
+                    }
                 }
-                catch {
-                    Write-Log -Level WARNING -Message "Failed to remove provisioned $($app.DisplayName): $_" -Module "Privacy"
-                }
+                # else: Already removed by Remove-AppxPackage -AllUsers, skip silently
             }
         }
         
@@ -219,6 +226,82 @@ function Remove-BloatwareClassic {
         
         Write-Log -Level SUCCESS -Message "Classic bloatware removal complete ($removed removed, $failed failed)" -Module "Privacy"
         
+        # ---------------------------------------------------------
+        # Generate Restore Metadata for Winget
+        # ---------------------------------------------------------
+        $wingetMap = @{
+            "Microsoft.BingNews" = "Microsoft.BingNews"
+            "Microsoft.BingWeather" = "Microsoft.BingWeather"
+            "Microsoft.MicrosoftSolitaireCollection" = "Microsoft.SolitaireCollection"
+            "Microsoft.MicrosoftStickyNotes" = "Microsoft.StickyNotes"
+            "Microsoft.GamingApp" = "Microsoft.XboxApp"
+            "Microsoft.XboxGamingOverlay" = "Microsoft.XboxGameOverlay"
+            "Microsoft.XboxIdentityProvider" = "Microsoft.XboxIdentityProvider"
+            "Microsoft.XboxSpeechToTextOverlay" = "Microsoft.XboxSpeechToTextOverlay"
+            "Microsoft.Xbox.TCUI" = "Microsoft.XboxTCUI"
+            "Microsoft.ZuneMusic" = "Microsoft.WindowsMediaPlayer"
+            "Microsoft.WindowsFeedbackHub" = "Microsoft.FeedbackHub"
+            "Microsoft.GetHelp" = "Microsoft.GetHelp"
+            "Microsoft.YourPhone" = "Microsoft.PhoneLink"
+            "Clipchamp.Clipchamp" = "Microsoft.Clipchamp"
+            "SpotifyAB.SpotifyMusic" = "Spotify.Spotify"
+            "TikTok.TikTok" = "TikTok.TikTok"
+        }
+
+        $restoreList = @()
+        foreach ($app in $removedApps) {
+            $wingetId = ""
+            if ($wingetMap.ContainsKey($app)) {
+                $wingetId = $wingetMap[$app]
+            }
+            # Fallback: try to use package name if it looks like a valid ID
+            elseif ($app -match '^[a-zA-Z0-9]+\.[a-zA-Z0-9]+$') {
+                $wingetId = $app
+            }
+            
+            $restoreList += @{
+                AppName = $app
+                WingetId = $wingetId
+            }
+        }
+        
+        if ($restoreList.Count -gt 0) {
+            try {
+                $restoreData = @{
+                    Apps = $restoreList
+                    Timestamp = Get-Date -Format "o"
+                }
+                
+                # Use Register-Backup from Rollback core
+                if (Get-Command Register-Backup -ErrorAction SilentlyContinue) {
+                    # Note: We save it directly to module backup folder with specific name expected by Restore-Bloatware
+                    # Register-Backup usually creates timestamped names in Type folders
+                    # Here we need a specific file in the Privacy backup root
+                    
+                    # Get current backup path for Privacy module
+                    # We assume Start-ModuleBackup was called and context is set, or we find it
+                    # But Register-Backup handles paths. Let's use Register-Backup with specific name.
+                    # Restore-Bloatware expects "REMOVED_APPS_WINGET.json" in the backup root.
+                    # Register-Backup creates "Type/Name.json".
+                    
+                    # Workaround: We write the file directly to the backup location if we can find it
+                    # But we don't have easy access to the current backup path here except via Register-Backup return value?
+                    # Let's use Register-Backup with Type="" (root) if possible, or just "Privacy"?
+                    # No, Restore-Bloatware looks in $BackupPath (which is the module backup folder).
+                    
+                    # Let's write to a temp file and register it? No.
+                    # Let's rely on Register-Backup creating "Privacy/REMOVED_APPS_WINGET.json"
+                    # If we pass Type=".", it might work?
+                    
+                    Register-Backup -Type "." -Data ($restoreData | ConvertTo-Json -Depth 5) -Name "REMOVED_APPS_WINGET"
+                }
+            }
+            catch {
+                Write-Log -Level WARNING -Message "Failed to save removed apps list for restore: $_" -Module "Privacy"
+            }
+        }
+        # ---------------------------------------------------------
+
         # Return list of removed apps for user info
         return [PSCustomObject]@{
             Success     = $true

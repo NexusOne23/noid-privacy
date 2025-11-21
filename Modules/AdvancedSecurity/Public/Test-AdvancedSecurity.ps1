@@ -101,7 +101,13 @@ function Test-AdvancedSecurity {
         
         Write-Host ""
         
-        return $results
+        # Return structured object with metadata for programmatic use
+        return [PSCustomObject]@{
+            Results        = $results
+            TotalChecks    = $totalTests
+            CompliantCount = $compliantCount
+            Compliance     = $compliancePercent
+        }
     }
     catch {
         Write-Log -Level ERROR -Message "Failed to run compliance tests: $_" -Module "AdvancedSecurity" -Exception $_.Exception

@@ -56,9 +56,19 @@ function Test-AdminShares {
             }
         }
         else {
-            $result.Status = "Insecure"
-            $result.Compliant = $false
-            $result.Details += "Active admin shares: $($adminShares.Name -join ', ')"
+            # Shares are present, check if Registry is configured to disable them
+            if ($result.AutoShareWks -eq 0 -and $result.AutoShareServer -eq 0) {
+                # Config is correct, just needs a reboot
+                $result.Status = "Pending Reboot"
+                $result.Compliant = $true
+                $result.Details += "Active admin shares: $($adminShares.Name -join ', ') (Will be removed after reboot)"
+            }
+            else {
+                # Config is NOT correct
+                $result.Status = "Insecure"
+                $result.Compliant = $false
+                $result.Details += "Active admin shares: $($adminShares.Name -join ', ')"
+            }
         }
         
         return $result

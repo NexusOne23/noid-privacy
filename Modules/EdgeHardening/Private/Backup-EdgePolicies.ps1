@@ -101,10 +101,30 @@ function Backup-EdgePolicies {
                 }
             }
             else {
-                # No existing Edge policies - nothing to backup
+                # No existing Edge policies - create empty marker so restore knows to DELETE policies
                 $result.Success = $true
                 $result.KeysBackedUp = 0
-                Write-Log -Level DEBUG -Message "No existing Edge policies to backup" -Module "EdgeHardening"
+                
+                # Create marker file: "EdgeHardening_EMPTY.marker"
+                # This tells restore: "This key did NOT exist before hardening → DELETE during restore"
+                try {
+                    $emptyMarker = @{
+                        KeyPath = $edgePolicyPath
+                        BackupDate = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+                        State = "NotExisted"
+                        Message = "Edge policy key did not exist before hardening - must be deleted during restore"
+                    } | ConvertTo-Json
+                    
+                    $markerFile = Register-Backup -Type "EmptyMarker" -Data $emptyMarker -Name "EdgeHardening_EMPTY"
+                    if ($markerFile) {
+                        Write-Log -Level INFO -Message "Created empty marker for Edge policies (did not exist before hardening)" -Module "EdgeHardening"
+                    }
+                }
+                catch {
+                    Write-Log -Level WARNING -Message "Could not create empty marker: $_" -Module "EdgeHardening"
+                }
+                
+                Write-Log -Level DEBUG -Message "No existing Edge policies to backup (clean system)" -Module "EdgeHardening"
             }
         }
         

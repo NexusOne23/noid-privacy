@@ -33,7 +33,7 @@ function Restore-AntiAISettings {
     
     Write-Log -Level DEBUG -Message "Starting AntiAI settings restore from: $BackupPath" -Module "AntiAI"
     
-    $result = @{
+    $result = [PSCustomObject]@{
         Success = $true
         Restored = 0
         Errors = @()

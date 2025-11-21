@@ -26,7 +26,7 @@ function Set-RecallProtection {
     
     Write-Log -Level DEBUG -Message "Applying Recall enterprise protection (deny lists + storage limits)" -Module "AntiAI"
     
-    $result = @{
+    $result = [PSCustomObject]@{
         Success = $false
         Applied = 0
         Errors = @()

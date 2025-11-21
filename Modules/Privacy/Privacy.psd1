@@ -10,7 +10,9 @@
     PowerShellVersion = '5.1'
     
     FunctionsToExport = @(
-        'Invoke-PrivacyHardening'
+        'Invoke-PrivacyHardening',
+        'Restore-Bloatware',
+        'Test-PrivacyCompliance'
     )
     
     CmdletsToExport = @()

@@ -27,7 +27,7 @@ function Disable-SettingsAgent {
     
     Write-Log -Level DEBUG -Message "Disabling Settings Agent (AI-powered search)" -Module "AntiAI"
     
-    $result = @{
+    $result = [PSCustomObject]@{
         Success = $false
         Applied = 0
         Errors = @()

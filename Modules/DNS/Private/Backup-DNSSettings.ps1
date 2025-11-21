@@ -43,6 +43,8 @@ function Backup-DNSSettings {
             return $null
         }
         
+        Write-Log -Level DEBUG -Message "Found $($adapters.Count) adapter(s) to backup" -Module $script:ModuleName
+        
         # Get netsh global DoH state
         $netshGlobalDoh = $null
         try {

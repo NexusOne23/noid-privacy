@@ -317,7 +317,13 @@ function Invoke-PrivacyHardening {
                                     $wingetId = $mappings.$appName
                                     Write-Log -Level INFO -Message "Winget mapping found for $appName -> $wingetId" -Module "Privacy"
                                 } else {
-                                    Write-Log -Level WARNING -Message "No winget ID mapping for '$appName' - app will not be auto-restored (may be system component or require manual reinstall)" -Module "Privacy"
+                                    # Special handling for Xbox framework components
+                                    if ($appName -match "Xbox\.TCUI|XboxIdentityProvider|XboxSpeechToTextOverlay") {
+                                        Write-Log -Level INFO -Message "$appName is a framework component - will be automatically restored when Gaming Services is installed (no user prompt required)" -Module "Privacy"
+                                    }
+                                    else {
+                                        Write-Log -Level WARNING -Message "No winget ID mapping for '$appName' - app may not be auto-restored (system component or manual reinstall required)" -Module "Privacy"
+                                    }
                                 }
                                 $appsForJson += [PSCustomObject]@{
                                     AppName  = $appName

@@ -24,7 +24,7 @@ function Disable-Recall {
     
     Write-Log -Level DEBUG -Message "Disabling Windows Recall (component + snapshots + providers)" -Module "AntiAI"
     
-    $result = @{
+    $result = [PSCustomObject]@{
         Success = $false
         Applied = 0
         Errors = @()

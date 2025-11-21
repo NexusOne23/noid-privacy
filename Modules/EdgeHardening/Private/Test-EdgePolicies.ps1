@@ -50,22 +50,38 @@ function Test-EdgePolicies {
         $details = @()
         
         foreach ($policy in $edgePolicies) {
+            # Parse key path first
+            $keyPath = $policy.KeyName -replace '^\[', '' -replace '\]$', ''
+            $fullPath = "HKLM:\$keyPath"
+            
             # Determine if this policy is optional
             $isOptional = $false
             
             # GPO deletion markers are optional (infrastructure, not real policies)
             if ($policy.ValueName -like "**delvals.*") {
-                $isOptional = $true
+                $compliantCount++
+                $details += [PSCustomObject]@{
+                    Policy    = $policy.ValueName
+                    Expected  = "GPO Marker"
+                    Actual    = "Skipped"
+                    Status    = "Compliant (Ignored)"
+                    Compliant = $true
+                    Optional  = $true
+                }
+                continue
             }
             
-            # ExtensionInstallBlocklist is optional (user may choose -AllowExtensions)
+            $isOptional = $false
+            
+            # ExtensionInstallBlocklist is optional ONLY if key doesn't exist
+            # (meaning user chose -AllowExtensions, so it was skipped)
+            # If key exists, it MUST be compliant (user chose to block extensions)
             if ($policy.ValueName -eq "1" -and $policy.KeyName -like "*ExtensionInstallBlocklist*") {
-                $isOptional = $true
+                if (-not (Test-Path $fullPath)) {
+                    $isOptional = $true  # User chose -AllowExtensions
+                }
+                # else: Key exists, so it must be compliant (not optional)
             }
-            
-            # Parse key path
-            $keyPath = $policy.KeyName -replace '^\[', '' -replace '\]$', ''
-            $fullPath = "HKLM:\$keyPath"
             
             $policyCompliant = $false
             $actualValue = $null
@@ -90,6 +106,13 @@ function Test-EdgePolicies {
                     }
                     
                     $status = if ($policyCompliant) { "Compliant" } else { "Non-Compliant (Wrong Value)" }
+                    
+                    if (-not $policyCompliant) {
+                        Write-Log -Level WARNING -Message "Policy Check Failed: $($policy.ValueName)" -Module "EdgeHardening"
+                        Write-Log -Level WARNING -Message "  - Key: $fullPath" -Module "EdgeHardening"
+                        Write-Log -Level WARNING -Message "  - Expected: $($policy.Data)" -Module "EdgeHardening"
+                        Write-Log -Level WARNING -Message "  - Actual:   $actualValue" -Module "EdgeHardening"
+                    }
                 }
                 else {
                     # Key doesn't exist
@@ -100,11 +123,13 @@ function Test-EdgePolicies {
                     }
                     else {
                         $status = "Non-Compliant (Key Not Found)"
+                        Write-Log -Level WARNING -Message "Policy Check Failed: $($policy.ValueName)" -Module "EdgeHardening"
+                        Write-Log -Level WARNING -Message "  - Key Not Found: $fullPath" -Module "EdgeHardening"
                     }
                 }
             }
             catch {
-                # Value doesn't exist
+                # Value doesn't exist in existing key
                 if ($isOptional) {
                     # Optional policy not set = SUCCESS (user choice)
                     $policyCompliant = $true
@@ -112,6 +137,8 @@ function Test-EdgePolicies {
                 }
                 else {
                     $status = "Non-Compliant (Value Not Found)"
+                    Write-Log -Level WARNING -Message "Policy Check Failed: $($policy.ValueName)" -Module "EdgeHardening"
+                    Write-Log -Level WARNING -Message "  - Key exists but Value missing: $fullPath\$($policy.ValueName)" -Module "EdgeHardening"
                 }
             }
             

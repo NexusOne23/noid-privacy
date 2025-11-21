@@ -101,9 +101,9 @@ function Set-DNSServers {
             Write-Log -Level DEBUG -Message "Validation enabled for IPv4 DNS servers" -Module $script:ModuleName
         }
         
-        # Retry logic: Sometimes adapter needs time to stabilize
+        # Retry logic with fast retries (adapter stabilization or offline detection)
         $maxRetries = 3
-        $retryDelay = 2
+        $retryDelay = 1  # Fast 1-second retries (no exponential backoff needed)
         $success = $false
         
         for ($attempt = 1; $attempt -le $maxRetries; $attempt++) {
@@ -115,13 +115,12 @@ function Set-DNSServers {
             }
             catch {
                 if ($attempt -lt $maxRetries) {
-                    Write-Log -Level WARNING -Message "Attempt $attempt failed, retrying in $retryDelay seconds... ($($_.Exception.Message))" -Module $script:ModuleName
+                    Write-Log -Level DEBUG -Message "Attempt $attempt failed, retrying... ($($_.Exception.Message))" -Module $script:ModuleName
                     Start-Sleep -Seconds $retryDelay
-                    $retryDelay *= 2  # Exponential backoff
                 }
                 else {
-                    # Fallback to netsh if CIM fails (General Error fix)
-                    Write-Log -Level WARNING -Message "PowerShell DNS configuration failed ($($_.Exception.Message)). Falling back to netsh..." -Module $script:ModuleName
+                    # Fallback to netsh if CIM fails (General Error fix - often happens when offline)
+                    Write-Log -Level DEBUG -Message "PowerShell cmdlet failed, using netsh fallback..." -Module $script:ModuleName
                     
                     try {
                         # Use netsh for IPv4 configuration

@@ -34,8 +34,7 @@ $privateFunctions = @(
     'Set-PolicyBasedAppRemoval',
     'Disable-TelemetryServices',
     'Disable-TelemetryTasks',
-    'Remove-Bloatware',
-    'Restore-Bloatware'
+    'Remove-Bloatware'
 )
 
 foreach ($function in $privateFunctions) {
@@ -53,7 +52,8 @@ if (Test-Path $testCompliancePath) {
 
 # Import public functions
 $publicFunctions = @(
-    'Invoke-PrivacyHardening'
+    'Invoke-PrivacyHardening',
+    'Restore-Bloatware'
 )
 
 foreach ($function in $publicFunctions) {

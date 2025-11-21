@@ -272,7 +272,28 @@ function Invoke-SecurityBaseline {
                     
                     Write-ModuleLog -Level INFO -Message "Session backup initialized: $backupFolder" -Module $moduleName
 
-                    # Backup 1: Registry Policies
+                    # Backup 1: Full LocalGPO directory (for proper restore)
+                    Write-ModuleLog -Level INFO -Message "Backing up Local Group Policy directory..." -Module $moduleName
+                    $localGPOPath = "C:\Windows\System32\GroupPolicy"
+                    $localGPOBackup = Join-Path $backupFolder "LocalGPO"
+                    
+                    if (Test-Path $localGPOPath) {
+                        try {
+                            # Copy entire GroupPolicy directory structure
+                            Copy-Item -Path $localGPOPath -Destination $localGPOBackup -Recurse -Force -ErrorAction Stop
+                            Write-ModuleLog -Level SUCCESS -Message "Local Group Policy backed up to: $localGPOBackup" -Module $moduleName
+                        }
+                        catch {
+                            Write-ModuleLog -Level WARNING -Message "Failed to backup LocalGPO directory: $_ - continuing anyway" -Module $moduleName
+                        }
+                    }
+                    else {
+                        Write-ModuleLog -Level INFO -Message "No existing LocalGPO directory to backup (clean system)" -Module $moduleName
+                        # Create empty LocalGPO backup folder to signal "system was clean"
+                        New-Item -Path $localGPOBackup -ItemType Directory -Force | Out-Null
+                    }
+                    
+                    # Backup 2: Registry Policies (JSON format for reference)
                     Write-ModuleLog -Level INFO -Message "Backing up registry policies..." -Module $moduleName
                     $regBackupPath = Join-Path $backupFolder "RegistryPolicies.json"
                     $regBackup = Backup-RegistryPolicies -ComputerPoliciesPath $computerRegPath `
@@ -280,10 +301,10 @@ function Invoke-SecurityBaseline {
                         -BackupPath $regBackupPath
                     
                     if (-not $regBackup.Success) {
-                        throw "Registry backup failed"
+                        Write-ModuleLog -Level WARNING -Message "Registry policies JSON backup failed - continuing with LocalGPO backup" -Module $moduleName
                     }
                     
-                    # Backup 2: Security Template
+                    # Backup 3: Security Template
                     Write-ModuleLog -Level INFO -Message "Backing up security template..." -Module $moduleName
                     $secBackupPath = Join-Path $backupFolder "SecurityTemplate.inf"
                     $secBackup = Backup-SecurityTemplate -BackupPath $secBackupPath
@@ -292,7 +313,7 @@ function Invoke-SecurityBaseline {
                         throw "Security template backup failed"
                     }
                     
-                    # Backup 3: Audit Policies
+                    # Backup 4: Audit Policies
                     Write-ModuleLog -Level INFO -Message "Backing up audit policies..." -Module $moduleName
                     $auditBackupPath = Join-Path $backupFolder "AuditPolicies.csv"
                     $auditBackup = Backup-AuditPolicies -BackupPath $auditBackupPath
@@ -301,7 +322,7 @@ function Invoke-SecurityBaseline {
                         throw "Audit policies backup failed"
                     }
                     
-                    # Backup 4: Xbox Task State
+                    # Backup 5: Xbox Task State
                     Write-ModuleLog -Level INFO -Message "Backing up Xbox task state..." -Module $moduleName
                     $xboxTaskBackupPath = Join-Path $backupFolder "XboxTask.json"
                     $xboxTaskBackup = Backup-XboxTask -BackupPath $xboxTaskBackupPath

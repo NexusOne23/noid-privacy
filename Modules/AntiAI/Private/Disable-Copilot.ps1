@@ -38,7 +38,7 @@ function Disable-Copilot {
     
     Write-Log -Level DEBUG -Message "Disabling Windows Copilot (multi-layer defense + app removal)" -Module "AntiAI"
     
-    $result = @{
+    $result = [PSCustomObject]@{
         Success = $false
         Applied = 0
         Errors = @()

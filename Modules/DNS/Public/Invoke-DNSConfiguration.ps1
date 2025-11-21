@@ -263,27 +263,24 @@ function Invoke-DNSConfiguration {
             Write-Log -Level INFO -Message "  Jurisdiction: $($providerConfig.jurisdiction)" -Module $moduleName
             Write-Log -Level INFO -Message " " -Module $moduleName
             
-            # Test connectivity (unless forced or dry-run)
+            # Quick connectivity test (unless forced or dry-run)
             if (-not $Force -and -not $DryRun) {
-                Write-Log -Level INFO -Message "Testing DNS connectivity..." -Module $moduleName
+                Write-Log -Level INFO -Message "Testing DNS connectivity (quick check)..." -Module $moduleName
                 
                 $primaryTest = Test-DNSConnectivity -ServerAddress $providerConfig.ipv4.primary
                 
                 if (-not $primaryTest.Reachable) {
-                    # Non-fatal: Warn but continue (system may be offline)
-                    $result.Warnings += "DNS connectivity test failed - system may be offline"
-                    Write-Log -Level WARNING -Message "Could not verify DNS connectivity to $($providerConfig.ipv4.primary)" -Module $moduleName
-                    Write-Log -Level INFO -Message "System may be offline - DNS will be configured anyway" -Module $moduleName
-                    Write-Log -Level INFO -Message "DNS will work automatically once internet connection is available" -Module $moduleName
+                    # Non-fatal: System is offline, but we'll configure DNS anyway
+                    $result.Warnings += "System offline - DNS will be configured anyway"
+                    Write-Log -Level INFO -Message "System appears offline - DNS will be configured and activated when connection is restored" -Module $moduleName
                 }
                 elseif (-not $primaryTest.CanResolve) {
                     # Can reach DNS but cannot resolve - still non-fatal
-                    $result.Warnings += "DNS server reachable but could not resolve test domain"
-                    Write-Log -Level WARNING -Message "DNS resolution test had issues but continuing..." -Module $moduleName
+                    Write-Log -Level INFO -Message "DNS server reachable, configuration will proceed" -Module $moduleName
                 }
                 else {
                     # All good
-                    Write-Log -Level SUCCESS -Message "Connectivity test passed" -Module $moduleName
+                    Write-Log -Level SUCCESS -Message "DNS connectivity verified" -Module $moduleName
                 }
                 
                 Write-Log -Level INFO -Message " " -Module $moduleName
@@ -297,14 +294,13 @@ function Invoke-DNSConfiguration {
             Start-Sleep -Seconds 3
             
             # Get physical adapters (aggressive VPN/VM filtering)
-            Write-Log -Level INFO -Message "Detecting network adapters..." -Module $moduleName
             $adapters = @(Get-PhysicalAdapters)  # Force array to ensure .Count works
             
             if ($adapters.Count -eq 0) {
                 throw "No physical network adapters found (all are VPN/virtual)"
             }
             
-            Write-Log -Level INFO -Message "Found $($adapters.Count) physical network adapter(s) to configure" -Module $moduleName
+            Write-Log -Level INFO -Message "Configuring $($adapters.Count) network adapter(s)" -Module $moduleName
             Write-Log -Level INFO -Message " " -Module $moduleName
             
             # Create backup
@@ -560,6 +556,19 @@ function Invoke-DNSConfiguration {
     
     end {
         $result.Duration = (Get-Date) - $startTime
+        
+        # Flush DNS cache for immediate effect (only on success)
+        if ($result.Success -and -not $DryRun) {
+            Write-Log -Level INFO -Message "Flushing DNS resolver cache for immediate effect..." -Module $moduleName
+            try {
+                Clear-DnsClientCache -ErrorAction Stop
+                Write-Log -Level SUCCESS -Message "DNS cache cleared successfully" -Module $moduleName
+            }
+            catch {
+                Write-Log -Level WARNING -Message "Could not flush DNS cache: $_" -Module $moduleName
+                # Non-critical: continue anyway
+            }
+        }
         
         Write-Log -Level INFO -Message " " -Module $moduleName
         Write-Log -Level INFO -Message "========================================" -Module $moduleName

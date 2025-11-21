@@ -129,7 +129,7 @@ function Get-PhysicalAdapters {
             return @()
         }
         
-        Write-Log -Level INFO -Message "Found $($filteredAdapters.Count) physical network adapter(s)" -Module $script:ModuleName
+        Write-Log -Level DEBUG -Message "Found $($filteredAdapters.Count) physical network adapter(s)" -Module $script:ModuleName
         
         foreach ($adapter in $filteredAdapters) {
             Write-Log -Level DEBUG -Message "  - $($adapter.Name) ($($adapter.InterfaceDescription)) [Status: $($adapter.Status)]" -Module $script:ModuleName

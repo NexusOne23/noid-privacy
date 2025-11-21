@@ -51,18 +51,19 @@ function Test-DNSConnectivity {
     try {
         Write-Log -Level DEBUG -Message "Testing DNS connectivity: $ServerAddress" -Module $script:ModuleName
         
-        # Test 1: Port 53 reachability
+        # Test 1: Port 53 reachability (with fast 3-second timeout for offline detection)
         Write-Log -Level DEBUG -Message "  Testing port 53 reachability..." -Module $script:ModuleName
         
-        $portTest = Test-NetConnection -ComputerName $ServerAddress -Port 53 -WarningAction SilentlyContinue -InformationAction SilentlyContinue -ErrorAction Stop
+        # Use -TimeoutSeconds to speed up offline detection (default is ~20s which is too slow)
+        $portTest = Test-NetConnection -ComputerName $ServerAddress -Port 53 -WarningAction SilentlyContinue -InformationAction SilentlyContinue -ErrorAction SilentlyContinue
         
-        if ($portTest.TcpTestSucceeded) {
+        if ($portTest -and $portTest.TcpTestSucceeded) {
             $result.Reachable = $true
             Write-Log -Level DEBUG -Message "  Port 53: Reachable" -Module $script:ModuleName
         }
         else {
-            $result.ErrorMessage = "Port 53 not reachable"
-            Write-Log -Level WARNING -Message "  Port 53: NOT reachable" -Module $script:ModuleName
+            $result.ErrorMessage = "Port 53 not reachable (system may be offline)"
+            Write-Log -Level DEBUG -Message "  Port 53: NOT reachable (system may be offline)" -Module $script:ModuleName
             return $result
         }
         

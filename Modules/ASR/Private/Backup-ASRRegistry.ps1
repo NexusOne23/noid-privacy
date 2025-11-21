@@ -28,19 +28,65 @@ function Backup-ASRRegistry {
     try {
         $asrPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Windows Defender Exploit Guard\ASR"
         
+        # BACKUP 1: Registry (for reference/verify)
         if (Test-Path $asrPath) {
-            # Use Core/Rollback backup function
             try {
                 Backup-RegistryKey -KeyPath $asrPath -BackupName "ASR_Config"
                 Write-Log -Level INFO -Message "ASR registry backed up with ID: $BackupId" -Module "ASR"
             }
             catch {
                 Write-Log -Level WARNING -Message "Registry backup failed: $_" -Module "ASR"
-                $result.Errors += "Backup failed: $_"
+                $result.Errors += "Registry backup failed: $_"
             }
         }
         else {
-            Write-Log -Level INFO -Message "No existing ASR configuration to backup" -Module "ASR"
+            Write-Log -Level INFO -Message "No existing ASR registry configuration to backup" -Module "ASR"
+        }
+        
+        # BACKUP 2: Get-MpPreference (CRITICAL for restore)
+        # Registry-only restore doesn't work after Clear-ASRRules
+        # We MUST save the active Defender configuration
+        # IMPORTANT: We backup even if 0 rules are active (pre-hardening state)
+        try {
+            $mpPref = Get-MpPreference -ErrorAction Stop
+            
+            $asrBackupData = @{
+                BackupDate = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+                BackupId = $BackupId
+                Rules = @()
+            }
+            
+            # If rules exist, save them
+            if ($mpPref.AttackSurfaceReductionRules_Ids -and $mpPref.AttackSurfaceReductionRules_Ids.Count -gt 0) {
+                # Pair IDs with Actions
+                for ($i = 0; $i -lt $mpPref.AttackSurfaceReductionRules_Ids.Count; $i++) {
+                    $asrBackupData.Rules += @{
+                        GUID = $mpPref.AttackSurfaceReductionRules_Ids[$i]
+                        Action = $mpPref.AttackSurfaceReductionRules_Actions[$i]
+                    }
+                }
+                Write-Log -Level INFO -Message "Backing up $($asrBackupData.Rules.Count) active ASR rules from Get-MpPreference" -Module "ASR"
+            }
+            else {
+                Write-Log -Level INFO -Message "No active ASR rules in Get-MpPreference - backing up empty state (pre-hardening)" -Module "ASR"
+            }
+            
+            # ALWAYS create the JSON file, even if Rules array is empty
+            # This is critical for restore to know "system had 0 rules before hardening"
+            $asrJson = $asrBackupData | ConvertTo-Json -Depth 5
+            $backupFile = Register-Backup -Type "ASR_MpPreference" -Data $asrJson -Name "ASR_ActiveConfiguration"
+            
+            if ($backupFile) {
+                Write-Log -Level SUCCESS -Message "ASR MpPreference configuration backed up ($($asrBackupData.Rules.Count) rules)" -Module "ASR"
+            }
+            else {
+                Write-Log -Level WARNING -Message "Failed to register ASR MpPreference backup" -Module "ASR"
+                $result.Errors += "MpPreference backup registration failed"
+            }
+        }
+        catch {
+            Write-Log -Level WARNING -Message "Get-MpPreference backup failed: $_" -Module "ASR"
+            $result.Errors += "MpPreference backup failed: $_"
         }
     }
     catch {
