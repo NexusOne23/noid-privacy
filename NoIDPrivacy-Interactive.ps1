@@ -238,8 +238,8 @@ function Invoke-RebootPrompt {
         Write-Host ""
         Write-ColorText "    [1] Audit Policies (23 policies)" -Color Yellow
         Write-ColorText "        - Advanced Audit Policy Configuration via auditpol.exe" -Color Gray
-        Write-ColorText "        - Currently showing: 0/23 verified" -Color Gray
-        Write-ColorText "        - After reboot: 23/23 verified (expected)" -Color Green
+        Write-ColorText "        - Status: ⏳ Pending system reboot for activation" -Color Cyan
+        Write-ColorText "        - After reboot: 23/23 policies will be active (expected)" -Color Green
         Write-Host ""
         Write-ColorText "    [2] Group Policy Settings" -Color Yellow
         Write-ColorText "        - Some Group Policy settings only activate after reboot" -Color Gray
@@ -461,7 +461,7 @@ function Show-ModuleMenu {
         @{ Key = "4"; Name = "Privacy"; Description = "Telemetry & Privacy hardening (3 modes)"; Enabled = $true }
         @{ Key = "5"; Name = "AntiAI"; Description = "Disable Windows AI features (Recall/Copilot/Paint/Notepad)"; Enabled = $true }
         @{ Key = "6"; Name = "EdgeHardening"; Description = "Secure Microsoft Edge browser (20 policies)"; Enabled = $true }
-        @{ Key = "7"; Name = "AdvancedSecurity"; Description = "RDP/Credentials/Ports/TLS/WPAD/PSv2/SRP/Windows Update (42 settings)"; Enabled = $true }
+        @{ Key = "7"; Name = "AdvancedSecurity"; Description = "11 security features (42 settings): RDP/Credentials/Ports/TLS/WPAD/PSv2/SRP/WinUpdate"; Enabled = $true }
     )
     
     foreach ($module in $modules) {

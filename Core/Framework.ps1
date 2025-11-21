@@ -456,10 +456,12 @@ function Invoke-Hardening {
                     "Privacy" {
                         Write-Host "Telemetry & Privacy Hardening" -ForegroundColor White
                         Write-Host ""
-                        Write-Host "  > Applies 48 privacy settings:" -ForegroundColor Gray
-                        Write-Host "    - Telemetry control (3 modes available)" -ForegroundColor Gray
+                        Write-Host "  > Applies up to 48 privacy settings (mode-dependent):" -ForegroundColor Gray
+                        Write-Host "    - Telemetry control (3 modes: MSRecommended/Strict/Paranoid)" -ForegroundColor Gray
+                        Write-Host "    - MSRecommended: 32 registry settings (default, max compatibility)" -ForegroundColor DarkGray
+                        Write-Host "    - Strict/Paranoid: 33-36 settings + services disabled" -ForegroundColor DarkGray
                         Write-Host "    - Disable ads, tips, personalization" -ForegroundColor Gray
-                        Write-Host "    - Remove bloatware (10-25 apps)" -ForegroundColor Gray
+                        Write-Host "    - Remove bloatware (up to 24 apps, if present)" -ForegroundColor Gray
                         Write-Host "    - OneDrive hardening (keeps sync functional)" -ForegroundColor Gray
                         Write-Host ""
                         Write-Host "  Note: You'll choose privacy mode interactively" -ForegroundColor Yellow
@@ -491,7 +493,7 @@ function Invoke-Hardening {
                     "AdvancedSecurity" {
                         Write-Host "Advanced Security Hardening (Beyond MS Baseline)" -ForegroundColor White
                         Write-Host ""
-                        Write-Host "  > Applies 42 advanced settings:" -ForegroundColor Gray
+                        Write-Host "  > Applies 11 security features (42 individual settings):" -ForegroundColor Gray
                         Write-Host "    - RDP hardening + optional complete disable" -ForegroundColor Gray
                         Write-Host "    - WDigest credential protection" -ForegroundColor Gray
                         Write-Host "    - Admin Shares disable (domain-aware)" -ForegroundColor Gray
