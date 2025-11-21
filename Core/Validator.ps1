@@ -170,9 +170,11 @@ function Test-InternetConnectivity {
     #>
     [CmdletBinding()]
     [OutputType([bool])]
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSAvoidUsingComputerNameHardcoded', '')]
     param()
     
     try {
+        # Using Google DNS (8.8.8.8) - intentional for internet connectivity check
         $response = Test-Connection -ComputerName "8.8.8.8" -Count 1 -Quiet -ErrorAction Stop
         return $response
     }
