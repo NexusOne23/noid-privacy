@@ -210,6 +210,23 @@ function Invoke-AntiAI {
             if ($result5) { $backupCount++ }
             $result6 = Backup-RegistryKey -KeyPath "HKLM:\SOFTWARE\Microsoft\WindowsRuntime\ActivatableClassId\Microsoft.Windows.Copilot.CopilotManager" -BackupName "Copilot_ActivationType"
             if ($result6) { $backupCount++ }
+            
+            # CRITICAL: Create JSON backup for Explorer Advanced HKLM (Protected Key)
+            # .reg import often fails for this key due to permissions/ownership
+            try {
+                $expPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
+                if (Test-Path $expPath) {
+                    $expVal = Get-ItemProperty -Path $expPath -Name "ShowCopilotButton" -ErrorAction SilentlyContinue
+                    if ($expVal) {
+                        $expData = @{ "ShowCopilotButton" = $expVal.ShowCopilotButton }
+                        $expJson = $expData | ConvertTo-Json
+                        $jsonBackup = Register-Backup -Type "AntiAI" -Data $expJson -Name "Explorer_Advanced_Device_JSON"
+                        if ($jsonBackup) { $backupCount++ }
+                    }
+                }
+            } catch { 
+                Write-Host "  WARNING: Failed to create JSON backup for Explorer Advanced: $_" -ForegroundColor Yellow 
+            }
         }
         
         Write-Host "  Windows Copilot..." -ForegroundColor White -NoNewline

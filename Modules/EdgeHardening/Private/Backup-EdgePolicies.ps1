@@ -80,51 +80,31 @@ function Backup-EdgePolicies {
         }
         else {
             # Use Core Rollback system
-            if (Test-Path $edgePolicyPath) {
-                # IMPORTANT: Backup-RegistryKey returns a STRING (backup file path) on success, or $null on failure/not-found
-                $backupResult = Backup-RegistryKey -KeyPath $edgePolicyPath -BackupName "EdgeHardening"
-                
-                # Check return value: String = success, $null = nothing to backup (normal)
-                if ($backupResult) {
+            # CRITICAL FIX: Call Backup-RegistryKey unconditionally!
+            # This ensures that if the key is missing, the Core function automatically creates
+            # a standardized _EMPTY.json marker, which the Restore system knows how to handle.
+            
+            $backupResult = Backup-RegistryKey -KeyPath $edgePolicyPath -BackupName "EdgeHardening"
+            
+            if ($backupResult) {
+                if ($backupResult -match "_EMPTY\.json$") {
+                    Write-Log -Level INFO -Message "Edge policy key does not exist - Created Empty Marker for cleanup" -Module "EdgeHardening"
+                    $result.Success = $true
+                    $result.KeysBackedUp = 0
+                }
+                else {
                     # Success: Backup-RegistryKey returned a file path (string)
                     $result.Success = $true
-                    $result.BackupPath = $backupResult  # $backupResult is the file path string
+                    $result.BackupPath = $backupResult
                     $result.KeysBackedUp = 1
                     Write-Log -Level DEBUG -Message "Edge policies backed up via Core Rollback system: $backupResult" -Module "EdgeHardening"
                 }
-                else {
-                    # $backupResult is $null - key doesn't exist yet (normal on fresh systems)
-                    # This is NOT an error - it means "nothing to backup"
-                    $result.Success = $true
-                    $result.KeysBackedUp = 0
-                    Write-Log -Level DEBUG -Message "Edge policies: nothing to backup (key doesn't exist yet)" -Module "EdgeHardening"
-                }
             }
             else {
-                # No existing Edge policies - create empty marker so restore knows to DELETE policies
+                # Should not happen with new Core logic, but handled safely
                 $result.Success = $true
                 $result.KeysBackedUp = 0
-                
-                # Create marker file: "EdgeHardening_EMPTY.marker"
-                # This tells restore: "This key did NOT exist before hardening → DELETE during restore"
-                try {
-                    $emptyMarker = @{
-                        KeyPath = $edgePolicyPath
-                        BackupDate = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-                        State = "NotExisted"
-                        Message = "Edge policy key did not exist before hardening - must be deleted during restore"
-                    } | ConvertTo-Json
-                    
-                    $markerFile = Register-Backup -Type "EmptyMarker" -Data $emptyMarker -Name "EdgeHardening_EMPTY"
-                    if ($markerFile) {
-                        Write-Log -Level INFO -Message "Created empty marker for Edge policies (did not exist before hardening)" -Module "EdgeHardening"
-                    }
-                }
-                catch {
-                    Write-Log -Level WARNING -Message "Could not create empty marker: $_" -Module "EdgeHardening"
-                }
-                
-                Write-Log -Level DEBUG -Message "No existing Edge policies to backup (clean system)" -Module "EdgeHardening"
+                Write-Log -Level DEBUG -Message "Backup-RegistryKey returned null (unexpected but handled)" -Module "EdgeHardening"
             }
         }
         

@@ -47,4 +47,4 @@ if (Test-Path $PublicPath) {
 }
 
 # Export only public functions
-Export-ModuleMember -Function Invoke-SecurityBaseline, Restore-SecurityBaseline
+Export-ModuleMember -Function Invoke-SecurityBaseline, Restore-SecurityBaseline, Restore-RegistryPolicies

@@ -395,6 +395,38 @@ function Invoke-Hardening {
         try {
             Initialize-BackupSystem
             Write-Log -Level INFO -Message "Backup session initialized for all modules" -Module "Framework"
+            
+            # Create Pre-Framework Snapshot for ASR Rules (shared resource conflict prevention)
+            # Only when: Multi-module apply AND ASR module is in the list
+            # Why: SecurityBaseline sets 15 ASR rules, then ASR sets 19 rules
+            # We need to capture the ORIGINAL state before ANY module touches ASR
+            if ($modulesToExecute.Count -gt 1 -and $modulesToExecute -contains "ASR") {
+                Write-Log -Level INFO -Message "Creating Pre-Framework ASR snapshot (multi-module apply with ASR detected)" -Module "Framework"
+                
+                try {
+                    $sessionPath = $script:BackupBasePath
+                    $mpPref = Get-MpPreference -ErrorAction SilentlyContinue
+                    
+                    $ruleCount = if ($mpPref.AttackSurfaceReductionRules_Ids) { $mpPref.AttackSurfaceReductionRules_Ids.Count } else { 0 }
+                    
+                    $preFrameworkSnapshot = @{
+                        ASR = @{
+                            RuleIds = if ($mpPref.AttackSurfaceReductionRules_Ids) { @($mpPref.AttackSurfaceReductionRules_Ids) } else { @() }
+                            RuleActions = if ($mpPref.AttackSurfaceReductionRules_Actions) { @($mpPref.AttackSurfaceReductionRules_Actions) } else { @() }
+                            SnapshotDate = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+                            RuleCount = $ruleCount
+                        }
+                        AppliesTo = @("ASR")  # Only apply this snapshot if ASR module is being restored
+                    }
+                    
+                    $snapshotPath = Join-Path $sessionPath "PreFramework_Snapshot.json"
+                    $preFrameworkSnapshot | ConvertTo-Json -Depth 10 | Out-File $snapshotPath -Encoding UTF8
+                    Write-Log -Level SUCCESS -Message "Pre-Framework snapshot saved: $ruleCount ASR rules captured (original system state)" -Module "Framework"
+                }
+                catch {
+                    Write-Log -Level WARNING -Message "Failed to create Pre-Framework snapshot (non-critical): $_" -Module "Framework"
+                }
+            }
         }
         catch {
             Write-ErrorLog -Message "Failed to initialize backup system" -Module "Framework" -ErrorRecord $_

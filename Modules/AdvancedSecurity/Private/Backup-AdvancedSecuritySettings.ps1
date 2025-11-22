@@ -36,6 +36,41 @@ function Backup-AdvancedSecuritySettings {
         $rdpBackup = Backup-RegistryKey -KeyPath "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server" -BackupName "RDP_Settings"
         if ($rdpBackup) { $backupCount++ }
         
+        # CRITICAL: Create JSON backup for RDP (Rollback fallback)
+        # .reg import often fails for RDP keys due to permissions, so we need values for PowerShell restore
+        try {
+            $rdpData = @{}
+            
+            # System Settings
+            $systemPath = "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server"
+            if (Test-Path $systemPath) {
+                $val = Get-ItemProperty -Path $systemPath -Name "fDenyTSConnections" -ErrorAction SilentlyContinue
+                if ($val) { $rdpData["System_fDenyTSConnections"] = $val.fDenyTSConnections }
+            }
+            
+            # Policy Settings
+            $policyPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services"
+            if (Test-Path $policyPath) {
+                $val1 = Get-ItemProperty -Path $policyPath -Name "UserAuthentication" -ErrorAction SilentlyContinue
+                if ($val1) { $rdpData["Policy_UserAuthentication"] = $val1.UserAuthentication }
+                
+                $val2 = Get-ItemProperty -Path $policyPath -Name "SecurityLayer" -ErrorAction SilentlyContinue
+                if ($val2) { $rdpData["Policy_SecurityLayer"] = $val2.SecurityLayer }
+            }
+            
+            if ($rdpData.Count -gt 0) {
+                $rdpJson = $rdpData | ConvertTo-Json
+                $rdpJsonBackup = Register-Backup -Type "AdvancedSecurity" -Data $rdpJson -Name "RDP_Hardening"
+                if ($rdpJsonBackup) { 
+                    Write-Log -Level DEBUG -Message "Created RDP JSON backup for rollback fallback" -Module "AdvancedSecurity"
+                    $backupCount++ 
+                }
+            }
+        }
+        catch {
+            Write-Log -Level WARNING -Message "Failed to create RDP JSON backup: $_" -Module "AdvancedSecurity"
+        }
+        
         # 2. WDigest Settings
         Write-Log -Level DEBUG -Message "Backing up WDigest settings..." -Module "AdvancedSecurity"
         $wdigestBackup = Backup-RegistryKey -KeyPath "HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\WDigest" -BackupName "WDigest_Settings"
@@ -61,8 +96,38 @@ function Backup-AdvancedSecuritySettings {
         
         # 5. WPAD Settings
         Write-Log -Level DEBUG -Message "Backing up WPAD settings..." -Module "AdvancedSecurity"
-        $wpadBackup = Backup-RegistryKey -KeyPath "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings" -BackupName "WPAD_Settings"
+        $wpadPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings"
+        $wpadBackup = Backup-RegistryKey -KeyPath $wpadPath -BackupName "WPAD_Settings"
         if ($wpadBackup) { $backupCount++ }
+        
+        # CRITICAL: Create JSON backup for WPAD (Rollback fallback)
+        try {
+            if (Test-Path $wpadPath) {
+                $wpadProps = Get-ItemProperty -Path $wpadPath -ErrorAction SilentlyContinue
+                $wpadData = @{}
+                
+                # Capture all relevant properties in format expected by Rollback.ps1
+                # Format: "FullPath\ValueName" = Value
+                foreach ($prop in $wpadProps.PSObject.Properties) {
+                    if ($prop.Name -notin @('PSPath','PSParentPath','PSChildName','PSDrive','PSProvider')) {
+                        $fullKey = "$wpadPath\$($prop.Name)"
+                        $wpadData[$fullKey] = $prop.Value
+                    }
+                }
+                
+                if ($wpadData.Count -gt 0) {
+                    $wpadJson = $wpadData | ConvertTo-Json
+                    $wpadJsonBackup = Register-Backup -Type "AdvancedSecurity" -Data $wpadJson -Name "WPAD"
+                    if ($wpadJsonBackup) {
+                        Write-Log -Level DEBUG -Message "Created WPAD JSON backup for rollback fallback" -Module "AdvancedSecurity"
+                        $backupCount++
+                    }
+                }
+            }
+        }
+        catch {
+            Write-Log -Level WARNING -Message "Failed to create WPAD JSON backup: $_" -Module "AdvancedSecurity"
+        }
         
         # 6. Services
         Write-Log -Level DEBUG -Message "Backing up risky services state..." -Module "AdvancedSecurity"

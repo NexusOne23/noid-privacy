@@ -335,6 +335,7 @@ cd noid-privacy
  **v2.1.0:** TLS hardening (1.0/1.1 OFF, 1.2/1.3 ON)
  **v2.1.0:** Windows Update interactive configuration
  **v2.1.0:** Finger Protocol blocked (ClickFix malware protection)
+ **v2.1.0:** Enhanced Registry Backup (Smart JSON-Fallback for protected system keys)
 
 ** [Detailed Module Documentation](Docs/FEATURES.md)**
 
@@ -664,7 +665,7 @@ The authors are not responsible for any damage or data loss.
 ## Project Status
 
 **Current Version:** 2.1.0 
-**Last Updated:** November 20, 2025 
+**Last Updated:** November 22, 2025 
 **Status:** Production-Ready
 
 ### Release Highlights v2.1.0

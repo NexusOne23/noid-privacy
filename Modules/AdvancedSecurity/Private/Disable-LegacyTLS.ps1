@@ -23,20 +23,11 @@ function Disable-LegacyTLS {
         $tlsVersions = @("TLS 1.0", "TLS 1.1")
         $components = @("Server", "Client")
         
-        $backupData = @{}
         $setCount = 0
         
         foreach ($version in $tlsVersions) {
             foreach ($component in $components) {
                 $regPath = "HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\$version\$component"
-                
-                # Backup current values
-                if (Test-Path $regPath) {
-                    $enabled = (Get-ItemProperty -Path $regPath -Name "Enabled" -ErrorAction SilentlyContinue).Enabled
-                    $disabledByDefault = (Get-ItemProperty -Path $regPath -Name "DisabledByDefault" -ErrorAction SilentlyContinue).DisabledByDefault
-                    $backupData["$regPath\Enabled"] = $enabled
-                    $backupData["$regPath\DisabledByDefault"] = $disabledByDefault
-                }
                 
                 # Create path if needed
                 if (-not (Test-Path $regPath)) {
@@ -62,9 +53,6 @@ function Disable-LegacyTLS {
                 $setCount += 2
             }
         }
-        
-        # Register backup
-        Register-Backup -Type "TLS_Settings" -Data ($backupData | ConvertTo-Json) -Name "Legacy_TLS"
         
         Write-Log -Level SUCCESS -Message "Legacy TLS disabled ($setCount registry keys set)" -Module "AdvancedSecurity"
         Write-Host ""

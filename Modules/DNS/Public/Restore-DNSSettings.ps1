@@ -123,6 +123,17 @@ function Restore-DNSSettings {
                         if (Test-Path $dnsClientPath) {
                             Remove-ItemProperty -Path $dnsClientPath -Name "DoHPolicy" -ErrorAction SilentlyContinue
                             Write-Log -Level DEBUG -Message "  Removed DoHPolicy (was not set in backup)" -Module $script:ModuleName
+                            
+                            # CLEANUP: Remove key if empty (created by us)
+                            $keyContent = Get-ChildItem $dnsClientPath -ErrorAction SilentlyContinue
+                            $keyProps = Get-ItemProperty $dnsClientPath -ErrorAction SilentlyContinue
+                            # Count properties (exclude PS metadata like PSPath, etc.)
+                            $propCount = ($keyProps.PSObject.Properties | Where-Object { $_.Name -notin @('PSPath','PSParentPath','PSChildName','PSDrive','PSProvider') }).Count
+                            
+                            if (($null -eq $keyContent -or $keyContent.Count -eq 0) -and $propCount -eq 0) {
+                                Remove-Item $dnsClientPath -Force -ErrorAction SilentlyContinue
+                                Write-Log -Level DEBUG -Message "  Removed empty registry key: $dnsClientPath" -Module $script:ModuleName
+                            }
                         }
                     }
                     
@@ -142,6 +153,18 @@ function Restore-DNSSettings {
                         $dnsParamsPath = "HKLM:\SYSTEM\CurrentControlSet\Services\Dnscache\Parameters"
                         Remove-ItemProperty -Path $dnsParamsPath -Name "EnableAutoDoh" -ErrorAction SilentlyContinue
                         Write-Log -Level DEBUG -Message "  Removed EnableAutoDoh (was not set in backup)" -Module $script:ModuleName
+                        
+                        # CLEANUP: Remove key if empty (unlikely for Parameters, but safe to check)
+                        if (Test-Path $dnsParamsPath) {
+                            $keyContent = Get-ChildItem $dnsParamsPath -ErrorAction SilentlyContinue
+                            $keyProps = Get-ItemProperty $dnsParamsPath -ErrorAction SilentlyContinue
+                            $propCount = ($keyProps.PSObject.Properties | Where-Object { $_.Name -notin @('PSPath','PSParentPath','PSChildName','PSDrive','PSProvider') }).Count
+                            
+                            if (($null -eq $keyContent -or $keyContent.Count -eq 0) -and $propCount -eq 0) {
+                                Remove-Item $dnsParamsPath -Force -ErrorAction SilentlyContinue
+                                Write-Log -Level DEBUG -Message "  Removed empty registry key: $dnsParamsPath" -Module $script:ModuleName
+                            }
+                        }
                     }
                     
                     # Restore DohFlags (global)
@@ -199,6 +222,20 @@ function Restore-DNSSettings {
                 }
                 catch {
                     Write-Log -Level WARNING -Message "Could not restore netsh global DoH: $_" -Module $script:ModuleName
+                }
+            }
+        }
+        else {
+            # If no global DoH state in backup, it means it wasn't configured or we couldn't read it.
+            # Since we enable it in Apply, we should disable it here to be safe.
+            if (-not $DryRun) {
+                Write-Log -Level DEBUG -Message "No global DoH state in backup - resetting to default (doh=no)" -Module $script:ModuleName
+                try {
+                    netsh dnsclient set global doh=no 2>&1 | Out-Null
+                    Write-Log -Level DEBUG -Message "  netsh global DoH reset to 'no'" -Module $script:ModuleName
+                }
+                catch {
+                    Write-Log -Level WARNING -Message "Could not reset netsh global DoH: $_" -Module $script:ModuleName
                 }
             }
         }

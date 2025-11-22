@@ -29,18 +29,24 @@ function Backup-ASRRegistry {
         $asrPath = "HKLM:\SOFTWARE\Policies\Microsoft\Windows Defender\Windows Defender Exploit Guard\ASR"
         
         # BACKUP 1: Registry (for reference/verify)
-        if (Test-Path $asrPath) {
-            try {
-                Backup-RegistryKey -KeyPath $asrPath -BackupName "ASR_Config"
-                Write-Log -Level INFO -Message "ASR registry backed up with ID: $BackupId" -Module "ASR"
-            }
-            catch {
-                Write-Log -Level WARNING -Message "Registry backup failed: $_" -Module "ASR"
-                $result.Errors += "Registry backup failed: $_"
+        # CRITICAL FIX: Call Backup-RegistryKey unconditionally!
+        # If key exists: Creates .reg backup
+        # If key missing: Creates _EMPTY.json marker (Required for proper cleanup during restore)
+        try {
+            $regBackup = Backup-RegistryKey -KeyPath $asrPath -BackupName "ASR_Config"
+            
+            if ($regBackup) {
+                if ($regBackup -match "_EMPTY\.json$") {
+                    Write-Log -Level INFO -Message "ASR registry key does not exist - Created Empty Marker for cleanup" -Module "ASR"
+                }
+                else {
+                    Write-Log -Level INFO -Message "ASR registry backed up with ID: $BackupId" -Module "ASR"
+                }
             }
         }
-        else {
-            Write-Log -Level INFO -Message "No existing ASR registry configuration to backup" -Module "ASR"
+        catch {
+            Write-Log -Level WARNING -Message "Registry backup failed: $_" -Module "ASR"
+            $result.Errors += "Registry backup failed: $_"
         }
         
         # BACKUP 2: Get-MpPreference (CRITICAL for restore)
@@ -74,7 +80,7 @@ function Backup-ASRRegistry {
             # ALWAYS create the JSON file, even if Rules array is empty
             # This is critical for restore to know "system had 0 rules before hardening"
             $asrJson = $asrBackupData | ConvertTo-Json -Depth 5
-            $backupFile = Register-Backup -Type "ASR_MpPreference" -Data $asrJson -Name "ASR_ActiveConfiguration"
+            $backupFile = Register-Backup -Type "ASR" -Data $asrJson -Name "ASR_ActiveConfiguration"
             
             if ($backupFile) {
                 Write-Log -Level SUCCESS -Message "ASR MpPreference configuration backed up ($($asrBackupData.Rules.Count) rules)" -Module "ASR"

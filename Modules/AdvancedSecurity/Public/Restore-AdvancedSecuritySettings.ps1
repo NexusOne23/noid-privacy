@@ -51,6 +51,12 @@ function Restore-AdvancedSecuritySettings {
         elseif ($filename -match "AdminShares") {
             return Restore-AdminShares -BackupData $backupData
         }
+        elseif ($filename -match "RDP_Hardening") {
+            # RDP settings are already restored via the Smart JSON-Fallback mechanism in Rollback.ps1
+            # This JSON backup serves as a fallback and doesn't require separate restore logic
+            Write-Log -Level DEBUG -Message "RDP_Hardening.json acknowledged (already handled by Smart JSON-Fallback)" -Module "AdvancedSecurity"
+            return $true
+        }
         else {
             Write-Log -Level WARNING -Message "Unknown Advanced Security backup type: $filename" -Module "AdvancedSecurity"
             return $false
@@ -100,19 +106,23 @@ function Restore-FirewallRules {
         # Also remove the specific block rules added by AdvancedSecurity
         # These include:
         #  - Block Risky Port * (legacy patterns)
-        #  - Block Finger Protocol (Port 79)
+        #  - NoID Privacy Pro - Block Finger Protocol (Port 79)
         #  - NoID Privacy Pro - Block SSDP (UDP 1900)
+        #  - Block Admin Shares - NoID Privacy (TCP 445 on Public profile)
         $blockRules = Get-NetFirewallRule -DisplayName "Block Risky Port *" -ErrorAction SilentlyContinue
         if ($blockRules) {
             Remove-NetFirewallRule -InputObject $blockRules -ErrorAction SilentlyContinue
             Write-Log -Level INFO -Message "Removed $($blockRules.Count) hardening block rules" -Module "AdvancedSecurity"
         }
 
-        # Remove Finger Protocol rule
-        Remove-NetFirewallRule -DisplayName "Block Finger Protocol (Port 79)" -ErrorAction SilentlyContinue
+        # Remove Finger Protocol rule (corrected name with NoID prefix)
+        Remove-NetFirewallRule -DisplayName "NoID Privacy Pro - Block Finger Protocol (Port 79)" -ErrorAction SilentlyContinue
 
         # Remove SSDP block rule (UDP 1900)
         Remove-NetFirewallRule -DisplayName "NoID Privacy Pro - Block SSDP (UDP 1900)" -ErrorAction SilentlyContinue
+        
+        # Remove Admin Shares SMB block rule (TCP 445 on Public profile)
+        Remove-NetFirewallRule -DisplayName "Block Admin Shares - NoID Privacy" -ErrorAction SilentlyContinue
         
         return $true
     }

@@ -3,7 +3,7 @@
 **Framework Version:** v2.1.0  
 **Total Security Settings:** 583  
 **Modules:** 7 (All Production-Ready)  
-**Last Updated:** November 20, 2025
+**Last Updated:** November 22, 2025
 
 ---
 
@@ -62,7 +62,6 @@
 ### Home User Adjustments:
 - **BitLocker USB:** Default = 0 (Home Mode - USB works normally)
 - **Password Policies:** Only affect local accounts (~5% of users)
-- **FireWire Blocking:** Documented in README with workaround
 
 ---
 
@@ -510,10 +509,10 @@ Some UI elements in Paint and Photos apps may **still be visible** but non-funct
 - ✅ Option: Enterprise Mode (encryption enforcement)
 - ✅ Interactive prompt during SecurityBaseline
 
-### FireWire Blocking (Documented):
+### FireWire Blocking:
 - ✅ Blocks IEEE 1394 devices (DMA attack prevention)
 - ✅ Impact: <1% of users (obsolete technology)
-- ✅ Workaround: Documented in README with PowerShell commands
+
 
 ---
 
@@ -541,5 +540,5 @@ Framework Completion:       🎉 100% COMPLETE
 
 ---
 
-**Last Updated:** November 20, 2025  
+**Last Updated:** November 22, 2025  
 **Framework Version:** v2.1.0  

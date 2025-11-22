@@ -52,22 +52,37 @@ function Test-AdvancedSecurity {
         $adminSharesTest = Test-AdminShares
         $results += $adminSharesTest
         
-        # 4. Risky Ports
+        # 4. Legacy TLS
+        Write-Host "Testing Legacy TLS (1.0/1.1)..." -ForegroundColor Gray
+        $tlsTest = Test-LegacyTLS
+        $results += $tlsTest
+        
+        # 5. WPAD
+        Write-Host "Testing WPAD Configuration..." -ForegroundColor Gray
+        $wpadTest = Test-WPAD
+        $results += $wpadTest
+        
+        # 6. PowerShell v2
+        Write-Host "Testing PowerShell v2 Status..." -ForegroundColor Gray
+        $psv2Test = Test-PowerShellV2
+        $results += $psv2Test
+        
+        # 7. Risky Ports
         Write-Host "Testing Risky Firewall Ports..." -ForegroundColor Gray
         $riskyPortsTest = Test-RiskyPorts
         $results += $riskyPortsTest
         
-        # 5. Risky Services
+        # 8. Risky Services
         Write-Host "Testing Risky Network Services..." -ForegroundColor Gray
         $riskyServicesTest = Test-RiskyServices
         $results += $riskyServicesTest
         
-        # 6. SRP Configuration (CVE-2025-9491)
+        # 9. SRP Configuration (CVE-2025-9491)
         Write-Host "Testing SRP Configuration (CVE-2025-9491)..." -ForegroundColor Gray
         $srpTest = Test-SRPCompliance
         $results += $srpTest
         
-        # 7. Windows Update Configuration
+        # 10. Windows Update Configuration
         Write-Host "Testing Windows Update Configuration..." -ForegroundColor Gray
         $wuTest = Test-WindowsUpdate
         $results += $wuTest

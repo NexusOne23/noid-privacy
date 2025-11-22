@@ -767,6 +767,35 @@ function Restore-FromBackup {
                     return $true
                 }
                 
+                # PRE-CHECK: Extract key path from .reg file and check if it's a protected key
+                # This prevents unnecessary WARNING/ERROR messages for known protected keys
+                $keyPathToRestore = ""
+                $backupContent = Get-Content -Path $BackupFile -Raw -ErrorAction SilentlyContinue
+                if ($backupContent -match '\[(HKEY[^\]]+)\]') {
+                    $keyPathToRestore = $matches[1]
+                }
+                
+                # List of known protected keys (Windows system protection prevents reg.exe import)
+                $knownProtectedKeys = @(
+                    'HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server',
+                    'HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings',
+                    'HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced'
+                )
+                
+                $isKnownProtected = $false
+                foreach ($protectedKey in $knownProtectedKeys) {
+                    if ($keyPathToRestore -match [regex]::Escape($protectedKey)) {
+                        $isKnownProtected = $true
+                        break
+                    }
+                }
+                
+                # If this is a known protected key, skip reg.exe import and use JSON-Fallback instead
+                if ($isKnownProtected) {
+                    Write-Log -Level INFO -Message "Standard registry import skipped for protected key (will use Smart JSON-Fallback)." -Module "Rollback"
+                    return $true  # Success - JSON backup will handle this key via Smart Fallback
+                }
+                
                 # Use unique temp files to prevent race conditions
                 $guid = [Guid]::NewGuid().ToString()
                 $stdoutFile = Join-Path $env:TEMP "reg_import_stdout_$guid.txt"
@@ -793,36 +822,7 @@ function Restore-FromBackup {
                     $errorMessage = $errorOutput
                     # Check for Access Denied error (English and German variants)
                     if ($errorMessage -match "Zugriff verweigert|Access is denied|Fehler beim Zugriff auf die Registrierung") {
-                        # Extract key path from .reg file FIRST to check if it's a known protected key
-                        $keyPathToRestore = ""
-                        $backupContent = Get-Content -Path $BackupFile -Raw -ErrorAction SilentlyContinue
-                        if ($backupContent -match '\[(HKEY[^\]]+)\]') {
-                            $keyPathToRestore = $matches[1]
-                        }
-                        
-                        # Check if this is a known protected key BEFORE logging WARNING
-                        $knownProtectedKeys = @(
-                            'HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server',
-                            'HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Internet Settings',
-                            'HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced'
-                        )
-                        
-                        $isKnownProtected = $false
-                        foreach ($protectedKey in $knownProtectedKeys) {
-                            if ($keyPathToRestore -match [regex]::Escape($protectedKey)) {
-                                $isKnownProtected = $true
-                                break
-                            }
-                        }
-                        
-                        if ($isKnownProtected) {
-                            Write-Log -Level INFO -Message "Access Denied for known protected key: $keyPathToRestore (expected - Windows protection)" -Module "Rollback"
-                            Write-Log -Level INFO -Message "Special restore logic will handle this key if needed (JSON backup)" -Module "Rollback"
-                            return $true  # Success - this is expected, will be handled separately
-                        }
-                        else {
-                            Write-Log -Level WARNING -Message "Access Denied during registry restore for $BackupFile. Attempting to delete key and retry import..." -Module "Rollback"
-                        }
+                        Write-Log -Level WARNING -Message "Access Denied during registry restore for $BackupFile. Attempting to delete key and retry import..." -Module "Rollback"
                         
                         if (-not [string]::IsNullOrEmpty($keyPathToRestore)) {
                             try {
@@ -855,30 +855,8 @@ function Restore-FromBackup {
                                     return $true
                                 }
                                 else {
-                                    # Check if this is a known protected key that will be restored via JSON
-                                    $knownProtectedKeys = @(
-                                        'HKEY_LOCAL_MACHINE\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server',
-                                        'HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Internet Settings',
-                                        'HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced'
-                                    )
-                                    
-                                    $isKnownProtected = $false
-                                    foreach ($protectedKey in $knownProtectedKeys) {
-                                        if ($keyPathToRestore -match [regex]::Escape($protectedKey)) {
-                                            $isKnownProtected = $true
-                                            break
-                                        }
-                                    }
-                                    
-                                    if ($isKnownProtected) {
-                                        Write-Log -Level INFO -Message "Known protected key cannot be restored via reg.exe (Windows protection): $keyPathToRestore" -Module "Rollback"
-                                        Write-Log -Level INFO -Message "Special restore logic may handle this key separately (if JSON backup exists)" -Module "Rollback"
-                                        return $true  # Not a failure - this is expected behavior
-                                    }
-                                    else {
-                                        Write-Log -Level ERROR -Message "Registry restore failed even after deleting key (Exit Code: $($process.ExitCode)): $errorOutput" -Module "Rollback"
-                                        return $false
-                                    }
+                                    Write-Log -Level ERROR -Message "Registry restore failed even after deleting key (Exit Code: $($process.ExitCode)): $errorOutput" -Module "Rollback"
+                                    return $false
                                 }
                             }
                             catch {
@@ -959,6 +937,24 @@ function Invoke-RestoreRebootPrompt {
     Write-Host "  SYSTEM REBOOT RECOMMENDED" -ForegroundColor Yellow
     Write-Host "========================================" -ForegroundColor Cyan
     Write-Host ""
+    
+    # Check if Privacy module was restored with non-restorable apps
+    if ($script:PrivacyNonRestorableApps -and $script:PrivacyNonRestorableApps.Count -gt 0) {
+        Write-Host "MANUAL ACTION REQUIRED:" -ForegroundColor Yellow
+        Write-Host ""
+        Write-Host "The following apps were removed during hardening but cannot be" -ForegroundColor Gray
+        Write-Host "automatically restored via winget (not available in catalog):" -ForegroundColor Gray
+        Write-Host ""
+        foreach ($app in $script:PrivacyNonRestorableApps) {
+            Write-Host "  - $app" -ForegroundColor White
+        }
+        Write-Host ""
+        Write-Host "Please reinstall these apps manually from the Microsoft Store" -ForegroundColor Gray
+        Write-Host "after the reboot if you need them." -ForegroundColor Gray
+        Write-Host ""
+        Write-Host "========================================" -ForegroundColor Cyan
+        Write-Host ""
+    }
     
     Write-Host "RECOMMENDED: Reboot after restore" -ForegroundColor White
     Write-Host ""
@@ -1191,7 +1187,7 @@ function Restore-Session {
     try {
         $manifest = Get-SessionManifest -SessionPath $SessionPath
         
-        Write-Log -Level WARNING -Message "Starting session restore: $($manifest.sessionId)" -Module "Rollback"
+        Write-Log -Level INFO -Message "Starting session restore: $($manifest.sessionId)" -Module "Rollback"
         Write-Log -Level INFO -Message "Session created: $($manifest.timestamp)" -Module "Rollback"
         Write-Log -Level INFO -Message "Total items: $($manifest.totalItems)" -Module "Rollback"
         
@@ -1231,6 +1227,30 @@ function Restore-Session {
                     Write-Log -Level WARNING -Message "Local GPO clear had errors - continuing" -Module "Rollback"
                 }
                 
+                # STEP 1.5: Restore Registry Policies (GPO) from backup
+                # This restores the Machine/User Registry.pol files
+                $regPolBackup = Join-Path $moduleBackupPath "RegistryPolicies.json"
+                if (Test-Path $regPolBackup) {
+                    Write-Log -Level INFO -Message "Restoring Registry Policies (GPO) from backup..." -Module "Rollback"
+                    
+                    # Fail-Safe: Manually load function if missing (Module scope fix)
+                    if (-not (Get-Command "Restore-RegistryPolicies" -ErrorAction SilentlyContinue)) {
+                        $funcPath = Join-Path $PSScriptRoot "..\Modules\SecurityBaseline\Private\Restore-RegistryPolicies.ps1"
+                        if (Test-Path $funcPath) { . $funcPath }
+                    }
+
+                    $regPolResult = Restore-RegistryPolicies -BackupPath $regPolBackup
+                    if ($regPolResult.Success) {
+                        Write-Log -Level SUCCESS -Message "Registry Policies restored ($($regPolResult.ItemsRestored) items)" -Module "Rollback"
+                    }
+                    else {
+                        Write-Log -Level WARNING -Message "Registry Policies restore had errors: $($regPolResult.Errors -join '; ')" -Module "Rollback"
+                    }
+                }
+                else {
+                    Write-Log -Level WARNING -Message "No RegistryPolicies.json backup found - skipping GPO restore" -Module "Rollback"
+                }
+                
                 # STEP 2: Restore Audit Policies from pre-hardening backup (1:1 restore)
                 $auditBackupFile = Join-Path $moduleBackupPath "AuditPolicies.csv"
                 if (Test-Path $auditBackupFile) {
@@ -1259,19 +1279,25 @@ function Restore-Session {
                     Write-Log -Level WARNING -Message "No pre-hardening audit policy backup found - skipping audit restore (keeping current state)" -Module "Rollback"
                 }
                 
+                # Fail-Safe for Restore-SecurityTemplate (Module Scope Fix)
+                if (-not (Get-Command "Restore-SecurityTemplate" -ErrorAction SilentlyContinue)) {
+                    $funcPath = Join-Path $PSScriptRoot "..\Modules\SecurityBaseline\Private\Restore-SecurityTemplate.ps1"
+                    if (Test-Path $funcPath) { . $funcPath }
+                }
+
                 # STEP 3: Restore Security Template from rollback template (1:1 restore)
                 # This restores only the settings that were changed by standalone delta
                 $rollbackTemplateFile = Join-Path $moduleBackupPath "StandaloneDelta_Rollback.inf"
                 if (Test-Path $rollbackTemplateFile) {
                     Write-Log -Level INFO -Message "Found rollback template for standalone delta" -Module "Rollback"
-                    $secTemplatResult = Reset-SecurityTemplate -BackupFile $rollbackTemplateFile
+                    $secTemplatResult = Restore-SecurityTemplate -BackupPath $rollbackTemplateFile
                 }
                 else {
-                    Write-Log -Level WARNING -Message "No rollback template found - trying full security policy backup" -Module "Rollback"
+                    Write-Log -Level INFO -Message "No rollback template found - using full security policy backup (expected)" -Module "Rollback"
                     $secPolicyBackupFile = Join-Path $moduleBackupPath "SecurityTemplate.inf"
                     if (Test-Path $secPolicyBackupFile) {
                         Write-Log -Level INFO -Message "Found security template backup" -Module "Rollback"
-                        $secTemplatResult = Reset-SecurityTemplate -BackupFile $secPolicyBackupFile
+                        $secTemplatResult = Restore-SecurityTemplate -BackupPath $secPolicyBackupFile
                     }
                     else {
                         Write-Log -Level WARNING -Message "No security policy backups found - skipping secedit restore" -Module "Rollback"
@@ -1327,20 +1353,29 @@ function Restore-Session {
                     try {
                         $asrBackupData = Get-Content $asrMpPrefBackup.FullName -Raw | ConvertFrom-Json
                         
-                        if ($asrBackupData.Rules -and $asrBackupData.Rules.Count -gt 0) {
-                            $ruleIds = $asrBackupData.Rules | ForEach-Object { $_.GUID }
-                            $ruleActions = $asrBackupData.Rules | ForEach-Object { $_.Action }
+                        # Filter for active rules only (Action 1=Block, 2=Audit)
+                        # If backup contains rules with Action 0 (Off), we don't need to apply them
+                        # because Clear-ASRRules already reset everything to default.
+                        # Applying Action 0 might unexpectedly trigger Defender defaults.
+                        $activeRulesToRestore = @()
+                        if ($asrBackupData.Rules) {
+                            $activeRulesToRestore = $asrBackupData.Rules | Where-Object { $_.Action -ne 0 }
+                        }
+
+                        if ($activeRulesToRestore.Count -gt 0) {
+                            $ruleIds = $activeRulesToRestore | ForEach-Object { $_.GUID }
+                            $ruleActions = $activeRulesToRestore | ForEach-Object { $_.Action }
                             
                             Set-MpPreference -AttackSurfaceReductionRules_Ids $ruleIds `
                                             -AttackSurfaceReductionRules_Actions $ruleActions `
                                             -ErrorAction Stop
                             
-                            Write-Log -Level SUCCESS -Message "ASR rules restored via Set-MpPreference ($($asrBackupData.Rules.Count) rules)" -Module "Rollback"
+                            Write-Log -Level SUCCESS -Message "ASR rules restored via Set-MpPreference ($($activeRulesToRestore.Count) active rules)" -Module "Rollback"
                         }
                         else {
-                            # System had 0 ASR rules before hardening - restore to empty state
-                            # Clear-ASRRules already did this, so we just confirm it
-                            Write-Log -Level SUCCESS -Message "ASR restored to pre-hardening state (0 rules - system was clean)" -Module "Rollback"
+                            # System had 0 active ASR rules before hardening (Clean State)
+                            # Clear-ASRRules already did the job.
+                            Write-Log -Level SUCCESS -Message "ASR backup contains 0 active rules. System kept at clean state (Clear-ASRRules)." -Module "Rollback"
                         }
                     }
                     catch {
@@ -1370,7 +1405,17 @@ function Restore-Session {
                 else {
                     $success = Restore-FromBackup -BackupFile $regFile.FullName -Type "Registry"
                     if (-not $success) {
-                        Write-Log -Level WARNING -Message "Registry restore failed for: $($regFile.Name) - continuing..." -Module "Rollback"
+                        # Check if we have a JSON fallback (Smart Warning Suppression)
+                        $isProtectedKey = $false
+                        if ($moduleInfo.name -eq "AntiAI" -and $regFile.Name -match "Explorer_Advanced_Device_Registry") { $isProtectedKey = $true }
+                        if ($moduleInfo.name -eq "AdvancedSecurity" -and ($regFile.Name -match "RDP_Settings" -or $regFile.Name -match "WPAD_Settings")) { $isProtectedKey = $true }
+
+                        if ($isProtectedKey) {
+                            Write-Log -Level INFO -Message "Standard registry import skipped for protected key (will use Smart JSON-Fallback)." -Module "Rollback"
+                        }
+                        else {
+                            Write-Log -Level WARNING -Message "Registry restore failed for: $($regFile.Name) - continuing..." -Module "Rollback"
+                        }
                         # Don't fail entire restore for registry errors - continue with other restores
                     }
                 }
@@ -1378,6 +1423,26 @@ function Restore-Session {
             
             # Special handling for protected registry keys (RDP, WPAD) that fail with reg.exe import
             # These keys require PowerShell-based restore from JSON backups
+            if ($moduleInfo.name -eq "AntiAI") {
+                # Explorer Advanced Settings - use JSON backup if .reg import failed
+                $expJsonBackup = Get-ChildItem -Path $moduleBackupPath -Filter "Explorer_Advanced_Device_JSON.json" -ErrorAction SilentlyContinue | Select-Object -First 1
+                if ($expJsonBackup) {
+                    Write-Log -Level INFO -Message "Restoring Explorer Advanced settings via PowerShell (protected key)..." -Module "Rollback"
+                    try {
+                        $expData = Get-Content $expJsonBackup.FullName -Raw | ConvertFrom-Json
+                        if ($null -ne $expData.ShowCopilotButton) {
+                            $expPath = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced"
+                            if (Test-Path $expPath) {
+                                Set-ItemProperty -Path $expPath -Name "ShowCopilotButton" -Value $expData.ShowCopilotButton -Force -ErrorAction Stop
+                                Write-Log -Level SUCCESS -Message "Explorer Advanced settings restored via PowerShell" -Module "Rollback"
+                            }
+                        }
+                    } catch {
+                        Write-Log -Level WARNING -Message "PowerShell-based Explorer restore failed: $($_.Exception.Message)" -Module "Rollback"
+                    }
+                }
+            }
+
             if ($moduleInfo.name -eq "AdvancedSecurity") {
                 # RDP Settings - use JSON backup if .reg import failed
                 $rdpJsonBackup = Get-ChildItem -Path $moduleBackupPath -Filter "RDP_Hardening.json" -ErrorAction SilentlyContinue | Select-Object -First 1
@@ -1549,12 +1614,19 @@ function Restore-Session {
 
                         if (Get-Command Restore-Bloatware -ErrorAction SilentlyContinue) {
                             $restoreAppsResult = Restore-Bloatware -BackupPath $moduleBackupPath
-                            if ($restoreAppsResult) {
+                            
+                            # Restore-Bloatware now returns PSCustomObject with Success and NonRestorableApps properties
+                            if ($restoreAppsResult.Success) {
                                 Write-Log -Level SUCCESS -Message "Privacy apps restore (winget) completed" -Module "Rollback"
                             }
                             else {
                                 Write-Log -Level WARNING -Message "Privacy apps restore (winget) reported issues - check logs" -Module "Rollback"
                                 $allSucceeded = $false
+                            }
+                            
+                            # Track non-restorable apps for user notification before reboot
+                            if ($restoreAppsResult.NonRestorableApps -and $restoreAppsResult.NonRestorableApps.Count -gt 0) {
+                                $script:PrivacyNonRestorableApps = $restoreAppsResult.NonRestorableApps
                             }
                         }
                         else {
@@ -1660,6 +1732,117 @@ function Restore-Session {
             Write-Log -Level WARNING -Message "Session restore completed with some failures" -Module "Rollback"
         }
         
+        # Apply Pre-Framework Snapshot if exists (for multi-module shared resource conflicts)
+        # This must happen AFTER all module restores to act as final override
+        $preFrameworkSnapshotPath = Join-Path $SessionPath "PreFramework_Snapshot.json"
+        if (Test-Path $preFrameworkSnapshotPath) {
+            try {
+                $snapshot = Get-Content $preFrameworkSnapshotPath -Raw | ConvertFrom-Json
+                
+                # Check if snapshot applies to any of the restored modules
+                $restoredModuleNames = $manifest.modules.name
+                $snapshotAppliesToModules = $snapshot.AppliesTo
+                
+                $shouldApplySnapshot = $false
+                foreach ($targetModule in $snapshotAppliesToModules) {
+                    if ($ModuleNames) {
+                        # Selective restore - only apply if target module was explicitly restored
+                        if ($ModuleNames -contains $targetModule) {
+                            $shouldApplySnapshot = $true
+                            break
+                        }
+                    }
+                    else {
+                        # Full restore - only apply if target module was in original session
+                        if ($restoredModuleNames -contains $targetModule) {
+                            $shouldApplySnapshot = $true
+                            break
+                        }
+                    }
+                }
+                
+                if ($shouldApplySnapshot) {
+                    Write-Log -Level INFO -Message "Applying Pre-Framework ASR snapshot (original system state before any module applied)" -Module "Rollback"
+                    
+                    # Clear all ASR rules first
+                    Write-Log -Level INFO -Message "Clearing all ASR rules before applying Pre-Framework snapshot..." -Module "Rollback"
+                    $allRuleGuids = @(
+                        "56a863a9-875e-4185-98a7-b882c64b5ce5", "7674ba52-37eb-4a4f-a9a1-f0f9a1619a2c",
+                        "d4f940ab-401b-4efc-aadc-ad5f3c50688a", "9e6c4e1f-7d60-472f-ba1a-a39ef669e4b2",
+                        "be9ba2d9-53ea-4cdc-84e5-9b1eeee46550", "01443614-cd74-433a-b99e-2ecdc07bfc25",
+                        "5beb7efe-fd9a-4556-801d-275e5ffc04cc", "d3e037e1-3eb8-44c8-a917-57927947596d",
+                        "3b576869-a4ec-4529-8536-b80a7769e899", "75668c1f-73b5-4cf0-bb93-3ecf5cb7cc84",
+                        "26190899-1602-49e8-8b27-eb1d0a1ce869", "e6db77e5-3df2-4cf1-b95a-636979351e5b",
+                        "d1e49aac-8f56-4280-b9ba-993a6d77406c", "33ddedf1-c6e0-47cb-833e-de6133960387",
+                        "b2b3f03d-6a65-4f7b-a9c7-1c7ef74a9ba4", "c0033c00-d16d-4114-a5a0-dc9b3a7d2ceb",
+                        "a8f5898e-1dc8-49a9-9878-85004b8a61e6", "92e97fa1-2edf-4476-bdd6-9dd0b4dddc7b",
+                        "c1db55ab-c21a-4637-bb3f-a12568109d35"
+                    )
+                    
+                    foreach ($guid in $allRuleGuids) {
+                        Set-MpPreference -AttackSurfaceReductionRules_Ids $guid -AttackSurfaceReductionRules_Actions 0 -ErrorAction SilentlyContinue
+                    }
+                    
+                    # Apply snapshot rules
+                    $snapshotRules = $snapshot.ASR
+                    if ($snapshotRules.RuleIds -and $snapshotRules.RuleIds.Count -gt 0) {
+                         # Only restore ACTIVE rules (Action != 0) from snapshot
+                         $activeIndices = @()
+                         for ($i = 0; $i -lt $snapshotRules.RuleIds.Count; $i++) {
+                            if ($snapshotRules.RuleActions[$i] -ne 0) {
+                                $activeIndices += $i
+                            }
+                         }
+                         
+                         if ($activeIndices.Count -gt 0) {
+                             $finalIds = @()
+                             $finalActions = @()
+                             foreach ($idx in $activeIndices) {
+                                 $finalIds += $snapshotRules.RuleIds[$idx]
+                                 $finalActions += $snapshotRules.RuleActions[$idx]
+                             }
+                             
+                             Set-MpPreference -AttackSurfaceReductionRules_Ids $finalIds -AttackSurfaceReductionRules_Actions $finalActions -ErrorAction Stop
+                             Write-Log -Level SUCCESS -Message "Restored $($activeIndices.Count) active ASR rules from Pre-Framework snapshot" -Module "Rollback"
+                         }
+                         else {
+                             Write-Log -Level SUCCESS -Message "Pre-Framework snapshot contained 0 active rules - System left clean (0/19)" -Module "Rollback"
+                         }
+                    }
+                    else {
+                        Write-Log -Level SUCCESS -Message "Pre-Framework snapshot empty - System left clean (0/19)" -Module "Rollback"
+                    }
+                }
+            }
+            catch {
+                Write-Log -Level ERROR -Message "Failed to apply Pre-Framework snapshot: $_" -Module "Rollback"
+            }
+        }
+        
+        Write-Host ""
+        Write-Host ""
+        Write-Host "============================================================================" -ForegroundColor Cyan
+        Write-Host "============================================================================" -ForegroundColor Cyan
+        if ($allSucceeded) {
+            Write-Host ""
+            Write-Host "                    RESTORE COMPLETED SUCCESSFULLY                       " -ForegroundColor Green
+            Write-Host ""
+            Write-Host "  All security settings have been reverted to backup state" -ForegroundColor White
+            Write-Host "  Modules restored: $($reversedModules.Count) | Total items: $($manifest.totalItems)" -ForegroundColor Gray
+            Write-Host ""
+        } else {
+            Write-Host ""
+            Write-Host "                    RESTORE COMPLETED WITH ISSUES                        " -ForegroundColor Yellow
+            Write-Host ""
+            Write-Host "  Some items could not be restored - check logs for details" -ForegroundColor Gray
+            Write-Host "  Modules processed: $($reversedModules.Count) | Total items: $($manifest.totalItems)" -ForegroundColor Gray
+            Write-Host ""
+        }
+        Write-Host "============================================================================" -ForegroundColor Cyan
+        Write-Host "============================================================================" -ForegroundColor Cyan
+        Write-Host ""
+        Write-Host ""
+
         # Prompt for reboot after restore
         Invoke-RestoreRebootPrompt
         

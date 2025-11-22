@@ -73,6 +73,31 @@ function Test-PrivacyCompliance {
             }
         }
         
+        # Verify scheduled tasks
+        if ($Config.ScheduledTasks.Count -gt 0) {
+            foreach ($taskPath in $Config.ScheduledTasks) {
+                $totalChecks++
+                $taskName = Split-Path $taskPath -Leaf
+                $taskFolder = Split-Path $taskPath -Parent
+                
+                $task = Get-ScheduledTask -TaskName $taskName -TaskPath $taskFolder -ErrorAction SilentlyContinue
+                
+                if ($task) {
+                    if ($task.State -eq "Disabled") {
+                        $passed++
+                    } else {
+                        $failMsg = "TASK: $taskPath not disabled (current: $($task.State))"
+                        Write-Log -Level WARNING -Message $failMsg -Module "Privacy"
+                        $failed += $failMsg
+                        $compliant = $false
+                    }
+                } else {
+                    # Task not found - effectively disabled/removed
+                    $passed++
+                }
+            }
+        }
+        
         $percentage = [math]::Round(($passed / $totalChecks) * 100, 1)
         Write-Log -Level INFO -Message "Compliance check: $passed/$totalChecks checks passed ($percentage%)" -Module "Privacy"
         

@@ -25,6 +25,9 @@ $PrivateFunctions = @(
     'Test-AdminShares',
     'Test-SRPCompliance',
     'Test-WindowsUpdate',
+    'Test-LegacyTLS',
+    'Test-WPAD',
+    'Test-PowerShellV2',
     'Backup-AdvancedSecuritySettings'
 )
 
