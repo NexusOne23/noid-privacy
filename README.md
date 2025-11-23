@@ -387,43 +387,43 @@ cd noid-privacy
 
 ### **Ideal Use Cases**
 
-**Small/Medium Business (SMB)** 
- No Active Directory/Intune licenses 
- Cloud-first (Microsoft 365, Google Workspace) 
- Remote/hybrid work security 
- Compliance without enterprise infrastructure
+**Small/Medium Business (SMB)**
+- No Active Directory/Intune licenses
+- Cloud-first (Microsoft 365, Google Workspace)
+- Remote/hybrid work security
+- Compliance without enterprise infrastructure
 
-**Freelancers & Consultants** 
- Client data protection 
- Secure workstations without domain 
- Professional security standards 
- Safe experimentation (complete backup)
+**Freelancers & Consultants**
+- Client data protection
+- Secure workstations without domain
+- Professional security standards
+- Safe experimentation (complete backup)
 
-**Power Users & Privacy-Conscious** 
- Real security, not just "debloat" 
- AI/Telemetry lockdown 
- Understand every setting 
- Full control + reversibility
+**Power Users & Privacy-Conscious**
+- Real security, not just "debloat"
+- AI/Telemetry lockdown
+- Understand every setting
+- Full control + reversibility
 
-**IT Pros Without Intune** 
- Standalone Windows 11 hardening 
- Microsoft Baseline compliance locally 
- Quick deploy for clients 
- No domain controller required
+**IT Pros Without Intune**
+- Standalone Windows 11 hardening
+- Microsoft Baseline compliance locally
+- Quick deploy for clients
+- No domain controller required
 
 ### **Not Ideal For**
 
-**Enterprise with Intune/AD** 
- Use [Microsoft Security Baselines](https://learn.microsoft.com/en-us/windows/security/operating-system-security/device-management/windows-security-configuration-framework/security-compliance-toolkit-10) with Group Policy instead
+**Enterprise with Intune/AD**
+- Use [Microsoft Security Baselines](https://learn.microsoft.com/en-us/windows/security/operating-system-security/device-management/windows-security-configuration-framework/security-compliance-toolkit-10) with Group Policy instead
 
-**Windows 10 or Older** 
- This tool is designed for Windows 11 (24H2/25H2 recommended, 23H2 compatible)
+**Windows 10 or Older**
+- This tool is designed for Windows 11 (24H2/25H2 recommended, 23H2 compatible)
 
-**Legacy Software Dependencies** 
- If you rely on unsafe SMB1/RPC/DCOM
+**Legacy Software Dependencies**
+- If you rely on unsafe SMB1/RPC/DCOM
 
-**Strict MDM Reporting** 
- If compliance must be centrally reported
+**Strict MDM Reporting**
+- If compliance must be centrally reported
 
 ---
 
@@ -458,20 +458,20 @@ cd noid-privacy
 
 ### What This Tool Does
 
- Hardens Windows 11 to enterprise standards 
- Implements Microsoft Security Baseline 25H2 
- Protects against zero-day exploits (CVE-2025-9491) 
- Minimizes telemetry to Security-Essential level 
- Locks down AI features (Recall, Copilot, etc.) 
- Configures BitLocker policies, Credential Guard, VBS 
+- Hardens Windows 11 to enterprise standards
+- Implements Microsoft Security Baseline 25H2
+- Protects against zero-day exploits (CVE-2025-9491)
+- Minimizes telemetry to Security-Essential level
+- Locks down AI features (Recall, Copilot, etc.)
+- Configures BitLocker policies, Credential Guard, VBS 
 
 ### What This Tool Does NOT Do
 
- Install third-party antivirus (uses Windows Defender) 
- Configure domain-specific policies 
- Modify BIOS/UEFI settings 
- Break critical Windows functionality 
- Prevent re-enabling features 
+- Install third-party antivirus (uses Windows Defender)
+- Configure domain-specific policies
+- Modify BIOS/UEFI settings
+- Break critical Windows functionality
+- Prevent re-enabling features 
 
 ### Reversibility
 
@@ -518,23 +518,23 @@ Edit: Modules/ASR/Config/ASR-Rules.json
 
 ### Common Issues
 
-**"Access Denied" errors** 
- Not running as Administrator 
- Right-click PowerShell "Run as Administrator"
+**"Access Denied" errors**
+- Not running as Administrator
+- Right-click PowerShell → "Run as Administrator"
 
-**VBS/Credential Guard not active after reboot** 
- Hardware incompatibility (no TPM 2.0 or virtualization disabled) 
- Enable virtualization in BIOS/UEFI 
- Verify: `.\Tools\Verify-Complete-Hardening.ps1`
+**VBS/Credential Guard not active after reboot**
+- Hardware incompatibility (no TPM 2.0 or virtualization disabled)
+- Enable virtualization in BIOS/UEFI
+- Verify: `.\Tools\Verify-Complete-Hardening.ps1`
 
-**BitLocker not activating** 
- No TPM 2.0 or insufficient disk space 
- Check TPM: `Get-Tpm` 
- Manual activation: Control Panel BitLocker
+**BitLocker not activating**
+- No TPM 2.0 or insufficient disk space
+- Check TPM: `Get-Tpm`
+- Manual activation: Control Panel → BitLocker
 
-**ASR blocking legitimate software installation** 
- ASR rule "Block executable files unless they meet prevalence" blocks unknown installers 
- See [Temporarily Disable ASR Rule](#temporarily-disable-asr-rule-for-software-installation) below
+**ASR blocking legitimate software installation**
+- ASR rule "Block executable files unless they meet prevalence" blocks unknown installers
+- See [Temporarily Disable ASR Rule](#temporarily-disable-asr-rule-for-software-installation) below
 
 ---
 
@@ -748,12 +748,12 @@ The authors are not responsible for any damage or data loss.
 
 ### Release Highlights v2.1.0
 
- All 7 modules production-ready (580+ settings) 
- 100% BAVR coverage (was 89.4%) 
- Zero-day protection (CVE-2025-9491 via SRP) 
- Professional code quality with comprehensive testing 
- Complete verification: EdgeHardening (20) + AdvancedSecurity (44) 
- Bloatware reinstall list with instructions
+- All 7 modules production-ready (580+ settings)
+- 100% BAVR coverage (was 89.4%)
+- Zero-day protection (CVE-2025-9491 via SRP)
+- Professional code quality with comprehensive testing
+- Complete verification: EdgeHardening (20) + AdvancedSecurity (44)
+- Bloatware reinstall list with instructions
 
 ** [See Full Changelog](CHANGELOG.md)**
 
