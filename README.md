@@ -3,8 +3,6 @@
 > **⚠️ DISCLAIMER: USE AT YOUR OWN RISK.**  
 > This tool makes deep modifications to the Windows Registry and System Services. While extensive backups are created, the authors accept **no responsibility for any damage, data loss, or system instability**. Always review changes before applying.
 
-> **🔒 Complete Windows 11 Security Framework • 580+ Settings • 7 Modules • Full Backup & Restore**
-
 <div align="center">
 
 [![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-blue.svg?logo=powershell)](https://github.com/PowerShell/PowerShell)
@@ -15,11 +13,13 @@
 
 ### 🏗️ Framework Architecture
 
+**🔒 Complete Windows 11 Security Framework • 580+ Settings • 7 Modules • Full Backup & Restore**
+
 ![NoID Privacy Pro Framework](assets/framework-architecture.png)
 
 **7 Independent Security Modules • Modular Design • Complete BAVR Pattern**
 
-[📥 Quick Start](#-quick-start) • [📚 Documentation](#-documentation) • [🎯 Features](#-key-features) • [💬 Community](https://github.com/NexusOne23/noid-privacy/discussions)
+[📥 Quick Start](#-quick-start) • [📚 Documentation](#documentation) • [🎯 Key Features](#-key-features) • [💬 Community](https://github.com/NexusOne23/noid-privacy/discussions)
 
 </div>
 
