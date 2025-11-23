@@ -713,7 +713,9 @@ This project is licensed under the **GNU General Public License v3.0** (GPL-3.0)
 - Receive dedicated commercial support and warranties
 - Avoid GPL v3.0 copyleft requirements
 
-**Contact:** Open a [💬 GitHub Discussion](https://github.com/NexusOne23/noid-privacy/discussions) to inquire about commercial licensing.
+**Contact:**
+- **Email:** [support@noid-privacy.com](mailto:support@noid-privacy.com) (Preferred for commercial inquiries)
+- **GitHub:** [💬 Discussions](https://github.com/NexusOne23/noid-privacy/discussions) (Public questions)
 
 ---
 
