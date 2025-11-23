@@ -90,6 +90,26 @@
 
 ---
 
+## 🤔 Why "NoID Privacy" when it's mostly Security?
+
+**Because security and privacy are inseparable. You can't have one without the other.**
+
+**🛡️ Security Foundation**
+- 425 settings: MS Security Baseline for Win11 25H2
+- 20 settings: MS Security Baseline for Edge
+- 19 rules: Attack Surface Reduction
+- VBS + Credential Guard: Hardware-level protection
+
+**🔒 Privacy Layer**
+- DNS: Block telemetry, tracking, ads
+- Telemetry: Settings, services & tasks off
+- AntiAI: Recall, Copilot, AI features off
+- Bloatware: Pre-installed apps removed
+
+**🎯 The Result:** A hardened system that's both secure against attacks and private from surveillance.
+
+---
+
 ## 🌟 Why NoID Privacy Pro?
 
 <div align="center">
@@ -122,6 +142,21 @@
 
 ** BAVR = Backup-Apply-Verify-Restore** (Every change is reversible) 
 ** Air-Gapped Ready** No LGPO.exe, no DLLs, no external downloads
+
+---
+
+## 🔒 Our Privacy Promise
+
+**"We practice what we preach"**
+
+| | |
+|---|---|
+| 🍪 **Zero Cookies** | No cookie banners, no tracking cookies, no consent popups |
+| 📊 **Zero Analytics** | No Google Analytics, no third-party tracking scripts |
+| 🔍 **Zero Telemetry** | PowerShell tool and GUI app collect nothing |
+| ✅ **100% Verifiable** | Open source - inspect the code yourself |
+
+**Actions speak louder than privacy policies.** Unlike other "privacy" tools that track you, we actually respect your privacy.
 
 ---
 
