@@ -451,7 +451,7 @@ cd noid-privacy
 ### Code Quality
 
 - **PSScriptAnalyzer:** Available for static analysis
-- **Pester Tests:** Unit and integration tests in `Tests/` directory (`.\\Tests\\Run-Tests.ps1`)
+- **Pester Tests:** Unit and integration tests in `Tests/` directory (`.\Tests\Run-Tests.ps1`)
 - **Verification:** 580+ automated compliance checks in production
 - **Production-Ready:** Professional error handling and comprehensive logging
 - **Best Practices:** Advanced Functions, CmdletBinding, Validated Parameters
