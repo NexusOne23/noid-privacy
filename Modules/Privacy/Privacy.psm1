@@ -65,3 +65,7 @@ foreach ($function in $publicFunctions) {
 
 # Export public functions + Test-PrivacyCompliance (needed for Invoke-PrivacyHardening verification)
 Export-ModuleMember -Function @($publicFunctions + 'Test-PrivacyCompliance')
+
+# Alias for naming consistency (non-breaking change)
+New-Alias -Name 'Invoke-Privacy' -Value 'Invoke-PrivacyHardening' -Force
+Export-ModuleMember -Alias 'Invoke-Privacy'

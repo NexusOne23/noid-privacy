@@ -238,13 +238,13 @@ function Invoke-SecurityBaseline {
                 $enableBitLockerUSBEnforcement = ($choice -eq 'Y')
                 
                 if ($enableBitLockerUSBEnforcement) {
-                    Write-ModuleLog -Level INFO -Message "User selected: BitLocker USB enforcement ENABLED (Enterprise Mode)" -Module $moduleName
+                    Write-ModuleLog -Level DEBUG -Message "User selected: BitLocker USB enforcement ENABLED (Enterprise Mode)" -Module $moduleName
                     Write-Host ""
                     Write-Host "Enterprise Mode: USB encryption enforcement enabled" -ForegroundColor Green
                     Write-Host "   USB drives will show encryption prompt when inserted" -ForegroundColor Gray
                 }
                 else {
-                    Write-ModuleLog -Level INFO -Message "User selected: BitLocker USB enforcement DISABLED (Home Mode)" -Module $moduleName
+                    Write-ModuleLog -Level DEBUG -Message "User selected: BitLocker USB enforcement DISABLED (Home Mode)" -Module $moduleName
                     Write-Host ""
                     Write-Host "Home User Mode: Normal USB operation" -ForegroundColor Green
                     Write-Host "   USB drives will work without restrictions" -ForegroundColor Gray

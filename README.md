@@ -1,6 +1,9 @@
 ﻿# 🛡️ NoID Privacy Pro - Enterprise-Grade Windows 11 Security & Privacy Hardening Tool
 
-> **🔒 Complete Windows 11 Security Framework • 583 Settings • 7 Modules • Full Backup & Restore**
+> **⚠️ DISCLAIMER: USE AT YOUR OWN RISK.**  
+> This tool makes deep modifications to the Windows Registry and System Services. While extensive backups are created, the authors accept **no responsibility for any damage, data loss, or system instability**. Always review changes before applying.
+
+> **🔒 Complete Windows 11 Security Framework • 580+ Settings • 7 Modules • Full Backup & Restore**
 
 <div align="center">
 
@@ -44,8 +47,8 @@
 - Test/development domain-joined systems (non-production)
 
 **For Enterprise/Domain Environments:** 
- **Integrate these settings into your Domain Group Policies instead!** 
- Coordinate with your Active Directory team before using this tool
+- **Integrate these settings into your Domain Group Policies instead!** 
+- Coordinate with your Active Directory team before using this tool
 
 ---
 
@@ -80,7 +83,7 @@
 **How?** PowerShell: **Backup** **Apply** **Verify** **Restore** (100% reversible!) 
 **For whom?** Professionals, power users, SMBs **without Intune/Active Directory**
 
-**583 Security Settings 7 Modules 100% BAVR Coverage Production-Ready**
+**580+ Security Settings 7 Modules 100% BAVR Coverage Production-Ready**
 
 ---
 
@@ -88,12 +91,13 @@
 
 <div align="center">
 
-| **SECURITY** | **PRIVACY** | **RELIABILITY** | **REVERSIBLE** |
+| **SECURITY** | **PRIVACY** | **RELIABILITY** | **SAFETY** |
 |:---:|:---:|:---:|:---:|
-| **Microsoft Baseline 25H2** | **AI Lockdown** | **100% BAVR Coverage** | **Complete Backup** |
-| 425 Security Settings | 8 AI Features + Master Switch | Backup-Apply-Verify-Restore | 583 Settings Restored |
-| 19 ASR Rules | Telemetry Minimized | Zero-Day Protection | 0 Data Loss |
-| Zero-Day CVE-2025-9491 | OneDrive Hardened | Professional Quality | Safe to Test |
+| **Microsoft Baseline 25H2** | **AI Lockdown** | **Professional Quality** | **100% Reversible** |
+| 425+ Hardening Settings | No Recall / Copilot / NPU | 580+ Verified Checks | BAVR Architecture |
+| 19 ASR Rules (Block Mode) | Telemetry & Ads Blocked | Detailed Logging | Exact Pre-State Restore |
+| Zero-Day CVE-2025-9491 | DNS-over-HTTPS (DoH) | Modular Design | 0 Data Loss Guaranteed |
+| VBS & Credential Guard | Edge Browser Hardened | Open Source / Auditable | Safe for Production |
 
 ** [3-Minute Quick Start](#-quick-start)** **[Full Feature List](Docs/FEATURES.md)**
 
@@ -107,9 +111,9 @@
 
 | Feature | **NoID Privacy Pro** | HardeningKitty | ChrisTitus winutil | O&O ShutUp10++ |
 |:---|:---:|:---:|:---:|:---:|
-| **Focus** | **MS Baseline 25H2 + ASR + DNS + Privacy (583 settings)** | CIS/MS baseline audit & CSV-based hardening | System tweaks, debloat & app installs | Privacy toggles & telemetry control |
+| **Focus** | **MS Baseline 25H2 + ASR + DNS + Privacy (580+ settings)** | CIS/MS baseline audit & CSV-based hardening | System tweaks, debloat & app installs | Privacy toggles & telemetry control |
 | **BAVR Pattern** | **Backup → Apply → Verify → Restore (all modules)** | Audit + HailMary apply + partial restore | System Restore point (no verify) | System Restore + profile export |
-| **Verification** | **583 automated compliance checks** | Audit mode with severity scoring | No compliance scan | No compliance scan |
+| **Verification** | **580+ automated compliance checks** | Audit mode with severity scoring | No compliance scan | No compliance scan |
 | **Dependencies** | **Zero (runs on stock PS 5.1/7+)** | PowerShell only | winget/chocolatey required | Portable EXE (closed-source) |
 | **AI Lockdown** | **24 policies (Copilot+/Recall/24H2)** | No dedicated AI profile | Individual AI tweaks | Multiple AI/Copilot toggles |
 
@@ -149,7 +153,7 @@
 - ALLOW mode (optional): fallback allowed for VPN/mobile/enterprise networks
 - IPv4 + IPv6 dual-stack support
 
-### 🔒 Privacy Hardening (48 Settings)
+### 🔒 Privacy Hardening (55+ Settings)
 
 **3 Operating Modes**
 - **MSRecommended** (Default) MS-supported, max compatibility
@@ -182,7 +186,7 @@
 - Extension security
 - IE Mode restrictions
 
-### 🔧 Advanced Security (42 Settings)
+### 🔧 Advanced Security (44 Settings)
 
 **Beyond Microsoft Baseline**
 - **SRP .lnk Protection** CVE-2025-9491 zero-day mitigation
@@ -201,18 +205,18 @@
 ```
 [1/4] BACKUP Full system state backup before changes
 [2/4] APPLY Settings applied with comprehensive logging
-[3/4] VERIFY 583 automated checks confirm success
+[3/4] VERIFY 580+ automated checks confirm success
 [4/4] RESTORE One command reverts everything
 ```
 
 **What sets us apart:**
-- **100% Coverage** All 583 settings verified (not just applied!)
+- **100% Coverage** All 580+ settings verified (not just applied!)
 - **Professional Code Quality** Advanced functions, comprehensive error handling
 - **Complete Restore** Registry, Services, Tasks, Files - everything
 - **Production-Ready** Tested on Windows 11 25H2, PowerShell 5.1+
 
 **Before v2.1.0:** 89.4% verification coverage (62 settings missing) 
-**After v2.1.0:** 100% verification coverage (all 583 settings verified) 
+**After v2.1.0:** 100% verification coverage (all 580+ settings verified) 
 
 ---
 
@@ -286,18 +290,18 @@ cd noid-privacy
 ### Verification
 
 ```powershell
-# Full verification (583 checks)
+# Full verification (580+ checks)
 .\Tools\Verify-Complete-Hardening.ps1
 
 # Expected output (all modules enabled):
 # SecurityBaseline: 425/425 verified
 # ASR: 19/19 verified
 # DNS: 5/5 verified
-# Privacy: 48/48 verified
+# Privacy: 55+/55+ verified
 # AntiAI: 24/24 verified
 # EdgeHardening: 20/20 verified
-# AdvancedSecurity: 42/42 verified
-# Total: 583/583 (100%)
+# AdvancedSecurity: 44/44 verified
+# Total: 580+/580+ (100%)
 ```
 
 ### Restore
@@ -320,15 +324,15 @@ cd noid-privacy
 | **SecurityBaseline** | 425 | Microsoft Security Baseline 25H2 | v2.1.0 |
 | **ASR** | 19 | Attack Surface Reduction Rules | v2.1.0 |
 | **DNS** | 5 | Secure DNS with DoH encryption | v2.1.0 |
-| **Privacy** | 48 | Telemetry, Bloatware, OneDrive hardening | v2.1.0 |
+| **Privacy** | 55+ | Telemetry, Bloatware, OneDrive hardening | v2.1.0 |
 | **AntiAI** | 24 | AI lockdown (8 features + master switch, 24 policies) | v2.1.0 |
 | **EdgeHardening** | 20 | Microsoft Edge security | v2.1.0 |
-| **AdvancedSecurity** | 42 | Beyond MS Baseline (SRP, Legacy protocols) | v2.1.0 |
-| **TOTAL** | **583** | **Complete Framework** | **Production** |
+| **AdvancedSecurity** | 44 | Beyond MS Baseline (SRP, Legacy protocols) | v2.1.0 |
+| **TOTAL** | **580+** | **Complete Framework** | **Production** |
 
 **Release Highlights:**
 
- **v2.1.0:** 100% verification coverage (all 583 settings verified)
+ **v2.1.0:** 100% verification coverage (all 580+ settings verified)
  **v2.1.0:** Improved Advanced Security module with SRP .lnk protection
  **v2.1.0:** Enhanced RDP hardening with TLS + NLA enforced
  **v2.1.0:** Legacy protocol blocking (SMBv1, NetBIOS, LLMNR, WPAD, PowerShell v2)
@@ -410,7 +414,7 @@ cd noid-privacy
 
 - **PSScriptAnalyzer:** Available for static analysis
 - **Pester Tests:** Unit and integration tests in `Tests/` directory (`.\\Tests\\Run-Tests.ps1`)
-- **Verification:** 583 automated compliance checks in production
+- **Verification:** 580+ automated compliance checks in production
 - **Production-Ready:** Professional error handling and comprehensive logging
 - **Best Practices:** Advanced Functions, CmdletBinding, Validated Parameters
 
@@ -562,7 +566,43 @@ Write-Host " ASR Prevalence Rule: BLOCK (Protection restored)" -ForegroundColor 
 
 **Step 5: Re-enable Tamper Protection** (Windows Security Toggle ON)
 
-** IMPORTANT:** Always re-enable both the ASR rule AND Tamper Protection after installation!
+**IMPORTANT:** Always re-enable both the ASR rule AND Tamper Protection after installation!
+
+---
+
+### Windows Insider Program Compatibility
+
+**Problem:** After applying Privacy hardening (MSRecommended mode), Windows Insider enrollment requires extra steps.
+
+**Cause:** Privacy module sets `AllowTelemetry=1` (Required diagnostic data) via Group Policy, which prevents the user from enabling "Optional diagnostic data" in Settings - a requirement for Insider Program enrollment.
+
+**Solution:**
+
+**Step 1: Temporarily remove the telemetry policy** (PowerShell as Admin)
+
+```powershell
+Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "AllowTelemetry"
+```
+
+**Step 2: Reboot** (recommended for policy changes to take effect)
+
+```powershell
+Restart-Computer
+```
+
+**Step 3: Join Windows Insider Program**
+1. Go to: Settings > Windows Update > Windows Insider Program
+2. Click: **Get Started**
+3. When prompted, enable "Optional diagnostic data"
+4. Complete Insider enrollment and select your channel (Dev/Beta/Release Preview)
+
+**Step 4 (Optional): Re-apply Privacy hardening**
+
+```powershell
+.\NoIDPrivacy.ps1 -Module Privacy
+```
+
+**Note:** Once enrolled in the Insider Program, Windows will continue to receive preview builds even after re-applying Privacy hardening with `AllowTelemetry=1`.
 
 ---
 
@@ -580,7 +620,7 @@ Logs/NoIDPrivacy_YYYYMMDD_HHMMSS.log
 ## Documentation
 
 ### Core Documentation
-- **[Features](Docs/FEATURES.md)** - Complete 583-setting reference
+- **[Features](Docs/FEATURES.md)** - Complete 580+-setting reference
 - **[Changelog](CHANGELOG.md)** - Version history
 - **[Quick Start](#-quick-start)** - Installation guide (see above)
 - **[Troubleshooting](#-troubleshooting)** - Common issues (see above)
@@ -665,16 +705,16 @@ The authors are not responsible for any damage or data loss.
 ## Project Status
 
 **Current Version:** 2.1.0 
-**Last Updated:** November 22, 2025 
+**Last Updated:** November 23, 2025 
 **Status:** Production-Ready
 
 ### Release Highlights v2.1.0
 
- All 7 modules production-ready (583 settings) 
+ All 7 modules production-ready (580+ settings) 
  100% BAVR coverage (was 89.4%) 
  Zero-day protection (CVE-2025-9491 via SRP) 
  Professional code quality with comprehensive testing 
- Complete verification: EdgeHardening (20) + AdvancedSecurity (42) 
+ Complete verification: EdgeHardening (20) + AdvancedSecurity (44) 
  Bloatware reinstall list with instructions
 
 ** [See Full Changelog](CHANGELOG.md)**

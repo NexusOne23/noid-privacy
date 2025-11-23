@@ -35,8 +35,7 @@ function Backup-XboxTask {
     }
     
     try {
-        Write-Log -Level DEBUG -Message "Backing up Xbox task state..." -Module "SecurityBaseline"
-        
+        # Note: "Backing up..." message already logged by caller (Invoke-SecurityBaseline)
         $taskPath = "\Microsoft\XblGameSave\"
         $taskName = "XblGameSaveTask"
         

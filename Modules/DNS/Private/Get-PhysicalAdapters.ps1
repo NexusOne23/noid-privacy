@@ -135,7 +135,7 @@ function Get-PhysicalAdapters {
             Write-Log -Level DEBUG -Message "  - $($adapter.Name) ($($adapter.InterfaceDescription)) [Status: $($adapter.Status)]" -Module $script:ModuleName
         }
         
-        return , $filteredAdapters  # Unary comma forces array even for single item
+        return $filteredAdapters  # Already wrapped as array in line 83
     }
     catch {
         Write-ErrorLog -Message "Failed to retrieve physical network adapters" -Module $script:ModuleName -ErrorRecord $_

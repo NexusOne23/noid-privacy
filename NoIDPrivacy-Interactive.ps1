@@ -9,8 +9,15 @@
     - Automatic backups before changes
     - Easy restore and verification
     - Guided workflow
-    
+    LINK
+    https://github.com/NexusOne23/noid-privacy
+
 .NOTES
+    DISCLAIMER:
+    This software is provided "as is" without warranty of any kind. 
+    By using this software, you agree that the authors are not liable for any damages 
+    resulting from its use. USE AT YOUR OWN RISK.
+
     Author: NexusOne23
     Version: 2.1.0
     Requires: PowerShell 5.1+, Administrator
@@ -415,7 +422,7 @@ function Show-MainMenu {
     Write-ColorText "  [V]" -Color Cyan -NoNewline
     Write-Host " Verify Current Settings"
     Write-ColorText "      " -Color Gray -NoNewline
-    Write-ColorText "> Check 583 hardening settings" -Color DarkGray
+    Write-ColorText "> Check 580+ hardening settings" -Color DarkGray
     Write-ColorText "      " -Color Gray -NoNewline
     Write-ColorText "> Detailed compliance report" -Color DarkGray
     Write-Host ""
@@ -491,7 +498,7 @@ function Show-ModuleMenu {
     
     Write-ColorText "====================================================================" -Color Cyan
     Write-Host ""
-    Write-ColorText "  Select module [1-9, 99, 0]: " -Color White -NoNewline
+    Write-ColorText "  Select module [1-7, 99, 0]: " -Color White -NoNewline
     
     return $modules
 }

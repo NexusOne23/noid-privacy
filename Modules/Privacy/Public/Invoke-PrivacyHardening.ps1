@@ -88,7 +88,7 @@ function Invoke-PrivacyHardening {
                     "3" { "Paranoid" }
                 }
                 Write-Host "`nSelected mode: $Mode`n" -ForegroundColor Cyan
-                Write-Log -Level INFO -Message "User selected privacy mode: $Mode" -Module "Privacy"
+                Write-Log -Level DEBUG -Message "User selected privacy mode: $Mode" -Module "Privacy"
                 
                 # Load configuration for warnings
                 $configPath = Join-Path $PSScriptRoot "..\Config\Privacy-$Mode.json"
@@ -252,7 +252,7 @@ function Invoke-PrivacyHardening {
         }
         
         if ($removeBloatware -eq "Y") {
-            Write-Log -Level INFO -Message "User selected: Remove bloatware apps" -Module "Privacy"
+            Write-Log -Level DEBUG -Message "User selected: Remove bloatware apps" -Module "Privacy"
             $bloatwareResult = Remove-Bloatware
             if ($bloatwareResult.Success) {
                 if ($bloatwareResult.Count -gt 0) {
@@ -353,7 +353,7 @@ function Invoke-PrivacyHardening {
         }
         else {
             Write-Host "`n  [SKIPPED] Bloatware removal - keeping all apps" -ForegroundColor Yellow
-            Write-Log -Level INFO -Message "User selected: Keep bloatware apps" -Module "Privacy"
+            Write-Log -Level DEBUG -Message "User selected: Keep bloatware apps" -Module "Privacy"
         }
         
         # PHASE 3: VERIFY

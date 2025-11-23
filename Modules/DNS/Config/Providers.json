@@ -3,7 +3,7 @@
   "providers": {
     "cloudflare": {
       "name": "Cloudflare",
-      "description": "Fastest global DNS resolver with privacy focus",
+      "description": "Fastest global DNS resolver with strong privacy",
       "ipv4": {
         "primary": "1.1.1.1",
         "secondary": "1.0.0.1"
@@ -18,24 +18,25 @@
       },
       "ratings": {
         "speed": 5,
-        "privacy": 5,
+        "privacy": 4,
         "security": 4,
         "filtering": 2
       },
       "features": [
-        "Zero logging policy",
+        "Minimal logging (25h retention, anonymized IPs)",
         "DNSSEC validation (server-side)",
-        "Fastest anycast network globally",
+        "Fastest anycast network globally (150+ locations)",
+        "KPMG-audited privacy practices",
         "Malware blocking available (1.1.1.2 variant)",
         "Adult content blocking available (1.1.1.3 variant)"
       ],
-      "jurisdiction": "USA (Privacy-friendly policies)",
-      "best_for": "Maximum speed with strong privacy",
+      "jurisdiction": "USA (GDPR-compliant, strong privacy commitments)",
+      "best_for": "Maximum speed with audited privacy",
       "documentation": "https://developers.cloudflare.com/1.1.1.1/"
     },
     "quad9": {
       "name": "Quad9",
-      "description": "Security-focused DNS with Swiss privacy protection",
+      "description": "Non-profit DNS with Swiss privacy and threat blocking",
       "ipv4": {
         "primary": "9.9.9.9",
         "secondary": "149.112.112.112"
@@ -55,19 +56,20 @@
         "filtering": 4
       },
       "features": [
-        "Swiss jurisdiction (strongest privacy laws)",
-        "Threat intelligence from 20+ sources",
+        "Zero logging (no IP or query data stored)",
+        "Swiss Data Protection Act enforcement",
+        "Threat intelligence from 20+ sources (97% blocking rate)",
         "DNSSEC validation (server-side)",
-        "Automatic malware/phishing blocking",
-        "No logging, independently audited"
+        "Non-profit, no data monetization",
+        "150+ locations in 90 countries"
       ],
-      "jurisdiction": "Switzerland (Best-in-class privacy laws)",
-      "best_for": "Maximum security and privacy protection",
+      "jurisdiction": "Switzerland (Zürich) - Strongest privacy laws",
+      "best_for": "Maximum privacy and security under Swiss law",
       "documentation": "https://quad9.net/"
     },
     "adguard": {
       "name": "AdGuard DNS",
-      "description": "Privacy-focused DNS with built-in ad and tracker blocking",
+      "description": "EU-based DNS with comprehensive ad and tracker blocking",
       "ipv4": {
         "primary": "94.140.14.14",
         "secondary": "94.140.15.15"
@@ -82,19 +84,20 @@
       },
       "ratings": {
         "speed": 4,
-        "privacy": 5,
+        "privacy": 4,
         "security": 4,
         "filtering": 5
       },
       "features": [
-        "Built-in ad blocking",
-        "Tracker and analytics blocking",
-        "DNSSEC support (server-side)",
-        "EU/GDPR compliant",
-        "No logging policy"
+        "Comprehensive ad and tracker blocking",
+        "Analytics and telemetry blocking",
+        "DNSSEC validation (server-side)",
+        "GDPR compliant (EU jurisdiction)",
+        "No-logging policy (not independently audited)",
+        "Family-friendly filtering options available"
       ],
-      "jurisdiction": "Cyprus (EU jurisdiction, GDPR compliant)",
-      "best_for": "Ad and tracker blocking with privacy",
+      "jurisdiction": "Cyprus (Limassol) - EU, GDPR compliance",
+      "best_for": "Maximum ad/tracker blocking with EU privacy",
       "documentation": "https://adguard-dns.io/"
     }
   },

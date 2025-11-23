@@ -44,6 +44,11 @@
     Run all enabled modules with verbose logging
     
 .NOTES
+    DISCLAIMER:
+    This software is provided "as is" without warranty of any kind. 
+    By using this software, you agree that the authors are not liable for any damages 
+    resulting from its use. USE AT YOUR OWN RISK.
+
     Author: NexusOne23
     Version: 2.1.0
     Requires: PowerShell 5.1+, Administrator privileges, Windows 11
@@ -204,7 +209,7 @@ if (-not $Module) {
     Write-Host " 99. ALL MODULES (WIZARD) - Interactive setup for all modules" -ForegroundColor Cyan
     Write-Host ""
     Write-Host "  SYSTEM OPERATIONS:" -ForegroundColor Cyan
-    Write-Host "  V. Verify Settings      - Check up to 583 hardening settings" -ForegroundColor Magenta
+    Write-Host "  V. Verify Settings      - Check up to 580+ hardening settings" -ForegroundColor Magenta
     Write-Host "  R. Restore Backup       - Rollback to previous state" -ForegroundColor Yellow
     Write-Host "  B. List Backups         - Show all available backups" -ForegroundColor Gray
     Write-Host "  I. System Info          - Display system information" -ForegroundColor Gray

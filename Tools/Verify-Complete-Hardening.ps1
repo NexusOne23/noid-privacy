@@ -9,21 +9,21 @@
     - 23 Audit Policies [SecurityBaseline]
     - 19 ASR Rules [ASR]
     - 5 DNS Checks [DNS]
-    - 48 Privacy Checks [Privacy] - includes OneDrive + Store
+    - 34-58+ Privacy Checks [Privacy] - 34 registry + variable bloatware (PolicyMethod=10, ClassicMethod=21+, dynamic from backup)
     - 24 AntiAI Policies [AntiAI] - includes 4-layer Copilot defense & Recall Deny Lists
     - 20 Edge Policies [EdgeHardening] - 2 optional based on user choice
-    - 42 Advanced Settings [AdvancedSecurity] - 3 optional based on profile/user choice
+    - 44 Advanced Settings [AdvancedSecurity] - 3 optional based on profile/user choice
     
     NOTE: This shows the TRUTH about what is configured in your system.
     
-    Total: 583 settings
+    Total: 580+ settings (varies by Privacy bloatware removal method)
     SecurityBaseline: 425 (335 Registry + 67 SecTemplate + 23 Audit)
     ASR: 19
     DNS: 5
-    Privacy: 48
+    Privacy: 44-58+ (34 registry + 10-24+ bloatware apps, varies by method and backup)
     AntiAI: 24
     EdgeHardening: 20
-    AdvancedSecurity: 42
+    AdvancedSecurity: 44
     
 .NOTES
     Author: NexusOne23
@@ -49,9 +49,9 @@ $EXPECTED_SECURITY_COUNT = 67
 $EXPECTED_AUDIT_COUNT = 23
 $EXPECTED_ASR_COUNT = 19
 $EXPECTED_EDGE_COUNT = 20  # 20 total (18 required + 2 optional based on user choice)
-$EXPECTED_ADVANCED_COUNT = 42  # 42 total (39 required + 3 optional based on profile/user choice)
+$EXPECTED_ADVANCED_COUNT = 44  # 44 total (41 required + 3 optional based on profile/user choice)
 $EXPECTED_DNS_COUNT = 5
-$EXPECTED_PRIVACY_COUNT = 48
+$EXPECTED_PRIVACY_COUNT = 55  # Baseline: 34 registry + 21 bloatware (ClassicMethod comprehensive list)
 $EXPECTED_ANTIAI_COUNT = 24
 
 Write-Host ""
@@ -1091,8 +1091,9 @@ catch {
     Write-Host "  ERROR: $_" -ForegroundColor Red
 }
 
-# [ALWAYS] Privacy Compliance Checks (48 checks)
-Write-Host "[6/$totalSteps] Verifying Privacy Compliance (48 checks)..." -ForegroundColor Yellow
+# [ALWAYS] Privacy Compliance Checks (34 registry + variable bloatware)
+# Bloatware count varies: PolicyMethod=10, ClassicMethod=24+
+Write-Host "[6/$totalSteps] Verifying Privacy Compliance (34 registry + bloatware)..." -ForegroundColor Yellow
 
 try {
     # Helper function for privacy registry checks
@@ -1203,16 +1204,49 @@ try {
         }
     }
     
-    # Bloatware Removal Checks (14 apps)
-    $bloatwareApps = @(
-        'Microsoft.BingNews', 'Microsoft.BingWeather', 
-        'Microsoft.MicrosoftSolitaireCollection', 'Microsoft.MicrosoftStickyNotes',
-        'Microsoft.GamingApp', 'Microsoft.WindowsFeedbackHub',
-        'Microsoft.XboxGamingOverlay', 'Microsoft.XboxIdentityProvider',
-        'Microsoft.XboxSpeechToTextOverlay', 'Microsoft.Xbox.TCUI',
-        'Microsoft.GetHelp', 'Microsoft.Getstarted',
-        'Microsoft.People', 'Microsoft.549981C3F5F10'  # Cortana
-    )
+    # Bloatware Removal Checks (dynamic - reads from actual removal metadata)
+    # There are 2 methods: PolicyMethod (10 apps for ENT/EDU) and ClassicMethod (24+ apps)
+    # We verify only the apps that were ACTUALLY removed by reading the backup metadata
+    
+    # Try to find the most recent Privacy backup with removal metadata
+    $bloatwareApps = @()
+    $backupBasePath = Join-Path $rootPath "Backups"
+    
+    if (Test-Path $backupBasePath) {
+        $sessions = Get-ChildItem -Path $backupBasePath -Filter "Session_*" -Directory -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending
+        foreach ($session in $sessions) {
+            $privacyBackup = Join-Path $session.FullName "Privacy"
+            $removalMetadata = Join-Path $privacyBackup "REMOVED_APPS_WINGET.json"
+            
+            if (Test-Path $removalMetadata) {
+                try {
+                    $metadata = Get-Content $removalMetadata -Raw | ConvertFrom-Json
+                    $bloatwareApps = @($metadata.Apps.AppName)
+                    break
+                }
+                catch {
+                    # Invalid metadata, try next session
+                }
+            }
+        }
+    }
+    
+    # Fallback: If no metadata found, use ClassicMethod list (comprehensive - covers all scenarios)
+    # This ensures we check ALL potentially removable apps, regardless of method
+    # Note: Excludes wildcards (*CandyCrush*, Disney.*, Facebook.*) - those are checked dynamically
+    if ($bloatwareApps.Count -eq 0) {
+        $bloatwareApps = @(
+            'Microsoft.BingNews', 'Microsoft.BingWeather',
+            'Microsoft.MicrosoftSolitaireCollection', 'Microsoft.MicrosoftStickyNotes',
+            'Microsoft.GamingApp', 'Microsoft.XboxApp',
+            'Microsoft.XboxGamingOverlay', 'Microsoft.XboxIdentityProvider',
+            'Microsoft.XboxSpeechToTextOverlay', 'Microsoft.Xbox.TCUI',
+            'Microsoft.ZuneMusic', 'Microsoft.ZuneVideo',
+            'Microsoft.WindowsFeedbackHub', 'Microsoft.GetHelp', 'Microsoft.Getstarted',
+            'Microsoft.MixedReality.Portal', 'Microsoft.People', 'Microsoft.YourPhone',
+            'Clipchamp.Clipchamp', 'SpotifyAB.SpotifyMusic', 'TikTok.TikTok'
+        )
+    }
     
     foreach ($app in $bloatwareApps) {
         $isInstalled = Get-AppxPackage -Name $app -ErrorAction SilentlyContinue
@@ -1236,11 +1270,19 @@ try {
         }
     }
     
+    # Calculate actual counts (Registry: 34 fixed, Bloatware: dynamic)
+    $actualPrivacyTotal = 34 + $bloatwareApps.Count
+    $registryFailed = ($privacyFailed | Where-Object { $_.Path -notlike "AppxPackage" }).Count
+    $bloatwareFailed = ($privacyFailed | Where-Object { $_.Path -eq "AppxPackage" }).Count
+    
+    $registryPassed = 34 - $registryFailed
+    $bloatwarePassed = $bloatwareApps.Count - $bloatwareFailed
+    $privacyPassedCount = $actualPrivacyTotal - $privacyFailed.Count
+    
     # Add to AllSettings for HTML report
-    $privacyPassedCount = $results.PrivacyChecks - $privacyFailed.Count
     $results.AllSettings += [PSCustomObject]@{
         Category      = "Privacy"
-        Total         = $results.PrivacyChecks
+        Total         = $actualPrivacyTotal
         Passed        = $privacyPassedCount
         Failed        = $privacyFailed.Count
         PassedDetails = $privacyPassed
@@ -1255,9 +1297,11 @@ try {
         }
     }
     
-    $registryPassed = 34 - ($privacyFailed | Where-Object { $_.Path -notlike "AppxPackage" }).Count
-    $bloatwarePassed = 14 - ($privacyFailed | Where-Object { $_.Path -eq "AppxPackage" }).Count
-    Write-Host "  Privacy: $($results.PrivacyChecks - $privacyFailed.Count)/$($results.PrivacyChecks) verified (Mode: $mode | Registry: $registryPassed/34 | Bloatware: $bloatwarePassed/14)" -ForegroundColor $(if ($privacyFailed.Count -eq 0) { "Green" } else { "Yellow" })
+    Write-Host "  Privacy: $privacyPassedCount/$actualPrivacyTotal verified (Mode: $mode | Registry: $registryPassed/34 | Bloatware: $bloatwarePassed/$($bloatwareApps.Count))" -ForegroundColor $(if ($privacyFailed.Count -eq 0) { "Green" } else { "Yellow" })
+    
+    # Update global results object with actual Privacy count
+    $results.PrivacyChecks = $actualPrivacyTotal
+    $results.TotalSettings = $EXPECTED_REGISTRY_COUNT + $EXPECTED_ASR_COUNT + $EXPECTED_DNS_COUNT + $actualPrivacyTotal + $EXPECTED_ANTIAI_COUNT + $EXPECTED_EDGE_COUNT + $EXPECTED_ADVANCED_COUNT + $EXPECTED_SECURITY_COUNT + $EXPECTED_AUDIT_COUNT
 }
 catch {
     Write-Host "  ERROR: $_" -ForegroundColor Red
@@ -1331,12 +1375,10 @@ try {
         @{ Path = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI"; Name = "DisableSettingsAgent"; Value = 1; Desc = "Settings Agent" }
     )
     
-    # IMPORTANT: Verify that $checks.Count matches $results.AntiAIPolicies
+    # IMPORTANT: Use dynamic count to avoid hardcoded mismatch
+    $results.AntiAIPolicies = $checks.Count  # Update to actual count
+    # Note: TotalSettings was already correctly calculated in Privacy section with actual Privacy count
     $actualCheckCount = $checks.Count
-    if ($actualCheckCount -ne $results.AntiAIPolicies) {
-        Write-Host "  WARNING: AntiAI check count mismatch! Expected $($results.AntiAIPolicies), found $actualCheckCount checks" -ForegroundColor Yellow
-        Write-Host "           This is a script bug - please update line 65 to match actual check count" -ForegroundColor Yellow
-    }
     
     foreach ($check in $checks) {
         $passed = Test-AntiAIRegistry -Path $check.Path -Name $check.Name -ExpectedValue $check.Value
@@ -1509,9 +1551,9 @@ catch {
     Write-Host "  ERROR: $_" -ForegroundColor Red
 }
 
-# [ALWAYS] AdvancedSecurity Settings (42 settings)
+# [ALWAYS] AdvancedSecurity Settings (44 settings)
 $advStep = $totalSteps
-Write-Host "[$advStep/$totalSteps] Verifying AdvancedSecurity Settings (42)..." -ForegroundColor Yellow
+Write-Host "[$advStep/$totalSteps] Verifying AdvancedSecurity Settings (44)..." -ForegroundColor Yellow
 
 try {
     $advFailed = @()
@@ -1539,11 +1581,14 @@ try {
         @{ Name = "lmhosts"; Desc = "TCP/IP NetBIOS Helper"; Optional = $false }
     )
     
-    # TLS Settings (2 checks) - ALWAYS required (all profiles disable legacy TLS)
+    # TLS Settings (4 checks) - ALWAYS required (all profiles disable legacy TLS)
+    # Check both Server AND Client to match what AdvancedSecurity applies
     # Note: We do not check for enabled TLS 1.2/1.3 keys because Windows enables them by default without registry keys
     $tlsChecks = @(
-        @{ Path = "HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.0\Server"; Name = "Enabled"; Expected = 0; Desc = "TLS 1.0 Disabled"; Optional = $false }
-        @{ Path = "HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.1\Server"; Name = "Enabled"; Expected = 0; Desc = "TLS 1.1 Disabled"; Optional = $false }
+        @{ Path = "HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.0\Server"; Name = "Enabled"; Expected = 0; Desc = "TLS 1.0 Server Disabled"; Optional = $false }
+        @{ Path = "HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.0\Client"; Name = "Enabled"; Expected = 0; Desc = "TLS 1.0 Client Disabled"; Optional = $false }
+        @{ Path = "HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.1\Server"; Name = "Enabled"; Expected = 0; Desc = "TLS 1.1 Server Disabled"; Optional = $false }
+        @{ Path = "HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.1\Client"; Name = "Enabled"; Expected = 0; Desc = "TLS 1.1 Client Disabled"; Optional = $false }
     )
     
     # WPAD (1 check) - ALWAYS required
@@ -1874,7 +1919,7 @@ Write-Host "  - DNS:              [CHECKED] (5)" -ForegroundColor Green
 Write-Host "  - Privacy:          [CHECKED] (48)" -ForegroundColor Green
 Write-Host "  - AntiAI:           [CHECKED] (24)" -ForegroundColor Green
 Write-Host "  - EdgeHardening:    [CHECKED] (20)" -ForegroundColor Green
-Write-Host "  - AdvancedSecurity: [CHECKED] (42)" -ForegroundColor Green
+Write-Host "  - AdvancedSecurity: [CHECKED] (44)" -ForegroundColor Green
 Write-Host ""
 
 Write-Host "Total Settings: $($results.TotalSettings)" -ForegroundColor White

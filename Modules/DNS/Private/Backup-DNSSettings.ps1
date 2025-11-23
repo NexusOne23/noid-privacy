@@ -141,34 +141,30 @@ function Backup-DNSSettings {
             # Get current DNS configuration
             $dnsConfig = Get-DnsClientServerAddress -InterfaceIndex $adapter.InterfaceIndex -ErrorAction SilentlyContinue
             
-            # Determine if DNS is from DHCP by checking if addresses are set
-            # If ServerAddresses is empty or contains only "fec0:0:0:ffff" (DHCP placeholder), it's DHCP
-            $isDHCP = $false
+            # Collect DNS addresses first
             $ipv4Addresses = @()
             $ipv6Addresses = @()
             
             foreach ($config in $dnsConfig) {
                 if ($config.AddressFamily -eq 2) { # IPv4
-                    if ($config.ServerAddresses.Count -eq 0) {
-                        $isDHCP = $true
-                    }
-                    else {
+                    if ($config.ServerAddresses.Count -gt 0) {
                         $ipv4Addresses = $config.ServerAddresses
                     }
                 }
                 elseif ($config.AddressFamily -eq 23) { # IPv6
-                    if ($config.ServerAddresses.Count -eq 0 -or 
-                        $config.ServerAddresses -contains "fec0:0:0:ffff::1" -or
-                        $config.ServerAddresses -contains "fec0:0:0:ffff::2" -or
-                        $config.ServerAddresses -contains "fec0:0:0:ffff::3") {
-                        # DHCP placeholder addresses
-                        $isDHCP = $true
-                    }
-                    else {
+                    if ($config.ServerAddresses.Count -gt 0 -and
+                        $config.ServerAddresses -notcontains "fec0:0:0:ffff::1" -and
+                        $config.ServerAddresses -notcontains "fec0:0:0:ffff::2" -and
+                        $config.ServerAddresses -notcontains "fec0:0:0:ffff::3") {
+                        # Only if not DHCP placeholder addresses
                         $ipv6Addresses = $config.ServerAddresses
                     }
                 }
             }
+            
+            # CRITICAL FIX: Determine DHCP status AFTER collecting all addresses
+            # DNS is from DHCP only if NO addresses are configured (neither IPv4 nor IPv6)
+            $isDHCP = ($ipv4Addresses.Count -eq 0) -and ($ipv6Addresses.Count -eq 0)
             
             # Get DoH configuration for this adapter's DNS servers
             $dohConfig = @()

@@ -18,7 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Note:** v1.8.x releases remain under MIT license (unchanged)
 - **Dual-Licensing:** Commercial licenses available for closed-source use
 
-Complete implementation of all 7 planned modules (583 security settings) with full BAVR pattern compliance and production-ready quality.
+Complete implementation of all 7 planned modules (580+ security settings) with full BAVR pattern compliance and production-ready quality.
 
 ### ✅ Added
 
@@ -53,7 +53,7 @@ Complete implementation of all 7 planned modules (583 security settings) with fu
 #### Core Features
 
 **Complete BAVR Pattern (Backup-Apply-Verify-Restore)**
-- All 583 settings now fully verified in `Verify-Complete-Hardening.ps1`
+- All 580+ settings now fully verified in `Verify-Complete-Hardening.ps1`
 - EdgeHardening: 20 verification checks added
 - AdvancedSecurity: 42 verification checks added
 - 100% coverage achieved (was 89.4%)
@@ -71,7 +71,7 @@ Complete implementation of all 7 planned modules (583 security settings) with fu
 - Memory leak prevention
 
 #### Documentation
-- **FEATURES.md** - Complete feature reference (583 settings documented)
+- **FEATURES.md** - Complete feature reference (580+ settings documented)
 - **SECURITY-ANALYSIS.md** - Home user impact analysis
   - Password policies only affect local accounts (~5% of users)
   - FireWire blocking documented with workaround
@@ -81,7 +81,7 @@ Complete implementation of all 7 planned modules (583 security settings) with fu
 
 **Module Completion**
 - Framework Status: **7/7 modules (100%)**
-- Total Settings: **583**
+- Total Settings: **580+**
   - SecurityBaseline: 425 settings
   - ASR: 19 rules
   - DNS: 5 checks (when enabled)
@@ -147,7 +147,7 @@ Complete implementation of all 7 planned modules (583 security settings) with fu
 ### 🎯 Release Highlights
 
 **Zero Known Issues**
-- ✅ All 7 modules production-ready (583 settings)
+- ✅ All 7 modules production-ready (580+ settings)
 - ✅ 100% BAVR coverage (Backup-Apply-Verify-Restore)
 - ✅ Zero-day protection (CVE-2025-9491)
 - ✅ No temp file leaks
@@ -167,7 +167,7 @@ Module Structure:    2 inconsistencies
 **After v2.1.0:**
 ```
 Modules:             7/7 (100%)
-Settings:            583
+Settings:            580+
 BAVR Coverage:       100%
 Temp File Cleanup:   Complete
 Bloatware Info:      REMOVED_APPS_LIST.txt

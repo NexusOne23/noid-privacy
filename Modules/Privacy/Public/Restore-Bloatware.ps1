@@ -8,9 +8,12 @@ function Restore-Bloatware {
     try {
         # List of apps that CANNOT be restored via winget (no package available in catalog)
         # These will be removed during Apply, but user must reinstall manually from Microsoft Store
+        # Reasons: System apps, Xbox/Gaming apps (winget msstore 404 error), or deprecated apps
         $nonRestorableApps = @(
             [PSCustomObject]@{ AppName = "Microsoft.GetHelp"; DisplayName = "Get Help" }
+            [PSCustomObject]@{ AppName = "Microsoft.Getstarted"; DisplayName = "Tips (Get Started)" }
             [PSCustomObject]@{ AppName = "Microsoft.MicrosoftSolitaireCollection"; DisplayName = "Microsoft Solitaire Collection" }
+            [PSCustomObject]@{ AppName = "Microsoft.People"; DisplayName = "People" }
         )
         
         Write-Log -Level INFO -Message "Checking for removed apps to restore via winget..." -Module "Privacy"

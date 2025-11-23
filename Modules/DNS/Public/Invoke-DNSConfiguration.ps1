@@ -74,20 +74,23 @@ function Invoke-DNSConfiguration {
             Write-Host "========================================" -ForegroundColor Cyan
             Write-Host ""
             
-            Write-Host "[1] Cloudflare (1.1.1.1)" -ForegroundColor Green
-            Write-Host "    Speed: 5/5, Privacy: 5/5 (RECOMMENDED)" -ForegroundColor Gray
-            Write-Host "    - Fastest global DNS resolver" -ForegroundColor Gray
-            Write-Host "    - Zero logging policy" -ForegroundColor Gray
+            Write-Host "[1] Cloudflare (1.1.1.1) - RECOMMENDED" -ForegroundColor Green
+            Write-Host "    PRIMARY STRENGTH: Speed (Fastest Resolver)" -ForegroundColor Cyan
+            Write-Host "    Speed 5/5 | Privacy 4/5 | Security 4/5 | Filtering 2/5" -ForegroundColor Gray
+            Write-Host "    - Global performance leader" -ForegroundColor Gray
+            Write-Host "    - Minimal logging (25h anonymized)" -ForegroundColor Gray
             Write-Host ""
             
             Write-Host "[2] Quad9 (9.9.9.9)" -ForegroundColor Yellow
-            Write-Host "    Security: 5/5, Privacy: 5/5" -ForegroundColor Gray
-            Write-Host "    - Malware/phishing blocking" -ForegroundColor Gray
+            Write-Host "    PRIMARY STRENGTH: Security + Privacy (Malware Blocking)" -ForegroundColor Cyan
+            Write-Host "    Speed 4/5 | Privacy 5/5 | Security 5/5 | Filtering 4/5" -ForegroundColor Gray
+            Write-Host "    - Blocks malware/phishing domains" -ForegroundColor Gray
             Write-Host "    - Swiss jurisdiction (strong privacy laws)" -ForegroundColor Gray
             Write-Host ""
             
             Write-Host "[3] AdGuard DNS (94.140.14.14)" -ForegroundColor Yellow
-            Write-Host "    Filtering: 5/5, Privacy: 5/5" -ForegroundColor Gray
+            Write-Host "    PRIMARY STRENGTH: Ad-Blocking + Tracker Protection" -ForegroundColor Cyan
+            Write-Host "    Speed 4/5 | Privacy 4/5 | Security 4/5 | Filtering 5/5" -ForegroundColor Gray
             Write-Host "    - Blocks ads and trackers" -ForegroundColor Gray
             Write-Host "    - Family-friendly options available" -ForegroundColor Gray
             Write-Host ""
@@ -133,7 +136,7 @@ function Invoke-DNSConfiguration {
             Write-Host ""
             Write-Host "Selected: $Provider" -ForegroundColor Green
             Write-Host ""
-            Write-Log -Level INFO -Message "User selected DNS provider: $Provider" -Module $moduleName
+            Write-Log -Level DEBUG -Message "User selected DNS provider: $Provider" -Module $moduleName
             
             # DoH Mode Selection (REQUIRE vs ALLOW)
             Write-Host ""
@@ -180,7 +183,7 @@ function Invoke-DNSConfiguration {
                 Write-Host "DoH Mode: ALLOW (Mobile/Enterprise Compatible)" -ForegroundColor Yellow
             }
             Write-Host ""
-            Write-Log -Level INFO -Message "User selected DoH mode: $script:DoHMode" -Module $moduleName
+            Write-Log -Level DEBUG -Message "User selected DoH mode: $script:DoHMode" -Module $moduleName
         }
         else {
             # If Provider specified via parameter, default to REQUIRE mode
@@ -286,24 +289,9 @@ function Invoke-DNSConfiguration {
                 Write-Log -Level INFO -Message " " -Module $moduleName
             }
             
-            # CRITICAL: Clean ALL previous DNS state (prevents interference from old providers/VPNs)
-            Write-Log -Level INFO -Message "Cleaning up previous DNS state..." -Module $moduleName
-            Reset-DnsState -KeepAdapterDns
-            
-            # Wait for adapter state to stabilize after cleanup (prevents 0x80004005 errors)
-            Start-Sleep -Seconds 3
-            
-            # Get physical adapters (aggressive VPN/VM filtering)
-            $adapters = @(Get-PhysicalAdapters)  # Force array to ensure .Count works
-            
-            if ($adapters.Count -eq 0) {
-                throw "No physical network adapters found (all are VPN/virtual)"
-            }
-            
-            Write-Log -Level INFO -Message "Configuring $($adapters.Count) network adapter(s)" -Module $moduleName
-            Write-Log -Level INFO -Message " " -Module $moduleName
-            
-            # Create backup
+            # CRITICAL FIX: Create backup BEFORE cleaning DNS state
+            # Bug: Reset-DnsState deletes DoH/Policy entries, so backup must happen first
+            # to capture the actual pre-apply state (not the cleaned state)
             if (-not $DryRun) {
                 Write-Log -Level INFO -Message "Creating backup of current DNS settings..." -Module $moduleName
                 
@@ -323,6 +311,23 @@ function Invoke-DNSConfiguration {
                 
                 Write-Log -Level INFO -Message " " -Module $moduleName
             }
+            
+            # CRITICAL: Clean ALL previous DNS state (prevents interference from old providers/VPNs)
+            Write-Log -Level INFO -Message "Cleaning up previous DNS state..." -Module $moduleName
+            Reset-DnsState -KeepAdapterDns
+            
+            # Wait for adapter state to stabilize after cleanup (prevents 0x80004005 errors)
+            Start-Sleep -Seconds 3
+            
+            # Get physical adapters (aggressive VPN/VM filtering)
+            $adapters = @(Get-PhysicalAdapters)  # Force array to ensure .Count works
+            
+            if ($adapters.Count -eq 0) {
+                throw "No physical network adapters found (all are VPN/virtual)"
+            }
+            
+            Write-Log -Level INFO -Message "Configuring $($adapters.Count) network adapter(s)" -Module $moduleName
+            Write-Log -Level INFO -Message " " -Module $moduleName
             
             # GLOBAL DOH ENFORCEMENT (before per-adapter config)
             # This ensures Windows GUI shows "Encrypted" and forces DoH globally

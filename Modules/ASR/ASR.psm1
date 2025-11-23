@@ -46,3 +46,7 @@ if (Test-Path $PublicPath) {
 
 # Export public functions + Test-ASRCompliance (needed for Invoke-ASRRules verification)
 Export-ModuleMember -Function @('Invoke-ASRRules', 'Test-ASRCompliance')
+
+# Alias for naming consistency (non-breaking change)
+New-Alias -Name 'Invoke-ASR' -Value 'Invoke-ASRRules' -Force
+Export-ModuleMember -Alias 'Invoke-ASR'

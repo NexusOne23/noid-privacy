@@ -235,6 +235,78 @@ function Backup-AdvancedSecuritySettings {
         $srpBackup = Backup-RegistryKey -KeyPath "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Safer\CodeIdentifiers" -BackupName "SRP_Settings"
         if ($srpBackup) { $backupCount++ }
         
+        # 12. CRITICAL: Create comprehensive JSON Pre-State Snapshot (counter Registry tattooing)
+        # This captures EXACT state of ALL AdvancedSecurity registry keys before hardening
+        Write-Log -Level INFO -Message "Creating AdvancedSecurity registry pre-state snapshot (JSON)..." -Module "AdvancedSecurity"
+        $preStateSnapshot = @()
+        
+        # All registry keys that AdvancedSecurity modifies
+        $allAdvSecKeys = @(
+            "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server",
+            "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp",
+            "HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services",
+            "HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\WDigest",
+            "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters",
+            "HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.0\Server",
+            "HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.0\Client",
+            "HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.1\Server",
+            "HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.1\Client",
+            "HKLM:\Software\Microsoft\Windows\CurrentVersion\Internet Settings\Wpad",
+            "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate",
+            "HKLM:\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings",
+            "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DeliveryOptimization",
+            "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Safer\CodeIdentifiers"
+        )
+        
+        foreach ($keyPath in $allAdvSecKeys) {
+            if (Test-Path $keyPath) {
+                try {
+                    # Get all properties for this key
+                    $properties = Get-ItemProperty -Path $keyPath -ErrorAction Stop
+                    $propertyNames = $properties.PSObject.Properties.Name | Where-Object { 
+                        $_ -notin @('PSPath', 'PSParentPath', 'PSChildName', 'PSProvider', 'PSDrive') 
+                    }
+                    
+                    foreach ($propName in $propertyNames) {
+                        $propValue = $properties.$propName
+                        
+                        # Get value type
+                        try {
+                            $propType = (Get-Item $keyPath).GetValueKind($propName)
+                        }
+                        catch {
+                            $propType = "String"  # Default fallback
+                        }
+                        
+                        $preStateSnapshot += [PSCustomObject]@{
+                            Path = $keyPath
+                            Name = $propName
+                            Value = $propValue
+                            Type = $propType.ToString()
+                            Exists = $true
+                        }
+                    }
+                }
+                catch {
+                    Write-Log -Level DEBUG -Message "Could not read properties from $keyPath : $_" -Module "AdvancedSecurity"
+                }
+            }
+            # If key doesn't exist, we don't add it to snapshot (only existing values are tracked)
+        }
+        
+        # Save JSON snapshot
+        try {
+            $snapshotJson = $preStateSnapshot | ConvertTo-Json -Depth 5
+            $result = Register-Backup -Type "AdvancedSecurity" -Data $snapshotJson -Name "AdvancedSecurity_PreState"
+            if ($result) {
+                $backupCount++
+                Write-Log -Level SUCCESS -Message "AdvancedSecurity pre-state snapshot created ($($preStateSnapshot.Count) registry values)" -Module "AdvancedSecurity"
+            }
+        }
+        catch {
+            Write-Log -Level WARNING -Message "Failed to create AdvancedSecurity pre-state snapshot: $_" -Module "AdvancedSecurity"
+        }
+        
         Write-Log -Level SUCCESS -Message "Advanced Security backup completed: $backupCount items backed up" -Module "AdvancedSecurity"
         
         return $backupCount

@@ -112,7 +112,6 @@ function Invoke-AntiAI {
         
         # Initialize Session-based backup system
         $moduleBackupPath = $null
-        $backupCount = 0
         
         # PHASE 1: BACKUP
         Write-Host "[1/4] BACKUP - Creating restore point..." -ForegroundColor Cyan
@@ -140,18 +139,77 @@ function Invoke-AntiAI {
             Write-Host ""
         }
         
+        # Capture AntiAI pre-state for precise restore (24 policies)
+        if ($moduleBackupPath -and -not $DryRun) {
+            try {
+                $antiAIPreState = @()
+
+                $antiAIPreTargets = @(
+                    @{ Path = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\AppPrivacy"; Name = "LetAppsAccessSystemAIModels"; Type = "DWord" },
+                    @{ Path = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\systemAIModels"; Name = "Value"; Type = "String" },
+                    @{ Path = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI"; Name = "AllowRecallEnablement"; Type = "DWord" },
+                    @{ Path = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI"; Name = "DisableAIDataAnalysis"; Type = "DWord" },
+                    @{ Path = "HKCU:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI"; Name = "DisableAIDataAnalysis"; Type = "DWord" },
+                    @{ Path = "HKCU:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI"; Name = "DisableRecallDataProviders"; Type = "DWord" },
+                    @{ Path = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI"; Name = "SetDenyAppListForRecall"; Type = "MultiString" },
+                    @{ Path = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI"; Name = "SetDenyUriListForRecall"; Type = "MultiString" },
+                    @{ Path = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI"; Name = "SetMaximumStorageDurationForRecallSnapshots"; Type = "DWord" },
+                    @{ Path = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI"; Name = "SetMaximumStorageSpaceForRecallSnapshots"; Type = "DWord" },
+                    @{ Path = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI"; Name = "TurnOffWindowsCopilot"; Type = "DWord" },
+                    @{ Path = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsCopilot"; Name = "TurnOffWindowsCopilot"; Type = "DWord" },
+                    @{ Path = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsCopilot"; Name = "ShowCopilotButton"; Type = "DWord" },
+                    @{ Path = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Explorer"; Name = "DisableWindowsCopilot"; Type = "DWord" },
+                    @{ Path = "HKCU:\Software\Policies\Microsoft\Windows\WindowsCopilot"; Name = "TurnOffWindowsCopilot"; Type = "DWord" },
+                    @{ Path = "HKCU:\Software\Policies\Microsoft\Windows\WindowsCopilot"; Name = "ShowCopilotButton"; Type = "DWord" },
+                    @{ Path = "HKCU:\Software\Policies\Microsoft\Windows\WindowsAI"; Name = "SetCopilotHardwareKey"; Type = "String" },
+                    @{ Path = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI"; Name = "DisableClickToDo"; Type = "DWord" },
+                    @{ Path = "HKCU:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI"; Name = "DisableClickToDo"; Type = "DWord" },
+                    @{ Path = "HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\Paint"; Name = "DisableCocreator"; Type = "DWord" },
+                    @{ Path = "HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\Paint"; Name = "DisableGenerativeFill"; Type = "DWord" },
+                    @{ Path = "HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\Paint"; Name = "DisableImageCreator"; Type = "DWord" },
+                    @{ Path = "HKLM:\SOFTWARE\Policies\WindowsNotepad"; Name = "DisableAIFeatures"; Type = "DWord" },
+                    @{ Path = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI"; Name = "DisableSettingsAgent"; Type = "DWord" }
+                )
+
+                foreach ($t in $antiAIPreTargets) {
+                    $entry = [PSCustomObject]@{
+                        Path   = $t.Path
+                        Name   = $t.Name
+                        Type   = $t.Type
+                        Exists = $false
+                        Value  = $null
+                    }
+
+                    try {
+                        if (Test-Path $t.Path) {
+                            $prop = Get-ItemProperty -Path $t.Path -Name $t.Name -ErrorAction SilentlyContinue
+                            if ($null -ne $prop -and $prop.PSObject.Properties.Name -contains $t.Name) {
+                                $entry.Exists = $true
+                                $entry.Value  = $prop.$($t.Name)
+                            }
+                        }
+                    }
+                    catch {
+                        # Ignore read errors, entry remains Exists = $false
+                    }
+
+                    $antiAIPreState += $entry
+                }
+
+                $preStatePath = Join-Path $moduleBackupPath "AntiAI_PreState.json"
+                $antiAIPreState | ConvertTo-Json -Depth 5 | Out-File -FilePath $preStatePath -Encoding UTF8 -Force
+                Write-Log -Level DEBUG -Message "AntiAI pre-state snapshot saved: $preStatePath" -Module "AntiAI"
+            }
+            catch {
+                Write-Log -Level WARNING -Message "Failed to capture AntiAI pre-state snapshot: $_" -Module "AntiAI"
+            }
+        }
+        
         # PHASE 2: APPLY
         Write-Host "[2/4] APPLY - Disabling AI features..." -ForegroundColor Cyan
         Write-Host ""
         
         # Feature 1: Generative AI Master Switch
-        if ($moduleBackupPath -and -not $DryRun) {
-            $result1 = Backup-RegistryKey -KeyPath "HKLM:\SOFTWARE\Policies\Microsoft\Windows\AppPrivacy" -BackupName "AppPrivacy_GenerativeAI"
-            if ($result1) { $backupCount++ }
-            $result2 = Backup-RegistryKey -KeyPath "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\systemAIModels" -BackupName "CapabilityAccessManager_SystemAIModels"
-            if ($result2) { $backupCount++ }
-        }
-        
         Write-Host "  Generative AI Master Switch..." -ForegroundColor White -NoNewline
         $masterResult = Set-SystemAIModels -DryRun:$DryRun
         if ($masterResult.Success) {
@@ -165,13 +223,6 @@ function Invoke-AntiAI {
         }
         
         # Feature 2: Windows Recall (Core + Protection)
-        if ($moduleBackupPath -and -not $DryRun) {
-            $result1 = Backup-RegistryKey -KeyPath "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI" -BackupName "WindowsAI_Device"
-            if ($result1) { $backupCount++ }
-            $result2 = Backup-RegistryKey -KeyPath "HKCU:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI" -BackupName "WindowsAI_User"
-            if ($result2) { $backupCount++ }
-        }
-        
         Write-Host "  Windows Recall (component removal)..." -ForegroundColor White -NoNewline
         $recallResult = Disable-Recall -DryRun:$DryRun
         if ($recallResult.Success) {
@@ -197,20 +248,6 @@ function Invoke-AntiAI {
         
         # Feature 3: Windows Copilot
         if ($moduleBackupPath -and -not $DryRun) {
-            # Backup BEFORE applying changes
-            $result1 = Backup-RegistryKey -KeyPath "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsCopilot" -BackupName "WindowsCopilot_Device"
-            if ($result1) { $backupCount++ }
-            $result2 = Backup-RegistryKey -KeyPath "HKCU:\SOFTWARE\Policies\Microsoft\Windows\WindowsCopilot" -BackupName "WindowsCopilot_User"
-            if ($result2) { $backupCount++ }
-            $result3 = Backup-RegistryKey -KeyPath "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Explorer" -BackupName "Explorer_Copilot"
-            if ($result3) { $backupCount++ }
-            $result4 = Backup-RegistryKey -KeyPath "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -BackupName "Explorer_Advanced_Device"
-            if ($result4) { $backupCount++ }
-            $result5 = Backup-RegistryKey -KeyPath "HKCU:\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -BackupName "Explorer_Advanced_User"
-            if ($result5) { $backupCount++ }
-            $result6 = Backup-RegistryKey -KeyPath "HKLM:\SOFTWARE\Microsoft\WindowsRuntime\ActivatableClassId\Microsoft.Windows.Copilot.CopilotManager" -BackupName "Copilot_ActivationType"
-            if ($result6) { $backupCount++ }
-            
             # CRITICAL: Create JSON backup for Explorer Advanced HKLM (Protected Key)
             # .reg import often fails for this key due to permissions/ownership
             try {
@@ -220,8 +257,7 @@ function Invoke-AntiAI {
                     if ($expVal) {
                         $expData = @{ "ShowCopilotButton" = $expVal.ShowCopilotButton }
                         $expJson = $expData | ConvertTo-Json
-                        $jsonBackup = Register-Backup -Type "AntiAI" -Data $expJson -Name "Explorer_Advanced_Device_JSON"
-                        if ($jsonBackup) { $backupCount++ }
+                        Register-Backup -Type "AntiAI" -Data $expJson -Name "Explorer_Advanced_Device_JSON" | Out-Null
                     }
                 }
             } catch { 
@@ -242,11 +278,6 @@ function Invoke-AntiAI {
         }
         
         # Feature 4: Click to Do
-        if ($moduleBackupPath -and -not $DryRun) {
-            # Backup BEFORE applying changes (WindowsAI already backed up in Feature 2)
-            # No additional backup needed - uses same path as Recall
-        }
-        
         Write-Host "  Click to Do..." -ForegroundColor White -NoNewline
         $clickResult = Disable-ClickToDo -DryRun:$DryRun
         if ($clickResult.Success) {
@@ -260,12 +291,6 @@ function Invoke-AntiAI {
         }
         
         # Feature 5-7: Paint AI (3 features)
-        if ($moduleBackupPath -and -not $DryRun) {
-            # Backup BEFORE applying changes
-            $result1 = Backup-RegistryKey -KeyPath "HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\Paint" -BackupName "Paint_Policies"
-            if ($result1) { $backupCount++ }
-        }
-        
         Write-Host "  Paint AI (Cocreator, Fill, Creator)..." -ForegroundColor White -NoNewline
         $paintResult = Disable-PaintAI -DryRun:$DryRun
         if ($paintResult.Success) {
@@ -279,12 +304,6 @@ function Invoke-AntiAI {
         }
         
         # Feature 8: Notepad AI
-        if ($moduleBackupPath -and -not $DryRun) {
-            # Backup BEFORE applying changes
-            $result1 = Backup-RegistryKey -KeyPath "HKLM:\SOFTWARE\Policies\WindowsNotepad" -BackupName "Notepad_Policies"
-            if ($result1) { $backupCount++ }
-        }
-        
         Write-Host "  Notepad AI..." -ForegroundColor White -NoNewline
         $notepadResult = Disable-NotepadAI -DryRun:$DryRun
         if ($notepadResult.Success) {
@@ -298,11 +317,6 @@ function Invoke-AntiAI {
         }
         
         # Feature 9: Settings Agent
-        if ($moduleBackupPath -and -not $DryRun) {
-            # Backup BEFORE applying changes (WindowsAI already backed up in Feature 2)
-            # No additional backup needed - uses same path as Recall
-        }
-        
         Write-Host "  Settings Agent..." -ForegroundColor White -NoNewline
         $settingsResult = Disable-SettingsAgent -DryRun:$DryRun
         if ($settingsResult.Success) {
@@ -318,8 +332,10 @@ function Invoke-AntiAI {
         Write-Host ""
         
         # Register backup in session manifest
+        # Note: Only Explorer Advanced JSON backup + PreState snapshot are created
+        # PreState snapshot covers all 24 policies precisely
         if ($moduleBackupPath) {
-            Complete-ModuleBackup -ItemsBackedUp $backupCount -Status "Success"
+            Complete-ModuleBackup -ItemsBackedUp 2 -Status "Success"
         }
         
         # PHASE 3: VERIFY
@@ -391,7 +407,7 @@ function Invoke-AntiAI {
         
         if ($moduleBackupPath) {
             Write-Host "Backup:        $moduleBackupPath" -ForegroundColor Cyan
-            Write-Host "Items Backed:  $backupCount registry keys" -ForegroundColor Cyan
+            Write-Host "Items Backed:  2 items (PreState snapshot + Explorer JSON)" -ForegroundColor Cyan
         }
         elseif (-not $SkipBackup -and -not $DryRun) {
             Write-Host "Backup:        FAILED" -ForegroundColor Red

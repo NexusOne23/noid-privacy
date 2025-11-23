@@ -38,7 +38,7 @@ function Backup-PrivacySettings {
             "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo"
         )
         
-        # Backup registry keys using Session system
+        # Backup registry keys using Session system (.reg files for reference)
         $backupCount = 0
         foreach ($key in $registryKeys) {
             $keyName = $key -replace "[:\\]", "_" -replace "^HKLM_", "" -replace "^HKCU_", "USER_"
@@ -51,6 +51,47 @@ function Backup-PrivacySettings {
             } catch {
                 Write-Log -Level WARNING -Message "Failed to backup registry key $key : $_" -Module "Privacy"
             }
+        }
+        
+        # CRITICAL: Create JSON snapshot of all registry values for precise restore
+        # This counters GPO tattooing and ensures values not in backup get deleted
+        Write-Log -Level INFO -Message "Creating Privacy registry pre-state snapshot (JSON)..." -Module "Privacy"
+        $preStateSnapshot = @()
+        
+        foreach ($key in $registryKeys) {
+            if (Test-Path $key) {
+                try {
+                    $properties = Get-ItemProperty -Path $key -ErrorAction Stop
+                    $propertyNames = $properties.PSObject.Properties.Name | Where-Object { $_ -notin @('PSPath', 'PSParentPath', 'PSChildName', 'PSProvider') }
+                    
+                    foreach ($propName in $propertyNames) {
+                        $propValue = $properties.$propName
+                        $propType = (Get-Item $key).GetValueKind($propName)
+                        
+                        $preStateSnapshot += [PSCustomObject]@{
+                            Path = $key
+                            Name = $propName
+                            Value = $propValue
+                            Type = $propType.ToString()
+                            Exists = $true
+                        }
+                    }
+                } catch {
+                    Write-Log -Level DEBUG -Message "Could not read properties from $key : $_" -Module "Privacy"
+                }
+            }
+        }
+        
+        # Save JSON snapshot
+        try {
+            $snapshotJson = $preStateSnapshot | ConvertTo-Json -Depth 5
+            $result = Register-Backup -Type "Privacy" -Data $snapshotJson -Name "Privacy_PreState"
+            if ($result) {
+                $backupCount++
+                Write-Log -Level SUCCESS -Message "Privacy pre-state snapshot created ($($preStateSnapshot.Count) registry values)" -Module "Privacy"
+            }
+        } catch {
+            Write-Log -Level WARNING -Message "Failed to create Privacy pre-state snapshot: $_" -Module "Privacy"
         }
         
         # Backup service states using Session system

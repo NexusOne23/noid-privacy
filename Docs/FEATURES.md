@@ -1,9 +1,9 @@
 # NoID Privacy Pro - Complete Feature List
 
 **Framework Version:** v2.1.0  
-**Total Security Settings:** 583  
+**Total Security Settings:** 580+  
 **Modules:** 7 (All Production-Ready)  
-**Last Updated:** November 22, 2025
+**Last Updated:** November 23, 2025
 
 ---
 
@@ -14,11 +14,11 @@
 | **SecurityBaseline** | 425 | ✅ v2.1.0 | Microsoft Security Baseline for Windows 11 v25H2 |
 | **ASR** | 19 | ✅ v2.1.0 | Attack Surface Reduction rules |
 | **DNS** | 5 | ✅ v2.1.0 | Secure DNS with DoH encryption |
-| **Privacy** | 48 | ✅ v2.1.0 | Telemetry control, Bloatware removal, OneDrive/Store telemetry |
+| **Privacy** | 55+ | ✅ v2.1.0 | Telemetry control, Bloatware removal (34 Registry + 21+ Apps) |
 | **AntiAI** | 24 | ✅ v2.1.0 | Disable AI features (Recall, Copilot, etc.) |
 | **EdgeHardening** | 20 | ✅ v2.1.0 | Microsoft Edge browser security |
-| **AdvancedSecurity** | 42 | ✅ v2.1.0 | Advanced hardening beyond MS Baseline |
-| **TOTAL** | **583** | ✅ **100%** | **Complete Framework** |
+| **AdvancedSecurity** | 44 | ✅ v2.1.0 | Advanced hardening beyond MS Baseline |
+| **TOTAL** | **580+** | ✅ **100%** | **Complete Framework** |
 
 ---
 
@@ -117,7 +117,7 @@
 - **IPv4:** 1.1.1.1, 1.0.0.1
 - **IPv6:** 2606:4700:4700::1111, 2606:4700:4700::1001
 - **DoH:** https://cloudflare-dns.com/dns-query
-- **Ratings:** Speed 5/5, Privacy 5/5, Security 4/5, Filtering 2/5
+- **Ratings:** Speed 5/5, Privacy 4/5, Security 4/5, Filtering 2/5
 
 #### Quad9
 - **IPv4:** 9.9.9.9, 149.112.112.112
@@ -129,7 +129,7 @@
 - **IPv4:** 94.140.14.14, 94.140.15.15
 - **IPv6:** 2a10:50c0::ad1:ff, 2a10:50c0::ad2:ff
 - **DoH:** https://dns.adguard-dns.com/dns-query
-- **Ratings:** Speed 4/5, Privacy 5/5, Security 4/5, Filtering 5/5
+- **Ratings:** Speed 4/5, Privacy 4/5, Security 4/5, Filtering 5/5
 
 ### Features:
 - ✅ **DoH Encryption with 2 Interactive Modes:**
@@ -147,7 +147,7 @@
 
 ---
 
-## 🔇 Module 4: Privacy (48 Settings)
+## 🔇 Module 4: Privacy (55+ Settings)
 
 **Description:** Windows telemetry control, OneDrive/MS Store telemetry, and bloatware removal
 
@@ -156,7 +156,7 @@
 - ✅ **OneDrive Telemetry:** Feedback & sync reports disabled
 - ✅ **OneDrive Sync:** Remains FUNCTIONAL (DisablePersonalSync = 0)
 - ✅ **MS Store Telemetry:** AutoDownload = 3 (auto-update apps, no upgrade prompts)
-- ✅ **Bloatware Removal:** 23 apps removed (policy-based on Win11 25H2+ Ent/Edu)
+- ✅ **Bloatware Removal:** 10-24+ apps removed (PolicyMethod for ENT/EDU, ClassicMethod for others)
 
 ### Operating Modes (Interactive Selection):
 
@@ -179,15 +179,37 @@
 - **Warning:** Breaks error analysis, support severely limited
 - **Best for:** Air-gapped, extreme privacy only
 
-### Bloatware Removal (23 apps):
-- BingNews, BingWeather, MicrosoftSolitaireCollection
-- MicrosoftStickyNotes, GamingApp, WindowsFeedbackHub
-- Xbox components (GamingOverlay, IdentityProvider, etc.)
+### ⚠️ Windows Insider Program Compatibility
 
-### Protected Apps (18 kept):
-- WindowsStore, WindowsCalculator, Photos, Paint
-- WindowsNotepad, WindowsTerminal, WindowsCamera
-- Clipchamp, Copilot, OfficeHub, Teams, etc.
+**MSRecommended mode** sets `AllowTelemetry=1` via Group Policy, which blocks Windows Insider Program enrollment. The Insider Program requires "Optional diagnostic data" (AllowTelemetry=3) for initial enrollment.
+
+**Workaround:** Temporarily remove the `AllowTelemetry` policy before Insider enrollment:
+```powershell
+Remove-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection" -Name "AllowTelemetry"
+```
+
+After enrollment, you can optionally re-apply Privacy hardening. Insider builds will continue to download even with `AllowTelemetry=1` restored.
+
+**See:** [README Troubleshooting - Windows Insider Program Compatibility](../README.md#windows-insider-program-compatibility)
+
+---
+
+### Bloatware Removal:
+**PolicyMethod (10 apps - ENT/EDU Win11 25H2+):**
+- BingNews, BingWeather, MicrosoftSolitaireCollection
+- MicrosoftStickyNotes, GamingApp, WindowsFeedbackHub  
+- Xbox components (GamingOverlay, IdentityProvider, SpeechToTextOverlay, TCUI)
+
+**ClassicMethod (24+ apps - All other editions):**
+- All PolicyMethod apps PLUS: GetHelp, Getstarted, People, YourPhone
+- ZuneMusic, ZuneVideo, MixedReality.Portal, Clipchamp, Spotify
+- XboxApp, TikTok, CandyCrush (wildcard), Disney (wildcard), Facebook (wildcard)
+
+### Protected Apps (19 kept):
+- **Core Apps:** WindowsStore, WindowsCalculator, Photos, Paint
+- **Productivity:** WindowsNotepad, WindowsTerminal, WindowsCamera, ScreenSketch, WindowsSoundRecorder
+- **System:** DesktopAppInstaller (winget), StorePurchaseApp
+- **Media Codecs:** HEIF, HEVC, WebP, VP9, WebMedia, AV1, MPEG2, RAW (9 extensions)
 
 ### OneDrive Settings:
 - Telemetry: Disabled
@@ -275,7 +297,7 @@ Some UI elements in Paint and Photos apps may **still be visible** but non-funct
 
 ---
 
-## 🔐 Module 7: AdvancedSecurity (42 Settings)
+## 🔐 Module 7: AdvancedSecurity (44 Settings)
 
 **Description:** Advanced hardening beyond Microsoft Security Baseline
 
@@ -523,7 +545,7 @@ Some UI elements in Paint and Photos apps may **still be visible** but non-funct
 NOID PRIVACY PRO v2.1.0
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Total Settings:             583 ✅
+Total Settings:             580+ ✅
 Modules:                    7/7 (100%) ✅
 Production Status:          Ready ✅
 Verification:               100% ✅
@@ -540,5 +562,5 @@ Framework Completion:       🎉 100% COMPLETE
 
 ---
 
-**Last Updated:** November 22, 2025  
+**Last Updated:** November 23, 2025  
 **Framework Version:** v2.1.0  

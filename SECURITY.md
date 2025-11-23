@@ -61,7 +61,7 @@ NoID Privacy Pro implements multiple security layers:
 ### Secure by Design
 - ✅ **No External Dependencies**: Zero third-party DLLs or executables
 - ✅ **Code Signing**: All PowerShell scripts are signed (coming soon)
-- ✅ **Verification**: 583 automated compliance checks
+- ✅ **Verification**: 580+ automated compliance checks
 - ✅ **Rollback**: Complete backup & restore functionality
 
 ### Security Hardening Applied
@@ -152,7 +152,7 @@ NoID Privacy Pro implements multiple security layers:
 ### Testing & Validation
 - **PSScriptAnalyzer**: Available for static analysis
 - **Pester Tests**: Unit and integration tests available in `Tests/` directory
-- **Verification**: 583 automated compliance checks in production
+- **Verification**: 580+ automated compliance checks in production
 
 Run tests yourself:
 ```powershell

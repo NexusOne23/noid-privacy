@@ -37,3 +37,7 @@ foreach ($import in @($Private + $Public)) {
 
 # Export public functions
 Export-ModuleMember -Function $Public.BaseName
+
+# Alias for naming consistency (non-breaking change)
+New-Alias -Name 'Invoke-DNS' -Value 'Invoke-DNSConfiguration' -Force
+Export-ModuleMember -Alias 'Invoke-DNS'

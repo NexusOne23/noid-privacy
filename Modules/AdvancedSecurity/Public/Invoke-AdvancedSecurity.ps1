@@ -80,9 +80,6 @@ function Invoke-AdvancedSecurity {
         Write-Host "========================================" -ForegroundColor Cyan
         Write-Host ""
         
-        # Check if running as Administrator
-        $isAdmin = ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
-        
         if (-not ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
             Write-Host "ERROR: Administrator rights required!" -ForegroundColor Red
             Write-Host "Please run this script as Administrator." -ForegroundColor Yellow
@@ -148,7 +145,7 @@ function Invoke-AdvancedSecurity {
                 '3' { $SecurityProfile = 'AirGappedMax'; Write-Host ""; Write-Host "  Selected: AirGapped Maximum" -ForegroundColor Green }
                 default { $SecurityProfile = 'Home'; Write-Host ""; Write-Host "  Selected: Home" -ForegroundColor Cyan }
             }
-            Write-Log -Level INFO -Message "User selected AdvancedSecurity profile: $SecurityProfile" -Module "AdvancedSecurity"
+            Write-Log -Level DEBUG -Message "User selected AdvancedSecurity profile: $SecurityProfile" -Module "AdvancedSecurity"
             Write-Host ""
         }
         

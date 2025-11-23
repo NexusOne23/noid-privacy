@@ -1155,6 +1155,76 @@ function Get-SessionManifest {
     return Get-Content $manifestPath -Raw | ConvertFrom-Json
 }
 
+function Initialize-RestoreLog {
+    <#
+    .SYNOPSIS
+        Initialize separate detailed log file for restore operations
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$SessionPath
+    )
+    
+    try {
+        $logsDir = Join-Path (Split-Path $PSScriptRoot -Parent) "Logs"
+        if (-not (Test-Path $logsDir)) {
+            New-Item -ItemType Directory -Path $logsDir -Force | Out-Null
+        }
+        
+        $timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
+        $sessionId = Split-Path $SessionPath -Leaf
+        $restoreLogFile = "RESTORE_$($sessionId)_$timestamp.log"
+        $script:RestoreLogPath = Join-Path $logsDir $restoreLogFile
+        
+        # Initialize restore log file
+        $header = @(
+            "================================================================"
+            "  NoID Privacy Pro - RESTORE LOG"
+            "  Session: $sessionId"
+            "  Restore Started: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')"
+            "================================================================"
+            ""
+        )
+        $header | Out-File -FilePath $script:RestoreLogPath -Encoding UTF8
+        
+        Write-Log -Level INFO -Message "Restore log initialized: $script:RestoreLogPath" -Module "Rollback"
+        return $true
+    }
+    catch {
+        Write-Log -Level WARNING -Message "Failed to initialize restore log: $_" -Module "Rollback"
+        $script:RestoreLogPath = $null
+        return $false
+    }
+}
+
+function Write-RestoreLog {
+    <#
+    .SYNOPSIS
+        Write to restore-specific log (in addition to main log)
+    #>
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory = $true)]
+        [string]$Message,
+        
+        [Parameter(Mandatory = $false)]
+        [ValidateSet('INFO', 'SUCCESS', 'WARNING', 'ERROR', 'DEBUG')]
+        [string]$Level = 'INFO'
+    )
+    
+    if (-not $script:RestoreLogPath) { return }
+    
+    try {
+        $timestamp = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+        $logEntry = "[$timestamp] [$Level] $Message"
+        $logEntry | Out-File -FilePath $script:RestoreLogPath -Append -Encoding UTF8
+    }
+    catch {
+        # Silently fail to avoid breaking restore operation
+    }
+}
+
 function Restore-Session {
     <#
     .SYNOPSIS
@@ -1184,12 +1254,34 @@ function Restore-Session {
         return $false
     }
     
+    # Track restore duration
+    $startTime = Get-Date
+    
+    # CRITICAL: Initialize separate restore log (ONLY for restore operations)
+    Initialize-RestoreLog -SessionPath $SessionPath
+    Write-RestoreLog -Level INFO -Message "========================================"
+    Write-RestoreLog -Level INFO -Message "RESTORE SESSION START"
+    Write-RestoreLog -Level INFO -Message "Session Path: $SessionPath"
+    if ($ModuleNames) {
+        Write-RestoreLog -Level INFO -Message "Specific Modules: $($ModuleNames -join ', ')"
+    } else {
+        Write-RestoreLog -Level INFO -Message "Restoring: ALL modules"
+    }
+    Write-RestoreLog -Level INFO -Message "========================================"
+    Write-RestoreLog -Level INFO -Message " "
+    
     try {
         $manifest = Get-SessionManifest -SessionPath $SessionPath
         
         Write-Log -Level INFO -Message "Starting session restore: $($manifest.sessionId)" -Module "Rollback"
+        Write-RestoreLog -Level INFO -Message "Session ID: $($manifest.sessionId)"
+        
         Write-Log -Level INFO -Message "Session created: $($manifest.timestamp)" -Module "Rollback"
+        Write-RestoreLog -Level INFO -Message "Session Created: $($manifest.timestamp)"
+        
         Write-Log -Level INFO -Message "Total items: $($manifest.totalItems)" -Module "Rollback"
+        Write-RestoreLog -Level INFO -Message "Total Items Backed Up: $($manifest.totalItems)"
+        Write-RestoreLog -Level INFO -Message " "
         
         $allSucceeded = $true
         $modulesToRestore = if ($ModuleNames) {
@@ -1204,54 +1296,203 @@ function Restore-Session {
         
         foreach ($moduleInfo in $reversedModules) {
             Write-Log -Level INFO -Message "Restoring module: $($moduleInfo.name) ($($moduleInfo.itemsBackedUp) items)" -Module "Rollback"
+            Write-RestoreLog -Level INFO -Message "========================================" 
+            Write-RestoreLog -Level INFO -Message "MODULE: $($moduleInfo.name)"
+            Write-RestoreLog -Level INFO -Message "Items Backed Up: $($moduleInfo.itemsBackedUp)"
+            Write-RestoreLog -Level INFO -Message "Backup Path: $($moduleInfo.backupPath)"
+            Write-RestoreLog -Level INFO -Message "Timestamp: $($moduleInfo.timestamp)"
+            Write-RestoreLog -Level INFO -Message "========================================"
             
             $moduleBackupPath = Join-Path $SessionPath $moduleInfo.backupPath
             
             if (-not (Test-Path $moduleBackupPath)) {
                 Write-Log -Level ERROR -Message "Module backup path not found: $moduleBackupPath" -Module "Rollback"
+                Write-RestoreLog -Level ERROR -Message "CRITICAL: Module backup path not found: $moduleBackupPath"
                 $allSucceeded = $false
                 continue
             }
+            Write-RestoreLog -Level DEBUG -Message "Backup path verified: $moduleBackupPath"
             
             # Pre-restore cleanup: Clear active policies BEFORE restoring backups
             # This ensures hardened settings don't interfere with backup restore
             
             if ($moduleInfo.name -eq "SecurityBaseline") {
-                Write-Log -Level INFO -Message "Clearing SecurityBaseline policies before restore..." -Module "Rollback"
+                Write-Log -Level INFO -Message "Restoring SecurityBaseline from LocalGPO backup..." -Module "Rollback"
+                Write-RestoreLog -Level INFO -Message "[STEP 1] LocalGPO Restore"
                 
-                # STEP 1: Clear all local GPO settings to "Not Configured"
-                # This deletes registry.pol files (official MS method)
-                # All GPO settings will be reset to default "Not Configured" state
-                $gpoClearResult = Clear-LocalGPO
-                if (-not $gpoClearResult) {
-                    Write-Log -Level WARNING -Message "Local GPO clear had errors - continuing" -Module "Rollback"
-                }
+                # STEP 1: Restore full LocalGPO directory from backup
+                # This is the official MS method to restore ALL GPO settings at once
+                # More reliable than Clear + Restore-RegistryPolicies (avoids permission issues)
+                $localGPOBackup = Join-Path $moduleBackupPath "LocalGPO"
+                $localGPOPath = "C:\Windows\System32\GroupPolicy"
+                Write-RestoreLog -Level DEBUG -Message "LocalGPO backup path: $localGPOBackup"
+                Write-RestoreLog -Level DEBUG -Message "LocalGPO target path: $localGPOPath"
                 
-                # STEP 1.5: Restore Registry Policies (GPO) from backup
-                # This restores the Machine/User Registry.pol files
-                $regPolBackup = Join-Path $moduleBackupPath "RegistryPolicies.json"
-                if (Test-Path $regPolBackup) {
-                    Write-Log -Level INFO -Message "Restoring Registry Policies (GPO) from backup..." -Module "Rollback"
+                if (Test-Path $localGPOBackup) {
+                    Write-Log -Level INFO -Message "Restoring LocalGPO directory from backup..." -Module "Rollback"
+                    Write-RestoreLog -Level INFO -Message "LocalGPO backup found - restoring full directory"
                     
-                    # Fail-Safe: Manually load function if missing (Module scope fix)
-                    if (-not (Get-Command "Restore-RegistryPolicies" -ErrorAction SilentlyContinue)) {
-                        $funcPath = Join-Path $PSScriptRoot "..\Modules\SecurityBaseline\Private\Restore-RegistryPolicies.ps1"
-                        if (Test-Path $funcPath) { . $funcPath }
+                    try {
+                        # Delete current GPO directory if it exists
+                        if (Test-Path $localGPOPath) {
+                            Write-RestoreLog -Level DEBUG -Message "Removing current LocalGPO directory..."
+                            Remove-Item -Path $localGPOPath -Recurse -Force -ErrorAction Stop
+                            Write-Log -Level INFO -Message "Removed current LocalGPO directory" -Module "Rollback"
+                            Write-RestoreLog -Level SUCCESS -Message "Current LocalGPO removed"
+                        }
+                        else {
+                            Write-RestoreLog -Level DEBUG -Message "No current LocalGPO directory to remove"
+                        }
+                        
+                        # Restore backup
+                        Write-RestoreLog -Level DEBUG -Message "Copying LocalGPO backup to system..."
+                        Copy-Item -Path $localGPOBackup -Destination $localGPOPath -Recurse -Force -ErrorAction Stop
+                        Write-Log -Level SUCCESS -Message "LocalGPO directory restored from backup" -Module "Rollback"
+                        Write-RestoreLog -Level SUCCESS -Message "LocalGPO directory restored successfully"
+                        
+                        # Force Group Policy update to apply restored settings
+                        Write-Log -Level INFO -Message "Applying restored Group Policy settings (gpupdate)..." -Module "Rollback"
+                        Write-RestoreLog -Level INFO -Message "[STEP 1.1] Running gpupdate /force..."
+                        $gpupdateProcess = Start-Process -FilePath "gpupdate.exe" -ArgumentList "/force" -Wait -NoNewWindow -PassThru
+                        Write-RestoreLog -Level DEBUG -Message "gpupdate exit code: $($gpupdateProcess.ExitCode)"
+                        
+                        if ($gpupdateProcess.ExitCode -eq 0) {
+                            Write-Log -Level SUCCESS -Message "Group Policy settings applied successfully" -Module "Rollback"
+                            Write-RestoreLog -Level SUCCESS -Message "gpupdate completed successfully"
+                        }
+                        else {
+                            Write-Log -Level WARNING -Message "gpupdate returned exit code $($gpupdateProcess.ExitCode) - continuing" -Module "Rollback"
+                            Write-RestoreLog -Level WARNING -Message "gpupdate returned non-zero exit code: $($gpupdateProcess.ExitCode)"
+                        }
                     }
-
-                    $regPolResult = Restore-RegistryPolicies -BackupPath $regPolBackup
-                    if ($regPolResult.Success) {
-                        Write-Log -Level SUCCESS -Message "Registry Policies restored ($($regPolResult.ItemsRestored) items)" -Module "Rollback"
-                    }
-                    else {
-                        Write-Log -Level WARNING -Message "Registry Policies restore had errors: $($regPolResult.Errors -join '; ')" -Module "Rollback"
+                    catch {
+                        Write-Log -Level ERROR -Message "Failed to restore LocalGPO directory: $($_.Exception.Message)" -Module "Rollback"
+                        Write-RestoreLog -Level ERROR -Message "LocalGPO restore FAILED: $($_.Exception.Message)"
+                        Write-RestoreLog -Level ERROR -Message "Stack trace: $($_.ScriptStackTrace)"
                     }
                 }
                 else {
-                    Write-Log -Level WARNING -Message "No RegistryPolicies.json backup found - skipping GPO restore" -Module "Rollback"
+                    Write-Log -Level INFO -Message "No LocalGPO backup found (system was clean before hardening) - clearing current GPO" -Module "Rollback"
+                    Write-RestoreLog -Level INFO -Message "No LocalGPO backup found - system was clean before hardening"
+                    
+                    # System had no GPO before hardening - just clear current GPO
+                    if (Test-Path $localGPOPath) {
+                        try {
+                            Write-RestoreLog -Level DEBUG -Message "Removing current LocalGPO (cleanup)..."
+                            Remove-Item -Path $localGPOPath -Recurse -Force -ErrorAction Stop
+                            Write-Log -Level SUCCESS -Message "Cleared LocalGPO directory (system was clean)" -Module "Rollback"
+                            Write-RestoreLog -Level SUCCESS -Message "LocalGPO cleared successfully"
+                        }
+                        catch {
+                            Write-Log -Level WARNING -Message "Could not clear LocalGPO: $_" -Module "Rollback"
+                            Write-RestoreLog -Level WARNING -Message "LocalGPO cleanup failed: $_"
+                        }
+                    }
+                    else {
+                        Write-RestoreLog -Level DEBUG -Message "No LocalGPO directory exists (correct state)"
+                    }
                 }
                 
-                # STEP 2: Restore Audit Policies from pre-hardening backup (1:1 restore)
+                # STEP 1.5: Explicitly restore registry policies from JSON backup (counter GPO tattooing)
+                # GPO tattooing: When GPO sets registry values and is then removed, values persist
+                # Solution: Explicitly restore original values from JSON backup using Restore-RegistryPolicies
+                Write-RestoreLog -Level INFO -Message "[STEP 2] Registry Policies Restore (counter GPO tattooing)"
+                $regBackupJson = Join-Path $moduleBackupPath "RegistryPolicies.json"
+                Write-RestoreLog -Level DEBUG -Message "Registry backup JSON: $regBackupJson"
+                if (Test-Path $regBackupJson) {
+                    Write-Log -Level INFO -Message "Restoring registry policies from JSON backup (countering GPO tattooing)..." -Module "Rollback"
+                    Write-RestoreLog -Level INFO -Message "Registry backup found - restoring original values"
+                    
+                    try {
+                        # Load restore function if not in scope
+                        if (-not (Get-Command "Restore-RegistryPolicies" -ErrorAction SilentlyContinue)) {
+                            Write-RestoreLog -Level DEBUG -Message "Loading Restore-RegistryPolicies function..."
+                            $funcPath = Join-Path $PSScriptRoot "..\Modules\SecurityBaseline\Private\Restore-RegistryPolicies.ps1"
+                            Write-RestoreLog -Level DEBUG -Message "Function path: $funcPath"
+                            if (Test-Path $funcPath) { 
+                                . $funcPath 
+                                Write-Log -Level DEBUG -Message "Loaded Restore-RegistryPolicies function" -Module "Rollback"
+                                Write-RestoreLog -Level DEBUG -Message "Function loaded successfully"
+                            }
+                            else {
+                                Write-Log -Level WARNING -Message "Restore-RegistryPolicies.ps1 not found - skipping explicit registry restore" -Module "Rollback"
+                                Write-RestoreLog -Level ERROR -Message "Restore-RegistryPolicies.ps1 NOT FOUND - registry restore skipped!"
+                            }
+                        }
+                        else {
+                            Write-RestoreLog -Level DEBUG -Message "Restore-RegistryPolicies function already loaded"
+                        }
+                        
+                        if (Get-Command "Restore-RegistryPolicies" -ErrorAction SilentlyContinue) {
+                            Write-RestoreLog -Level DEBUG -Message "Calling Restore-RegistryPolicies..."
+                            # Call restore function directly with combined JSON backup
+                            $restoreResult = Restore-RegistryPolicies -BackupPath $regBackupJson
+                            Write-RestoreLog -Level DEBUG -Message "Restore function returned - Success: $($restoreResult.Success)"
+                            
+                            if ($restoreResult.Success) {
+                                Write-Log -Level SUCCESS -Message "Registry policies restored: $($restoreResult.ItemsRestored) items (GPO tattooing countered)" -Module "Rollback"
+                                Write-RestoreLog -Level SUCCESS -Message "Registry policies restored: $($restoreResult.ItemsRestored) items"
+                            }
+                            else {
+                                Write-Log -Level WARNING -Message "Registry restore had errors: $($restoreResult.Errors.Count) errors" -Module "Rollback"
+                                Write-RestoreLog -Level WARNING -Message "Registry restore had $($restoreResult.Errors.Count) errors:"
+                                foreach ($err in $restoreResult.Errors) {
+                                    Write-Log -Level DEBUG -Message "  - $err" -Module "Rollback"
+                                    Write-RestoreLog -Level ERROR -Message "  - $err"
+                                }
+                            }
+                            
+                            # CRITICAL FIX: Terminal Services GPO Cleanup
+                            # After restore, the Terminal Services key may exist but be empty (all values deleted).
+                            # Verify checks expect the key to NOT exist if system was clean before apply.
+                            # Solution: Remove the key if it's completely empty after restore.
+                            Write-RestoreLog -Level INFO -Message "[FIX 2/3] Checking Terminal Services GPO cleanup..."
+                            $tsKey = "HKLM:\Software\Policies\Microsoft\Windows NT\Terminal Services"
+                            if (Test-Path $tsKey) {
+                                Write-RestoreLog -Level DEBUG -Message "Terminal Services key exists: $tsKey"
+                                try {
+                                    $tsProps = Get-ItemProperty -Path $tsKey -ErrorAction SilentlyContinue
+                                    $propNames = @()
+                                    if ($tsProps) {
+                                        $propNames = $tsProps.PSObject.Properties.Name | Where-Object { 
+                                            $_ -notin @('PSPath', 'PSParentPath', 'PSChildName', 'PSProvider', 'PSDrive') 
+                                        }
+                                    }
+                                    Write-RestoreLog -Level DEBUG -Message "Terminal Services key value count: $($propNames.Count)"
+                                    
+                                    if ($propNames.Count -eq 0) {
+                                        Remove-Item -Path $tsKey -Recurse -Force -ErrorAction SilentlyContinue
+                                        Write-Log -Level INFO -Message "Removed empty Terminal Services policy key (GPO cleanup - system was clean before hardening)" -Module "Rollback"
+                                        Write-RestoreLog -Level SUCCESS -Message "Terminal Services key removed (was empty - system was clean)"
+                                    }
+                                    else {
+                                        Write-Log -Level DEBUG -Message "Terminal Services key has $($propNames.Count) values - keeping key" -Module "Rollback"
+                                        Write-RestoreLog -Level INFO -Message "Terminal Services key has $($propNames.Count) values - keeping key"
+                                        Write-RestoreLog -Level DEBUG -Message "Values: $($propNames -join ', ')"
+                                    }
+                                }
+                                catch {
+                                    Write-Log -Level DEBUG -Message "Could not check/clean Terminal Services key: $_" -Module "Rollback"
+                                    Write-RestoreLog -Level WARNING -Message "Terminal Services cleanup failed: $_"
+                                }
+                            }
+                            else {
+                                Write-RestoreLog -Level DEBUG -Message "Terminal Services key does not exist (correct state)"
+                            }
+                        }
+                    }
+                    catch {
+                        Write-Log -Level WARNING -Message "Failed to restore registry policies from JSON: $($_.Exception.Message)" -Module "Rollback"
+                        Write-RestoreLog -Level ERROR -Message "Registry restore exception: $($_.Exception.Message)"
+                        Write-RestoreLog -Level ERROR -Message "Stack trace: $($_.ScriptStackTrace)"
+                    }
+                }
+                else {
+                    Write-Log -Level WARNING -Message "No RegistryPolicies.json backup found - GPO restore only (tattooing may occur)" -Module "Rollback"
+                    Write-RestoreLog -Level WARNING -Message "No RegistryPolicies.json backup found - GPO tattooing may occur!"
+                }
+                
+                # STEP 2: Restore Audit Policies from pre-hardening backup
                 $auditBackupFile = Join-Path $moduleBackupPath "AuditPolicies.csv"
                 if (Test-Path $auditBackupFile) {
                     Write-Log -Level INFO -Message "Found audit policy backup" -Module "Rollback"
@@ -1285,8 +1526,7 @@ function Restore-Session {
                     if (Test-Path $funcPath) { . $funcPath }
                 }
 
-                # STEP 3: Restore Security Template from rollback template (1:1 restore)
-                # This restores only the settings that were changed by standalone delta
+                # STEP 3: Restore Security Template from backup
                 $rollbackTemplateFile = Join-Path $moduleBackupPath "StandaloneDelta_Rollback.inf"
                 if (Test-Path $rollbackTemplateFile) {
                     Write-Log -Level INFO -Message "Found rollback template for standalone delta" -Module "Rollback"
@@ -1329,9 +1569,6 @@ function Restore-Session {
                         Write-Log -Level WARNING -Message "Failed to restore Xbox task state: $_" -Module "Rollback"
                     }
                 }
-                
-                # STEP 5: Final GPO refresh
-                # Force group policy update to apply all restored settings
             }
             
             if ($moduleInfo.name -eq "ASR") {
@@ -1439,6 +1676,63 @@ function Restore-Session {
                         }
                     } catch {
                         Write-Log -Level WARNING -Message "PowerShell-based Explorer restore failed: $($_.Exception.Message)" -Module "Rollback"
+                    }
+                }
+
+                # Apply AntiAI pre-state snapshot (24 policies) if available
+                $antiAIPreStatePath = Join-Path $moduleBackupPath "AntiAI_PreState.json"
+                if (Test-Path $antiAIPreStatePath) {
+                    Write-Log -Level INFO -Message "Restoring AntiAI pre-state snapshot (24 policies)..." -Module "Rollback"
+                    try {
+                        $preEntries = Get-Content $antiAIPreStatePath -Raw | ConvertFrom-Json
+
+                        foreach ($entry in $preEntries) {
+                            if (-not $entry.Path -or -not $entry.Name) { continue }
+
+                            if ($entry.Exists) {
+                                # Value existierte vor dem Hardening – ursprünglichen Wert/Typ wiederherstellen
+                                $keyPath = $entry.Path
+                                try {
+                                    if (-not (Test-Path $keyPath)) {
+                                        New-Item -Path $keyPath -Force | Out-Null
+                                    }
+
+                                    $regType = switch ($entry.Type) {
+                                        "DWord"       { "DWord" }
+                                        "String"      { "String" }
+                                        "MultiString" { "MultiString" }
+                                        default        { "String" }
+                                    }
+
+                                    $existing = Get-ItemProperty -Path $keyPath -Name $entry.Name -ErrorAction SilentlyContinue
+                                    if ($null -ne $existing) {
+                                        Set-ItemProperty -Path $keyPath -Name $entry.Name -Value $entry.Value -Force -ErrorAction SilentlyContinue
+                                    }
+                                    else {
+                                        New-ItemProperty -Path $keyPath -Name $entry.Name -Value $entry.Value -PropertyType $regType -Force -ErrorAction SilentlyContinue | Out-Null
+                                    }
+                                }
+                                catch {
+                                    Write-Log -Level WARNING -Message "Failed to restore AntiAI value $($entry.Path)\$($entry.Name): $($_.Exception.Message)" -Module "Rollback"
+                                }
+                            }
+                            else {
+                                # Wert existierte vorher nicht – nach Hardening erzeugt, also wieder entfernen
+                                try {
+                                    if (Test-Path $entry.Path) {
+                                        Remove-ItemProperty -Path $entry.Path -Name $entry.Name -ErrorAction SilentlyContinue
+                                    }
+                                }
+                                catch {
+                                    Write-Log -Level DEBUG -Message "AntiAI pre-state cleanup: could not remove $($entry.Path)\$($entry.Name) - $($_.Exception.Message)" -Module "Rollback"
+                                }
+                            }
+                        }
+
+                        Write-Log -Level SUCCESS -Message "AntiAI pre-state snapshot applied successfully" -Module "Rollback"
+                    }
+                    catch {
+                        Write-Log -Level WARNING -Message "Failed to apply AntiAI pre-state snapshot: $($_.Exception.Message)" -Module "Rollback"
                     }
                 }
             }
@@ -1603,8 +1897,87 @@ function Restore-Session {
                 }
             }
 
-            # Special handling for Privacy: Restore removed apps via winget (if metadata exists)
+            # Special handling for Privacy: Restore registry snapshot + removed apps
             if ($moduleInfo.name -eq "Privacy") {
+                # STEP 1: Restore Privacy registry pre-state snapshot (counters GPO tattooing)
+                $privacyPreStatePath = Join-Path $moduleBackupPath "Privacy_PreState.json"
+                if (Test-Path $privacyPreStatePath) {
+                    Write-Log -Level INFO -Message "Restoring Privacy registry pre-state snapshot..." -Module "Rollback"
+                    try {
+                        $preEntries = Get-Content $privacyPreStatePath -Raw | ConvertFrom-Json
+                        
+                        # Build list of all keys to clear first (must match Backup-PrivacySettings list)
+                        $keysToProcess = @(
+                            "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DataCollection",
+                            "HKLM:\SOFTWARE\Policies\Microsoft\Windows\CloudContent",
+                            "HKLM:\SOFTWARE\Policies\Microsoft\Windows\AdvertisingInfo",
+                            "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Search",
+                            "HKLM:\SOFTWARE\Policies\Microsoft\InputPersonalization",
+                            "HKLM:\SOFTWARE\Policies\Microsoft\Windows\System",
+                            "HKLM:\SOFTWARE\Policies\Microsoft\Windows\SettingSync",
+                            "HKLM:\SOFTWARE\Policies\Microsoft\Windows\LocationAndSensors",
+                            "HKLM:\SOFTWARE\Policies\Microsoft\Windows\AppPrivacy",
+                            "HKLM:\SOFTWARE\Policies\Microsoft\OneDrive",
+                            "HKLM:\SOFTWARE\Policies\Microsoft\WindowsStore",
+                            "HKCU:\Software\Policies\Microsoft\Windows\Explorer",
+                            "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo"
+                        )
+                        
+                        # Clear all current values in Privacy keys (prepare clean slate)
+                        foreach ($keyPath in $keysToProcess) {
+                            if (Test-Path $keyPath) {
+                                try {
+                                    $currentProps = Get-ItemProperty -Path $keyPath -ErrorAction SilentlyContinue
+                                    if ($currentProps) {
+                                        $propNames = $currentProps.PSObject.Properties.Name | Where-Object { $_ -notin @('PSPath', 'PSParentPath', 'PSChildName', 'PSProvider') }
+                                        foreach ($prop in $propNames) {
+                                            Remove-ItemProperty -Path $keyPath -Name $prop -ErrorAction SilentlyContinue
+                                        }
+                                    }
+                                } catch {
+                                    Write-Log -Level DEBUG -Message "Could not clear $keyPath : $_" -Module "Rollback"
+                                }
+                            }
+                        }
+                        
+                        # Restore original values from snapshot
+                        $restoredCount = 0
+                        foreach ($entry in $preEntries) {
+                            if (-not $entry.Path -or -not $entry.Name) { continue }
+                            
+                            try {
+                                if (-not (Test-Path $entry.Path)) {
+                                    New-Item -Path $entry.Path -Force -ErrorAction Stop | Out-Null
+                                }
+                                
+                                $regType = switch ($entry.Type) {
+                                    "DWord"       { "DWord" }
+                                    "String"      { "String" }
+                                    "MultiString" { "MultiString" }
+                                    "ExpandString" { "ExpandString" }
+                                    "Binary"      { "Binary" }
+                                    default        { "String" }
+                                }
+                                
+                                New-ItemProperty -Path $entry.Path -Name $entry.Name -Value $entry.Value -PropertyType $regType -Force -ErrorAction Stop | Out-Null
+                                $restoredCount++
+                            }
+                            catch {
+                                Write-Log -Level DEBUG -Message "Failed to restore Privacy value $($entry.Path)\$($entry.Name): $_" -Module "Rollback"
+                            }
+                        }
+                        
+                        Write-Log -Level SUCCESS -Message "Privacy registry pre-state restored ($restoredCount values)" -Module "Rollback"
+                    }
+                    catch {
+                        Write-Log -Level WARNING -Message "Failed to restore Privacy pre-state snapshot: $_" -Module "Rollback"
+                    }
+                }
+                else {
+                    Write-Log -Level WARNING -Message "No Privacy pre-state snapshot found - using .reg restore only (tattooing may occur)" -Module "Rollback"
+                }
+                
+                # STEP 2: Restore removed apps via winget (if metadata exists)
                 Write-Log -Level INFO -Message "Restoring removed apps for Privacy module (winget) if applicable..." -Module "Rollback"
 
                 $privacyModulePath = Join-Path (Split-Path $PSScriptRoot -Parent) "Modules\Privacy\Privacy.psd1"
@@ -1681,9 +2054,115 @@ function Restore-Session {
             # Special handling for AdvancedSecurity: Restore custom settings
             if ($moduleInfo.name -eq "AdvancedSecurity") {
                 Write-Log -Level INFO -Message "Restoring Advanced Security settings..." -Module "Rollback"
+                Write-RestoreLog -Level INFO -Message "[ADVANCEDSECURITY] Starting restore..."
                 
-                # Find all AdvancedSecurity backup files (RiskyPorts, PowerShellV2, AdminShares)
-                $advSecBackups = Get-ChildItem -Path $moduleBackupPath -Filter "*_*.json" -ErrorAction SilentlyContinue | Where-Object { $_.Name -notmatch "_Service.json" }
+                # STEP 1: Restore AdvancedSecurity registry pre-state snapshot (counters GPO tattooing)
+                $advSecPreStatePath = Join-Path $moduleBackupPath "AdvancedSecurity_PreState.json"
+                Write-RestoreLog -Level DEBUG -Message "PreState snapshot path: $advSecPreStatePath"
+                if (Test-Path $advSecPreStatePath) {
+                    Write-Log -Level INFO -Message "Restoring AdvancedSecurity registry pre-state snapshot..." -Module "Rollback"
+                    Write-RestoreLog -Level INFO -Message "[STEP 1] AdvancedSecurity Registry PreState Restore"
+                    try {
+                        Write-RestoreLog -Level DEBUG -Message "Loading PreState JSON..."
+                        $preEntries = Get-Content $advSecPreStatePath -Raw | ConvertFrom-Json
+                        Write-RestoreLog -Level DEBUG -Message "PreState entries loaded: $($preEntries.Count) values"
+                        
+                        # Build list of all keys to clear first
+                        $keysToProcess = @(
+                            "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server",
+                            "HKLM:\SYSTEM\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp",
+                            "HKLM:\SOFTWARE\Policies\Microsoft\Windows NT\Terminal Services",
+                            "HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\WDigest",
+                            "HKLM:\SYSTEM\CurrentControlSet\Services\LanmanServer\Parameters",
+                            "HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.0\Server",
+                            "HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.0\Client",
+                            "HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.1\Server",
+                            "HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.1\Client",
+                            "HKLM:\Software\Microsoft\Windows\CurrentVersion\Internet Settings\Wpad",
+                            "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate",
+                            "HKLM:\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings",
+                            "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DeliveryOptimization",
+                            "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Safer\CodeIdentifiers"
+                        )
+                        
+                        # Clear all current values in AdvancedSecurity keys (prepare clean slate)
+                        Write-RestoreLog -Level DEBUG -Message "Clearing current AdvancedSecurity keys (preparing clean slate)..."
+                        Write-RestoreLog -Level DEBUG -Message "Keys to process: $($keysToProcess.Count)"
+                        $clearedCount = 0
+                        foreach ($keyPath in $keysToProcess) {
+                            if (Test-Path $keyPath) {
+                                try {
+                                    $currentProps = Get-ItemProperty -Path $keyPath -ErrorAction SilentlyContinue
+                                    if ($currentProps) {
+                                        $propNames = $currentProps.PSObject.Properties.Name | Where-Object { 
+                                            $_ -notin @('PSPath', 'PSParentPath', 'PSChildName', 'PSProvider', 'PSDrive') 
+                                        }
+                                        foreach ($prop in $propNames) {
+                                            # Skip system-critical RDP values that should never be deleted
+                                            if ($keyPath -like "*Terminal Server*" -and $prop -in @("fSingleSessionPerUser", "TSEnabled", "TSUserEnabled")) {
+                                                continue
+                                            }
+                                            Remove-ItemProperty -Path $keyPath -Name $prop -ErrorAction SilentlyContinue
+                                            $clearedCount++
+                                        }
+                                    }
+                                }
+                                catch {
+                                    Write-Log -Level DEBUG -Message "Could not clear $keyPath : $_" -Module "Rollback"
+                                    Write-RestoreLog -Level WARNING -Message "Could not clear $keyPath : $_"
+                                }
+                            }
+                        }
+                        Write-RestoreLog -Level DEBUG -Message "Cleared $clearedCount values from AdvancedSecurity keys"
+                        
+                        # Restore original values from snapshot
+                        Write-RestoreLog -Level DEBUG -Message "Restoring original values from PreState snapshot..."
+                        $restoredCount = 0
+                        $failedCount = 0
+                        foreach ($entry in $preEntries) {
+                            if (-not $entry.Path -or -not $entry.Name) { continue }
+                            
+                            try {
+                                if (-not (Test-Path $entry.Path)) {
+                                    New-Item -Path $entry.Path -Force -ErrorAction Stop | Out-Null
+                                }
+                                
+                                $regType = switch ($entry.Type) {
+                                    "DWord"       { "DWord" }
+                                    "String"      { "String" }
+                                    "MultiString" { "MultiString" }
+                                    "ExpandString" { "ExpandString" }
+                                    "Binary"      { "Binary" }
+                                    "QWord"       { "QWord" }
+                                    default        { "String" }
+                                }
+                                
+                                New-ItemProperty -Path $entry.Path -Name $entry.Name -Value $entry.Value -PropertyType $regType -Force -ErrorAction Stop | Out-Null
+                                $restoredCount++
+                            }
+                            catch {
+                                Write-Log -Level DEBUG -Message "Failed to restore AdvancedSecurity value $($entry.Path)\$($entry.Name): $_" -Module "Rollback"
+                                Write-RestoreLog -Level WARNING -Message "Failed to restore: $($entry.Path)\$($entry.Name) - $_"
+                                $failedCount++
+                            }
+                        }
+                        
+                        Write-Log -Level SUCCESS -Message "AdvancedSecurity registry pre-state restored ($restoredCount values)" -Module "Rollback"
+                        Write-RestoreLog -Level SUCCESS -Message "PreState restored: $restoredCount values restored, $failedCount failed"
+                    }
+                    catch {
+                        Write-Log -Level WARNING -Message "Failed to restore AdvancedSecurity pre-state snapshot: $_" -Module "Rollback"
+                        Write-RestoreLog -Level ERROR -Message "PreState restore FAILED: $($_.Exception.Message)"
+                        Write-RestoreLog -Level ERROR -Message "Stack trace: $($_.ScriptStackTrace)"
+                    }
+                }
+                else {
+                    Write-Log -Level WARNING -Message "No AdvancedSecurity pre-state snapshot found - using .reg restore only (tattooing may occur)" -Module "Rollback"
+                    Write-RestoreLog -Level WARNING -Message "No PreState snapshot found - using .reg restore only (tattooing may occur)"
+                }
+                
+                # STEP 2: Find all AdvancedSecurity custom backup files (RiskyPorts, PowerShellV2, AdminShares)
+                $advSecBackups = Get-ChildItem -Path $moduleBackupPath -Filter "*_*.json" -ErrorAction SilentlyContinue | Where-Object { $_.Name -notmatch "_Service.json" -and $_.Name -ne "AdvancedSecurity_PreState.json" }
                 
                 if ($advSecBackups) {
                     # Load AdvancedSecurity module for restore
@@ -1720,16 +2199,126 @@ function Restore-Session {
                         $allSucceeded = $false
                     }
                 }
+                
+                # CRITICAL FIX: Restore Firewall_Rules and SMB_Shares from session root
+                # Bug: These backups are stored in separate folders (Firewall_Rules/, SMB_Shares/)
+                # in the session root, not under AdvancedSecurity/, so they were never restored.
+                # This caused Finger Protocol rule and Admin Shares to remain active after restore.
+                Write-RestoreLog -Level INFO -Message "[FIX 3a/3] Restoring Firewall_Rules and SMB_Shares from session root..."
+                $firewallBackupDir = Join-Path $SessionPath "Firewall_Rules"
+                $smbBackupDir = Join-Path $SessionPath "SMB_Shares"
+                Write-RestoreLog -Level DEBUG -Message "Firewall backup dir: $firewallBackupDir"
+                Write-RestoreLog -Level DEBUG -Message "SMB backup dir: $smbBackupDir"
+                
+                foreach ($backupDir in @($firewallBackupDir, $smbBackupDir)) {
+                    if (Test-Path $backupDir) {
+                        Write-RestoreLog -Level DEBUG -Message "Processing backup directory: $backupDir"
+                        $backupFiles = Get-ChildItem -Path $backupDir -Filter "*.json" -ErrorAction SilentlyContinue
+                        Write-RestoreLog -Level DEBUG -Message "Found $($backupFiles.Count) backup file(s)"
+                        
+                        if ($backupFiles) {
+                            $advSecModulePath = Join-Path (Split-Path $PSScriptRoot -Parent) "Modules\AdvancedSecurity\AdvancedSecurity.psd1"
+                            
+                            if (Test-Path $advSecModulePath) {
+                                try {
+                                    Import-Module $advSecModulePath -Force -ErrorAction Stop
+                                    
+                                    foreach ($backupFile in $backupFiles) {
+                                        Write-Log -Level INFO -Message "Restoring $(Split-Path $backupDir -Leaf) backup: $($backupFile.Name)" -Module "Rollback"
+                                        Write-RestoreLog -Level INFO -Message "Restoring: $(Split-Path $backupDir -Leaf)\$($backupFile.Name)"
+                                        
+                                        $restoreResult = Restore-AdvancedSecuritySettings -BackupFilePath $backupFile.FullName
+                                        
+                                        if ($restoreResult) {
+                                            Write-Log -Level SUCCESS -Message "Restored: $($backupFile.Name)" -Module "Rollback"
+                                            Write-RestoreLog -Level SUCCESS -Message "Successfully restored: $($backupFile.Name)"
+                                        }
+                                        else {
+                                            Write-Log -Level WARNING -Message "Failed to restore: $($backupFile.Name)" -Module "Rollback"
+                                            Write-RestoreLog -Level ERROR -Message "FAILED to restore: $($backupFile.Name)"
+                                            $allSucceeded = $false
+                                        }
+                                    }
+                                    
+                                    Remove-Module AdvancedSecurity -ErrorAction SilentlyContinue
+                                }
+                                catch {
+                                    Write-Log -Level ERROR -Message "Failed to restore $(Split-Path $backupDir -Leaf): $_" -Module "Rollback"
+                                    $allSucceeded = $false
+                                }
+                            }
+                        }
+                    }
+                }
+                
+                # CRITICAL FIX: Clean up SRP subkeys if system was clean before hardening
+                # Bug: PreState-Restore only clears values in root key, not the \0\Paths subkeys
+                # where actual SRP rules live. This caused "Block LNK" rules to remain after restore.
+                Write-RestoreLog -Level INFO -Message "[FIX 3b/3] Checking SRP subkey cleanup..."
+                $srpRootKey = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Safer\CodeIdentifiers"
+                if (Test-Path $srpRootKey) {
+                    Write-RestoreLog -Level DEBUG -Message "SRP root key exists: $srpRootKey"
+                    try {
+                        # Check if PreState had ANY SRP-related entries
+                        $hadSRPInPreState = $false
+                        if (Test-Path $advSecPreStatePath) {
+                            Write-RestoreLog -Level DEBUG -Message "Reading PreState from: $advSecPreStatePath"
+                            $preEntries = Get-Content $advSecPreStatePath -Raw | ConvertFrom-Json
+                            $srpEntries = $preEntries | Where-Object { $_.Path -like "*Safer\CodeIdentifiers*" }
+                            $hadSRPInPreState = $srpEntries.Count -gt 0
+                            Write-RestoreLog -Level DEBUG -Message "SRP entries in PreState: $($srpEntries.Count)"
+                        }
+                        else {
+                            Write-RestoreLog -Level WARNING -Message "PreState file not found: $advSecPreStatePath"
+                        }
+                        
+                        if (-not $hadSRPInPreState) {
+                            Write-RestoreLog -Level INFO -Message "System had NO SRP rules before hardening - removing SRP subkeys"
+                            # System had NO SRP rules before hardening - clean up all SRP subkeys
+                            $srpPathsKey = "$srpRootKey\0\Paths"
+                            if (Test-Path $srpPathsKey) {
+                                Write-RestoreLog -Level DEBUG -Message "Removing SRP Paths subkey: $srpPathsKey"
+                                Remove-Item -Path $srpPathsKey -Recurse -Force -ErrorAction Stop
+                                Write-Log -Level INFO -Message "Removed SRP Paths subkeys (system had no SRP rules before hardening)" -Module "Rollback"
+                                Write-RestoreLog -Level SUCCESS -Message "SRP Paths subkeys removed successfully"
+                            }
+                            else {
+                                Write-RestoreLog -Level DEBUG -Message "SRP Paths subkey does not exist (correct state)"
+                            }
+                        }
+                        else {
+                            Write-Log -Level DEBUG -Message "System had SRP rules in PreState - keeping SRP structure" -Module "Rollback"
+                            Write-RestoreLog -Level INFO -Message "System had $($srpEntries.Count) SRP rules in PreState - keeping SRP structure"
+                        }
+                    }
+                    catch {
+                        Write-Log -Level DEBUG -Message "Could not clean SRP subkeys: $_" -Module "Rollback"
+                        Write-RestoreLog -Level ERROR -Message "SRP cleanup failed: $_"
+                    }
+                }
+                else {
+                    Write-RestoreLog -Level DEBUG -Message "SRP root key does not exist (correct state)"
+                }
             }
             
             Write-Log -Level SUCCESS -Message "Completed restore for module: $($moduleInfo.name)" -Module "Rollback"
+            Write-RestoreLog -Level SUCCESS -Message "Module $($moduleInfo.name) restore completed"
+            Write-RestoreLog -Level INFO -Message " "
         }
         
         if ($allSucceeded) {
             Write-Log -Level SUCCESS -Message "Session restore completed successfully" -Module "Rollback"
+            Write-RestoreLog -Level SUCCESS -Message "========================================" 
+            Write-RestoreLog -Level SUCCESS -Message "RESTORE COMPLETED SUCCESSFULLY"
+            Write-RestoreLog -Level SUCCESS -Message "All modules restored without errors"
+            Write-RestoreLog -Level SUCCESS -Message "========================================" 
         }
         else {
             Write-Log -Level WARNING -Message "Session restore completed with some failures" -Module "Rollback"
+            Write-RestoreLog -Level WARNING -Message "========================================" 
+            Write-RestoreLog -Level WARNING -Message "RESTORE COMPLETED WITH FAILURES"
+            Write-RestoreLog -Level WARNING -Message "Check log above for error details"
+            Write-RestoreLog -Level WARNING -Message "========================================" 
         }
         
         # Apply Pre-Framework Snapshot if exists (for multi-module shared resource conflicts)
@@ -1739,8 +2328,9 @@ function Restore-Session {
             try {
                 $snapshot = Get-Content $preFrameworkSnapshotPath -Raw | ConvertFrom-Json
                 
-                # Check if snapshot applies to any of the restored modules
-                $restoredModuleNames = $manifest.modules.name
+                # Check if snapshot applies to any of the ACTUALLY restored modules
+                # CRITICAL FIX: Use $modulesToRestore (what was ACTUALLY restored), not $manifest.modules (all in session)
+                $actuallyRestoredModuleNames = $modulesToRestore.name
                 $snapshotAppliesToModules = $snapshot.AppliesTo
                 
                 $shouldApplySnapshot = $false
@@ -1749,13 +2339,15 @@ function Restore-Session {
                         # Selective restore - only apply if target module was explicitly restored
                         if ($ModuleNames -contains $targetModule) {
                             $shouldApplySnapshot = $true
+                            Write-Log -Level DEBUG -Message "Snapshot applies: $targetModule was explicitly selected for restore" -Module "Rollback"
                             break
                         }
                     }
                     else {
-                        # Full restore - only apply if target module was in original session
-                        if ($restoredModuleNames -contains $targetModule) {
+                        # Full restore - only apply if target module was ACTUALLY restored (not just in manifest)
+                        if ($actuallyRestoredModuleNames -contains $targetModule) {
                             $shouldApplySnapshot = $true
+                            Write-Log -Level DEBUG -Message "Snapshot applies: $targetModule was actually restored in this session" -Module "Rollback"
                             break
                         }
                     }
@@ -1846,10 +2438,23 @@ function Restore-Session {
         # Prompt for reboot after restore
         Invoke-RestoreRebootPrompt
         
+        # Final restore log entry
+        $endTime = Get-Date
+        $duration = $endTime - $startTime
+        Write-RestoreLog -Level INFO -Message " "
+        Write-RestoreLog -Level INFO -Message "========================================"
+        Write-RestoreLog -Level INFO -Message "RESTORE SESSION END"
+        Write-RestoreLog -Level INFO -Message "Duration: $($duration.ToString('mm\:ss'))"
+        Write-RestoreLog -Level INFO -Message "Final Status: $(if ($allSucceeded) {'SUCCESS'} else {'PARTIAL FAILURE'})"
+        Write-RestoreLog -Level INFO -Message "Restore Log: $script:RestoreLogPath"
+        Write-RestoreLog -Level INFO -Message "========================================"
+        
         return $allSucceeded
     }
     catch {
         Write-ErrorLog -Message "Failed to restore hardening session: $SessionName" -Module "Rollback" -ErrorRecord $_
+        Write-RestoreLog -Level ERROR -Message "CRITICAL FAILURE: $_"
+        Write-RestoreLog -Level ERROR -Message "Restore aborted with exception"
         return $false
     }
 }

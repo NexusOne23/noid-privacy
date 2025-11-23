@@ -293,7 +293,8 @@ function Remove-BloatwareClassic {
                     # Let's rely on Register-Backup creating "Privacy/REMOVED_APPS_WINGET.json"
                     # If we pass Type=".", it might work?
                     
-                    Register-Backup -Type "." -Data ($restoreData | ConvertTo-Json -Depth 5) -Name "REMOVED_APPS_WINGET"
+                    # CRITICAL: Suppress output to prevent pipeline contamination (would make $bloatwareResult an array instead of single object)
+                    [void](Register-Backup -Type "." -Data ($restoreData | ConvertTo-Json -Depth 5) -Name "REMOVED_APPS_WINGET")
                 }
             }
             catch {
