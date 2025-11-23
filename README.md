@@ -11,15 +11,18 @@
 [![Version](https://img.shields.io/badge/version-2.1.0-blue.svg)](CHANGELOG.md)
 [![Status](https://img.shields.io/badge/status-production--ready-brightgreen.svg)]()
 
-### 🏗️ Framework Architecture
+---
 
-**🔒 Complete Windows 11 Security Framework • 580+ Settings • 7 Modules • Full Backup & Restore**
+### 🔒 Complete Windows 11 Security Framework
+**580+ Settings • 7 Modules • Full Backup & Restore**
+
+[📥 Quick Start](#-quick-start) • [📚 Documentation](#documentation) • [🎯 Key Features](#-key-features) • [💬 Community](https://github.com/NexusOne23/noid-privacy/discussions)
+
+---
 
 ![NoID Privacy Pro Framework](assets/framework-architecture.png)
 
 **7 Independent Security Modules • Modular Design • Complete BAVR Pattern**
-
-[📥 Quick Start](#-quick-start) • [📚 Documentation](#documentation) • [🎯 Key Features](#-key-features) • [💬 Community](https://github.com/NexusOne23/noid-privacy/discussions)
 
 </div>
 
