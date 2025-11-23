@@ -623,7 +623,7 @@ Logs/NoIDPrivacy_YYYYMMDD_HHMMSS.log
 - **[Features](Docs/FEATURES.md)** - Complete 580+-setting reference
 - **[Changelog](CHANGELOG.md)** - Version history
 - **[Quick Start](#-quick-start)** - Installation guide (see above)
-- **[Troubleshooting](#-troubleshooting)** - Common issues (see above)
+- **[Troubleshooting](#troubleshooting)** - Common issues (see above)
 
 ### 💬 Community
 
