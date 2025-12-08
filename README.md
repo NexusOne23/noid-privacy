@@ -72,7 +72,7 @@
  - Critical errors
 
 **Backup Tools:**
-- Windows Backup (Settings System Storage Backup)
+- Windows Backup (Settings → System → Storage → Backup)
 - System Image (wbadmin, Macrium Reflect, Acronis)
 - Hyper-V/VMware: Checkpoint/Snapshot
 
@@ -124,7 +124,7 @@
 | Zero-Day CVE-2025-9491 | DNS-over-HTTPS (DoH) | Modular Design | Designed for Zero Data Loss |
 | VBS & Credential Guard | Edge Browser Hardened | Open Source / Auditable | Safe for Production |
 
-** [3-Minute Quick Start](#-quick-start)** **[Full Feature List](Docs/FEATURES.md)**
+👉 [3-Minute Quick Start](#-quick-start) • 📖 [Full Feature List](Docs/FEATURES.md)
 
 </div>
 
@@ -140,10 +140,10 @@
 | **BAVR Pattern** | **Backup → Apply → Verify → Restore (all modules)** | Audit + HailMary apply + partial restore | System Restore point (no verify) | System Restore + profile export |
 | **Verification** | **630+ automated compliance checks** | Audit mode with severity scoring | No compliance scan | No compliance scan |
 | **Dependencies** | **Zero (runs on stock PS 5.1/7+)** | PowerShell only | winget/chocolatey required | Portable EXE (closed-source) |
-| **AI Lockdown** | **32 policies (Copilot+/Recall/24H2)** | No dedicated AI profile | Individual AI tweaks | Multiple AI/Copilot toggles |
+| **AI Lockdown** | **32 policies (Copilot+/Recall/25H2)** | No dedicated AI profile | Individual AI tweaks | Multiple AI/Copilot toggles |
 
-** BAVR = Backup-Apply-Verify-Restore** (Every change is reversible) 
-** Air-Gapped Ready** No LGPO.exe, no DLLs, no external downloads
+🔄 **BAVR** = Backup-Apply-Verify-Restore (Every change is reversible) 
+✈️ **Air-Gapped Ready** — No LGPO.exe, no DLLs, no external downloads
 
 ---
 
@@ -291,7 +291,7 @@
 ### ⚡ One-Liner Install (Recommended)
 
 **Step 1:** Open PowerShell as Administrator
-- Press `Win + X` Click **"Terminal (Admin)"**
+- Press `Win + X` → Click **"Terminal (Admin)"**
 
 **Step 2:** Run installer
 
@@ -336,7 +336,7 @@ cd noid-privacy
 # Follow prompts:
 # 1. Select modules (all or custom)
 # 2. Choose settings (DNS provider, Privacy mode, etc.)
-# 3. Automatic backup apply verify
+# 3. Automatic backup → apply → verify
 # 4. Reboot prompt
 ```
 
@@ -398,16 +398,16 @@ cd noid-privacy
 
 **Release Highlights:**
 
- **v2.2.0:** 100% verification coverage (all 630+ settings verified)
- **v2.2.0:** Improved Advanced Security module with SRP .lnk protection
- **v2.2.0:** Enhanced RDP hardening with TLS + NLA enforced
- **v2.2.0:** Legacy protocol blocking (SMBv1, NetBIOS, LLMNR, WPAD, PowerShell v2)
- **v2.2.0:** TLS hardening (1.0/1.1 OFF, 1.2/1.3 ON)
- **v2.2.0:** Windows Update interactive configuration
- **v2.2.0:** Finger Protocol blocked (ClickFix malware protection)
- **v2.2.0:** Enhanced Registry Backup (Smart JSON-Fallback for protected system keys)
+- **v2.2.0:** 100% verification coverage (all 630+ settings verified)
+- **v2.2.0:** Improved Advanced Security module with SRP .lnk protection
+- **v2.2.0:** Enhanced RDP hardening with TLS + NLA enforced
+- **v2.2.0:** Legacy protocol blocking (SMBv1, NetBIOS, LLMNR, WPAD, PowerShell v2)
+- **v2.2.0:** TLS hardening (1.0/1.1 OFF, 1.2/1.3 ON)
+- **v2.2.0:** Windows Update interactive configuration
+- **v2.2.0:** Finger Protocol blocked (ClickFix malware protection)
+- **v2.2.0:** Enhanced Registry Backup (Smart JSON-Fallback for protected system keys)
 
-** [Detailed Module Documentation](Docs/FEATURES.md)**
+📖 [Detailed Module Documentation](Docs/FEATURES.md)
 
 ---
 
@@ -650,7 +650,7 @@ Edit: Modules/ASR/Config/ASR-Rules.json
 **Solution:** Temporarily set the rule to AUDIT mode (warns only, doesn't block)
 
 **Step 1: Disable Tamper Protection** (GUI method - easiest)
-1. Press `Win` key Type "Windows Security" Enter
+1. Press `Win` key → Type "Windows Security" → Enter
 2. Go to: **Virus & threat protection**
 3. Click: **Manage settings**
 4. Scroll down to: **Tamper Protection** Toggle **OFF**
@@ -848,7 +848,7 @@ The authors are not responsible for any damage or data loss.
 ## 📈 Project Status
 
 **Current Version:** 2.2.0 
-**Last Updated:** December 5, 2025 
+**Last Updated:** December 8, 2025 
 **Status:** Production-Ready
 
 ### Release Highlights v2.2.0
@@ -860,7 +860,7 @@ The authors are not responsible for any damage or data loss.
 - Pre-Framework ASR snapshot
 - Smart Registry Backup with JSON fallback
 
-** [See Full Changelog](CHANGELOG.md)**
+📋 [See Full Changelog](CHANGELOG.md)
 
 ---
 

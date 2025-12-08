@@ -157,7 +157,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - ConfigMgr detection for compatibility
 
 **DNS** (5 checks) - Secure DNS with DoH encryption
-- 3 providers: Cloudflare (default), Quad9, AdGuard
+- 3 providers: Quad9 (default), Cloudflare, AdGuard
 - REQUIRE mode (no unencrypted fallback) or ALLOW mode (VPN-friendly)
 - IPv4 + IPv6 dual-stack support
 - DNSSEC validation

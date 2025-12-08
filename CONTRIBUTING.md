@@ -622,6 +622,7 @@ Invoke-YourModule -WhatIf  # Dry run
 
 # Alternative: Einfacher Runner für alle Tests
 .\Tests\Run-AllTests.ps1
+```
 
 ### Manual Testing Checklist
 
