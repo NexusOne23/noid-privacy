@@ -1,0 +1,43 @@
+{
+  "OneDrivePolicies": {
+    "HKLM:\\SOFTWARE\\Policies\\Microsoft\\OneDrive": {
+      "EnableFeedbackAndSupport": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "Disable feedback and support uploads from OneDrive client"
+      },
+      "EnableSyncAdminReports": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "Disable sync health reporting telemetry"
+      },
+      "DisablePersonalSync": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "Allow personal OneDrive (0=Enabled, 1=Disabled)"
+      },
+      "PreventNetworkTrafficPreUserSignIn": {
+        "Type": "DWord",
+        "Value": 1,
+        "Description": "Prevent network traffic before user signs in"
+      }
+    }
+  },
+  
+  "StorePolicies": {
+    "HKLM:\\SOFTWARE\\Policies\\Microsoft\\WindowsStore": {
+      "RemoveWindowsStore": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "Keep Store enabled (needed for app updates)"
+      },
+      "DisableOSUpgrade": {
+        "Type": "DWord",
+        "Value": 1,
+        "Description": "Block Store upgrade offers (Windows Update still works)"
+      }
+    }
+  },
+  
+  "Description": "OneDrive: Personal + Business functional with telemetry off. Store: Enabled with upgrade prompts blocked. App auto-updates remain enabled."
+}

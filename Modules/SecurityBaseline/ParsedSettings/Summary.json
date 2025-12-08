@@ -1,0 +1,10 @@
+﻿{
+    "TotalSecuritySettings":  79,
+    "TotalSecuritySettingsApplied": 67,
+    "MetadataEntriesSkipped": 12,
+    "TotalRegistrySettings":  335,
+    "TotalAuditPolicies":  23,
+    "TotalSettingsParsed":  437,
+    "TotalSettingsApplied": 425,
+    "Note": "Security Template count (79) includes INF metadata (Unicode/Version). Applied count (67) excludes metadata."
+}

@@ -1,0 +1,64 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "RDP Hardening Configuration",
+  "description": "Configuration for RDP (Remote Desktop Protocol) hardening including NLA enforcement and optional complete disable",
+  "version": "2.2.0",
+  
+  "NLA_Enforcement": {
+    "description": "Network Level Authentication (NLA) enforcement settings",
+    "enabled": true,
+    "registry_path": "HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server\\WinStations\\RDP-Tcp",
+    "settings": {
+      "UserAuthentication": {
+        "description": "Require NLA (Network Level Authentication) before session establishment",
+        "value": 1,
+        "type": "DWORD",
+        "attack_prevention": "Prevents brute-force attacks before login screen appears",
+        "impact": "Minimal - NLA is Windows 7+ standard. May affect pre-Vista RDP clients."
+      },
+      "SecurityLayer": {
+        "description": "Require SSL/TLS encryption for all RDP connections",
+        "value": 2,
+        "type": "DWORD",
+        "attack_prevention": "Forces SSL/TLS encryption, prevents plaintext RDP traffic",
+        "impact": "Minimal - SSL/TLS is standard since Windows Vista"
+      }
+    }
+  },
+  
+  "Complete_Disable": {
+    "description": "Complete RDP disable for air-gapped/high-security environments",
+    "enabled_by_default": false,
+    "profiles": {
+      "Balanced": false,
+      "Enterprise": false,
+      "Maximum": "optional"
+    },
+    "registry_path": "HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Terminal Server",
+    "settings": {
+      "fDenyTSConnections": {
+        "description": "Completely disable Remote Desktop",
+        "value": 1,
+        "type": "DWORD",
+        "attack_prevention": "Complete RDP attack surface removal",
+        "impact": "HIGH - Remote administration will not work. Windows automatically adjusts firewall rules."
+      }
+    },
+    "requires": {
+      "force_parameter": true,
+      "domain_check": true,
+      "warning": "This will completely disable RDP. Remote administration will not be possible."
+    }
+  },
+  
+  "Compatibility": {
+    "windows_versions": ["Windows 10", "Windows 11", "Windows Server 2016+"],
+    "minimum_rdp_client": "Windows Vista+",
+    "notes": [
+      "NLA is standard since Windows Vista / Server 2008",
+      "Pre-Vista clients will not be able to connect with NLA enforcement",
+      "Complete disable affects all remote management via RDP",
+      "Domain-joined systems should NOT disable RDP without explicit -Force"
+    ]
+  }
+}

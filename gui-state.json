@@ -1,0 +1,35 @@
+{
+  "HardeningApplied": true,
+  "LastHardeningDate": "2025-12-04T23:57:32.7164595+01:00",
+  "TotalSettingsApplied": 44,
+  "ModuleStatuses": {
+    "ASR": {
+      "IsApplied": true,
+      "LastApplied": "2025-12-04T23:57:32.7182749+01:00"
+    },
+    "SecurityBaseline": {
+      "IsApplied": true,
+      "LastApplied": "2025-12-04T23:53:10.7213433+01:00"
+    },
+    "DNS": {
+      "IsApplied": true,
+      "LastApplied": "2025-12-04T23:57:32.7185664+01:00"
+    },
+    "Privacy": {
+      "IsApplied": true,
+      "LastApplied": "2025-12-04T23:53:10.722384+01:00"
+    },
+    "AntiAI": {
+      "IsApplied": true,
+      "LastApplied": "2025-12-04T23:53:10.7226177+01:00"
+    },
+    "EdgeHardening": {
+      "IsApplied": true,
+      "LastApplied": "2025-12-04T23:57:32.7188501+01:00"
+    },
+    "AdvancedSecurity": {
+      "IsApplied": true,
+      "LastApplied": "2025-12-04T23:53:10.7303963+01:00"
+    }
+  }
+}

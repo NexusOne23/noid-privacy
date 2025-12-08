@@ -1,0 +1,58 @@
+# Logs
+Logs/
+*.log
+
+# Backups
+Backups/
+*.reg
+*.bak
+
+# Reports
+Reports/
+*.html
+*.csv
+
+# Temporary files
+*.tmp
+*.temp
+
+# PowerShell module cache
+*.psm1.tmp
+*.ps1.tmp
+
+# Windows
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# IDE
+.vscode/
+.idea/
+*.code-workspace
+
+# Build artifacts
+Build/Output/
+Build/Release/
+*.msi
+*.exe
+
+# Test results
+Tests/Results/
+*.trx
+*.coverage
+
+# User configuration (don't commit personal settings)
+config.local.json
+
+# Sensitive data
+*.key
+*.pem
+*.pfx
+secrets/
+
+# Common build artifacts and IDE metadata
+[Bb]in/
+[Oo]bj/
+TestResults/
+.vs/
+

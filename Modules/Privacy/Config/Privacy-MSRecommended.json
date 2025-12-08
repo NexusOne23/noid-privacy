@@ -1,0 +1,326 @@
+{
+  "Mode": "MSRecommended",
+  "Description": "Balanced Privacy - Disables telemetry/ads/tracking, but lets USER decide on functional features",
+  "BestFor": "Production, business, MDM environments - maximum compatibility",
+  "Warnings": [
+    "AllowTelemetry=1: Required diagnostic data (MS minimum)",
+    "Settings Sync: Defaults OFF, user can enable",
+    "All AppPrivacy: User decides (all apps work normally)",
+    "Services: All running (MDM/Intune compatible)"
+  ],
+  
+  "DataCollection": {
+    "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\DataCollection": {
+      "AllowTelemetry": {
+        "Type": "DWord",
+        "Value": 1,
+        "Description": "Required diagnostic data only (MS recommended)"
+      },
+      "LimitDiagnosticLogCollection": {
+        "Type": "DWord",
+        "Value": 1,
+        "Description": "Limit additional diagnostic log collection"
+      },
+      "DoNotShowFeedbackNotifications": {
+        "Type": "DWord",
+        "Value": 1,
+        "Description": "No feedback popups"
+      },
+      "DisableOneSettingsDownloads": {
+        "Type": "DWord",
+        "Value": 1,
+        "Description": "Block dynamic config downloads from Microsoft"
+      }
+    }
+  },
+  
+  "Personalization": {
+    "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\CloudContent": {
+      "DisableTailoredExperiencesWithDiagnosticData": {
+        "Type": "DWord",
+        "Value": 1,
+        "Description": "No personalized tips from diagnostic data"
+      },
+      "DisableWindowsSpotlightFeatures": {
+        "Type": "DWord",
+        "Value": 1,
+        "Description": "Disable all Windows Spotlight features"
+      },
+      "DisableWindowsSpotlightOnSettings": {
+        "Type": "DWord",
+        "Value": 1,
+        "Description": "No Spotlight on Settings page"
+      },
+      "DisableWindowsSpotlightOnActionCenter": {
+        "Type": "DWord",
+        "Value": 1,
+        "Description": "No Spotlight on Action Center"
+      },
+      "DisableThirdPartySuggestions": {
+        "Type": "DWord",
+        "Value": 1,
+        "Description": "No third-party suggestions"
+      },
+      "DisableSpotlightCollectionOnDesktop": {
+        "Type": "DWord",
+        "Value": 1,
+        "Description": "No Spotlight collection on desktop"
+      },
+      "DisableCloudOptimizedContent": {
+        "Type": "DWord",
+        "Value": 1,
+        "Description": "No cloud-optimized content/tips from Microsoft"
+      }
+    },
+    "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\AdvertisingInfo": {
+      "DisabledByGroupPolicy": {
+        "Type": "DWord",
+        "Value": 1,
+        "Description": "Disable Advertising ID (via Group Policy)"
+      }
+    },
+    "HKCU:\\Software\\Policies\\Microsoft\\Windows\\Explorer": {
+      "DisableSoftLanding": {
+        "Type": "DWord",
+        "Value": 1,
+        "Description": "No tips and suggestions bubbles"
+      }
+    },
+    "HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced": {
+      "Start_IrisRecommendations": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "Disable Start Menu app recommendations/ads"
+      },
+      "ShowSyncProviderNotifications": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "Disable OneDrive/Sync provider ads in Explorer"
+      }
+    }
+  },
+  
+  "SearchAndCloud": {
+    "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Windows Search": {
+      "DisableWebSearch": {
+        "Type": "DWord",
+        "Value": 1,
+        "Description": "No web search in Start menu"
+      },
+      "ConnectedSearchUseWeb": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "No connected search to web"
+      },
+      "AllowCloudSearch": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "No cloud search"
+      },
+      "AllowCortana": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "Disable Cortana (legacy, Win11 has no Cortana)"
+      }
+    },
+    "HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Search": {
+      "BingSearchEnabled": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "Disable Bing search integration (user-level)"
+      }
+    },
+    "HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\SearchSettings": {
+      "IsDynamicSearchBoxEnabled": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "Disable Search Highlights (trending topics, news)"
+      }
+    }
+  },
+  
+  "InputAndSync": {
+    "HKLM:\\SOFTWARE\\Policies\\Microsoft\\InputPersonalization": {
+      "AllowInputPersonalization": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "No cloud-based input personalization"
+      }
+    },
+    "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\System": {
+      "EnableActivityFeed": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "Disable activity feed"
+      },
+      "PublishUserActivities": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "Don't publish user activities"
+      },
+      "UploadUserActivities": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "Don't upload user activities to cloud"
+      },
+      "AllowCrossDeviceClipboard": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "Disable cloud clipboard sync between devices (USER PROMPT in MSRecommended)",
+        "RequiresPrompt": true
+      },
+      "AllowClipboardHistory": {
+        "Type": "DWord",
+        "Value": 1,
+        "Description": "Allow local clipboard history (Win+V works)"
+      }
+    },
+    "HKCU:\\SOFTWARE\\Microsoft\\InputPersonalization": {
+      "RestrictImplicitTextCollection": {
+        "Type": "DWord",
+        "Value": 1,
+        "Description": "Block typing data collection"
+      },
+      "RestrictImplicitInkCollection": {
+        "Type": "DWord",
+        "Value": 1,
+        "Description": "Block inking/handwriting data collection"
+      }
+    },
+    "HKCU:\\SOFTWARE\\Microsoft\\InputPersonalization\\TrainedDataStore": {
+      "HarvestContacts": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "Don't harvest contacts for personalization"
+      }
+    },
+    "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\SettingSync": {
+      "DisableSettingSync": {
+        "Type": "DWord",
+        "Value": 2,
+        "Description": "Settings sync default off, but user can enable (0=Force On, 1=Force Off, 2=User decides, default off)"
+      },
+      "DisableSettingSyncUserOverride": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "Allow user to override sync settings (0=User can change, 1=User locked)"
+      }
+    }
+  },
+  
+  "LocationAndAppPrivacy": {
+    "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\LocationAndSensors": {
+      "DisableLocation": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "Location services enabled (user can control)"
+      }
+    },
+    "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\AppPrivacy": {
+      "LetAppsAccessLocation": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "User decides location access (0=User decides, 1=Force Allow, 2=Force Deny)"
+      },
+      "LetAppsAccessRadios": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "User decides radio (Bluetooth/WiFi) access"
+      },
+      "LetAppsAccessCallHistory": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "User decides call history access"
+      },
+      "LetAppsAccessMicrophone": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "User decides microphone access (for Teams/Zoom)"
+      },
+      "LetAppsAccessCamera": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "User decides camera access (for video apps)"
+      },
+      "LetAppsAccessContacts": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "User decides contacts access"
+      },
+      "LetAppsAccessCalendar": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "User decides calendar access"
+      },
+      "LetAppsAccessEmail": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "User decides email access"
+      },
+      "LetAppsAccessMessaging": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "User decides messaging access"
+      },
+      "LetAppsAccessNotifications": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "User decides notification access"
+      },
+      "LetAppsAccessTrustedDevices": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "User decides trusted devices access"
+      },
+      "LetAppsSyncWithDevices": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "User decides device sync"
+      },
+      "LetAppsGetDiagnosticInfo": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "User decides app diagnostics access"
+      },
+      "LetAppsActivateWithVoice": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "User decides voice activation access"
+      },
+      "LetAppsAccessAccountInfo": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "User decides account info access"
+      },
+      "LetAppsAccessPhone": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "User decides phone calls access"
+      },
+      "LetAppsAccessTasks": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "User decides tasks access"
+      },
+      "LetAppsAccessGraphicsCaptureProgrammatic": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "User decides screenshot/screen recording access"
+      },
+      "LetAppsAccessGraphicsCaptureWithoutBorder": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "User decides screenshot border access"
+      },
+      "LetAppsAccessGenerativeAI": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "User decides generative AI access"
+      }
+    }
+  },
+  
+  "Services": [],
+  
+  "ScheduledTasks": []
+}

@@ -1,0 +1,226 @@
+name: CI - PowerShell Quality Checks
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
+
+jobs:
+  psscriptanalyzer:
+    name: PSScriptAnalyzer
+    runs-on: windows-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Run PSScriptAnalyzer
+        shell: pwsh
+        run: |
+          Write-Host "Installing PSScriptAnalyzer..."
+          Install-Module -Name PSScriptAnalyzer -Force -Scope CurrentUser -SkipPublisherCheck -ErrorAction Stop
+          
+          Write-Host ""
+          Write-Host "Running PSScriptAnalyzer (Errors only)..."
+          $results = Invoke-ScriptAnalyzer -Path . -Recurse -Severity Error
+          
+          if ($results) {
+            Write-Host ""
+            Write-Host "=== PSScriptAnalyzer Errors Found ===" -ForegroundColor Red
+            $results | Format-Table -AutoSize
+            
+            Write-Host ""
+            Write-Host "Error Count: $($results.Count)" -ForegroundColor Red
+            Write-Host "Failing CI due to errors" -ForegroundColor Red
+            exit 1
+          } else {
+            Write-Host ""
+            Write-Host "No errors found! (Warnings are ignored)" -ForegroundColor Green
+          }
+
+  test-powershell-51:
+    name: Test on PowerShell 5.1
+    runs-on: windows-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Test PowerShell Scripts (5.1)
+        shell: powershell
+        run: |
+          Write-Host "PowerShell Version: $($PSVersionTable.PSVersion)" -ForegroundColor Cyan
+          Write-Host "Testing script syntax..."
+          $ErrorActionPreference = 'Stop'
+          
+          $failed = $false
+          Get-ChildItem -Path . -Filter "*.ps1" -Recurse -ErrorAction SilentlyContinue | ForEach-Object {
+            Write-Host "Checking: $($_.Name)"
+            try {
+              $errors = $null
+              $tokens = [System.Management.Automation.PSParser]::Tokenize((Get-Content $_.FullName -Raw), [ref]$errors)
+              if ($errors.Count -gt 0) {
+                Write-Host "  [ERROR] $($errors[0].Message)" -ForegroundColor Red
+                $failed = $true
+              } else {
+                Write-Host "  [OK]" -ForegroundColor Green
+              }
+            } catch {
+              Write-Host "  [ERROR] $_" -ForegroundColor Red
+              $failed = $true
+            }
+          }
+          
+          if ($failed) {
+            Write-Host ""
+            Write-Host "Syntax check FAILED" -ForegroundColor Red
+            exit 1
+          } else {
+            Write-Host ""
+            Write-Host "All scripts have valid syntax!" -ForegroundColor Green
+          }
+
+  test-powershell-7:
+    name: Test on PowerShell 7.4
+    runs-on: windows-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Test PowerShell Scripts (7.4)
+        shell: pwsh
+        run: |
+          Write-Host "PowerShell Version: $($PSVersionTable.PSVersion)" -ForegroundColor Cyan
+          Write-Host "Testing script syntax..."
+          $ErrorActionPreference = 'Stop'
+          
+          $failed = $false
+          Get-ChildItem -Path . -Filter "*.ps1" -Recurse -ErrorAction SilentlyContinue | ForEach-Object {
+            Write-Host "Checking: $($_.Name)"
+            try {
+              $errors = $null
+              $tokens = $null
+              $ast = [System.Management.Automation.Language.Parser]::ParseFile($_.FullName, [ref]$tokens, [ref]$errors)
+              if ($errors.Count -gt 0) {
+                Write-Host "  [ERROR] $($errors[0].Message)" -ForegroundColor Red
+                $failed = $true
+              } else {
+                Write-Host "  [OK]" -ForegroundColor Green
+              }
+            } catch {
+              Write-Host "  [ERROR] $_" -ForegroundColor Red
+              $failed = $true
+            }
+          }
+          
+          if ($failed) {
+            Write-Host ""
+            Write-Host "Syntax check FAILED" -ForegroundColor Red
+            exit 1
+          } else {
+            Write-Host ""
+            Write-Host "All scripts have valid syntax!" -ForegroundColor Green
+          }
+
+  validate-structure:
+    name: Validate Project Structure
+    runs-on: windows-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Check Required Files
+        shell: pwsh
+        run: |
+          Write-Host "Checking project structure..." -ForegroundColor Cyan
+          
+          $required = @(
+            "README.md",
+            "LICENSE",
+            "CHANGELOG.md",
+            "NoIDPrivacy-Interactive.ps1",
+            "Core/Framework.ps1",
+            "Modules",
+            "Tools"
+          )
+          
+          $missing = @()
+          foreach ($item in $required) {
+            if (Test-Path $item) {
+              Write-Host "[OK] $item" -ForegroundColor Green
+            } else {
+              Write-Host "[MISSING] $item" -ForegroundColor Red
+              $missing += $item
+            }
+          }
+          
+          if ($missing.Count -gt 0) {
+            Write-Host ""
+            Write-Host "Missing required files/folders!" -ForegroundColor Red
+            exit 1
+          } else {
+            Write-Host ""
+            Write-Host "All required files present!" -ForegroundColor Green
+          }
+      
+      - name: Check Module Structure
+        shell: pwsh
+        run: |
+          Write-Host "`nValidating module structure..." -ForegroundColor Cyan
+          
+          $modules = @(
+            "SecurityBaseline",
+            "ASR",
+            "DNS",
+            "Privacy",
+            "AntiAI",
+            "EdgeHardening",
+            "AdvancedSecurity"
+          )
+          
+          $failed = $false
+          foreach ($module in $modules) {
+            $modulePath = "Modules/$module"
+            if (Test-Path $modulePath) {
+              Write-Host "[OK] Module: $module" -ForegroundColor Green
+              
+              # Check for required module files
+              $moduleFile = "$modulePath/$module.psm1"
+              $manifestFile = "$modulePath/$module.psd1"
+              
+              if (Test-Path $moduleFile) {
+                Write-Host "  [OK] $module.psm1" -ForegroundColor Green
+              } else {
+                Write-Host "  [MISSING] $module.psm1" -ForegroundColor Red
+                $failed = $true
+              }
+              
+              if (Test-Path $manifestFile) {
+                Write-Host "  [OK] $module.psd1" -ForegroundColor Green
+              } else {
+                Write-Host "  [MISSING] $module.psd1" -ForegroundColor Red
+                $failed = $true
+              }
+            } else {
+              Write-Host "[MISSING] Module: $module" -ForegroundColor Red
+              $failed = $true
+            }
+          }
+          
+          if ($failed) {
+            Write-Host ""
+            Write-Host "Module structure validation FAILED!" -ForegroundColor Red
+            exit 1
+          } else {
+            Write-Host ""
+            Write-Host "All modules are correctly structured!" -ForegroundColor Green
+          }

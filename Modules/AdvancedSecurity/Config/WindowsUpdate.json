@@ -1,0 +1,57 @@
+{
+  "Description": "Simple Windows Update Configuration - MS Best Practice (GUI Settings Only)",
+  "Documentation": "Matches Windows Settings > Windows Update > Advanced options",
+  "Purpose": "Enable immediate updates from Microsoft using Windows built-in settings",
+  
+  "Settings": {
+    "1_ReceiveUpdatesImmediately": {
+      "Name": "Get the latest updates as soon as they're available",
+      "RegistryPath": "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate",
+      "Values": {
+        "AllowOptionalContent": {
+          "Type": "DWord",
+          "Value": 1,
+          "Description": "Policy: enable optional content & configuration updates immediately (grays out GUI toggle)"
+        },
+        "SetAllowOptionalContent": {
+          "Type": "DWord",
+          "Value": 1,
+          "Description": "Policy: enforce AllowOptionalContent setting (managed by organization)"
+        }
+      },
+      "GUIPath": "Settings > Windows Update > Advanced options > Get the latest updates as soon as they're available"
+    },
+    
+    "2_MicrosoftUpdate": {
+      "Name": "Receive updates for other Microsoft products",
+      "RegistryPath": "HKLM:\\SOFTWARE\\Microsoft\\WindowsUpdate\\UX\\Settings",
+      "Values": {
+        "AllowMUUpdateService": {
+          "Type": "DWord",
+          "Value": 1,
+          "Description": "Get updates for Office, drivers, and other Microsoft products with Windows Update"
+        }
+      },
+      "GUIPath": "Settings > Windows Update > Advanced options > Receive updates for other Microsoft products"
+    },
+    
+    "3_DeliveryOptimization": {
+      "Name": "Downloads from other devices (DISABLED for privacy)",
+      "RegistryPath": "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\DeliveryOptimization",
+      "Values": {
+        "DODownloadMode": {
+          "Type": "DWord",
+          "Value": 0,
+          "Description": "0 = HTTP only (Microsoft servers), no P2P, no LAN sharing"
+        }
+      },
+      "GUIPath": "Settings > Windows Update > Advanced options > Delivery Optimization > Allow downloads from other devices = OFF"
+    }
+  },
+  
+  "TotalRegistryKeys": 4,
+  "MSBestPractice": "These are the EXACT settings shown in Windows Settings GUI - no hidden schedules, no auto-reboot config",
+  "UserControl": "User keeps full control over installation timing via Windows Settings (except Setting 1 is enforced by policy if enabled)",
+  "NoInteractivePrompt": "No mode selection needed - simple ON/ON/OFF configuration",
+  "CRITICAL_NOTE": "Setting 1 uses Policies\\Microsoft\\Windows\\WindowsUpdate (AllowOptionalContent/SetAllowOptionalContent) and will appear as 'managed by organization'. Setting 2 MUST use UX\\Settings path (NOT Policies path) to avoid locking the Microsoft Update toggle."
+}

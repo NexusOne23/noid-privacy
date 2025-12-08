@@ -1,0 +1,109 @@
+{
+  "version": "2.2.0",
+  "modules": {
+    "SecurityBaseline": {
+      "enabled": true,
+      "priority": 1,
+      "status": "IMPLEMENTED",
+      "_comment": "Interactive: BitLocker USB enforcement (Y/N, default: N)",
+      "bitLockerUSBEnforcement": false
+    },
+    "ASR": {
+      "enabled": true,
+      "priority": 2,
+      "status": "IMPLEMENTED",
+      "_comment": "Interactive: Management tools (Y/N), Prevalence rule (Y/N), Cloud protection (C/A)",
+      "usesManagementTools": false,
+      "allowNewSoftware": false,
+      "continueWithoutCloud": true
+    },
+    "DNS": {
+      "enabled": true,
+      "priority": 3,
+      "status": "IMPLEMENTED",
+      "_comment": "Interactive: Provider (1=Quad9/Security, 2=Cloudflare/Speed, 3=AdGuard/AdBlock), DoH mode (1-2)",
+      "provider": "Quad9",
+      "dohMode": "REQUIRE"
+    },
+    "Privacy": {
+      "enabled": true,
+      "priority": 4,
+      "status": "IMPLEMENTED",
+      "_comment": "Interactive: Mode (1-3), Cloud Clipboard (Y/N, MSRecommended only), Bloatware removal (Y/N)",
+      "mode": "MSRecommended",
+      "disableCloudClipboard": true,
+      "removeBloatware": true
+    },
+    "AntiAI": {
+      "enabled": true,
+      "priority": 5,
+      "status": "IMPLEMENTED",
+      "description": "Disable all Windows 11 AI features (Recall, Copilot, Paint AI, etc.)",
+      "_comment": "No interactive prompts - fully automatic"
+    },
+    "EdgeHardening": {
+      "enabled": true,
+      "priority": 6,
+      "status": "IMPLEMENTED",
+      "description": "Microsoft Edge v139 Security Baseline: 20 security policies",
+      "_comment": "Interactive: Allow extensions (Y/N, default: Y)",
+      "allowExtensions": true,
+      "version": "2.2.0",
+      "baseline": "Edge v139",
+      "policies": 20,
+      "features": {
+        "smartscreen_enforcement": true,
+        "site_isolation": true,
+        "ssl_error_blocking": true,
+        "extension_blocklist": true,
+        "ie_mode_restrictions": true,
+        "spectre_mitigations": true,
+        "application_encryption": true,
+        "auth_scheme_restrictions": true
+      }
+    },
+    "AdvancedSecurity": {
+      "enabled": true,
+      "priority": 7,
+      "status": "IMPLEMENTED",
+      "description": "Advanced Security hardening beyond MS Baseline",
+      "_comment": "Interactive: Profile (1-3), RDP (Y/N), Admin shares (Y/N, domain only), UPnP (Y/N), Wireless Display (Y/N), Discovery Protocols (Maximum only, Y/N), IPv6 (Maximum only, Y/N)",
+      "securityProfile": "Balanced",
+      "disableRDP": true,
+      "forceAdminShares": false,
+      "disableUPnP": true,
+      "disableWirelessDisplay": false,
+      "disableDiscoveryProtocols": true,
+      "disableIPv6": false,
+      "version": "2.2.0",
+      "policies": 50,
+      "features": {
+        "rdp_hardening": true,
+        "wdigest_protection": true,
+        "admin_shares_disable": true,
+        "risky_ports_closure": true,
+        "risky_services_stop": true,
+        "legacy_tls_disable": true,
+        "wpad_disable": true,
+        "powershell_v2_removal": true,
+        "srp_lnk_protection": true,
+        "windows_update_config": true,
+        "finger_protocol_block": true,
+        "wireless_display_security": true,
+        "discovery_protocols_security": true,
+        "firewall_shields_up": true,
+        "ipv6_disable": true
+      },
+      "profiles": ["Balanced", "Enterprise", "Maximum"]
+    }
+  },
+  "options": {
+    "dryRun": false,
+    "createBackup": true,
+    "verboseLogging": true,
+    "autoReboot": false,
+    "nonInteractive": false,
+    "autoConfirm": false,
+    "_comment": "nonInteractive=true: Skip all Read-Host prompts, use config values instead"
+  }
+}

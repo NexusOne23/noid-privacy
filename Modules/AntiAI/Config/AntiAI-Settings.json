@@ -1,0 +1,419 @@
+{
+  "ModuleName": "AntiAI",
+  "Version": "1.0.0",
+  "Description": "Maximum AI deactivation - Disables all 13 Windows 11 AI features using official Microsoft policies",
+  "Mode": "Maximum Compliance (Enterprise-Grade)",
+  "TotalFeatures": 13,
+  "TotalPolicies": 32,
+  
+  "Features": {
+    "1_GenerativeAI_Master": {
+      "Name": "Generative AI Master Switch",
+      "Description": "Blocks ALL apps from using Windows on-device generative AI models AND app-level generative AI access",
+      "Impact": "Disables generative AI in Notepad, Paint, Photos, Clipchamp, Snipping Tool, and all future apps. Also blocks app access to generative AI features.",
+      "CloudBased": false,
+      "Registry": {
+        "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\AppPrivacy": {
+          "LetAppsAccessSystemAIModels": {
+            "Type": "DWord",
+            "Value": 2,
+            "Description": "Force Deny - No app can access on-device generative AI models (0=User decides, 1=Force Allow, 2=Force Deny)"
+          },
+          "LetAppsAccessGenerativeAI": {
+            "Type": "DWord",
+            "Value": 2,
+            "Description": "Force Deny - Block app access to generative AI features (Text & Image Generation in Settings)"
+          }
+        },
+        "HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\CapabilityAccessManager\\ConsentStore\\systemAIModels": {
+          "Value": {
+            "Type": "String",
+            "Value": "Deny",
+            "Description": "CapabilityAccessManager Workaround - Blocks Paint Generative Erase/Background Removal"
+          }
+        }
+      }
+    },
+    
+    "2_Windows_Recall": {
+      "Name": "Windows Recall (Complete Deactivation + Enterprise Protection)",
+      "Description": "Takes continuous screenshots of EVERYTHING on your screen (passwords, banking, private messages) and stores them locally for AI-powered search. EXTREME privacy risk!",
+      "Impact": "Component completely removed from system, all snapshots deleted, background data providers disabled, apps/URLs protected",
+      "CloudBased": false,
+      "RequiresReboot": true,
+      "Registry": {
+        "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsAI": {
+          "AllowRecallEnablement": {
+            "Type": "DWord",
+            "Value": 0,
+            "Description": "REMOVE Recall component from system + delete all existing snapshots (requires reboot)"
+          },
+          "DisableAIDataAnalysis": {
+            "Type": "DWord",
+            "Value": 1,
+            "Description": "PREVENT saving new snapshots for Recall (Device-scope)"
+          }
+        },
+        "HKCU:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsAI": {
+          "DisableAIDataAnalysis": {
+            "Type": "DWord",
+            "Value": 1,
+            "Description": "PREVENT saving new snapshots for Recall (User-scope)"
+          },
+          "DisableRecallDataProviders": {
+            "Type": "DWord",
+            "Value": 1,
+            "Description": "DISABLE Recall background data providers (Enterprise/Education only)"
+          }
+        }
+      },
+      "EnterpriseProtection": {
+        "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsAI": {
+          "SetDenyAppListForRecall": {
+            "Type": "MultiString",
+            "Value": [
+              "Microsoft.MicrosoftEdge_8wekyb3d8bbwe!App",
+              "Microsoft.WindowsTerminal_8wekyb3d8bbwe!App",
+              "KeePassXC_8wekyb3d8bbwe!KeePassXC",
+              "Microsoft.RemoteDesktop_8wekyb3d8bbwe!App"
+            ],
+            "Description": "Apps NEVER captured in snapshots (Browser for Banking, Terminal for Passwords, KeePass, RDP)"
+          },
+          "SetDenyUriListForRecall": {
+            "Type": "MultiString",
+            "Value": [
+              "*.bank.*",
+              "*.paypal.*",
+              "*.bankofamerica.*",
+              "mail.*",
+              "webmail.*",
+              "*password*",
+              "*login*"
+            ],
+            "Description": "Websites/URLs NEVER captured in snapshots (Banking, Email, Login pages)"
+          },
+          "SetMaximumStorageDurationForRecallSnapshots": {
+            "Type": "DWord",
+            "Value": 30,
+            "Description": "Maximum snapshot retention: 30 days (Choices: 30/60/90/180 days, 0=OS default)"
+          },
+          "SetMaximumStorageSpaceForRecallSnapshots": {
+            "Type": "DWord",
+            "Value": 10,
+            "Description": "Maximum snapshot storage: 10 GB (Choices: 10/25/50/75/100/150 GB, 0=OS default)"
+          }
+        }
+      }
+    },
+    
+    "3_Windows_Copilot": {
+      "Name": "Windows Copilot (System-Wide AI Assistant - 4-Layer Defense)",
+      "Description": "Microsoft's AI assistant integrated into Windows (chat, suggestions, proactive recommendations)",
+      "Impact": "Copilot completely disabled in UI, taskbar, and search. Hardware Copilot key remapped to Notepad.",
+      "CloudBased": true,
+      "Registry": {
+        "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsAI": {
+          "TurnOffWindowsCopilot": {
+            "Type": "DWord",
+            "Value": 1,
+            "Description": "DISABLE Copilot Layer 1 (WindowsAI HKLM)"
+          }
+        },
+        "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsCopilot": {
+          "TurnOffWindowsCopilot": {
+            "Type": "DWord",
+            "Value": 1,
+            "Description": "DISABLE Copilot Layer 2 (WindowsCopilot HKLM)"
+          },
+          "ShowCopilotButton": {
+            "Type": "DWord",
+            "Value": 0,
+            "Description": "HIDE Copilot Layer 3 (Taskbar Button Hidden HKLM)"
+          }
+        },
+        "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Explorer": {
+          "DisableWindowsCopilot": {
+            "Type": "DWord",
+            "Value": 1,
+            "Description": "DISABLE Copilot Layer 4 (Explorer Integration HKLM)"
+          }
+        },
+        "HKCU:\\Software\\Policies\\Microsoft\\Windows\\WindowsCopilot": {
+          "TurnOffWindowsCopilot": {
+            "Type": "DWord",
+            "Value": 1,
+            "Description": "DISABLE Windows Copilot User-scope (HKCU)"
+          },
+          "ShowCopilotButton": {
+            "Type": "DWord",
+            "Value": 0,
+            "Description": "HIDE Copilot Button User-scope (HKCU)"
+          }
+        },
+        "HKCU:\\Software\\Policies\\Microsoft\\Windows\\WindowsAI": {
+          "SetCopilotHardwareKey": {
+            "Type": "String",
+            "Value": "Microsoft.WindowsNotepad_8wekyb3d8bbwe!App",
+            "Description": "REMAP hardware Copilot key to open Notepad instead"
+          }
+        }
+      }
+    },
+    
+    "4_Click_to_Do": {
+      "Name": "Click to Do (Screenshot AI Analysis)",
+      "Description": "Takes on-demand screenshots and analyzes them with AI to suggest actions (copy text, search, call numbers)",
+      "Impact": "Screenshot analysis feature completely disabled",
+      "CloudBased": false,
+      "Registry": {
+        "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsAI": {
+          "DisableClickToDo": {
+            "Type": "DWord",
+            "Value": 1,
+            "Description": "DISABLE Click to Do (no screenshot AI analysis, no action suggestions)"
+          }
+        },
+        "HKCU:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsAI": {
+          "DisableClickToDo": {
+            "Type": "DWord",
+            "Value": 1,
+            "Description": "DISABLE Click to Do (User-scope)"
+          }
+        }
+      }
+    },
+    
+    "5_Paint_Cocreator": {
+      "Name": "Paint Cocreator (Cloud-Based Image Generation)",
+      "Description": "Text-to-image generation using cloud AI (type description, AI creates artwork)",
+      "Impact": "Cocreator feature completely removed from Paint app",
+      "CloudBased": true,
+      "Registry": {
+        "HKLM:\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Paint": {
+          "DisableCocreator": {
+            "Type": "DWord",
+            "Value": 1,
+            "Description": "DISABLE Paint Cocreator (no AI-generated images from text prompts)"
+          }
+        }
+      }
+    },
+    
+    "6_Paint_Generative_Fill": {
+      "Name": "Paint Generative Fill (Cloud-Based AI Editing)",
+      "Description": "AI-powered image editing (fill selected areas with AI-generated content)",
+      "Impact": "Generative Fill feature completely removed from Paint app",
+      "CloudBased": true,
+      "Registry": {
+        "HKLM:\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Paint": {
+          "DisableGenerativeFill": {
+            "Type": "DWord",
+            "Value": 1,
+            "Description": "DISABLE Paint Generative Fill (no AI-powered content-aware fill)"
+          }
+        }
+      }
+    },
+    
+    "7_Paint_Image_Creator": {
+      "Name": "Paint Image Creator (Cloud-Based AI Art)",
+      "Description": "DALL-E powered AI art generator integrated into Paint",
+      "Impact": "Image Creator feature completely removed from Paint app",
+      "CloudBased": true,
+      "Registry": {
+        "HKLM:\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Paint": {
+          "DisableImageCreator": {
+            "Type": "DWord",
+            "Value": 1,
+            "Description": "DISABLE Paint Image Creator (no DALL-E AI art generation)"
+          }
+        }
+      }
+    },
+    
+    "8_Notepad_AI": {
+      "Name": "Notepad AI (Copilot Integration - Write, Summarize, Rewrite)",
+      "Description": "GPT-powered AI features in Notepad (generate text, summarize content, rewrite paragraphs)",
+      "Impact": "All AI features completely removed from Notepad app",
+      "CloudBased": true,
+      "RequiresADMX": false,
+      "Note": "ADMX file (WindowsNotepad.admx) is NOT required - registry policy works without it. ADMX only provides GUI visibility in gpedit.msc.",
+      "Registry": {
+        "HKLM:\\SOFTWARE\\Policies\\WindowsNotepad": {
+          "DisableAIFeatures": {
+            "Type": "DWord",
+            "Value": 1,
+            "Description": "DISABLE all AI features in Notepad (Write, Summarize, Rewrite, Explain) - Microsoft official registry value name"
+          }
+        }
+      }
+    },
+    
+    "9_Settings_Agent": {
+      "Name": "Settings Agent (AI-Powered Settings Search)",
+      "Description": "AI-enhanced natural language search in Windows Settings (understands questions like 'How do I change wallpaper?')",
+      "Impact": "AI search disabled, only classic keyword search remains",
+      "CloudBased": false,
+      "Registry": {
+        "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsAI": {
+          "DisableSettingsAgent": {
+            "Type": "DWord",
+            "Value": 1,
+            "Description": "DISABLE Settings AI agent (fallback to classic search without natural language understanding)"
+          }
+        }
+      }
+    },
+    
+    "10_Recall_Export_Block": {
+      "Name": "Recall Export Prevention (NEW - KB5055627)",
+      "Description": "Prevents users from exporting Recall snapshots to share with apps/websites (EEA compliance feature)",
+      "Impact": "Export functionality completely disabled, prevents data exfiltration",
+      "CloudBased": false,
+      "Registry": {
+        "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsAI": {
+          "AllowRecallExport": {
+            "Type": "DWord",
+            "Value": 0,
+            "Description": "PREVENT Recall snapshot export (0=Disabled, 1=Allowed)"
+          }
+        }
+      }
+    },
+    
+    "11_Copilot_URI_Handlers": {
+      "Name": "Copilot URI Protocol Handlers (Deep Link Block)",
+      "Description": "Blocks ms-copilot: and ms-edge-copilot: URI handlers that bypass policy restrictions",
+      "Impact": "Prevents launching Copilot via deep links, Start menu search, or third-party apps",
+      "CloudBased": false,
+      "URIHandlers": [
+        "ms-copilot",
+        "ms-edge-copilot"
+      ],
+      "Note": "These handlers are in HKEY_CLASSES_ROOT and route Copilot requests to Edge"
+    },
+    
+    "12_Edge_Copilot_Sidebar": {
+      "Name": "Microsoft Edge Copilot Sidebar (Browser AI)",
+      "Description": "Disables Copilot integration in Edge browser sidebar",
+      "Impact": "Edge sidebar and Copilot features completely disabled",
+      "CloudBased": true,
+      "Registry": {
+        "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Edge": {
+          "EdgeSidebarEnabled": {
+            "Type": "DWord",
+            "Value": 0,
+            "Description": "DISABLE Edge sidebar completely"
+          },
+          "ShowHubsSidebar": {
+            "Type": "DWord",
+            "Value": 0,
+            "Description": "HIDE sidebar panel"
+          },
+          "HubsSidebarEnabled": {
+            "Type": "DWord",
+            "Value": 0,
+            "Description": "DISABLE Hubs sidebar"
+          },
+          "CopilotPageContext": {
+            "Type": "DWord",
+            "Value": 0,
+            "Description": "PREVENT Copilot from accessing page content"
+          },
+          "CopilotCDPPageContext": {
+            "Type": "DWord",
+            "Value": 0,
+            "Description": "PREVENT Copilot CDP page context"
+          }
+        }
+      }
+    },
+    
+    "13_Region_Policy_Override": {
+      "Name": "IntegratedServicesRegionPolicySet.json Override",
+      "Description": "Modifies Windows regional policy file to disable Copilot globally (bypasses region restrictions)",
+      "Impact": "Copilot disabled at OS level regardless of region setting",
+      "CloudBased": false,
+      "FilePath": "C:\\Windows\\System32\\IntegratedServicesRegionPolicySet.json",
+      "Note": "Requires TakeOwnership of system file - changes 'Windows CoPilot' policy to disabled"
+    },
+    
+    "14_Copilot_Network_Block": {
+      "Name": "Copilot Network Block (Hosts File)",
+      "Description": "Blocks Copilot cloud endpoints via hosts file redirect",
+      "Impact": "Web-based Copilot completely unreachable",
+      "CloudBased": true,
+      "HostsEntries": [
+        "copilot.microsoft.com",
+        "www.bing.com/copilot",
+        "edgeservices.bing.com"
+      ],
+      "Note": "Optional aggressive blocking - may affect legitimate Bing searches"
+    },
+    
+    "15_File_Explorer_AI_Actions": {
+      "Name": "File Explorer AI Actions Menu",
+      "Description": "Hides 'AI Actions' entry from File Explorer right-click context menu (image editing, text summarization, etc.)",
+      "Impact": "AI Actions menu entry removed from Explorer context menu",
+      "CloudBased": false,
+      "Registry": {
+        "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Explorer": {
+          "HideAIActionsMenu": {
+            "Type": "DWord",
+            "Value": 1,
+            "Description": "HIDE AI Actions from File Explorer context menu"
+          }
+        }
+      }
+    }
+  },
+  
+  "AutomaticallyBlockedByMasterSwitch": {
+    "Description": "These AI features are automatically blocked by the Generative AI Master Switch (no dedicated policies exist)",
+    "Features": [
+      {
+        "Name": "Photos Generative Erase",
+        "Description": "AI-powered object removal from photos"
+      },
+      {
+        "Name": "Photos Background Blur/Remove",
+        "Description": "AI background effects in Photos app"
+      },
+      {
+        "Name": "Photos Auto-Categorization",
+        "Description": "AI-powered photo organization (Receipts, IDs, Screenshots, Notes)"
+      },
+      {
+        "Name": "Snipping Tool AI-OCR",
+        "Description": "Text extraction and actions from screenshots"
+      },
+      {
+        "Name": "Snipping Tool Quick Redact",
+        "Description": "AI-powered sensitive data redaction"
+      },
+      {
+        "Name": "Clipchamp Auto Compose",
+        "Description": "AI-powered automatic video editing"
+      },
+      {
+        "Name": "All Future Generative AI Apps",
+        "Description": "Any app that uses Windows generative AI models"
+      }
+    ]
+  },
+  
+  "Summary": {
+    "TotalAIFeaturesDisabled": "13 features (10 dedicated + 3 advanced blocks + unlimited via master switch)",
+    "TotalPoliciesApplied": 32,
+    "RegistryKeysModified": 32,
+    "URIHandlersBlocked": 2,
+    "RequiresReboot": "Yes (for Recall component removal)",
+    "RequiresADMX": "No (all policies work via registry, no ADMX needed)",
+    "CloudAIBlocked": "All documented Windows 11 25H2 cloud-based AI features",
+    "OnDeviceAIBlocked": "All on-device generative AI models via systemAIModels API",
+    "EdgeAIBlocked": "Copilot sidebar, page context, all AI integrations",
+    "DeepLinksBlocked": "ms-copilot: and ms-edge-copilot: URI protocols",
+    "EnterpriseCompliance": "Maximum (Recall app/URI protection, storage limits, export block)",
+    "MSBestPractice": "Based on OFFICIAL Microsoft registry policies ONLY (no community workarounds)"
+  }
+}

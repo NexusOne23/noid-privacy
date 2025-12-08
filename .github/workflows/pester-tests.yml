@@ -1,0 +1,71 @@
+name: Pester Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: windows-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      
+    - name: Install Pester
+      shell: pwsh
+      run: |
+        Install-Module -Name Pester -Force -SkipPublisherCheck -Scope CurrentUser
+        Import-Module Pester
+        
+    - name: Run Unit Tests
+      shell: pwsh
+      run: |
+        $config = New-PesterConfiguration
+        $config.Run.Path = "Tests/Unit"
+        $config.Run.PassThru = $true
+        $config.Output.Verbosity = 'Detailed'
+        $config.TestResult.Enabled = $true
+        $config.TestResult.OutputPath = "TestResults-Unit.xml"
+        $config.TestResult.OutputFormat = 'NUnitXml'
+        
+        $results = Invoke-Pester -Configuration $config
+        
+        if ($results.FailedCount -gt 0) {
+          Write-Error "Unit tests failed: $($results.FailedCount) failures"
+          exit 1
+        }
+        
+    - name: Run Integration Tests (DryRun only)
+      shell: pwsh
+      run: |
+        $config = New-PesterConfiguration
+        $config.Run.Path = "Tests/Integration"
+        $config.Run.PassThru = $true
+        $config.Output.Verbosity = 'Detailed'
+        $config.TestResult.Enabled = $true
+        $config.TestResult.OutputPath = "TestResults-Integration.xml"
+        $config.TestResult.OutputFormat = 'NUnitXml'
+        
+        $results = Invoke-Pester -Configuration $config
+        
+        if ($results.FailedCount -gt 0) {
+          Write-Error "Integration tests failed: $($results.FailedCount) failures"
+          exit 1
+        }
+        
+    - name: Upload Test Results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: test-results
+        path: TestResults-*.xml
+        
+    - name: Publish Test Results
+      uses: EnricoMi/publish-unit-test-result-action/windows@v2
+      if: always()
+      with:
+        files: TestResults-*.xml

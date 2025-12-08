@@ -1,0 +1,116 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Administrative Shares Configuration",
+  "description": "Configuration for disabling administrative shares (C$, ADMIN$, etc.) to prevent lateral movement",
+  "version": "2.2.0",
+  
+  "Administrative_Shares": {
+    "description": "Disable automatic creation and remove existing administrative shares",
+    "risk_level": "CRITICAL",
+    "attack_vectors": [
+      "Lateral movement in networks (WannaCry, NotPetya propagation)",
+      "Remote file access by attackers with stolen credentials",
+      "Pass-the-Hash attacks using admin shares",
+      "Automated malware propagation"
+    ],
+    
+    "shares_affected": {
+      "C$": "Root of C: drive",
+      "D$": "Root of D: drive (if exists)",
+      "E$": "Root of E: drive (if exists)",
+      "ADMIN$": "Windows directory (C:\\Windows)",
+      "IPC$": "Named pipes - CANNOT be removed (required by Windows)"
+    },
+    
+    "registry_settings": {
+      "path": "HKLM:\\SYSTEM\\CurrentControlSet\\Services\\LanmanServer\\Parameters",
+      "AutoShareWks": {
+        "description": "Disable automatic shares on Workstation (Home/Pro editions)",
+        "value": 0,
+        "type": "DWORD",
+        "default": 1
+      },
+      "AutoShareServer": {
+        "description": "Disable automatic shares on Server editions",
+        "value": 0,
+        "type": "DWORD",
+        "default": 1
+      }
+    },
+    
+    "firewall_protection": {
+      "description": "Block SMB on Public network profile",
+      "rule_name": "Block Admin Shares (NoID Privacy)",
+      "direction": "Inbound",
+      "protocol": "TCP",
+      "local_port": 445,
+      "profile": "Public",
+      "action": "Block"
+    },
+    
+    "domain_safety": {
+      "enabled": true,
+      "description": "Automatically detect domain-joined systems and skip unless -Force",
+      "check": "Get-CimInstance -ClassName Win32_ComputerSystem | Select-Object PartOfDomain",
+      "warnings": [
+        "Group Policy management may be affected",
+        "SCCM/Management tools may require admin shares",
+        "Remote administration tools may stop working"
+      ],
+      "force_required": true,
+      "enterprise_recommendation": "Test in staging environment before deployment"
+    }
+  },
+  
+  "Profiles": {
+    "Balanced": {
+      "enabled": true,
+      "domain_check": true,
+      "force_required": false
+    },
+    "Enterprise": {
+      "enabled": "conditional",
+      "domain_check": true,
+      "force_required": true,
+      "note": "Auto-disabled for domain-joined systems unless -Force"
+    },
+    "Maximum": {
+      "enabled": true,
+      "domain_check": false,
+      "force_required": false,
+      "note": "Always enabled for maximum security"
+    }
+  },
+  
+  "Impact": {
+    "positive": [
+      "Prevents lateral movement in case of credential theft",
+      "Stops automated ransomware propagation",
+      "Blocks Pass-the-Hash attack vectors using admin shares"
+    ],
+    "negative": [
+      "Remote administration tools may not work",
+      "Group Policy remote management affected",
+      "Some enterprise monitoring tools may require admin shares",
+      "SCCM and similar tools may need explicit shares"
+    ],
+    "recommendations": {
+      "home_users": "Recommended - high security benefit",
+      "enterprise": "Requires testing - may break management tools",
+      "workaround": "Create explicit shares for required management tools"
+    }
+  },
+  
+  "Important_Notes": [
+    "REQUIRES REBOOT to prevent share recreation",
+    "Shares will NOT be recreated after reboot (if registry set)",
+    "IPC$ cannot be disabled (required by Windows)",
+    "File sharing via explicit shares still works",
+    "Can be restored by setting AutoShareWks/AutoShareServer = 1 + reboot"
+  ],
+  
+  "Compatibility": {
+    "windows_versions": ["Windows 10", "Windows 11", "Windows Server 2016+"],
+    "tested": "Windows 11 25H2 (Nov 16, 2025)"
+  }
+}

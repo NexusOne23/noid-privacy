@@ -1,0 +1,9 @@
+﻿{
+    "TotalEdgePolicies":  20,
+    "ParsedDate":  "2025-11-17 10:30:01",
+    "BaselineVersion":  "Edge v139",
+    "RegistryPaths":  [
+                          "[Software\\Policies\\Microsoft\\Edge",
+                          "[Software\\Policies\\Microsoft\\Edge\\ExtensionInstallBlocklist"
+                      ]
+}
