@@ -7,6 +7,12 @@ on:
     branches: [ main ]
   workflow_dispatch:
 
+# Security: Explicit permissions (Principle of Least Privilege)
+permissions:
+  contents: read          # Required for checkout
+  checks: write           # Required for publish-unit-test-result-action
+  pull-requests: write    # Required for PR comments by test action
+
 jobs:
   test:
     runs-on: windows-latest
