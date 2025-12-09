@@ -148,9 +148,19 @@ function Invoke-EdgeHardening {
                     Write-Host "      - Microsoft Security Baseline default" -ForegroundColor Gray
                     Write-Host ""
                     
-                    $extensionChoice = Read-Host "Allow browser extensions? [Y/N] (default: Y)"
+                    do {
+                        $extensionChoice = Read-Host "Allow browser extensions? [Y/N] (default: Y)"
+                        if ([string]::IsNullOrWhiteSpace($extensionChoice)) { $extensionChoice = "Y" }
+                        $extensionChoice = $extensionChoice.ToUpper()
+                        
+                        if ($extensionChoice -notin @('Y', 'N')) {
+                            Write-Host ""
+                            Write-Host "Invalid input. Please enter Y or N." -ForegroundColor Red
+                            Write-Host ""
+                        }
+                    } while ($extensionChoice -notin @('Y', 'N'))
                     
-                    if ($extensionChoice -eq 'N' -or $extensionChoice -eq 'n') {
+                    if ($extensionChoice -eq 'N') {
                         $AllowExtensions = $false
                         Write-Host ""
                         Write-Host "  ALL extensions will be BLOCKED (Maximum Security)" -ForegroundColor Cyan

@@ -140,12 +140,17 @@ function Invoke-AdvancedSecurity {
                 Write-Host ""
                 
                 $defaultChoice = if ($isDomainJoined) { '2' } else { '1' }
-                $profileChoice = Read-Host "Select profile [1-3] (default: $defaultChoice)"
                 
-                # Use default if empty
-                if ([string]::IsNullOrWhiteSpace($profileChoice)) {
-                    $profileChoice = $defaultChoice
-                }
+                do {
+                    $profileChoice = Read-Host "Select profile [1-3] (default: $defaultChoice)"
+                    if ([string]::IsNullOrWhiteSpace($profileChoice)) { $profileChoice = $defaultChoice }
+                    
+                    if ($profileChoice -notin @('1', '2', '3')) {
+                        Write-Host ""
+                        Write-Host "Invalid input. Please enter 1, 2, or 3." -ForegroundColor Red
+                        Write-Host ""
+                    }
+                } while ($profileChoice -notin @('1', '2', '3'))
                 
                 switch ($profileChoice) {
                     '2' { $SecurityProfile = 'Enterprise'; Write-Host ""; Write-Host "  Selected: Enterprise" -ForegroundColor Green }
@@ -227,9 +232,19 @@ function Invoke-AdvancedSecurity {
         
         # Continue confirmation - auto-confirm in NonInteractive mode
         if (-not (Test-NonInteractiveMode)) {
-            $continueChoice = Read-Host "Continue with hardening? [Y/N] (default: Y)"
+            do {
+                $continueChoice = Read-Host "Continue with hardening? [Y/N] (default: Y)"
+                if ([string]::IsNullOrWhiteSpace($continueChoice)) { $continueChoice = "Y" }
+                $continueChoice = $continueChoice.ToUpper()
+                
+                if ($continueChoice -notin @('Y', 'N')) {
+                    Write-Host ""
+                    Write-Host "Invalid input. Please enter Y or N." -ForegroundColor Red
+                    Write-Host ""
+                }
+            } while ($continueChoice -notin @('Y', 'N'))
             
-            if ($continueChoice -eq 'N' -or $continueChoice -eq 'n') {
+            if ($continueChoice -eq 'N') {
                 Write-Host ""
                 Write-Host "Hardening cancelled by user." -ForegroundColor Yellow
                 Write-Host ""
@@ -292,9 +307,19 @@ function Invoke-AdvancedSecurity {
                 Write-Host "      - Useful if you need remote desktop access" -ForegroundColor Gray
                 Write-Host ""
                 
-                $rdpChoice = Read-Host "Disable RDP completely? [Y/N] (default: Y)"
+                do {
+                    $rdpChoice = Read-Host "Disable RDP completely? [Y/N] (default: Y)"
+                    if ([string]::IsNullOrWhiteSpace($rdpChoice)) { $rdpChoice = "Y" }
+                    $rdpChoice = $rdpChoice.ToUpper()
+                    
+                    if ($rdpChoice -notin @('Y', 'N')) {
+                        Write-Host ""
+                        Write-Host "Invalid input. Please enter Y or N." -ForegroundColor Red
+                        Write-Host ""
+                    }
+                } while ($rdpChoice -notin @('Y', 'N'))
                 
-                if ($rdpChoice -eq 'N' -or $rdpChoice -eq 'n') {
+                if ($rdpChoice -eq 'N') {
                     $DisableRDP = $false
                     Write-Host ""
                     Write-Host "  RDP will be HARDENED and kept enabled" -ForegroundColor Cyan
@@ -343,9 +368,19 @@ function Invoke-AdvancedSecurity {
                 Write-Host "      - May require manual intervention from IT" -ForegroundColor Gray
                 Write-Host ""
                 
-                $adminShareChoice = Read-Host "Disable admin shares on domain system? [Y/N] (default: N)"
+                do {
+                    $adminShareChoice = Read-Host "Disable admin shares on domain system? [Y/N] (default: N)"
+                    if ([string]::IsNullOrWhiteSpace($adminShareChoice)) { $adminShareChoice = "N" }
+                    $adminShareChoice = $adminShareChoice.ToUpper()
+                    
+                    if ($adminShareChoice -notin @('Y', 'N')) {
+                        Write-Host ""
+                        Write-Host "Invalid input. Please enter Y or N." -ForegroundColor Red
+                        Write-Host ""
+                    }
+                } while ($adminShareChoice -notin @('Y', 'N'))
                 
-                if ($adminShareChoice -eq 'Y' -or $adminShareChoice -eq 'y') {
+                if ($adminShareChoice -eq 'Y') {
                     $Force = $true
                     Write-Host ""
                     Write-Host "  Admin Shares will be DISABLED (may break IT tools)" -ForegroundColor Red
@@ -410,9 +445,19 @@ function Invoke-AdvancedSecurity {
             Write-Host "      - Accepts security risk" -ForegroundColor Gray
             Write-Host ""
             
-            $upnpChoice = Read-Host "Block UPnP/SSDP? [Y/N] (default: Y)"
+            do {
+                $upnpChoice = Read-Host "Block UPnP/SSDP? [Y/N] (default: Y)"
+                if ([string]::IsNullOrWhiteSpace($upnpChoice)) { $upnpChoice = "Y" }
+                $upnpChoice = $upnpChoice.ToUpper()
+                
+                if ($upnpChoice -notin @('Y', 'N')) {
+                    Write-Host ""
+                    Write-Host "Invalid input. Please enter Y or N." -ForegroundColor Red
+                    Write-Host ""
+                }
+            } while ($upnpChoice -notin @('Y', 'N'))
             
-            if ($upnpChoice -eq 'N' -or $upnpChoice -eq 'n') {
+            if ($upnpChoice -eq 'N') {
                 $DisableUPnP = $false
                 Write-Host ""
                 Write-Host "  UPnP/SSDP will be KEPT enabled (DLNA works)" -ForegroundColor Yellow
@@ -473,9 +518,19 @@ function Invoke-AdvancedSecurity {
             Write-Host "      - PIN always required" -ForegroundColor Gray
             Write-Host ""
             
-            $wirelessChoice = Read-Host "Completely disable Wireless Display? [Y/N] (default: N)"
+            do {
+                $wirelessChoice = Read-Host "Completely disable Wireless Display? [Y/N] (default: N)"
+                if ([string]::IsNullOrWhiteSpace($wirelessChoice)) { $wirelessChoice = "N" }
+                $wirelessChoice = $wirelessChoice.ToUpper()
+                
+                if ($wirelessChoice -notin @('Y', 'N')) {
+                    Write-Host ""
+                    Write-Host "Invalid input. Please enter Y or N." -ForegroundColor Red
+                    Write-Host ""
+                }
+            } while ($wirelessChoice -notin @('Y', 'N'))
             
-            if ($wirelessChoice -eq 'Y' -or $wirelessChoice -eq 'y') {
+            if ($wirelessChoice -eq 'Y') {
                 $DisableWirelessDisplayCompletely = $true
                 Write-Host ""
                 Write-Host "  Wireless Display will be COMPLETELY DISABLED" -ForegroundColor Yellow
@@ -534,9 +589,19 @@ function Invoke-AdvancedSecurity {
             Write-Host "      - Higher attack surface (not recommended for Maximum profile)" -ForegroundColor Gray
             Write-Host "" 
 
-            $discoveryChoice = Read-Host "Completely disable WS-Discovery and mDNS? [Y/N] (default: N)"
+            do {
+                $discoveryChoice = Read-Host "Completely disable WS-Discovery and mDNS? [Y/N] (default: N)"
+                if ([string]::IsNullOrWhiteSpace($discoveryChoice)) { $discoveryChoice = "N" }
+                $discoveryChoice = $discoveryChoice.ToUpper()
+                
+                if ($discoveryChoice -notin @('Y', 'N')) {
+                    Write-Host ""
+                    Write-Host "Invalid input. Please enter Y or N." -ForegroundColor Red
+                    Write-Host ""
+                }
+            } while ($discoveryChoice -notin @('Y', 'N'))
 
-            if ($discoveryChoice -eq 'Y' -or $discoveryChoice -eq 'y') {
+            if ($discoveryChoice -eq 'Y') {
                 $DisableDiscoveryProtocolsCompletely = $true
                 Write-Host "" 
                 Write-Host "  Discovery protocols (WS-Discovery + mDNS) will be COMPLETELY DISABLED" -ForegroundColor Yellow
@@ -600,9 +665,19 @@ function Invoke-AdvancedSecurity {
             Write-Host "      - IPv6 functionality preserved" -ForegroundColor Gray
             Write-Host "" 
             
-            $ipv6Choice = Read-Host "Completely disable IPv6? [Y/N] (default: N)"
+            do {
+                $ipv6Choice = Read-Host "Completely disable IPv6? [Y/N] (default: N)"
+                if ([string]::IsNullOrWhiteSpace($ipv6Choice)) { $ipv6Choice = "N" }
+                $ipv6Choice = $ipv6Choice.ToUpper()
+                
+                if ($ipv6Choice -notin @('Y', 'N')) {
+                    Write-Host ""
+                    Write-Host "Invalid input. Please enter Y or N." -ForegroundColor Red
+                    Write-Host ""
+                }
+            } while ($ipv6Choice -notin @('Y', 'N'))
             
-            if ($ipv6Choice -eq 'Y' -or $ipv6Choice -eq 'y') {
+            if ($ipv6Choice -eq 'Y') {
                 $DisableIPv6Completely = $true
                 Write-Host "" 
                 Write-Host "  IPv6 will be COMPLETELY DISABLED (REBOOT REQUIRED)" -ForegroundColor Yellow
