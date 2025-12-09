@@ -105,7 +105,7 @@
 **🔒 Privacy Layer**
 - DNS: Block telemetry, tracking, ads (DoH)
 - Telemetry: 3 modes (MSRecommended/Strict/Paranoid)
-- AntiAI: 13 features disabled (Recall, Copilot, Paint AI, Notepad AI, Edge AI)
+- AntiAI: 15 AI features disabled (Recall, Copilot, Paint AI, Notepad AI, Edge AI, etc.)
 - Bloatware: 24 pre-installed apps removed
 
 **🎯 The Result:** A hardened system that's both secure against attacks and private from surveillance.
@@ -120,7 +120,7 @@
 |:---:|:---:|:---:|:---:|
 | **Microsoft Baseline 25H2** | **AI Lockdown** | **Professional Quality** | **100% Reversible** |
 | 630+ Security Settings | No Recall / Copilot / AI | 100% Verification Coverage | BAVR Architecture |
-| 19 ASR Rules (Block Mode) | Telemetry & Ads Blocked | Detailed Logging | Exact Pre-State Restore |
+| 19 ASR Rules (17 Block + 2 Configurable) | Telemetry & Ads Blocked | Detailed Logging | Exact Pre-State Restore |
 | Zero-Day CVE-2025-9491 | DNS-over-HTTPS (DoH) | Modular Design | Designed for Zero Data Loss |
 | VBS & Credential Guard | Edge Browser Hardened | Open Source / Auditable | Safe for Production |
 
@@ -197,18 +197,18 @@
 
 **3 Operating Modes**
 - **MSRecommended** (Default) MS-supported, max compatibility
-- **Strict** Maximum privacy (AllowTelemetry=0 Enterprise/Education only, Force Deny breaks UCC apps)
-- **Paranoid** Hardcore (not recommended)
+- **Strict** Maximum privacy (AllowTelemetry=0 Ent/Edu only, Teams/Zoom work)
+- **Paranoid** Hardcore (Force Deny ALL - BREAKS Teams/Zoom!)
 
 **Features:**
 - Telemetry minimized to Security-Essential level
 - Bloatware removal (policy-based on 25H2+ Ent/Edu)
 - OneDrive telemetry off (sync functional)
-- App permissions default-deny
+- App permissions configurable per mode
 
 ### 🤖 AI Lockdown (32 Policies)
 
-**13 AI Features Disabled (incl. Master Switch)**
+**15 AI Features Disabled (incl. Master Switch)**
 - **Master Switch** Disables generative AI models system-wide
 - **Windows Recall** Complete deactivation (component removal + protection)
 - **Windows Copilot** System-wide disabled + hardware key remapped
@@ -391,7 +391,7 @@ cd noid-privacy
 | **ASR** | 19 | Attack Surface Reduction Rules | v2.2.0 |
 | **DNS** | 5 | Secure DNS with DoH encryption | v2.2.0 |
 | **Privacy** | 77 | Telemetry, Bloatware, OneDrive hardening (Strict) | v2.2.0 |
-| **AntiAI** | 32 | AI lockdown (13 features, 32 compliance checks) | v2.2.0 |
+| **AntiAI** | 32 | AI lockdown (15 features, 32 compliance checks) | v2.2.0 |
 | **EdgeHardening** | 24 | Microsoft Edge security (24 policies) | v2.2.0 |
 | **AdvancedSecurity** | 50 | Beyond MS Baseline (SRP, Legacy protocols, Wireless Display, Discovery Protocols, IPv6) | v2.2.0 |
 | **TOTAL** | **632** | **Complete Framework (Paranoid mode)** | **Production** |

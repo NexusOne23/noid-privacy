@@ -15,7 +15,7 @@
 | **ASR** | 19 | ✅ v2.2.0 | Attack Surface Reduction rules |
 | **DNS** | 5 | ✅ v2.2.0 | Secure DNS with DoH encryption |
 | **Privacy** | 77 | ✅ v2.2.0 | Telemetry control, OneDrive hardening (Strict: 69 Registry + 2 Services + 6 OneDrive) |
-| **AntiAI** | 32 | ✅ v2.2.0 | AI lockdown (13 features, 32 compliance checks) |
+| **AntiAI** | 32 | ✅ v2.2.0 | AI lockdown (15 features, 32 compliance checks) |
 | **EdgeHardening** | 24 | ✅ v2.2.0 | Microsoft Edge browser security (24 policies) |
 | **AdvancedSecurity** | 50 | ✅ v2.2.0 | Advanced hardening beyond MS Baseline (incl. Wireless Display, Discovery Protocols, IPv6) |
 | **TOTAL** | **632** | ✅ **100%** | **Complete Framework (Paranoid mode)** |
@@ -234,9 +234,9 @@ Clipchamp.Clipchamp, SpotifyAB.SpotifyMusic
 
 ## 🤖 Module 5: AntiAI (32 Policies)
 
-**Description:** Disable 13 Windows AI features via 32 registry policies (v2.2.0)
+**Description:** Disable 15 Windows AI features via 32 registry policies (v2.2.0)
 
-### 13 AI Features Disabled:
+### 15 AI Features Disabled:
 
 | # | Feature | Policies | Description |
 |---|---------|----------|-------------|
@@ -250,9 +250,11 @@ Clipchamp.Clipchamp, SpotifyAB.SpotifyMusic
 | 8 | **Notepad AI** | 1 | Write, Summarize, Rewrite features (GPT) |
 | 9 | **Settings Agent** | 1 | AI-powered Settings search |
 | 10 | **Recall Export Block** | 1 | Prevents export of Recall data |
-| 11 | **Edge Copilot Sidebar** | 3 | EdgeSidebarEnabled, ShowHubsSidebar, HubsSidebarEnabled |
-| 12 | **Edge Copilot Context** | 2 | CopilotPageContext, CopilotCDPPageContext |
-| 13 | **File Explorer AI Actions** | 1 | HideAIActionsMenu in Explorer context menu |
+| 11 | **Copilot URI Handlers** | 1 | Blocks ms-copilot:// and ms-chat:// URI schemes |
+| 12 | **Edge Copilot Sidebar** | 3 | EdgeSidebarEnabled, ShowHubsSidebar, HubsSidebarEnabled |
+| 13 | **Region Policy Override** | 1 | Prevents region bypass for AI features |
+| 14 | **Copilot Network Block** | 1 | Blocks Copilot endpoints via hosts file |
+| 15 | **File Explorer AI Actions** | 1 | HideAIActionsMenu in Explorer context menu |
 
 ### Recall Enterprise Protection:
 - **App Deny List:** Browser, Terminal, Password managers, RDP never captured
