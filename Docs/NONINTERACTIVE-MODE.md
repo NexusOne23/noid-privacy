@@ -57,7 +57,7 @@ The framework automatically enters non-interactive mode when all required parame
 
 **Valid mode values:**
 - `"MSRecommended"` (default, fully supported, production-ready)
-- `"Strict"` (maximum privacy, breaks some apps)
+- `"Strict"` (maximum privacy, Teams/Zoom work)
 - `"Paranoid"` (hardcore, not recommended for production)
 
 **When mode is set:**

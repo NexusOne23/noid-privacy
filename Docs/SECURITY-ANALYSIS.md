@@ -58,7 +58,7 @@ Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DeviceInstall\
 
 ## 4. Attack Surface Reduction (ASR)
 
-**Setting:** 19 Defender Rules (Block Mode)
+**Setting:** 19 Defender Rules (17 Block + 2 Configurable)
 
 ### 🏠 Home User Impact: **Low**
 - **Blocked:** running `.exe` files directly from an email attachment (Outlook).
