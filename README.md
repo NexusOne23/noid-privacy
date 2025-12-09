@@ -176,12 +176,12 @@
 
 ### 🛡️ Attack Surface Reduction (19 Rules)
 
-**19 ASR Rules (All Block, 1 Configurable)**
+**19 ASR Rules (17 Block + 2 Configurable)**
 - Helps block common ransomware, macro, exploit, and credential theft techniques
 - Office/Adobe/Email protection
 - Script & executable blocking
-- PSExec/WMI: Audit mode (if management tools used), Block mode otherwise
-- Configurable exceptions for compatibility
+- PSExec/WMI: Audit mode (if management tools used), Block otherwise
+- New/Unknown Software: Audit mode (if installing untrusted software), Block otherwise
 
 ### 🌐 Secure DNS (3 Providers)
 
@@ -390,7 +390,7 @@ cd noid-privacy
 | **SecurityBaseline** | 425 | Microsoft Security Baseline 25H2 | v2.2.0 |
 | **ASR** | 19 | Attack Surface Reduction Rules | v2.2.0 |
 | **DNS** | 5 | Secure DNS with DoH encryption | v2.2.0 |
-| **Privacy** | 77 | Telemetry, Bloatware, OneDrive hardening (MSRecommended) | v2.2.0 |
+| **Privacy** | 77 | Telemetry, Bloatware, OneDrive hardening (Strict) | v2.2.0 |
 | **AntiAI** | 32 | AI lockdown (13 features, 32 compliance checks) | v2.2.0 |
 | **EdgeHardening** | 24 | Microsoft Edge security (24 policies) | v2.2.0 |
 | **AdvancedSecurity** | 50 | Beyond MS Baseline (SRP, Legacy protocols, Wireless Display, Discovery Protocols, IPv6) | v2.2.0 |
