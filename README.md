@@ -176,7 +176,7 @@
 
 ### 🛡️ Attack Surface Reduction (19 Rules)
 
-**19 ASR Rules (18 Block + 1 Configurable)**
+**19 ASR Rules (All Block, 1 Configurable)**
 - Helps block common ransomware, macro, exploit, and credential theft techniques
 - Office/Adobe/Email protection
 - Script & executable blocking
@@ -768,7 +768,7 @@ Logs/NoIDPrivacy_YYYYMMDD_HHMMSS.log
 
 ### 💬 Community
 
-- **[💬 Discussions](https://github.com/NexusOne23/noid-privacy/discussions)** - Questions, ideas, and commercial licensing inquiries
+- **[💬 Discussions](https://github.com/NexusOne23/noid-privacy/discussions)** - Questions and ideas
 - **[🐛 Issues](https://github.com/NexusOne23/noid-privacy/issues)** - Bug reports only
 - **[📚 Documentation](Docs/FEATURES.md)** - Complete feature reference
 
