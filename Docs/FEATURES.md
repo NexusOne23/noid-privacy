@@ -159,7 +159,7 @@
 - ✅ **OneDrive Telemetry:** Feedback & sync reports disabled
 - ✅ **OneDrive Sync:** Remains FUNCTIONAL (DisablePersonalSync = 0)
 - ✅ **MS Store Telemetry:** AutoDownload = 3 (auto-update apps, no upgrade prompts)
-- ✅ **Bloatware Removal:** 10-24+ apps removed (PolicyMethod for ENT/EDU, ClassicMethod for others)
+- ✅ **Bloatware Removal:** 8-24 apps removed (PolicyMethod for ENT/EDU, ClassicMethod for others)
 
 ### Operating Modes (Interactive Selection):
 
@@ -170,17 +170,18 @@
 - **Best for:** Production, business environments
 
 #### Strict (Maximum Privacy)
-- AllowTelemetry = 0 (Off)
+- AllowTelemetry = 0 (Off - Enterprise/Edu only, Pro falls back)
 - Services: DiagTrack + dmwappushservice disabled
-- AppPrivacy: Force Deny Mic/Camera/Contacts/Calendar
-- **Warning:** Breaks Teams/Zoom, Windows Update error reporting
-- **Best for:** High-security, standalone systems
+- AppPrivacy: Force Deny Location/App-Diagnose/Generative AI only
+- Mic/Camera: User decides (Teams/Zoom work!)
+- **Best for:** Privacy-focused home users, small business
 
 #### Paranoid (Hardcore - NOT Recommended)
 - Everything from Strict + WerSvc disabled
 - Tasks: CEIP/AppExperience/DiskDiag disabled
-- **Warning:** Breaks error analysis, support severely limited
-- **Best for:** Air-gapped, extreme privacy only
+- AppPrivacy: Force Deny ALL (Mic/Camera/Contacts/Calendar)
+- **WARNING:** BREAKS Teams/Zoom/Skype!
+- **Best for:** Air-gapped, kiosk, extreme privacy only
 
 ### ⚠️ Windows Insider Program Compatibility
 
@@ -199,10 +200,10 @@ After enrollment, you can optionally re-apply Privacy hardening. Insider builds 
 
 ### Bloatware Removal:
 
-**PolicyMethod (10 apps - ENT/EDU Win11 25H2+):**
+**PolicyMethod (8 apps - ENT/EDU Win11 25H2+):**
 - BingNews, BingWeather, MicrosoftSolitaireCollection
 - MicrosoftStickyNotes, GamingApp, WindowsFeedbackHub  
-- Xbox components (GamingOverlay, IdentityProvider, SpeechToTextOverlay, TCUI)
+- Xbox components (GamingOverlay, IdentityProvider)
 
 **ClassicMethod (24 apps - All other editions):**
 ```
@@ -219,7 +220,7 @@ Clipchamp.Clipchamp, SpotifyAB.SpotifyMusic
 *CandyCrush*, Disney.*, Facebook.*, TikTok.TikTok
 ```
 
-### Protected Apps (18 kept):
+### Protected Apps (19 kept):
 - **Core Apps:** WindowsStore, WindowsCalculator, Photos, Paint
 - **Productivity:** WindowsNotepad, WindowsTerminal, WindowsCamera, ScreenSketch, WindowsSoundRecorder
 - **System:** DesktopAppInstaller (winget), StorePurchaseApp
@@ -620,15 +621,15 @@ Some UI elements in Paint and Photos apps may **still be visible** but non-funct
 #### Privacy (3 prompts):
 6. **Mode selection** (MSRecommended/Strict/Paranoid)
    - MSRecommended: Fully supported, production-safe
-   - Strict: Maximum privacy (may break Teams/Zoom)
-   - Paranoid: Extreme privacy (very limited support)
+   - Strict: Maximum privacy (Teams/Zoom work)
+   - Paranoid: Extreme privacy (BREAKS Teams/Zoom!)
 
 7. **Cloud Clipboard** (Enable/Disable) - *only in MSRecommended mode*
    - Disable: No cross-device clipboard sync (privacy)
    - Enable: Keep cloud clipboard functionality
 
 8. **Bloatware Removal** (Yes/No)
-   - Yes: Remove 10-24 pre-installed apps
+   - Yes: Remove 8-24 pre-installed apps
    - No: Keep all apps installed
 
 #### AdvancedSecurity (5 prompts):
