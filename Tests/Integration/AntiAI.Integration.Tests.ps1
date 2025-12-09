@@ -3,7 +3,6 @@ Describe "AntiAI Integration Tests" {
         $script:ModulePath = Join-Path $PSScriptRoot "..\..\Modules\AntiAI"
         $script:ManifestPath = Join-Path $script:ModulePath "AntiAI.psd1"
         $script:ComplianceScript = Join-Path $script:ModulePath "Private\Test-AntiAICompliance.ps1"
-        $script:IsCI = $env:GITHUB_ACTIONS -eq 'true' -or $env:CI -eq 'true'
     }
     
     Context "Module Structure" {
@@ -26,14 +25,14 @@ Describe "AntiAI Integration Tests" {
     }
     
     Context "DryRun Execution" {
-        It "Should run in DryRun mode without errors" -Skip:$script:IsCI {
+        It "Should run in DryRun mode without errors" -Skip:($env:GITHUB_ACTIONS -eq 'true') {
             # Skip on CI - requires admin rights and registry access
             { Invoke-AntiAI -DryRun -ErrorAction Stop } | Should -Not -Throw
         }
     }
     
     Context "Compliance Check" {
-        It "Should run compliance test without errors" -Skip:$script:IsCI {
+        It "Should run compliance test without errors" -Skip:($env:GITHUB_ACTIONS -eq 'true') {
             # Skip on CI - requires admin rights and registry access
             { & $script:ComplianceScript -ErrorAction Stop } | Should -Not -Throw
         }

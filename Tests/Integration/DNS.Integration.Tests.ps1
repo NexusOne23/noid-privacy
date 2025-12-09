@@ -2,7 +2,6 @@ Describe "DNS Integration Tests" {
     BeforeAll {
         $script:ModulePath = Join-Path $PSScriptRoot "..\..\Modules\DNS"
         $script:ManifestPath = Join-Path $script:ModulePath "DNS.psd1"
-        $script:IsCI = $env:GITHUB_ACTIONS -eq 'true' -or $env:CI -eq 'true'
     }
     
     Context "Module Structure" {
@@ -26,7 +25,7 @@ Describe "DNS Integration Tests" {
     }
     
     Context "DryRun Execution" {
-        It "Should run in DryRun mode with provider specified without errors" -Skip:$script:IsCI {
+        It "Should run in DryRun mode with provider specified without errors" -Skip:($env:GITHUB_ACTIONS -eq 'true') {
             # Skip on CI - requires network adapters and admin rights
             { Invoke-DNSConfiguration -Provider "Quad9" -DryRun -ErrorAction Stop } | Should -Not -Throw
         }

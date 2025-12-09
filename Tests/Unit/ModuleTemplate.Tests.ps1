@@ -96,35 +96,34 @@ Describe "ModuleTemplate Module" {
             if (Get-Command Initialize-Logger -ErrorAction SilentlyContinue) {
                 Initialize-Logger -EnableConsole $false
             }
-            $script:IsCI = $env:GITHUB_ACTIONS -eq 'true' -or $env:CI -eq 'true'
         }
         
-        It "Should execute without errors in DryRun mode" -Skip:$script:IsCI {
+        It "Should execute without errors in DryRun mode" -Skip:($env:GITHUB_ACTIONS -eq 'true') {
             # Skip on CI - requires initialized environment
             { Invoke-ModuleTemplate -DryRun } | Should -Not -Throw
         }
         
-        It "Should return a PSCustomObject" -Skip:$script:IsCI {
+        It "Should return a PSCustomObject" -Skip:($env:GITHUB_ACTIONS -eq 'true') {
             $result = Invoke-ModuleTemplate -DryRun
             $result | Should -BeOfType [PSCustomObject]
         }
         
-        It "Should have ModuleName property" -Skip:$script:IsCI {
+        It "Should have ModuleName property" -Skip:($env:GITHUB_ACTIONS -eq 'true') {
             $result = Invoke-ModuleTemplate -DryRun
             $result.ModuleName | Should -Be "ModuleTemplate"
         }
         
-        It "Should have Success property" -Skip:$script:IsCI {
+        It "Should have Success property" -Skip:($env:GITHUB_ACTIONS -eq 'true') {
             $result = Invoke-ModuleTemplate -DryRun
             $result.PSObject.Properties.Name | Should -Contain 'Success'
         }
         
-        It "Should have ChangesApplied property" -Skip:$script:IsCI {
+        It "Should have ChangesApplied property" -Skip:($env:GITHUB_ACTIONS -eq 'true') {
             $result = Invoke-ModuleTemplate -DryRun
             $result.PSObject.Properties.Name | Should -Contain 'ChangesApplied'
         }
         
-        It "Should not apply changes in DryRun mode" -Skip:$script:IsCI {
+        It "Should not apply changes in DryRun mode" -Skip:($env:GITHUB_ACTIONS -eq 'true') {
             $result = Invoke-ModuleTemplate -DryRun
             $result.ChangesApplied | Should -Be 0
         }
@@ -132,7 +131,7 @@ Describe "ModuleTemplate Module" {
     
     Context "Return Object Structure" {
         
-        It "Should return object with all required properties" -Skip:$script:IsCI {
+        It "Should return object with all required properties" -Skip:($env:GITHUB_ACTIONS -eq 'true') {
             $result = Invoke-ModuleTemplate -DryRun
             
             $requiredProperties = @(
@@ -150,12 +149,12 @@ Describe "ModuleTemplate Module" {
             }
         }
         
-        It "Errors should be an array" -Skip:$script:IsCI {
+        It "Errors should be an array" -Skip:($env:GITHUB_ACTIONS -eq 'true') {
             $result = Invoke-ModuleTemplate -DryRun
             $result.Errors | Should -BeOfType [System.Object[]]
         }
         
-        It "Warnings should be an array" -Skip:$script:IsCI {
+        It "Warnings should be an array" -Skip:($env:GITHUB_ACTIONS -eq 'true') {
             $result = Invoke-ModuleTemplate -DryRun
             $result.Warnings | Should -BeOfType [System.Object[]]
         }

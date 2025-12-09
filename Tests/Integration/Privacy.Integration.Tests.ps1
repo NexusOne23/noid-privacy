@@ -2,7 +2,6 @@ Describe "Privacy Integration Tests" {
     BeforeAll {
         $script:ModulePath = Join-Path $PSScriptRoot "..\..\Modules\Privacy"
         $script:ManifestPath = Join-Path $script:ModulePath "Privacy.psd1"
-        $script:IsCI = $env:GITHUB_ACTIONS -eq 'true' -or $env:CI -eq 'true'
     }
     
     Context "Module Structure" {
@@ -21,7 +20,7 @@ Describe "Privacy Integration Tests" {
     }
     
     Context "DryRun Execution" {
-        It "Should run in DryRun mode with MSRecommended mode without errors" -Skip:$script:IsCI {
+        It "Should run in DryRun mode with MSRecommended mode without errors" -Skip:($env:GITHUB_ACTIONS -eq 'true') {
             # Skip on CI - requires admin rights and registry access
             { Invoke-PrivacyHardening -Mode "MSRecommended" -DryRun -ErrorAction Stop } | Should -Not -Throw
         }

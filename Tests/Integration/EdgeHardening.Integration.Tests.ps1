@@ -2,7 +2,6 @@ Describe "EdgeHardening Integration Tests" {
     BeforeAll {
         $script:ModulePath = Join-Path $PSScriptRoot "..\..\Modules\EdgeHardening"
         $script:ManifestPath = Join-Path $script:ModulePath "EdgeHardening.psd1"
-        $script:IsCI = $env:GITHUB_ACTIONS -eq 'true' -or $env:CI -eq 'true'
     }
     
     Context "Module Structure" {
@@ -38,12 +37,12 @@ Describe "EdgeHardening Integration Tests" {
     }
     
     Context "DryRun Execution" {
-        It "Should run Invoke-EdgeHardening in DryRun mode without errors" -Skip:$script:IsCI {
+        It "Should run Invoke-EdgeHardening in DryRun mode without errors" -Skip:($env:GITHUB_ACTIONS -eq 'true') {
             # Skip on CI - requires admin rights and registry access
             { Invoke-EdgeHardening -DryRun -ErrorAction Stop } | Should -Not -Throw
         }
         
-        It "Should run Test-EdgeHardening without errors" -Skip:$script:IsCI {
+        It "Should run Test-EdgeHardening without errors" -Skip:($env:GITHUB_ACTIONS -eq 'true') {
             { Test-EdgeHardening -ErrorAction Stop } | Should -Not -Throw
         }
     }

@@ -2,7 +2,6 @@ Describe "SecurityBaseline Integration Tests" {
     BeforeAll {
         $script:ModulePath = Join-Path $PSScriptRoot "..\..\Modules\SecurityBaseline"
         $script:ManifestPath = Join-Path $script:ModulePath "SecurityBaseline.psd1"
-        $script:IsCI = $env:GITHUB_ACTIONS -eq 'true' -or $env:CI -eq 'true'
     }
     
     Context "Module Structure" {
@@ -26,7 +25,7 @@ Describe "SecurityBaseline Integration Tests" {
     }
     
     Context "DryRun Execution" {
-        It "Should run in DryRun mode without errors" -Skip:$script:IsCI {
+        It "Should run in DryRun mode without errors" -Skip:($env:GITHUB_ACTIONS -eq 'true') {
             # Skip on CI - requires admin rights and registry access
             { Invoke-SecurityBaseline -DryRun -ErrorAction Stop } | Should -Not -Throw
         }
