@@ -76,11 +76,10 @@ Version 2.x+ is available under dual-licensing:
 1. **GPL v3.0** (Open Source) - Free for open-source projects
 2. **Commercial License** - For closed-source commercial use
 
-Contact via [GitHub Discussions](https://github.com/NexusOne23/noid-privacy/discussions) for commercial licensing inquiries.
+Contact via [support@noid-privacy.com](mailto:support@noid-privacy.com) for commercial licensing inquiries.
 
 ---
 
 ## Questions?
 
-If you have questions about licensing, please open a discussion on GitHub:
-https://github.com/NexusOne23/noid-privacy/discussions
+For licensing questions, contact us via email: [support@noid-privacy.com](mailto:support@noid-privacy.com)
