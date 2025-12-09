@@ -403,7 +403,7 @@
   },
   
   "Summary": {
-    "TotalAIFeaturesDisabled": "13 features (10 dedicated + 3 advanced blocks + unlimited via master switch)",
+    "TotalAIFeaturesDisabled": "15 features",
     "TotalPoliciesApplied": 32,
     "RegistryKeysModified": 32,
     "URIHandlersBlocked": 2,

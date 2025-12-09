@@ -522,7 +522,7 @@ function Invoke-Hardening {
                         Write-Host "Secure DNS with DNS-over-HTTPS" -ForegroundColor White
                         Write-Host ""
                         Write-Host "  > Configures encrypted DNS:" -ForegroundColor Gray
-                        Write-Host "    - Choose provider: Cloudflare, Quad9, or AdGuard" -ForegroundColor Gray
+                        Write-Host "    - Choose provider: Quad9 (default), Cloudflare, or AdGuard" -ForegroundColor Gray
                         Write-Host "    - Enable DoH encryption (HTTPS)" -ForegroundColor Gray
                         Write-Host "    - Blocks DNS hijacking and snooping" -ForegroundColor Gray
                         Write-Host "    - IPv4 + IPv6 configuration" -ForegroundColor Gray
@@ -534,8 +534,8 @@ function Invoke-Hardening {
                         Write-Host ""
                         Write-Host "  > Applies privacy settings based on selected mode:" -ForegroundColor Gray
                         Write-Host "    - Telemetry control (3 modes: MSRecommended/Strict/Paranoid)" -ForegroundColor Gray
-                        Write-Host "    - MSRecommended: 37 settings (default, max compatibility)" -ForegroundColor DarkGray
-                        Write-Host "    - Strict/Paranoid: 37-40 settings + services disabled" -ForegroundColor DarkGray
+                        Write-Host "    - MSRecommended: 59 settings (default, max compatibility)" -ForegroundColor DarkGray
+                        Write-Host "    - Strict: 77 settings, Paranoid: 85 settings" -ForegroundColor DarkGray
                         Write-Host "    - Disable ads, tips, personalization" -ForegroundColor Gray
                         Write-Host "    - Remove bloatware (up to 24 apps, if present)" -ForegroundColor Gray
                         Write-Host "    - OneDrive hardening (keeps sync functional)" -ForegroundColor Gray
@@ -545,7 +545,7 @@ function Invoke-Hardening {
                     "AntiAI" {
                         Write-Host "Disable Windows 11 AI Features" -ForegroundColor White
                         Write-Host ""
-                        Write-Host "  > Disables 13 features via 32 policies:" -ForegroundColor Gray
+                        Write-Host "  > Disables 15 features via 32 policies:" -ForegroundColor Gray
                         Write-Host "    - Windows Recall + Export Block" -ForegroundColor Gray
                         Write-Host "    - Windows Copilot (app + URI handlers + Edge sidebar)" -ForegroundColor Gray
                         Write-Host "    - Click to Do, Explorer AI Actions" -ForegroundColor Gray
@@ -741,7 +741,7 @@ function Invoke-Hardening {
                         }
 
                         # AntiAI module applies maximum AI deactivation (no modes)
-                        Write-Log -Level INFO -Message "Disabling all Windows 11 AI features (13 features, 32 policies)" -Module "Framework"
+                        Write-Log -Level INFO -Message "Disabling all Windows 11 AI features (15 features, 32 policies)" -Module "Framework"
                         $moduleResult = Invoke-AntiAI -DryRun:$DryRun
 
                     }

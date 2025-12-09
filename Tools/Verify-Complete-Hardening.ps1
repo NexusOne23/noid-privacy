@@ -21,7 +21,7 @@
     ASR: 19
     DNS: 5
     Privacy: 81 (57 registry Paranoid + 24 bloatware)
-    AntiAI: 32 compliance checks (13 features)
+    AntiAI: 32 compliance checks (15 features)
     EdgeHardening: 24 (22-23 applied depending on extensions)
     AdvancedSecurity: 50 (15 features incl. Discovery Protocols + IPv6)
     
@@ -49,7 +49,7 @@ $EXPECTED_EDGE_COUNT = 24  # 24 total Edge policies from EdgePolicies.json
 $EXPECTED_ADVANCED_COUNT = 50  # 50 total AdvancedSecurity policy checks (incl. Discovery Protocols WSD/mDNS + IPv6)
 $EXPECTED_DNS_COUNT = 5
 $EXPECTED_PRIVACY_COUNT = 77  # 53 registry from Privacy-MSRecommended.json + 24 bloatware apps
-$EXPECTED_ANTIAI_COUNT = 32  # 32 AntiAI registry policy checks (13 features incl. Copilot 4-Layer Defense)
+$EXPECTED_ANTIAI_COUNT = 32  # 32 AntiAI registry policy checks (15 features)
 
 Write-Host ""
 Write-Host "========================================" -ForegroundColor Cyan
