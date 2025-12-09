@@ -193,7 +193,7 @@
 - ALLOW mode (optional): fallback allowed for VPN/mobile/enterprise networks
 - IPv4 + IPv6 dual-stack support
 
-### 🔒 Privacy Hardening (77 Settings)
+### 🔒 Privacy Hardening (78 Settings)
 
 **3 Operating Modes**
 - **MSRecommended** (Default) MS-supported, max compatibility
@@ -358,18 +358,18 @@ cd noid-privacy
 ### Verification
 
 ```powershell
-# Full verification (632 checks with Paranoid mode)
+# Full verification (633 checks with Paranoid mode)
 .\Tools\Verify-Complete-Hardening.ps1
 
 # Expected output (all modules enabled, Paranoid mode):
 # SecurityBaseline: 425/425 verified
 # ASR: 19/19 verified
 # DNS: 5/5 verified
-# Privacy: 77/77 verified
+# Privacy: 78/78 verified
 # AntiAI: 32/32 verified
 # EdgeHardening: 24/24 verified
 # AdvancedSecurity: 50/50 verified
-# Total: 632/632 (100%)
+# Total: 633/633 (100%)
 ```
 
 ### Restore
@@ -392,11 +392,11 @@ cd noid-privacy
 | **SecurityBaseline** | 425 | Microsoft Security Baseline 25H2 | v2.2.0 |
 | **ASR** | 19 | Attack Surface Reduction Rules | v2.2.0 |
 | **DNS** | 5 | Secure DNS with DoH encryption | v2.2.0 |
-| **Privacy** | 77 | Telemetry, Bloatware, OneDrive hardening (Strict) | v2.2.0 |
+| **Privacy** | 78 | Telemetry, Bloatware, OneDrive hardening (Strict) | v2.2.0 |
 | **AntiAI** | 32 | AI lockdown (15 features, 32 compliance checks) | v2.2.0 |
 | **EdgeHardening** | 24 | Microsoft Edge security (24 policies) | v2.2.0 |
 | **AdvancedSecurity** | 50 | Beyond MS Baseline (SRP, Legacy protocols, Wireless Display, Discovery Protocols, IPv6) | v2.2.0 |
-| **TOTAL** | **632** | **Complete Framework (Paranoid mode)** | **Production** |
+| **TOTAL** | **633** | **Complete Framework (Paranoid mode)** | **Production** |
 
 **Release Highlights:**
 
@@ -447,7 +447,7 @@ cd noid-privacy
 - Use [Microsoft Security Baselines](https://learn.microsoft.com/en-us/windows/security/operating-system-security/device-management/windows-security-configuration-framework/security-compliance-toolkit-10) with Group Policy instead
 
 **Windows 10 or Older**
-- This tool is designed for Windows 11 (24H2/25H2 recommended, 23H2 compatible)
+- This tool is designed for Windows 11 24H2 or newer
 
 **Legacy Software Dependencies**
 - If you rely on unsafe SMB1/RPC/DCOM
@@ -465,7 +465,7 @@ NoID Privacy is designed for modern, officially supported Windows 11 systems.
 
 If your PC can run Windows 11 according to Microsoft's **official requirements**, it is compatible with NoID Privacy:
 
-- **OS:** Windows 11 24H2/25H2 recommended (23H2 compatible)
+- **OS:** Windows 11 24H2 or newer (25H2 fully tested)
 - **CPU:** Any CPU on Microsoft's Windows 11 support list (Intel 8th Gen / AMD Ryzen 2000+)
 - **Firmware:** UEFI with **Secure Boot** enabled
 - **TPM:** 2.0 (required for BitLocker, Credential Guard, VBS)
@@ -480,7 +480,7 @@ If your PC can run Windows 11 according to Microsoft's **official requirements**
 |------------|--------|
 | Windows 11 25H2 (Build 26200+) | **Fully Tested** |
 | Windows 11 24H2 (Build 26100+) | Compatible |
-| Windows 11 23H2 (Build 22631+) | Some features N/A |
+| Windows 11 23H2 or older | ❌ Not Supported |
 
 ### Legacy Devices & Protocols
 
@@ -525,8 +525,8 @@ This is the **recommended setup** – just install Windows 11, keep Defender act
 
 | Your Setup | What Happens | Coverage |
 |------------|--------------|----------|
-| **Defender Active** | All modules applied | **632 settings** (100%) |
-| **3rd-Party AV** (Kaspersky, Norton, Bitdefender, etc.) | ASR skipped, all other modules applied | **613 settings** (~97%) |
+| **Defender Active** | All modules applied | **633 settings** (100%) |
+| **3rd-Party AV** (Kaspersky, Norton, Bitdefender, etc.) | ASR skipped, all other modules applied | **614 settings** (~97%) |
 
 **Why?** ASR (Attack Surface Reduction) rules are a **Microsoft Defender exclusive feature**. Third-party antivirus products provide their own equivalent protection. NoID Privacy detects this and gracefully skips ASR while applying everything else.
 

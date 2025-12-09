@@ -17,8 +17,8 @@ title NoID Privacy v2.2.0
 REM Get the directory where this batch file is located
 set "SCRIPT_DIR=%~dp0"
 
-REM Check if already running as administrator
-net session >nul 2>&1
+REM Check if already running as administrator (robust method that works even if Server service is disabled)
+>nul 2>&1 "%SYSTEMROOT%\system32\cacls.exe" "%SYSTEMROOT%\system32\config\system"
 if %errorLevel% == 0 (
     REM Already admin, run PowerShell script directly
     echo Running NoID Privacy Interactive Menu with Administrator privileges...

@@ -119,7 +119,7 @@ function Update-SessionDisplayName {
         "SecurityBaseline"  = 425  # 335 Registry + 67 Security Template + 23 Audit
         "ASR"               = 19   # 19 ASR Rules
         "DNS"               = 5    # 5 DNS Settings
-        "Privacy"           = 77   # 53 Registry (MSRecommended) + 24 Bloatware
+        "Privacy"           = 78   # 54 Registry (MSRecommended) + 24 Bloatware
         "AntiAI"            = 32   # 32 Registry Policies (15 features)
         "EdgeHardening"     = 24   # 24 Edge Policies (22-23 applied depending on extensions)
         "AdvancedSecurity"  = 50   # 50 Advanced Settings (15 features incl. Discovery Protocols + IPv6)

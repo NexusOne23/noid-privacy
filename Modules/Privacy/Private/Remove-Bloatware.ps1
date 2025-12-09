@@ -252,7 +252,7 @@ function Remove-BloatwareClassic {
             Write-Host "  Failed: $failed apps" -ForegroundColor Red
         }
         elseif ($removed -eq 0) {
-            Write-Host "  System already clean - no matching bloatware apps found" -ForegroundColor Green
+            Write-Host "  No apps removed (already clean or skipped for restore safety)" -ForegroundColor Green
         }
         Write-Host ""
         

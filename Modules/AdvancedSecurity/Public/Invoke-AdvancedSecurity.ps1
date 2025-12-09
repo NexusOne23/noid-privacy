@@ -1155,7 +1155,7 @@ function Invoke-AdvancedSecurity {
             Write-Host ""
             
             Write-Host "Profile:       $SecurityProfile" -ForegroundColor White
-            Write-Host "Features:      $($appliedFeatures.Count)/14 applied" -ForegroundColor $(if ($failedFeatures.Count -eq 0) { 'Green' } else { 'Yellow' })
+            Write-Host "Features:      $($appliedFeatures.Count)/15 applied" -ForegroundColor $(if ($failedFeatures.Count -eq 0) { 'Green' } else { 'Yellow' })
             
             if ($failedFeatures.Count -gt 0) {
                 Write-Host "Failed:        $($failedFeatures.Count)" -ForegroundColor Red

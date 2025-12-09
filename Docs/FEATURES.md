@@ -1,7 +1,7 @@
 # NoID Privacy - Complete Feature List
 
 **Framework Version:** v2.2.0  
-**Total Security Settings:** 632 (Paranoid mode)  
+**Total Security Settings:** 633 (Paranoid mode)  
 **Modules:** 7 (All Production-Ready)  
 **Last Updated:** December 8, 2025
 
@@ -14,11 +14,11 @@
 | **SecurityBaseline** | 425 | ✅ v2.2.0 | Microsoft Security Baseline for Windows 11 v25H2 |
 | **ASR** | 19 | ✅ v2.2.0 | Attack Surface Reduction rules |
 | **DNS** | 5 | ✅ v2.2.0 | Secure DNS with DoH encryption |
-| **Privacy** | 77 | ✅ v2.2.0 | Telemetry control, OneDrive hardening (Strict: 69 Registry + 2 Services + 6 OneDrive) |
+| **Privacy** | 78 | ✅ v2.2.0 | Telemetry control, OneDrive hardening (Strict: 70 Registry + 2 Services + 6 OneDrive) |
 | **AntiAI** | 32 | ✅ v2.2.0 | AI lockdown (15 features, 32 compliance checks) |
 | **EdgeHardening** | 24 | ✅ v2.2.0 | Microsoft Edge browser security (24 policies) |
 | **AdvancedSecurity** | 50 | ✅ v2.2.0 | Advanced hardening beyond MS Baseline (incl. Wireless Display, Discovery Protocols, IPv6) |
-| **TOTAL** | **632** | ✅ **100%** | **Complete Framework (Paranoid mode)** |
+| **TOTAL** | **633** | ✅ **100%** | **Complete Framework (Paranoid mode)** |
 
 ---
 
@@ -150,7 +150,7 @@
 
 ---
 
-## 🔇 Module 4: Privacy (77 Settings)
+## 🔇 Module 4: Privacy (78 Settings)
 
 **Description:** Windows telemetry control, OneDrive/MS Store telemetry, and bloatware removal
 
@@ -205,13 +205,12 @@ After enrollment, you can optionally re-apply Privacy hardening. Insider builds 
 - MicrosoftStickyNotes, GamingApp, WindowsFeedbackHub  
 - Xbox components (GamingOverlay, IdentityProvider)
 
-**ClassicMethod (24 apps - All other editions):**
+**ClassicMethod (up to 24 apps - All other editions):**
 ```
 Microsoft.BingNews, Microsoft.BingWeather
-Microsoft.MicrosoftSolitaireCollection, Microsoft.MicrosoftStickyNotes
-Microsoft.GamingApp, Microsoft.XboxApp
-Microsoft.XboxGamingOverlay, Microsoft.XboxIdentityProvider
-Microsoft.XboxSpeechToTextOverlay, Microsoft.Xbox.TCUI
+Microsoft.MicrosoftStickyNotes, Microsoft.GamingApp
+Microsoft.XboxApp, Microsoft.XboxGamingOverlay
+Microsoft.XboxIdentityProvider
 Microsoft.ZuneMusic, Microsoft.ZuneVideo
 Microsoft.WindowsFeedbackHub, Microsoft.GetHelp
 Microsoft.Getstarted, Microsoft.MixedReality.Portal
@@ -219,6 +218,10 @@ Microsoft.People, Microsoft.YourPhone
 Clipchamp.Clipchamp, SpotifyAB.SpotifyMusic
 *CandyCrush*, Disney.*, Facebook.*, TikTok.TikTok
 ```
+
+**Skipped for restore safety (not in winget msstore):**
+- Microsoft.MicrosoftSolitaireCollection
+- Microsoft.XboxSpeechToTextOverlay, Microsoft.Xbox.TCUI
 
 ### Protected Apps (19 kept):
 - **Core Apps:** WindowsStore, WindowsCalculator, Photos, Paint
@@ -724,7 +727,7 @@ Some UI elements in Paint and Photos apps may **still be visible** but non-funct
 NoID Privacy v2.2.0
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Total Settings:             632 ✅
+Total Settings:             633 ✅
 Modules:                    7/7 (100%) ✅
 Production Status:          Ready ✅
 Verification:               100% ✅

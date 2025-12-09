@@ -16,7 +16,7 @@
     
     NOTE: This shows the TRUTH about what is configured in your system.
     
-    Total: 632 settings (Paranoid mode)
+    Total: 633 settings (Paranoid mode)
     SecurityBaseline: 425 (335 Registry + 67 SecTemplate + 23 Audit)
     ASR: 19
     DNS: 5
@@ -48,7 +48,7 @@ $EXPECTED_ASR_COUNT = 19
 $EXPECTED_EDGE_COUNT = 24  # 24 total Edge policies from EdgePolicies.json
 $EXPECTED_ADVANCED_COUNT = 50  # 50 total AdvancedSecurity policy checks (incl. Discovery Protocols WSD/mDNS + IPv6)
 $EXPECTED_DNS_COUNT = 5
-$EXPECTED_PRIVACY_COUNT = 77  # 53 registry from Privacy-MSRecommended.json + 24 bloatware apps
+$EXPECTED_PRIVACY_COUNT = 78  # 54 registry from Privacy-MSRecommended.json + 24 bloatware apps
 $EXPECTED_ANTIAI_COUNT = 32  # 32 AntiAI registry policy checks (15 features)
 
 Write-Host ""
@@ -380,7 +380,6 @@ try {
                 else {
                     # Check if this is a DELETE operation (**del..., **delvals)
                     # For DELETE operations, "Value not found" means SUCCESS (value was deleted or never existed)
-                    $registryCounter++
                     if ($setting.ValueName -like "**del*") {
                         $results.Verified++
                         $registryPassed += [PSCustomObject]@{
@@ -405,7 +404,6 @@ try {
             else {
                 # Check if this is a DELETE operation (**del..., **delvals)
                 # For DELETE operations, "Key not found" means SUCCESS (key was deleted or never existed)
-                $registryCounter++
                 if ($setting.ValueName -like "**del*") {
                     $results.Verified++
                     $registryPassed += [PSCustomObject]@{
@@ -475,7 +473,6 @@ try {
                 else {
                     # Check if this is a DELETE operation (**del..., **delvals)
                     # For DELETE operations, "Value not found" means SUCCESS (value was deleted or never existed)
-                    $registryCounter++
                     if ($setting.ValueName -like "**del*") {
                         $results.Verified++
                         $registryPassed += [PSCustomObject]@{
@@ -500,7 +497,6 @@ try {
             else {
                 # Check if this is a DELETE operation (**del..., **delvals)
                 # For DELETE operations, "Key not found" means SUCCESS (key was deleted or never existed)
-                $registryCounter++
                 if ($setting.ValueName -like "**del*") {
                     $results.Verified++
                     $registryPassed += [PSCustomObject]@{

@@ -286,7 +286,7 @@ function Invoke-PrivacyHardening {
         Write-Host "============================================" -ForegroundColor Cyan
         Write-Host ""
         Write-Host "CAN REMOVE (up to 24 apps, depending on edition and what is installed):" -ForegroundColor Yellow
-        Write-Host "  - Games & Xbox: Solitaire, Xbox apps, Candy Crush, etc." -ForegroundColor Gray
+        Write-Host "  - Games: Candy Crush, casual games, etc." -ForegroundColor Gray
         Write-Host "  - News & Weather: Bing News, Bing Weather, etc." -ForegroundColor Gray
         Write-Host "  - Others: Feedback Hub, Sticky Notes, Get Help, etc." -ForegroundColor Gray
         Write-Host ""
@@ -344,8 +344,8 @@ function Invoke-PrivacyHardening {
                     Write-Log -Level SUCCESS -Message "Bloatware removal completed ($($bloatwareResult.Count) apps)" -Module "Privacy"
                 }
                 else {
-                    Write-Log -Level SUCCESS -Message "Bloatware removal completed - no matching apps found (system already clean)" -Module "Privacy"
-                    Write-Host "`n  System already clean - no matching bloatware apps found" -ForegroundColor Green
+                    Write-Log -Level SUCCESS -Message "Bloatware removal completed - no apps removed (already clean or skipped)" -Module "Privacy"
+                    Write-Host "`n  No apps removed (already clean or skipped for restore safety)" -ForegroundColor Green
                 }
                 
                 # Save list of removed apps to backup folder for user reference
@@ -480,11 +480,10 @@ function Invoke-PrivacyHardening {
         
         Write-Log -Level SUCCESS -Message "Privacy hardening completed successfully in $Mode mode" -Module "Privacy"
         
-        # GUI parsing marker for settings count (dynamically calculated)
-        $registryCount = if ($verifyResult -and $verifyResult.TotalChecks) { $verifyResult.TotalChecks } else { 0 }
-        $bloatwareCount = if ($bloatwareResult -and $bloatwareResult.Count) { $bloatwareResult.Count } else { 0 }
-        $totalApplied = $registryCount + $bloatwareCount
-        Write-Log -Level SUCCESS -Message "Applied $totalApplied settings" -Module "Privacy"
+        # GUI parsing marker for settings count (registry + services only, NOT bloatware)
+        # Bloatware is counted separately and shown in its own summary
+        $settingsCount = if ($verifyResult -and $verifyResult.TotalChecks) { $verifyResult.TotalChecks } else { 0 }
+        Write-Log -Level SUCCESS -Message "Applied $settingsCount settings" -Module "Privacy"
         
         # Return result object for consistency with other modules
         return [PSCustomObject]@{

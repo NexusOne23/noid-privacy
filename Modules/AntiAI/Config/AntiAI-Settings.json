@@ -1,9 +1,10 @@
 {
   "ModuleName": "AntiAI",
   "Version": "1.0.0",
-  "Description": "Maximum AI deactivation - Disables all 13 Windows 11 AI features using official Microsoft policies",
+  "Description": "Maximum AI deactivation - Disables 13 of 15 Windows 11 AI features (2 skipped: too invasive)",
   "Mode": "Maximum Compliance (Enterprise-Grade)",
-  "TotalFeatures": 13,
+  "TotalFeaturesDocumented": 15,
+  "TotalFeaturesImplemented": 13,
   "TotalPolicies": 32,
   
   "Features": {
@@ -335,7 +336,8 @@
       "Impact": "Copilot disabled at OS level regardless of region setting",
       "CloudBased": false,
       "FilePath": "C:\\Windows\\System32\\IntegratedServicesRegionPolicySet.json",
-      "Note": "Requires TakeOwnership of system file - changes 'Windows CoPilot' policy to disabled"
+      "Implemented": false,
+      "NotImplementedReason": "Requires TakeOwnership of protected system file. Too invasive - risks Windows Update failures and system instability. The 4-layer Copilot defense (Feature #3) already provides complete coverage without modifying system files."
     },
     
     "14_Copilot_Network_Block": {
@@ -348,7 +350,8 @@
         "www.bing.com/copilot",
         "edgeservices.bing.com"
       ],
-      "Note": "Optional aggressive blocking - may affect legitimate Bing searches"
+      "Implemented": false,
+      "NotImplementedReason": "Hosts file modifications break legitimate Bing searches and may cause Edge instability. Also triggers Windows Defender warnings. The registry policies (Features #3, #11, #12) already block Copilot completely without side effects."
     },
     
     "15_File_Explorer_AI_Actions": {
@@ -403,7 +406,9 @@
   },
   
   "Summary": {
-    "TotalAIFeaturesDisabled": "15 features",
+    "TotalAIFeaturesDocumented": 15,
+    "TotalAIFeaturesImplemented": 13,
+    "FeaturesNotImplemented": "2 (Features #13 and #14 - too invasive, see NotImplementedReason)",
     "TotalPoliciesApplied": 32,
     "RegistryKeysModified": 32,
     "URIHandlersBlocked": 2,
@@ -414,6 +419,7 @@
     "EdgeAIBlocked": "Copilot sidebar, page context, all AI integrations",
     "DeepLinksBlocked": "ms-copilot: and ms-edge-copilot: URI protocols",
     "EnterpriseCompliance": "Maximum (Recall app/URI protection, storage limits, export block)",
-    "MSBestPractice": "Based on OFFICIAL Microsoft registry policies ONLY (no community workarounds)"
+    "MSBestPractice": "Based on OFFICIAL Microsoft registry policies ONLY (no community workarounds)",
+    "WhyNot15": "Features #13 (Region Policy Override) and #14 (Hosts File Block) are documented but NOT applied because they modify protected system files. This risks Windows Update failures and triggers Defender warnings. The 13 implemented features already provide complete AI blocking via safe registry policies."
   }
 }

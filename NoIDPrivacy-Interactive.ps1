@@ -472,15 +472,49 @@ function Show-ModuleMenu {
     Write-Banner
     Write-Header "SELECT MODULES TO APPLY"
     
+    # Module definitions with descriptions
+    $moduleDefinitions = @{
+        "SecurityBaseline" = "Microsoft Security Baseline (425 settings)"
+        "ASR"              = "Attack Surface Reduction (19 rules)"
+        "DNS"              = "Secure DNS with DoH (Quad9/Cloudflare/AdGuard)"
+        "Privacy"          = "Telemetry & Privacy hardening (3 modes)"
+        "AntiAI"           = "Disable Windows AI features (15 features, 32 policies)"
+        "EdgeHardening"    = "Secure Microsoft Edge browser (24 policies)"
+        "AdvancedSecurity" = "Beyond MS Baseline (50 settings, 15 features)"
+    }
+    
+    # Try to load config.json to check module status
+    $configPath = Join-Path $PSScriptRoot "config.json"
+    $config = $null
+    if (Test-Path $configPath) {
+        try {
+            $config = Get-Content $configPath -Raw | ConvertFrom-Json
+        }
+        catch {
+            # If config fails to load, all modules default to enabled
+        }
+    }
+    
+    # Build module list with status from config
     $modules = @(
-        [PSCustomObject]@{ Key = "1"; Name = "SecurityBaseline"; Description = "Microsoft Security Baseline (425 settings)"; Enabled = $true }
-        [PSCustomObject]@{ Key = "2"; Name = "ASR"; Description = "Attack Surface Reduction (19 rules)"; Enabled = $true }
-        [PSCustomObject]@{ Key = "3"; Name = "DNS"; Description = "Secure DNS with DoH (Quad9/Cloudflare/AdGuard)"; Enabled = $true }
-        [PSCustomObject]@{ Key = "4"; Name = "Privacy"; Description = "Telemetry & Privacy hardening (3 modes)"; Enabled = $true }
-        [PSCustomObject]@{ Key = "5"; Name = "AntiAI"; Description = "Disable Windows AI features (15 features, 32 policies)"; Enabled = $true }
-        [PSCustomObject]@{ Key = "6"; Name = "EdgeHardening"; Description = "Secure Microsoft Edge browser (24 policies)"; Enabled = $true }
-        [PSCustomObject]@{ Key = "7"; Name = "AdvancedSecurity"; Description = "15 security features (50 settings): RDP/Credentials/Ports/TLS/WPAD/PSv2/SRP/WinUpdate/WirelessDisplay/Discovery/IPv6"; Enabled = $true }
+        [PSCustomObject]@{ Key = "1"; Name = "SecurityBaseline"; Description = $moduleDefinitions["SecurityBaseline"]; Enabled = $true }
+        [PSCustomObject]@{ Key = "2"; Name = "ASR"; Description = $moduleDefinitions["ASR"]; Enabled = $true }
+        [PSCustomObject]@{ Key = "3"; Name = "DNS"; Description = $moduleDefinitions["DNS"]; Enabled = $true }
+        [PSCustomObject]@{ Key = "4"; Name = "Privacy"; Description = $moduleDefinitions["Privacy"]; Enabled = $true }
+        [PSCustomObject]@{ Key = "5"; Name = "AntiAI"; Description = $moduleDefinitions["AntiAI"]; Enabled = $true }
+        [PSCustomObject]@{ Key = "6"; Name = "EdgeHardening"; Description = $moduleDefinitions["EdgeHardening"]; Enabled = $true }
+        [PSCustomObject]@{ Key = "7"; Name = "AdvancedSecurity"; Description = $moduleDefinitions["AdvancedSecurity"]; Enabled = $true }
     )
+    
+    # Override enabled status from config.json if available
+    if ($config -and $config.modules) {
+        foreach ($module in $modules) {
+            $configModule = $config.modules.PSObject.Properties[$module.Name]
+            if ($configModule -and $configModule.Value.PSObject.Properties['enabled']) {
+                $module.Enabled = [bool]$configModule.Value.enabled
+            }
+        }
+    }
     
     foreach ($module in $modules) {
         if ($module.Enabled) { 
@@ -609,8 +643,9 @@ function Invoke-HardeningWorkflow {
             Write-ColorText "FAILED [-]" -Color Red
         }
         
-        Write-ColorText "  Modules Applied:  " -Color Gray -NoNewline
+        Write-ColorText "  Modules Selected: " -Color Gray -NoNewline
         Write-ColorText "$($modulesToRun.Count)" -Color White
+        Write-ColorText "  (Check output above for actual results per module)" -Color DarkGray
         
         Write-Host ""
         
@@ -619,7 +654,7 @@ function Invoke-HardeningWorkflow {
         }
         else {
             Write-ColorText "  Some modules had warnings or were skipped. Check details above." -Color Yellow
-            Write-ColorText "  Most security settings were still applied successfully." -Color White
+            Write-ColorText "  Review the log file for complete details." -Color White
         }
         
         Write-Host ""
@@ -885,10 +920,14 @@ try {
         exit 1
     }
     
-    # Load framework
+    # Load Framework (required for core functions like Test-IsAdmin used by modules)
     $frameworkPath = Join-Path $PSScriptRoot "Core\Framework.ps1"
     if (Test-Path $frameworkPath) {
         . $frameworkPath
+    }
+    else {
+        Write-Host "[ERROR] Framework.ps1 not found!" -ForegroundColor Red
+        exit 1
     }
     
     while ($true) {

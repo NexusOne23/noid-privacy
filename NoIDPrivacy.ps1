@@ -244,7 +244,7 @@ if (-not $Module) {
             $verifyScript = Join-Path $script:RootPath "Tools\Verify-Complete-Hardening.ps1"
             if (Test-Path $verifyScript) {
                 # Discard return value so that 'True' / 'False' is not printed to console
-                $null = & $verifyScript -Detailed
+                $null = & $verifyScript
             }
             else {
                 Write-Host "ERROR: Verification script not found" -ForegroundColor Red
@@ -256,17 +256,72 @@ if (-not $Module) {
             exit 0
         }
         "R"  {
-            # Restore from backup
+            # Restore from backup - Interactive session selection from disk
             Write-Host ""
-            Write-Host "Loading backup system..." -ForegroundColor Cyan
+            Write-Host "========================================" -ForegroundColor Cyan
+            Write-Host "  RESTORE FROM BACKUP" -ForegroundColor Cyan
+            Write-Host "========================================" -ForegroundColor Cyan
             Write-Host ""
             
-            # Call Restore-AllBackups function from Rollback.ps1
-            if (Get-Command Restore-AllBackups -ErrorAction SilentlyContinue) {
-                Restore-AllBackups
+            # Get all backup sessions from disk
+            $sessions = Get-BackupSessions
+            
+            if ($sessions.Count -eq 0) {
+                Write-Host "No backup sessions found." -ForegroundColor Yellow
+                Write-Host "Backups are created when you apply hardening modules." -ForegroundColor Gray
+                Write-Host ""
+                Write-Host "Press any key to continue..." -ForegroundColor Gray
+                $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
+                exit 0
+            }
+            
+            Write-Host "Available backup sessions:" -ForegroundColor White
+            Write-Host ""
+            
+            $i = 1
+            foreach ($session in $sessions) {
+                $moduleNames = ($session.Modules | ForEach-Object { $_.name }) -join ", "
+                $dateStr = $session.Timestamp.ToString("yyyy-MM-dd HH:mm:ss")
+                
+                Write-Host "  [$i] $dateStr" -ForegroundColor Green
+                Write-Host "      Modules: $moduleNames" -ForegroundColor Gray
+                Write-Host "      Items: $($session.TotalItems)" -ForegroundColor Gray
+                Write-Host ""
+                $i++
+            }
+            
+            Write-Host "  [0] Cancel and return" -ForegroundColor Red
+            Write-Host ""
+            
+            $selection = Read-Host "Select session to restore [1-$($sessions.Count), 0=Cancel]"
+            
+            if ($selection -eq "0" -or [string]::IsNullOrWhiteSpace($selection)) {
+                Write-Host "Restore cancelled." -ForegroundColor Yellow
+                exit 0
+            }
+            
+            $selIndex = [int]$selection - 1
+            if ($selIndex -lt 0 -or $selIndex -ge $sessions.Count) {
+                Write-Host "Invalid selection." -ForegroundColor Red
+                exit 1
+            }
+            
+            $selectedSession = $sessions[$selIndex]
+            
+            Write-Host ""
+            Write-Host "Restoring session: $($selectedSession.SessionId)" -ForegroundColor Cyan
+            Write-Host ""
+            
+            # Call Restore-Session with the session path
+            $success = Restore-Session -SessionPath $selectedSession.FolderPath
+            
+            if ($success) {
+                Write-Host ""
+                Write-Host "Restore completed successfully!" -ForegroundColor Green
             }
             else {
-                Write-Host "ERROR: Restore function not available" -ForegroundColor Red
+                Write-Host ""
+                Write-Host "Restore completed with some errors. Check logs for details." -ForegroundColor Yellow
             }
             
             Write-Host ""

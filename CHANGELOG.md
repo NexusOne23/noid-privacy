@@ -61,7 +61,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Defense-in-depth (WPAD already disabled by framework)
 - Recommended for air-gapped/standalone systems
 
-**Privacy Module Expansion (55+ → 77 settings)**
+**Privacy Module Expansion (55+ → 78 settings)**
 - Cloud Clipboard toggle (user-configurable)
 - Enhanced compliance verification
 - Improved bloatware detection
@@ -71,7 +71,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Automatic detection of Kaspersky, Norton, Bitdefender, etc.
 - ASR module gracefully skipped when 3rd-party AV active
 - Clear user notification explaining why
-- All other modules continue normally (613 settings)
+- All other modules continue normally (614 settings)
 
 **Smart Registry Backup System**
 - JSON fallback for protected system keys
@@ -81,7 +81,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 **Documentation**
 - AV Compatibility section: "Designed for Microsoft Defender – Works with Any Antivirus"
-- Clear 632 vs 613 explanation for Defender vs. 3rd-party AV setups
+- Clear 633 vs 614 explanation for Defender vs. 3rd-party AV setups
 - Improved troubleshooting guides
 
 ### 🔨 Fixed
@@ -113,9 +113,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 | Component | v2.1.0 | v2.2.0 |
 |-----------|--------|--------|
-| Total Settings | 580+ | **632** |
+| Total Settings | 580+ | **633** |
 | AntiAI Policies | 24 | **32** |
-| Privacy Settings | 55+ | **77** |
+| Privacy Settings | 55+ | **78** |
 | NonInteractive Mode | ❌ | ✅ |
 | 3rd-Party AV Detection | ❌ | ✅ |
 | Pre-Framework ASR Snapshot | ❌ | ✅ |

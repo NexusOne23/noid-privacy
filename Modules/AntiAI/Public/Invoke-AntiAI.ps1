@@ -92,7 +92,7 @@ function Invoke-AntiAI {
     # Initialize result tracking (PSCustomObject for Framework compatibility)
     $result = [PSCustomObject]@{
         Success            = $false
-        TotalFeatures      = 15  # 15 Features as documented in AntiAI-Settings.json
+        TotalFeatures      = 15  # 15 documented, 13 applied (2 skipped: Region Policy Override + Hosts File - too invasive)
         Applied            = 0
         Failed             = 0
         Warnings           = @()

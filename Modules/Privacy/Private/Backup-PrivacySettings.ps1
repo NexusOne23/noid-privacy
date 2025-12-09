@@ -38,6 +38,7 @@ function Backup-PrivacySettings {
             "HKLM:\SOFTWARE\Policies\Microsoft\WindowsStore",
             "HKLM:\SOFTWARE\Policies\Microsoft\Dsh",
             "HKLM:\SOFTWARE\Policies\Microsoft\FindMyDevice",
+            "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\TextInput",  # AllowLinguisticDataCollection (v2.2.0)
             "HKLM:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\appDiagnostics",
             # HKCU User Keys
             "HKCU:\Software\Policies\Microsoft\Windows\Explorer",

@@ -121,7 +121,7 @@ function Get-WindowsVersion {
     # Windows 11 build numbers
     # 22000 = 21H2, 22621 = 22H2, 22631 = 23H2, 26100 = 24H2, 26200 = 25H2
     $isWindows11 = $buildNumber -ge 22000
-    $isSupported = $buildNumber -ge 26100  # 24H2 or newer
+    $isSupported = $buildNumber -ge 26100  # 24H2 or newer required
     
     $versionName = switch ($buildNumber) {
         { $_ -ge 26200 } { "Windows 11 25H2"; break }

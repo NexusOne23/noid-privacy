@@ -534,8 +534,8 @@ function Invoke-Hardening {
                         Write-Host ""
                         Write-Host "  > Applies privacy settings based on selected mode:" -ForegroundColor Gray
                         Write-Host "    - Telemetry control (3 modes: MSRecommended/Strict/Paranoid)" -ForegroundColor Gray
-                        Write-Host "    - MSRecommended: 59 settings (default, max compatibility)" -ForegroundColor DarkGray
-                        Write-Host "    - Strict: 77 settings, Paranoid: 85 settings" -ForegroundColor DarkGray
+                        Write-Host "    - MSRecommended: 60 settings (default, max compatibility)" -ForegroundColor DarkGray
+                        Write-Host "    - Strict: 78 settings, Paranoid: 86 settings" -ForegroundColor DarkGray
                         Write-Host "    - Disable ads, tips, personalization" -ForegroundColor Gray
                         Write-Host "    - Remove bloatware (up to 24 apps, if present)" -ForegroundColor Gray
                         Write-Host "    - OneDrive hardening (keeps sync functional)" -ForegroundColor Gray
