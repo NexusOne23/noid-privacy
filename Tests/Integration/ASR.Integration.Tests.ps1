@@ -2,6 +2,7 @@ Describe "ASR Integration Tests" {
     BeforeAll {
         $script:ModulePath = Join-Path $PSScriptRoot "..\..\Modules\ASR"
         $script:ManifestPath = Join-Path $script:ModulePath "ASR.psd1"
+        $script:IsCI = $env:GITHUB_ACTIONS -eq 'true' -or $env:CI -eq 'true'
     }
     
     Context "Module Structure" {
@@ -20,7 +21,8 @@ Describe "ASR Integration Tests" {
     }
     
     Context "DryRun Execution" {
-        It "Should run in DryRun mode without errors" {
+        It "Should run in DryRun mode without errors" -Skip:$script:IsCI {
+            # Skip on CI - requires Windows Defender and admin rights
             { Invoke-ASRRules -DryRun -ErrorAction Stop } | Should -Not -Throw
         }
     }

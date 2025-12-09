@@ -29,7 +29,6 @@ jobs:
         
     - name: Run Unit Tests
       shell: pwsh
-      continue-on-error: true  # Tests are informational - code works but tests need updating
       run: |
         $config = New-PesterConfiguration
         $config.Run.Path = "Tests/Unit"
@@ -48,7 +47,6 @@ jobs:
         
     - name: Run Integration Tests (DryRun only)
       shell: pwsh
-      continue-on-error: true  # Tests are informational - code works but tests need updating
       run: |
         $config = New-PesterConfiguration
         $config.Run.Path = "Tests/Integration"
