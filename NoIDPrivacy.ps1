@@ -198,9 +198,9 @@ if (-not $Module) {
     Write-Host "  APPLY HARDENING:" -ForegroundColor Cyan
     Write-Host "  1. SecurityBaseline     - Microsoft Security Baseline (425+ settings)" -ForegroundColor Green
     Write-Host "  2. ASR                  - Attack Surface Reduction (19 rules)" -ForegroundColor Green
-    Write-Host "  3. DNS                  - Secure DNS with DoH (Cloudflare/Quad9/AdGuard)" -ForegroundColor Green
+    Write-Host "  3. DNS                  - Secure DNS with DoH (Quad9/Cloudflare/AdGuard)" -ForegroundColor Green
     Write-Host "  4. Privacy              - Telemetry & Privacy hardening (3 modes)" -ForegroundColor Green
-    Write-Host "  5. AntiAI               - Disable Windows AI features (13 features, 32 policies)" -ForegroundColor Green
+    Write-Host "  5. AntiAI               - Disable Windows AI features (15 features, 32 policies)" -ForegroundColor Green
     Write-Host "  6. EdgeHardening        - Secure Microsoft Edge browser" -ForegroundColor Green
     Write-Host "  7. AdvancedSecurity     - Legacy Protocol hardening, Windows Update, SRP (CVE-2025-9491)" -ForegroundColor Green
     Write-Host " 99. ALL MODULES (WIZARD) - Interactive setup for all modules" -ForegroundColor Cyan

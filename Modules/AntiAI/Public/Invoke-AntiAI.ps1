@@ -6,7 +6,7 @@
     Disables all Windows 11 AI features using official Microsoft policies.
 
 .DESCRIPTION
-    Maximum AI deactivation module - Disables 8+ Windows 11 AI features:
+    Maximum AI deactivation module - Disables 15 Windows 11 AI features:
     
     DEACTIVATED AI FEATURES:
     1. Generative AI Master Switch - Blocks ALL apps from using on-device AI models
@@ -73,7 +73,7 @@ function Invoke-AntiAI {
     Write-Host "  ANTI-AI MODULE v2.2.0" -ForegroundColor Cyan
     Write-Host "========================================" -ForegroundColor Cyan
     Write-Host ""
-    Write-Host "Disables 13 AI features (32 policies):" -ForegroundColor White
+    Write-Host "Disables 15 AI features (32 policies):" -ForegroundColor White
     Write-Host "  - Generative AI Master Switch (blocks ALL AI models)" -ForegroundColor Gray
     Write-Host "  - Windows Recall + Export Block" -ForegroundColor Gray
     Write-Host "  - Windows Copilot (app + URI handlers + Edge sidebar)" -ForegroundColor Gray
@@ -92,7 +92,7 @@ function Invoke-AntiAI {
     # Initialize result tracking (PSCustomObject for Framework compatibility)
     $result = [PSCustomObject]@{
         Success            = $false
-        TotalFeatures      = 13  # 10 Original + 3 Advanced (RecallExport, URIHandlers, EdgeSidebar)
+        TotalFeatures      = 15  # 15 Features as documented in AntiAI-Settings.json
         Applied            = 0
         Failed             = 0
         Warnings           = @()

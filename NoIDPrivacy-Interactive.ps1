@@ -475,9 +475,9 @@ function Show-ModuleMenu {
     $modules = @(
         [PSCustomObject]@{ Key = "1"; Name = "SecurityBaseline"; Description = "Microsoft Security Baseline (425 settings)"; Enabled = $true }
         [PSCustomObject]@{ Key = "2"; Name = "ASR"; Description = "Attack Surface Reduction (19 rules)"; Enabled = $true }
-        [PSCustomObject]@{ Key = "3"; Name = "DNS"; Description = "Secure DNS with DoH (Cloudflare/Quad9/AdGuard)"; Enabled = $true }
+        [PSCustomObject]@{ Key = "3"; Name = "DNS"; Description = "Secure DNS with DoH (Quad9/Cloudflare/AdGuard)"; Enabled = $true }
         [PSCustomObject]@{ Key = "4"; Name = "Privacy"; Description = "Telemetry & Privacy hardening (3 modes)"; Enabled = $true }
-        [PSCustomObject]@{ Key = "5"; Name = "AntiAI"; Description = "Disable Windows AI features (13 features, 32 policies)"; Enabled = $true }
+        [PSCustomObject]@{ Key = "5"; Name = "AntiAI"; Description = "Disable Windows AI features (15 features, 32 policies)"; Enabled = $true }
         [PSCustomObject]@{ Key = "6"; Name = "EdgeHardening"; Description = "Secure Microsoft Edge browser (24 policies)"; Enabled = $true }
         [PSCustomObject]@{ Key = "7"; Name = "AdvancedSecurity"; Description = "15 security features (50 settings): RDP/Credentials/Ports/TLS/WPAD/PSv2/SRP/WinUpdate/WirelessDisplay/Discovery/IPv6"; Enabled = $true }
     )

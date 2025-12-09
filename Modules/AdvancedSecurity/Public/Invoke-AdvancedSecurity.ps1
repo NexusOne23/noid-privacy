@@ -7,7 +7,7 @@ function Invoke-AdvancedSecurity {
         Applies advanced security hardening settings beyond Microsoft Security Baseline.
         
         Features 3 profiles:
-        - Home: Safe defaults for home users and workstations
+        - Balanced: Safe defaults for home users and workstations
         - Enterprise: Conservative approach with domain-safety checks
         - Maximum: Maximum hardening for air-gapped/high-security environments
         
@@ -23,7 +23,7 @@ function Invoke-AdvancedSecurity {
     
     .PARAMETER SecurityProfile
         Security profile to apply:
-        - Home: Safe for home users and workstations (default)
+        - Balanced: Safe for home users and workstations (default)
         - Enterprise: Safe for corporate environments
         - Maximum: Maximum hardening for air-gapped systems
     
@@ -43,7 +43,7 @@ function Invoke-AdvancedSecurity {
         Preview changes without applying them (alias for WhatIf)
     
     .EXAMPLE
-        Invoke-AdvancedSecurity -SecurityProfile Home
+        Invoke-AdvancedSecurity -SecurityProfile Balanced
         Applies safe hardening for home users
     
     .EXAMPLE
@@ -98,7 +98,7 @@ function Invoke-AdvancedSecurity {
         if (-not $PSBoundParameters.ContainsKey('SecurityProfile')) {
             if (Test-NonInteractiveMode) {
                 # NonInteractive mode (GUI) - use config value
-                $SecurityProfile = Get-NonInteractiveValue -Module "AdvancedSecurity" -Key "securityProfile" -Default "Home"
+                $SecurityProfile = Get-NonInteractiveValue -Module "AdvancedSecurity" -Key "securityProfile" -Default "Balanced"
                 Write-NonInteractiveDecision -Module "AdvancedSecurity" -Decision "Security Profile" -Value $SecurityProfile
             }
             else {
