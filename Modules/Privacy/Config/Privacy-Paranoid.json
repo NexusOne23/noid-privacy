@@ -214,6 +214,13 @@
         "Description": "No cloud-based input personalization"
       }
     },
+    "HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\TextInput": {
+      "AllowLinguisticDataCollection": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "Don't send typing data to Microsoft for language model improvement"
+      }
+    },
     "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\System": {
       "EnableActivityFeed": {
         "Type": "DWord",
