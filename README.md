@@ -16,7 +16,7 @@
 ### 🔒 Complete Windows 11 Security Framework
 **630+ Settings • 7 Modules • Full Backup & Restore**
 
-[📥 Quick Start](#-quick-start) • [📚 Documentation](#documentation) • [🎯 Key Features](#-key-features) • [💬 Community](https://github.com/NexusOne23/noid-privacy/discussions)
+[📥 Quick Start](#-quick-start) • [📚 Documentation](#-documentation) • [🎯 Key Features](#-key-features) • [💬 Community](https://github.com/NexusOne23/noid-privacy/discussions)
 
 ---
 
@@ -238,6 +238,8 @@
 - **Discovery Protocols** — Optional WS-Discovery + mDNS disable (Maximum profile)
 - **Windows Update** — Interactive configuration
 - **Finger Protocol** — Blocked (ClickFix malware protection)
+
+📖 [Detailed Feature Documentation](Docs/FEATURES.md)
 
 ---
 
