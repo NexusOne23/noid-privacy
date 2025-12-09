@@ -3,7 +3,7 @@
     Apply Microsoft Edge v139 Security Baseline
     
 .DESCRIPTION
-    Applies all 20 Microsoft Edge Security Baseline policies using native PowerShell:
+    Applies all 24 Microsoft Edge Security Baseline policies using native PowerShell:
     - SmartScreen enforcement (no override allowed)
     - Site isolation (SitePerProcess) for process-per-site security
     - SSL/TLS error override blocking

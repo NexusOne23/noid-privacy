@@ -4,7 +4,7 @@
     
 .DESCRIPTION
     Native PowerShell implementation - no LGPO.exe dependency.
-    Applies 20 Microsoft Edge v139 Security Baseline policies directly to registry.
+    Applies 24 Microsoft Edge v139 Security Baseline policies directly to registry.
     
     Policies include:
     - SmartScreen enforcement (no override)

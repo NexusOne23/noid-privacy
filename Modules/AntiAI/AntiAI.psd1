@@ -5,7 +5,7 @@
     Author = 'NexusOne23'
     CompanyName = 'Open Source Project'
     Copyright = '(c) 2025 NexusOne23. Licensed under GPL-3.0.'
-    Description = 'Comprehensive Windows 11 AI deactivation - Disables all 8+ AI features using official Microsoft policies (Recall, Copilot, Paint AI, Notepad AI, Click to Do, Settings Agent). Maximum compliance mode with enterprise-grade Recall protection.'
+    Description = 'Comprehensive Windows 11 AI deactivation - Disables all 15 AI features using official Microsoft policies (Recall, Copilot, Paint AI, Notepad AI, Click to Do, Settings Agent, etc.). Maximum compliance mode with enterprise-grade Recall protection.'
     PowerShellVersion = '5.1'
     
     FunctionsToExport = @(

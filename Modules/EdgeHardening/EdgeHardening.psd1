@@ -18,7 +18,7 @@
     Copyright = '(c) 2025 NexusOne23. Licensed under GPL-3.0.'
     
     # Description of the functionality provided by this module
-    Description = 'Microsoft Edge Security Hardening based on MS Edge v139 Security Baseline. Applies 20 security policies to harden Microsoft Edge browser using native PowerShell (no LGPO.exe dependency). Includes SmartScreen enforcement, site isolation, SSL/TLS hardening, extension blocking, and IE mode restrictions.'
+    Description = 'Microsoft Edge Security Hardening based on MS Edge v139 Security Baseline. Applies 24 security policies to harden Microsoft Edge browser using native PowerShell (no LGPO.exe dependency). Includes SmartScreen enforcement, site isolation, SSL/TLS hardening, extension blocking, and IE mode restrictions.'
     
     # Minimum version of the PowerShell engine required by this module
     PowerShellVersion = '5.1'
