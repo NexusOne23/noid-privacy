@@ -151,7 +151,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - No LGPO.exe dependency (100% native PowerShell)
 
 **ASR** (19 rules) - Attack Surface Reduction
-- 18 rules in Block mode, 1 configurable (PSExec/WMI)
+- 17 Block + 2 Configurable (PSExec/WMI + New/Unknown Software)
 - Blocks ransomware, macros, exploits, credential theft
 - Office/Adobe/Email protection
 - ConfigMgr detection for compatibility

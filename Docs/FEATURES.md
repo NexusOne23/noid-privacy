@@ -14,7 +14,7 @@
 | **SecurityBaseline** | 425 | ✅ v2.2.0 | Microsoft Security Baseline for Windows 11 v25H2 |
 | **ASR** | 19 | ✅ v2.2.0 | Attack Surface Reduction rules |
 | **DNS** | 5 | ✅ v2.2.0 | Secure DNS with DoH encryption |
-| **Privacy** | 77 | ✅ v2.2.0 | Telemetry control, Bloatware removal (53 Registry + 24 Bloatware) |
+| **Privacy** | 77 | ✅ v2.2.0 | Telemetry control, OneDrive hardening (Strict: 69 Registry + 2 Services + 6 OneDrive) |
 | **AntiAI** | 32 | ✅ v2.2.0 | AI lockdown (13 features, 32 compliance checks) |
 | **EdgeHardening** | 24 | ✅ v2.2.0 | Microsoft Edge browser security (24 policies) |
 | **AdvancedSecurity** | 50 | ✅ v2.2.0 | Advanced hardening beyond MS Baseline (incl. Wireless Display, Discovery Protocols, IPv6) |
