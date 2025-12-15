@@ -100,7 +100,7 @@
 - 425 settings: MS Security Baseline for Win11 25H2
 - 24 settings: MS Security Baseline for Edge
 - 19 rules: Attack Surface Reduction
-- VBS + Credential Guard: Hardware-level protection
+- VBS + Credential Guard*: Hardware-level protection
 
 **🔒 Privacy Layer**
 - DNS: Block telemetry, tracking, ads (DoH)
@@ -109,6 +109,8 @@
 - Bloatware: 24 pre-installed apps removed
 
 **🎯 The Result:** A hardened system that's both secure against attacks and private from surveillance.
+
+*_Credential Guard requires Windows 11 Enterprise or Education_
 
 ---
 
@@ -122,7 +124,7 @@
 | 630+ Security Settings | No Recall / Copilot / AI | 100% Verification Coverage | BAVR Architecture |
 | 19 ASR Rules (17 Block + 2 Configurable) | Telemetry & Ads Blocked | Detailed Logging | Exact Pre-State Restore |
 | Zero-Day CVE-2025-9491 | DNS-over-HTTPS (DoH) | Modular Design | Designed for Zero Data Loss |
-| VBS & Credential Guard | Edge Browser Hardened | Open Source / Auditable | Safe for Production |
+| VBS & Credential Guard* | Edge Browser Hardened | Open Source / Auditable | Safe for Production |
 
 👉 [3-Minute Quick Start](#-quick-start) • 📖 [Full Feature List](Docs/FEATURES.md)
 
@@ -170,7 +172,7 @@
 - **335 Registry Policies** Computer + User Configuration
 - **67 Security Template Settings** Password Policy, Account Lockout, User Rights, Security Options
 - **23 Advanced Audit Policies** Complete security event logging
-- **Credential Guard** Passwords can't be stolen from memory
+- **Credential Guard*** Passwords can't be stolen from memory (Enterprise/Education only)
 - **BitLocker Policies** USB drive protection, enhanced PIN, DMA attack prevention
 - **VBS & HVCI** Virtualization-based security
 
@@ -468,7 +470,7 @@ If your PC can run Windows 11 according to Microsoft's **official requirements**
 - **OS:** Windows 11 24H2 or newer (25H2 fully tested)
 - **CPU:** Any CPU on Microsoft's Windows 11 support list (Intel 8th Gen / AMD Ryzen 2000+)
 - **Firmware:** UEFI with **Secure Boot** enabled
-- **TPM:** 2.0 (required for BitLocker, Credential Guard, VBS)
+- **TPM:** 2.0 (required for BitLocker, Credential Guard*, VBS)
 - **RAM:** 8 GB minimum, 16 GB recommended for VBS
 - **Admin Rights:** Required
 
@@ -568,7 +570,7 @@ This is NOT an error - ASR will be skipped.
 - Protects against zero-day exploits (CVE-2025-9491)
 - Minimizes telemetry to Security-Essential level
 - Locks down AI features (Recall, Copilot, etc.)
-- Configures BitLocker policies, Credential Guard, VBS 
+- Configures BitLocker policies, Credential Guard*, VBS 
 
 ### What This Tool Does NOT Do
 
@@ -628,6 +630,7 @@ Edit: Modules/ASR/Config/ASR-Rules.json
 - Right-click PowerShell → "Run as Administrator"
 
 **VBS/Credential Guard not active after reboot**
+- Credential Guard requires Windows 11 Enterprise or Education
 - Hardware incompatibility (no TPM 2.0 or virtualization disabled)
 - Enable virtualization in BIOS/UEFI
 - Verify: `.\Tools\Verify-Complete-Hardening.ps1`

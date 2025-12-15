@@ -503,7 +503,7 @@ function Invoke-Hardening {
                         Write-Host "    - 335 Registry policies (password, firewall, BitLocker)" -ForegroundColor Gray
                         Write-Host "    - 67 Security template settings (user rights, audit)" -ForegroundColor Gray
                         Write-Host "    - 23 Advanced audit policies" -ForegroundColor Gray
-                        Write-Host "    - VBS + Credential Guard + Memory Integrity" -ForegroundColor Gray
+                        Write-Host "    - VBS + Credential Guard* + Memory Integrity (*Ent/Edu only)" -ForegroundColor Gray
                         Write-Host ""
                         Write-Host "  Impact: Enterprise-grade security, may break legacy software" -ForegroundColor Yellow
                     }

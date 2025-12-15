@@ -147,7 +147,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 335 Registry policies (Computer + User Configuration)
 - 67 Security Template settings (Password Policy, Account Lockout, User Rights, Security Options)
 - 23 Advanced Audit policies (Complete security event logging)
-- Credential Guard, BitLocker policies, VBS & HVCI
+- Credential Guard (Enterprise/Education only), BitLocker policies, VBS & HVCI
 - No LGPO.exe dependency (100% native PowerShell)
 
 **ASR** (19 rules) - Attack Surface Reduction

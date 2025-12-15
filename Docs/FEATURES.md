@@ -53,7 +53,7 @@
 
 ### Key Features:
 - ✅ VBS (Virtualization Based Security)
-- ✅ Credential Guard
+- ✅ Credential Guard (Enterprise/Education only)
 - ✅ System Guard Secure Launch
 - ✅ Kernel CET Shadow Stacks (Win11 25H2)
 - ✅ Memory Integrity (HVCI)

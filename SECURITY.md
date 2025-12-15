@@ -67,7 +67,7 @@ NoID Privacy implements multiple security layers:
 ### Security Hardening Applied
 - 🔐 Microsoft Security Baseline 25H2 (425 settings)
 - 🛡️ Attack Surface Reduction (19 rules)
-- 🔒 Credential Guard + VBS + HVCI
+- 🔒 Credential Guard* + VBS + HVCI (*Enterprise/Education only)
 - 🤖 AI Lockdown (Recall, Copilot, etc.)
 - 🌐 DNS-over-HTTPS with no fallback
 - 🚫 Zero-Day Protection (CVE-2025-9491 SRP)
