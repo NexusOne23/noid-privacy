@@ -43,6 +43,7 @@ Tests/Results/
 
 # User configuration (don't commit personal settings)
 config.local.json
+gui-state.json
 
 # Sensitive data
 *.key
