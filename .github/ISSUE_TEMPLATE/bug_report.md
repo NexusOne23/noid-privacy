@@ -32,7 +32,7 @@ A clear description of what actually happened.
 - **CPU**: [e.g., AMD Ryzen 7 9800X3D]
 - **TPM**: [e.g., 2.0 Present]
 - **Third-Party AV**: [e.g., None, Windows Defender only]
-- **Script Version**: [e.g., v2.2.0]
+- **Script Version**: [e.g., v2.2.1]
 - **Execution Mode**: [Interactive / Direct / DryRun]
 
 **Get System Info:**

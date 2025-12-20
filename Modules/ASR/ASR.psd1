@@ -1,6 +1,6 @@
 @{
     RootModule = 'ASR.psm1'
-    ModuleVersion = '2.2.0'
+    ModuleVersion = '2.2.1'
     GUID = 'b2c3d4e5-f6a7-8901-bcde-f23456789012'
     Author = 'NexusOne23'
     CompanyName = 'Open Source Project'
@@ -25,7 +25,7 @@
             LicenseUri = ''
             ProjectUri = ''
             ReleaseNotes = @"
-v2.2.0 - Production Release
+v2.2.1 - Production Release
 - All 19 ASR rules implementation
 - Hybrid approach: Registry backup + Set-MpPreference application
 - SCCM/Configuration Manager detection

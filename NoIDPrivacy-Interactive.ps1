@@ -19,7 +19,7 @@
     resulting from its use. USE AT YOUR OWN RISK.
 
     Author: NexusOne23
-    Version: 2.2.0
+    Version: 2.2.1
     Requires: PowerShell 5.1+, Administrator
     For CLI mode use: NoIDPrivacy.ps1 -Module <name>
 #>
@@ -30,7 +30,7 @@
 # No parameters - interactive mode only
 
 $ErrorActionPreference = 'Stop'
-$Host.UI.RawUI.WindowTitle = "NoID Privacy v2.2.0"
+$Host.UI.RawUI.WindowTitle = "NoID Privacy v2.2.1"
 
 # Set script root path (required by modules to load configs)
 $script:RootPath = $PSScriptRoot
@@ -90,7 +90,7 @@ function Write-Banner {
     Clear-Host
     Write-Host ""
     Write-Host "    ========================================" -ForegroundColor Cyan
-    Write-Host "         NoID Privacy v2.2.0          " -ForegroundColor Cyan
+    Write-Host "         NoID Privacy v2.2.1          " -ForegroundColor Cyan
     Write-Host "    ========================================" -ForegroundColor Cyan
     Write-Host ""
     Write-Host "    Professional Windows 11 Security & Privacy Hardening Framework" -ForegroundColor Gray
@@ -105,7 +105,7 @@ function Write-Banner {
     $osBuild = if ($os) { $os.BuildNumber } else { $null }
     $psVersion = $PSVersionTable.PSVersion.ToString()
 
-    $envLine = "    Version 2.2.0"
+    $envLine = "    Version 2.2.1"
     if ($osBuild) {
         $envLine += " | Windows Build $osBuild"
     }
@@ -600,11 +600,18 @@ function Invoke-HardeningWorkflow {
         
         # FIX: Call framework ONCE with all modules instead of separate calls
         # This ensures single backup session and single log file
+        # Exit code handling: 0 = Success, 10 = Success with Reboot recommended
+        # Any other code indicates failure
+        $rebootRecommended = $false
+        
         if ($modulesToRun.Count -eq 7) {
             # All modules selected - use "All" for single unified session
             Write-Step "Running ALL modules in unified session..." -Status INFO
             & $frameworkScript -Module All -VerboseLogging
-            if ($LASTEXITCODE -ne 0) {
+            if ($LASTEXITCODE -eq 10) {
+                $rebootRecommended = $true
+            }
+            elseif ($LASTEXITCODE -ne 0) {
                 $allSucceeded = $false
             }
         }
@@ -612,7 +619,10 @@ function Invoke-HardeningWorkflow {
             # Single module
             Write-Step "Running module: $($modulesToRun[0])" -Status INFO
             & $frameworkScript -Module $modulesToRun[0] -VerboseLogging
-            if ($LASTEXITCODE -ne 0) {
+            if ($LASTEXITCODE -eq 10) {
+                $rebootRecommended = $true
+            }
+            elseif ($LASTEXITCODE -ne 0) {
                 $allSucceeded = $false
             }
         }
@@ -622,7 +632,10 @@ function Invoke-HardeningWorkflow {
             foreach ($mod in $modulesToRun) {
                 Write-Step "Running module: $mod" -Status INFO
                 & $frameworkScript -Module $mod -VerboseLogging
-                if ($LASTEXITCODE -ne 0) {
+                if ($LASTEXITCODE -eq 10) {
+                    $rebootRecommended = $true
+                }
+                elseif ($LASTEXITCODE -ne 0) {
                     $allSucceeded = $false
                 }
                 Write-Host ""
@@ -651,6 +664,9 @@ function Invoke-HardeningWorkflow {
         
         if ($allSucceeded) {
             Write-ColorText "  Your system is now hardened with enterprise-grade security!" -Color Green
+            if ($rebootRecommended) {
+                Write-ColorText "  A system reboot is recommended for all changes to take effect." -Color Yellow
+            }
         }
         else {
             Write-ColorText "  Some modules had warnings or were skipped. Check details above." -Color Yellow
@@ -659,8 +675,10 @@ function Invoke-HardeningWorkflow {
         
         Write-Host ""
         
-        # Always prompt for reboot (even with warnings/skips, changes were made)
-        Invoke-RebootPrompt -Context 'Hardening'
+        # Prompt for reboot if recommended by exit code or if changes were made
+        if ($rebootRecommended -or $allSucceeded) {
+            Invoke-RebootPrompt -Context 'Hardening'
+        }
         
         Write-Host ""
     }

@@ -12,7 +12,7 @@
 
 .NOTES
     Author: NexusOne23
-    Version: 2.2.0
+    Version: 2.2.1
     
     Usage in modules:
     1. Call Test-NonInteractiveMode to check if prompts should be skipped

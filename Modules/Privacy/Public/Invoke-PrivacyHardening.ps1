@@ -354,7 +354,7 @@ function Invoke-PrivacyHardening {
                         $bloatwareListPath = Join-Path $moduleBackupPath "REMOVED_APPS_LIST.txt"
                         $listContent = @()
                         $listContent += "================================================================"
-                        $listContent += "  REMOVED APPS - NoID Privacy v2.2.0"
+                        $listContent += "  REMOVED APPS - NoID Privacy v2.2.1"
                         $listContent += "  Session: $(Split-Path $moduleBackupPath -Leaf)"
                         $listContent += "  Date: $(Get-Date -Format 'yyyy-MM-dd HH:mm:ss')"
                         $listContent += "================================================================"

@@ -22,7 +22,7 @@ function Set-WindowsUpdate {
         
     .NOTES
         Author: NexusOne23
-        Version: 2.2.0
+        Version: 2.2.1
         Requires: Administrator privileges
         Based on: Windows Settings > Windows Update > Advanced options
     #>

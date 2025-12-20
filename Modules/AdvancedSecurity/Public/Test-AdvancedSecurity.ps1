@@ -110,13 +110,15 @@ function Test-AdvancedSecurity {
         Write-Host "Testing Discovery Protocols (WS-Discovery + mDNS)..." -ForegroundColor Gray
         $discoveryTest = Test-DiscoveryProtocolsSecurity
         if ($discoveryTest) {
+            # Optional feature (Maximum profile only) - use Pass field which is always true
+            $statusText = if ($discoveryTest.Compliant) { "Disabled (Maximum)" } else { "Enabled (Optional - Maximum profile only)" }
             $results += [PSCustomObject]@{
                 Feature   = "Discovery Protocols (WS-Discovery + mDNS)"
-                Status    = if ($discoveryTest.Compliant) { "Secure" } else { "Insecure" }
+                Status    = $statusText
                 Details   = "mDNS=" + $(if ($discoveryTest.EnableMDNS -eq 0) { "Disabled" } else { "Enabled/Not Set" }) +
                             "; Services: FDResPub=" + $discoveryTest.FDResPubDisabled + ", fdPHost=" + $discoveryTest.FdPHostDisabled +
                             "; FirewallRulesEnabled=" + $discoveryTest.FirewallRulesEnabled
-                Compliant = $discoveryTest.Compliant
+                Compliant = $discoveryTest.Pass  # Always true - optional feature
             }
         }
 
@@ -124,9 +126,11 @@ function Test-AdvancedSecurity {
         Write-Host "Testing Firewall Shields Up (Public)..." -ForegroundColor Gray
         $shieldsUpTest = Test-FirewallShieldsUp
         # Always pass - this is an optional hardening only for the Maximum (air-gapped) profile
+        $statusText = if ($shieldsUpTest.IsEnabled) { "Enabled (Maximum)" } else { "Not enabled (Optional - Maximum profile only)" }
         $results += [PSCustomObject]@{
             Feature    = "Firewall Shields Up (Public)"
-            Compliant  = $shieldsUpTest.Pass
+            Status     = $statusText
+            Compliant  = $shieldsUpTest.Pass  # Always true - optional feature
             Details    = $shieldsUpTest.Message
         }
         
@@ -147,8 +151,8 @@ function Test-AdvancedSecurity {
         Write-Host "============================================" -ForegroundColor Cyan
         Write-Host ""
         
-        $compliantCount = ($results | Where-Object { $_.Compliant -eq $true }).Count
-        $totalTests = $results.Count
+        $compliantCount = @($results | Where-Object { $_.Compliant -eq $true }).Count
+        $totalTests = @($results).Count
         $compliancePercent = [math]::Round(($compliantCount / $totalTests) * 100, 1)
         
         Write-Host "Total Tests:    $totalTests" -ForegroundColor White

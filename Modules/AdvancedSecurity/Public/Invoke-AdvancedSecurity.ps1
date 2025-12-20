@@ -11,7 +11,7 @@ function Invoke-AdvancedSecurity {
         - Enterprise: Conservative approach with domain-safety checks
         - Maximum: Maximum hardening for air-gapped/high-security environments
         
-        Features implemented (v2.2.0):
+        Features implemented (v2.2.1):
         - RDP NLA enforcement + optional complete disable
         - WDigest credential protection
         - Administrative shares disable (domain-aware)

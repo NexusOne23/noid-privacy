@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "Administrative Shares Configuration",
   "description": "Configuration for disabling administrative shares (C$, ADMIN$, etc.) to prevent lateral movement",
-  "version": "2.2.0",
+  "version": "2.2.1",
   
   "Administrative_Shares": {
     "description": "Disable automatic creation and remove existing administrative shares",

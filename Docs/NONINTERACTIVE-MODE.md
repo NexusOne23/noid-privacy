@@ -277,23 +277,54 @@ $env:NOIDPRIVACY_NONINTERACTIVE = "true"
 
 ---
 
-## Return Codes
+## Exit Codes (v2.2.1+)
 
-**Note:** Exit codes are currently not implemented. Error handling should be done via try/catch blocks and checking the log files.
+The framework returns structured exit codes for CI/CD integration:
 
-### **Example: Error Handling in Scripts**
+| Code | Name | Description |
+|------|------|-------------|
+| **0** | `SUCCESS` | All operations completed successfully |
+| **1** | `ERROR_GENERAL` | General/unspecified error |
+| **2** | `ERROR_PREREQUISITES` | System requirements not met (OS, PowerShell, Admin) |
+| **3** | `ERROR_CONFIG` | Configuration file error (missing, invalid JSON) |
+| **4** | `ERROR_MODULE` | One or more modules failed during execution |
+| **5** | `ERROR_FATAL` | Fatal/unexpected exception |
+| **10** | `SUCCESS_REBOOT` | Success, but reboot is required for changes to take effect |
+
+### **Example: CI/CD Exit Code Handling**
 
 ```powershell
-try {
-    .\NoIDPrivacy.ps1 -Module All -ErrorAction Stop
-    Write-Output "Hardening completed successfully"
+# Run hardening and capture exit code
+$process = Start-Process powershell -ArgumentList "-ExecutionPolicy Bypass -File `".\NoIDPrivacy.ps1`" -Module All" -Wait -PassThru
+$exitCode = $process.ExitCode
+
+switch ($exitCode) {
+    0  { Write-Host "SUCCESS: All modules applied" -ForegroundColor Green }
+    10 { Write-Host "SUCCESS: Reboot required" -ForegroundColor Yellow; Restart-Computer -Force }
+    2  { Write-Host "FAILED: Prerequisites not met" -ForegroundColor Red; exit 1 }
+    3  { Write-Host "FAILED: Config error" -ForegroundColor Red; exit 1 }
+    4  { Write-Host "FAILED: Module errors" -ForegroundColor Red; exit 1 }
+    5  { Write-Host "FAILED: Fatal exception" -ForegroundColor Red; exit 1 }
+    default { Write-Host "FAILED: Unknown error ($exitCode)" -ForegroundColor Red; exit 1 }
 }
-catch {
-    Write-Error "Hardening failed: $_"
+```
+
+### **Example: Simple Success/Failure Check**
+
+```powershell
+.\NoIDPrivacy.ps1 -Module All
+$exitCode = $LASTEXITCODE
+
+if ($exitCode -eq 0 -or $exitCode -eq 10) {
+    Write-Host "Hardening completed successfully"
+    if ($exitCode -eq 10) { Write-Host "Reboot recommended" }
+}
+else {
+    Write-Host "Hardening failed with exit code: $exitCode"
     # Check logs for details
     $latestLog = Get-ChildItem "Logs" -Filter "NoIDPrivacy-*.log" | Sort-Object LastWriteTime -Descending | Select-Object -First 1
     Get-Content $latestLog.FullName | Select-String "ERROR"
-    exit 1
+    exit $exitCode
 }
 ```
 

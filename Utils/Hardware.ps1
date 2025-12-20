@@ -8,7 +8,7 @@
     
 .NOTES
     Author: NexusOne23
-    Version: 2.2.0
+    Version: 2.2.1
     Requires: PowerShell 5.1+
 #>
 
@@ -165,7 +165,7 @@ function Test-SSDDrive {
     }
 }
 
-function Get-WindowsEdition {
+function Get-WindowsEditionInfo {
     <#
     .SYNOPSIS
         Get Windows edition information
@@ -224,7 +224,7 @@ function Get-HardwareReport {
     
     return [PSCustomObject]@{
         OS = Get-WindowsVersion
-        Edition = Get-WindowsEdition
+        Edition = Get-WindowsEditionInfo
         CPU = Get-CPUInfo
         Memory = Get-MemoryInfo
         UEFI = Test-UEFIBoot

@@ -128,7 +128,7 @@ function Restore-DNSSettings {
                             $keyContent = Get-ChildItem $dnsClientPath -ErrorAction SilentlyContinue
                             $keyProps = Get-ItemProperty $dnsClientPath -ErrorAction SilentlyContinue
                             # Count properties (exclude PS metadata like PSPath, etc.)
-                            $propCount = ($keyProps.PSObject.Properties | Where-Object { $_.Name -notin @('PSPath','PSParentPath','PSChildName','PSDrive','PSProvider') }).Count
+                            $propCount = @($keyProps.PSObject.Properties | Where-Object { $_.Name -notin @('PSPath','PSParentPath','PSChildName','PSDrive','PSProvider') }).Count
                             
                             if (($null -eq $keyContent -or $keyContent.Count -eq 0) -and $propCount -eq 0) {
                                 Remove-Item $dnsClientPath -Force -ErrorAction SilentlyContinue
@@ -158,7 +158,7 @@ function Restore-DNSSettings {
                         if (Test-Path $dnsParamsPath) {
                             $keyContent = Get-ChildItem $dnsParamsPath -ErrorAction SilentlyContinue
                             $keyProps = Get-ItemProperty $dnsParamsPath -ErrorAction SilentlyContinue
-                            $propCount = ($keyProps.PSObject.Properties | Where-Object { $_.Name -notin @('PSPath','PSParentPath','PSChildName','PSDrive','PSProvider') }).Count
+                            $propCount = @($keyProps.PSObject.Properties | Where-Object { $_.Name -notin @('PSPath','PSParentPath','PSChildName','PSDrive','PSProvider') }).Count
                             
                             if (($null -eq $keyContent -or $keyContent.Count -eq 0) -and $propCount -eq 0) {
                                 Remove-Item $dnsParamsPath -Force -ErrorAction SilentlyContinue

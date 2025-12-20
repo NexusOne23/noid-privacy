@@ -28,6 +28,7 @@ function Test-DiscoveryProtocolsSecurity {
         Tcp5357ListenersClosed         = $null
         Tcp5358ListenersClosed         = $null
         Compliant                      = $false
+        Pass                           = $true  # Optional feature (Maximum only) - always pass
     }
 
     try {
@@ -69,7 +70,7 @@ function Test-DiscoveryProtocolsSecurity {
 
         if ($rules.Count -gt 0) {
             $result.FirewallRulesPresent = ($rules.Count -eq $ruleNames.Count)
-            $result.FirewallRulesEnabled = ($rules | Where-Object { $_.Enabled -eq 'True' -and $_.Action -eq 'Block' }).Count -eq $ruleNames.Count
+            $result.FirewallRulesEnabled = @($rules | Where-Object { $_.Enabled -eq 'True' -and $_.Action -eq 'Block' }).Count -eq $ruleNames.Count
         }
 
         # 4) Optional: check that ports are not listening

@@ -8,7 +8,7 @@
     
 .NOTES
     Author: NexusOne23
-    Version: 2.2.0
+    Version: 2.2.1
     Requires: PowerShell 5.1+
     
 .EXAMPLE
@@ -24,7 +24,7 @@
 # All configuration comes from config.json via Initialize-Config.
 
 # Script-level variables
-$script:FrameworkVersion = "2.2.0"
+$script:FrameworkVersion = "2.2.1"
 $script:FrameworkRoot = Split-Path -Parent $PSScriptRoot
 $script:ExecutionStartTime = Get-Date
 
@@ -301,7 +301,7 @@ function Start-HardeningProcess {
     
     # Correct calculation from ModuleResults
     $totalModules = $hardeningResult.ModulesExecuted
-    $successCount = ($hardeningResult.ModuleResults | Where-Object { $_.Success }).Count
+    $successCount = @($hardeningResult.ModuleResults | Where-Object { $_.Success }).Count
     $failureCount = $totalModules - $successCount
     
     Write-Host "Total modules executed: $totalModules" -ForegroundColor White

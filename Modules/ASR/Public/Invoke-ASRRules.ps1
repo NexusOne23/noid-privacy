@@ -307,7 +307,7 @@ function Invoke-ASRRules {
                         Write-Host "This rule blocks very new or unknown executables that" -ForegroundColor Yellow
                         Write-Host "are not yet trusted by Microsoft's reputation systems." -ForegroundColor Yellow
                         Write-Host ""
-                        Write-Host "Do you install NEW or UNTRUSTED software frequently?" -ForegroundColor White
+                        Write-Host "Do you install NEW software frequently?" -ForegroundColor White
                         Write-Host ""
                         Write-Host "  - Games from independent developers" -ForegroundColor Gray
                         Write-Host "  - Beta software / Early access programs" -ForegroundColor Gray
@@ -315,12 +315,12 @@ function Invoke-ASRRules {
                         Write-Host "  - Open-source tools without Microsoft reputation" -ForegroundColor Gray
                         Write-Host ""
                         Write-Host "Options:" -ForegroundColor Cyan
-                        Write-Host "  [Y] Yes - I need to install untrusted software" -ForegroundColor Yellow
+                        Write-Host "  [Y] Yes - I regularly install new software" -ForegroundColor Yellow
                         Write-Host "        > AUDIT mode: Events logged, installs allowed" -ForegroundColor Gray
-                        Write-Host "        > Developer/test mode (less secure)" -ForegroundColor Gray
+                        Write-Host "        > Recommended if you install software from various sources" -ForegroundColor Gray
                         Write-Host "" 
-                        Write-Host "  [N] No  - I only install trusted software" -ForegroundColor Green
-                        Write-Host "        > BLOCK mode: Maximum security (recommended)" -ForegroundColor Gray
+                        Write-Host "  [N] No  - I rarely install new software" -ForegroundColor Green
+                        Write-Host "        > BLOCK mode: Maximum security" -ForegroundColor Gray
                         Write-Host "        > New/unknown installers may be blocked" -ForegroundColor Gray
                         Write-Host ""
                         
@@ -483,14 +483,14 @@ function Invoke-ASRRules {
             $mpPref = Get-MpPreference
             $currentActions = $mpPref.AttackSurfaceReductionRules_Actions
             if ($currentActions) {
-                $result.Details.BlockMode = ($currentActions | Where-Object { $_ -eq 1 }).Count
-                $result.Details.AuditMode = ($currentActions | Where-Object { $_ -eq 2 }).Count
-                $result.Details.DisabledMode = ($currentActions | Where-Object { $_ -eq 0 }).Count
+                $result.Details.BlockMode = @($currentActions | Where-Object { $_ -eq 1 }).Count
+                $result.Details.AuditMode = @($currentActions | Where-Object { $_ -eq 2 }).Count
+                $result.Details.DisabledMode = @($currentActions | Where-Object { $_ -eq 0 }).Count
             } else {
                 # Fallback to array count
-                $result.Details.BlockMode = ($asrRules | Where-Object { $_.Action -eq 1 }).Count
-                $result.Details.AuditMode = ($asrRules | Where-Object { $_.Action -eq 2 }).Count
-                $result.Details.DisabledMode = ($asrRules | Where-Object { $_.Action -eq 0 }).Count
+                $result.Details.BlockMode = @($asrRules | Where-Object { $_.Action -eq 1 }).Count
+                $result.Details.AuditMode = @($asrRules | Where-Object { $_.Action -eq 2 }).Count
+                $result.Details.DisabledMode = @($asrRules | Where-Object { $_.Action -eq 0 }).Count
             }
             
             # Step 6: Verification

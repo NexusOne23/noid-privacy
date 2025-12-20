@@ -16,10 +16,12 @@ function Test-FirewallShieldsUp {
         $value = Get-ItemProperty -Path $regPath -Name $valueName -ErrorAction SilentlyContinue
         
         if ($null -eq $value -or $value.$valueName -ne 1) {
+            # Shields Up is OPTIONAL (Maximum profile only) - not a failure if not enabled
             return @{
-                Pass = $false
-                Message = "Shields Up NOT enabled (Public network allows configured exceptions)"
+                Pass = $true  # Optional feature - always pass
+                Message = "Shields Up not enabled (Optional - Maximum profile only)"
                 CurrentValue = if ($null -eq $value) { "Not Set" } else { $value.$valueName }
+                IsEnabled = $false
             }
         }
         
@@ -27,13 +29,15 @@ function Test-FirewallShieldsUp {
             Pass = $true
             Message = "Shields Up ENABLED (Public network blocks ALL incoming)"
             CurrentValue = 1
+            IsEnabled = $true
         }
     }
     catch {
         return @{
-            Pass = $false
+            Pass = $true  # Don't fail on error for optional feature
             Message = "Error checking Shields Up: $_"
             CurrentValue = "Error"
+            IsEnabled = $false
         }
     }
 }

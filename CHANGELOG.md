@@ -7,6 +7,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.2.1] - 2025-12-19
+
+### 🔧 Maintenance Release
+
+**Critical bugfix for multi-run sessions and code review.**
+
+### 🔨 Fixed
+
+**Multi-Run Session Bug (Critical)**
+- Fixed: Running framework multiple times in same PowerShell session caused `auditpol.exe` backup failures
+- Root cause: `$global:BackupBasePath` was not reset between runs, causing auditpol to fail with "file exists" error
+- Fix: Global backup variables (`BackupBasePath`, `BackupIndex`, `NewlyCreatedKeys`, `SessionManifest`, `CurrentModule`) are now reset at script start in `NoIDPrivacy.ps1`
+- Impact: Users can now run individual modules, then "Apply All", then individual modules again without errors
+
+**`.Count` Property Bug (5 files)**
+- Fixed: `.Count` property failed on single-object results from `Where-Object`
+- Affected files: `Invoke-ASRRules.ps1`, `Framework.ps1`, `Test-AdvancedSecurity.ps1`, `Test-DiscoveryProtocolsSecurity.ps1`, `Restore-DNSSettings.ps1`
+- Fix: Wrapped results in `@()` to ensure array type
+
+### ✅ Changed
+
+**ASR Prompt Text Improved**
+- Changed "untrusted software" to "new software" in ASR prevalence rule prompt
+- More neutral language - the software isn't necessarily untrusted, just new/unknown to Microsoft's reputation system
+
+**Code Quality**
+- Full codebase review of backup/restore system (2970 lines in `Core/Rollback.ps1`)
+- Wireless Display (Miracast) security implementation verified against Microsoft documentation
+- All 7 registry policies confirmed correct per MS Policy CSP docs
+- Version numbers aligned across all 50+ files
+
+---
+
 ## [2.2.0] - 2025-12-08
 
 ### 🚀 Enhanced Framework - 630+ Settings

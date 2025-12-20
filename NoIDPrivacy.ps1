@@ -50,9 +50,24 @@
     resulting from its use. USE AT YOUR OWN RISK.
 
     Author: NexusOne23
-    Version: 2.2.0
+    Version: 2.2.1
     Requires: PowerShell 5.1+, Administrator privileges, Windows 11
     License: GPL-3.0 (Core CLI). See LICENSE for full terms.
+    
+.OUTPUTS
+    Exit Codes for CI/CD Integration:
+    
+    0  = SUCCESS              - All operations completed successfully
+    1  = ERROR_GENERAL        - General/unspecified error
+    2  = ERROR_PREREQUISITES  - System requirements not met (OS, PowerShell, Admin)
+    3  = ERROR_CONFIG         - Configuration file error (missing, invalid JSON)
+    4  = ERROR_MODULE         - One or more modules failed during execution
+    5  = ERROR_FATAL          - Fatal/unexpected exception
+    10 = SUCCESS_REBOOT       - Success, but reboot is required for changes to take effect
+    
+    Example CI/CD usage:
+    $exitCode = (Start-Process powershell -ArgumentList "-File NoIDPrivacy.ps1 -Module All" -Wait -PassThru).ExitCode
+    if ($exitCode -eq 0 -or $exitCode -eq 10) { "Success" } else { "Failed with code $exitCode" }
 #>
 
 [CmdletBinding()]
@@ -83,6 +98,27 @@ param(
 # Enable strict mode for better error detection
 Set-StrictMode -Version Latest
 
+# ============================================================================
+# RESET BACKUP STATE - Each NoIDPrivacy.ps1 call gets a fresh session
+# ============================================================================
+# This ensures multiple runs from Interactive Menu create separate sessions
+$global:BackupBasePath = ""
+$global:BackupIndex = @()
+$global:NewlyCreatedKeys = @()
+$global:SessionManifest = @{}
+$global:CurrentModule = ""
+
+# ============================================================================
+# EXIT CODES - For CI/CD and automation integration
+# ============================================================================
+$script:EXIT_SUCCESS            = 0   # All operations completed successfully
+$script:EXIT_ERROR_GENERAL      = 1   # General/unspecified error
+$script:EXIT_ERROR_PREREQUISITES = 2  # System requirements not met
+$script:EXIT_ERROR_CONFIG       = 3   # Configuration file error
+$script:EXIT_ERROR_MODULE       = 4   # One or more modules failed
+$script:EXIT_ERROR_FATAL        = 5   # Fatal/unexpected exception
+$script:EXIT_SUCCESS_REBOOT     = 10  # Success, reboot required
+
 # Script root path
 $script:RootPath = $PSScriptRoot
 
@@ -99,7 +135,7 @@ try {
     $logDirectory = Join-Path $script:RootPath "Logs"
     Initialize-Logger -LogDirectory $logDirectory -MinimumLevel $logLevel
     
-    Write-Log -Level INFO -Message "=== NoID Privacy Framework v2.2.0 ===" -Module "Main"
+    Write-Log -Level INFO -Message "=== NoID Privacy Framework v2.2.1 ===" -Module "Main"
     Write-Log -Level INFO -Message "Starting framework initialization..." -Module "Main"
     
     # Load other Core modules
@@ -130,7 +166,7 @@ catch {
     Write-Host "Stack Trace: $($_.ScriptStackTrace)" -ForegroundColor Red
     Write-Host "" -ForegroundColor Red
     Write-Host "Please ensure all framework files are present and not corrupted." -ForegroundColor Yellow
-    exit 1
+    exit $script:EXIT_ERROR_FATAL
 }
 
 # Load configuration
@@ -154,7 +190,7 @@ try {
 catch {
     Write-Log -Level ERROR -Message "Failed to load configuration file" -Module "Main" -Exception $_.Exception
     Write-Host "ERROR: Configuration file error - check config.json syntax" -ForegroundColor Red
-    exit 1
+    exit $script:EXIT_ERROR_CONFIG
 }
 
 # Validate prerequisites (full framework pre-flight: system, domain, backup)
@@ -166,7 +202,7 @@ try {
     if (-not $ok) {
         Write-Log -Level ERROR -Message "Framework prerequisites failed" -Module "Main"
         Write-Host "ERROR: Prerequisite checks failed. See log for details." -ForegroundColor Red
-        exit 1
+        exit $script:EXIT_ERROR_PREREQUISITES
     }
     
     Write-Log -Level SUCCESS -Message "Framework prerequisites met" -Module "Main"
@@ -174,13 +210,13 @@ try {
 catch {
     Write-ErrorLog -Message "Framework prerequisite validation failed" -Module "Main" -ErrorRecord $_
     Write-Host "ERROR: System requirements not met - see log for details" -ForegroundColor Red
-    exit 1
+    exit $script:EXIT_ERROR_PREREQUISITES
 }
 
 # Display banner
 Write-Host ""
 Write-Host "========================================" -ForegroundColor Cyan
-Write-Host "  NoID Privacy - v2.2.0" -ForegroundColor Cyan
+Write-Host "  NoID Privacy - v2.2.1" -ForegroundColor Cyan
 Write-Host "  Windows 11 Security Hardening" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
@@ -303,7 +339,7 @@ if (-not $Module) {
             $selIndex = [int]$selection - 1
             if ($selIndex -lt 0 -or $selIndex -ge $sessions.Count) {
                 Write-Host "Invalid selection." -ForegroundColor Red
-                exit 1
+                exit $script:EXIT_ERROR_GENERAL
             }
             
             $selectedSession = $sessions[$selIndex]
@@ -473,11 +509,24 @@ try {
     
     if ($result.Success) {
         Write-Log -Level SUCCESS -Message "Framework execution completed successfully" -Module "Main"
-        exit 0
+        
+        # Check if reboot is recommended (certain modules modify kernel/driver settings)
+        $rebootModules = @("SecurityBaseline", "AdvancedSecurity", "AntiAI")
+        $executedModules = if ($Module -eq "All") { $rebootModules } else { @($Module) }
+        $needsReboot = @($executedModules | Where-Object { $_ -in $rebootModules }).Count -gt 0
+        
+        if ($needsReboot -and -not $DryRun) {
+            Write-Host ""
+            Write-Host "NOTE: A system reboot is recommended for all changes to take effect." -ForegroundColor Yellow
+            exit $script:EXIT_SUCCESS_REBOOT
+        }
+        else {
+            exit $script:EXIT_SUCCESS
+        }
     }
     else {
         Write-Log -Level ERROR -Message "Framework execution completed with errors" -Module "Main"
-        exit 1
+        exit $script:EXIT_ERROR_MODULE
     }
 }
 catch {
@@ -486,5 +535,5 @@ catch {
     Write-Host "FATAL ERROR: Unexpected exception during execution" -ForegroundColor Red
     Write-Host "Error: $($_.Exception.Message)" -ForegroundColor Red
     Write-Host ""
-    exit 1
+    exit $script:EXIT_ERROR_FATAL
 }

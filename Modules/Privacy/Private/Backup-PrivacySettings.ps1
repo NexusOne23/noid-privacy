@@ -38,12 +38,12 @@ function Backup-PrivacySettings {
             "HKLM:\SOFTWARE\Policies\Microsoft\WindowsStore",
             "HKLM:\SOFTWARE\Policies\Microsoft\Dsh",
             "HKLM:\SOFTWARE\Policies\Microsoft\FindMyDevice",
-            "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\TextInput",  # AllowLinguisticDataCollection (v2.2.0)
+            "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\TextInput",  # AllowLinguisticDataCollection (v2.2.1)
             "HKLM:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\appDiagnostics",
             # HKCU User Keys
             "HKCU:\Software\Policies\Microsoft\Windows\Explorer",
             "HKCU:\Software\Microsoft\Windows\CurrentVersion\AdvertisingInfo",
-            # NEW: Anti-Advertising & Search Settings (v2.2.0)
+            # NEW: Anti-Advertising & Search Settings (v2.2.1)
             "HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced",
             "HKCU:\Software\Microsoft\Windows\CurrentVersion\Search",
             "HKCU:\Software\Microsoft\Windows\CurrentVersion\SearchSettings",
@@ -52,7 +52,7 @@ function Backup-PrivacySettings {
             "HKCU:\Software\Microsoft\Windows\CurrentVersion\SystemSettings\AccountNotifications",
             "HKCU:\Software\Microsoft\Windows\CurrentVersion\UserProfileEngagement",
             "HKCU:\SOFTWARE\Microsoft\Personalization\Settings",
-            # NEW: Input Personalization Settings (v2.2.0 - FIX missing HKCU backup)
+            # NEW: Input Personalization Settings (v2.2.1 - FIX missing HKCU backup)
             "HKCU:\SOFTWARE\Microsoft\InputPersonalization",
             "HKCU:\SOFTWARE\Microsoft\InputPersonalization\TrainedDataStore",
             "HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\appDiagnostics"

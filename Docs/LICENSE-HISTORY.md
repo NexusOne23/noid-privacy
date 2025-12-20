@@ -35,7 +35,7 @@ See [LICENSE](LICENSE) for full text.
 
 **Impact:**
 - **v1.8.3 and earlier:** Remain under MIT License (cannot be changed retroactively)
-- **v2.2.0 and later:** Licensed under GPL v3.0
+- **v2.2.1 and later:** Licensed under GPL v3.0
 - Forks of v1.x can remain MIT-licensed
 - Forks of v2.x must comply with GPL v3.0
 
