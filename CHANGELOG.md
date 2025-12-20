@@ -38,6 +38,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - All 7 registry policies confirmed correct per MS Policy CSP docs
 - Version numbers aligned across all 50+ files
 
+### 🔐 Verify Download
+```
+SHA256: fdb364d48e67a6889b44a519ba061cd570411158b8bdeb9b91ec845b7e270d96
+```
+
 ---
 
 ## [2.2.0] - 2025-12-08
