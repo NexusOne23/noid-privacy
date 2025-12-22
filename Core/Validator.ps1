@@ -174,8 +174,8 @@ function Test-InternetConnectivity {
     param()
     
     try {
-        # Using Google DNS (8.8.8.8) - intentional for internet connectivity check
-        $response = Test-Connection -ComputerName "8.8.8.8" -Count 1 -Quiet -ErrorAction Stop
+        # Using Microsoft NCSI endpoint - same as Windows uses for connectivity detection
+        $response = Test-Connection -ComputerName "www.msftconnecttest.com" -Count 1 -Quiet -ErrorAction Stop
         return $response
     }
     catch {

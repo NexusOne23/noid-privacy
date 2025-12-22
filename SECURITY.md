@@ -92,9 +92,15 @@ NoID Privacy implements multiple security layers:
 ### Before Running
 1. ✅ **Verify Script Integrity**
    ```powershell
-   # Check file hash (coming soon - SHA256 checksums in releases)
+   # Compare against CHECKSUMS.sha256 from GitHub Release
    Get-FileHash .\NoIDPrivacy.ps1 -Algorithm SHA256
+   
+   # Or verify the entire release folder:
+   Get-ChildItem *.ps1, *.psm1 | ForEach-Object { 
+       "$((Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLower())  $($_.Name)" 
+   }
    ```
+   Each GitHub release includes a `CHECKSUMS.sha256` file with SHA256 hashes of all release files.
 
 2. ✅ **Review Code**
    - This is open-source - read the code!
