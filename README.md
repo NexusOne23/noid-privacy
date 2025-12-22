@@ -8,7 +8,7 @@
 [![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-blue.svg?logo=powershell)](https://github.com/PowerShell/PowerShell)
 [![Windows 11](https://img.shields.io/badge/Windows%2011-25H2-0078D4.svg?logo=windows11)](https://www.microsoft.com/windows/)
 [![License](https://img.shields.io/badge/license-GPL--3.0-green.svg?logo=gnu)](LICENSE)
-[![Version](https://img.shields.io/badge/version-2.2.1-blue.svg)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-2.2.2-blue.svg)](CHANGELOG.md)
 [![Status](https://img.shields.io/badge/status-production--ready-brightgreen.svg)]()
 
 ---
@@ -391,13 +391,13 @@ cd noid-privacy
 
 | Module | Settings | Description | Status |
 |--------|----------|-------------|--------|
-| **SecurityBaseline** | 425 | Microsoft Security Baseline 25H2 | v2.2.1 |
-| **ASR** | 19 | Attack Surface Reduction Rules | v2.2.1 |
-| **DNS** | 5 | Secure DNS with DoH encryption | v2.2.1 |
-| **Privacy** | 78 | Telemetry, Bloatware, OneDrive hardening (Strict) | v2.2.1 |
-| **AntiAI** | 32 | AI lockdown (15 features, 32 compliance checks) | v2.2.1 |
-| **EdgeHardening** | 24 | Microsoft Edge security (24 policies) | v2.2.1 |
-| **AdvancedSecurity** | 50 | Beyond MS Baseline (SRP, Legacy protocols, Wireless Display, Discovery Protocols, IPv6) | v2.2.1 |
+| **SecurityBaseline** | 425 | Microsoft Security Baseline 25H2 | v2.2.2 |
+| **ASR** | 19 | Attack Surface Reduction Rules | v2.2.2 |
+| **DNS** | 5 | Secure DNS with DoH encryption | v2.2.2 |
+| **Privacy** | 78 | Telemetry, Bloatware, OneDrive hardening (Strict) | v2.2.2 |
+| **AntiAI** | 32 | AI lockdown (15 features, 32 compliance checks) | v2.2.2 |
+| **EdgeHardening** | 24 | Microsoft Edge security (24 policies) | v2.2.2 |
+| **AdvancedSecurity** | 50 | Beyond MS Baseline (SRP, Legacy protocols, Wireless Display, Discovery Protocols, IPv6) | v2.2.2 |
 | **TOTAL** | **633** | **Complete Framework (Paranoid mode)** | **Production** |
 
 **Release Highlights:**
@@ -852,17 +852,20 @@ The authors are not responsible for any damage or data loss.
 
 ## 📈 Project Status
 
-**Current Version:** 2.2.1 
-**Last Updated:** December 19, 2025 
+**Current Version:** 2.2.2 
+**Last Updated:** December 22, 2025 
 **Status:** Production-Ready
+
+### Release Highlights v2.2.2
+
+- **Performance:** Firewall snapshot 60-120s → 2-5s (batch query fix)
+- Version alignment across 60+ framework files
 
 ### Release Highlights v2.2.1
 
 - **Critical Fix:** Multi-run session bug (auditpol backup failures when running multiple times)
 - **Fix:** `.Count` property bug in 5 files (Where-Object single-object results)
 - **Improved:** ASR prompt text ("untrusted" → "new software" - more neutral)
-- Full codebase review of backup/restore system (2970 lines)
-- Wireless Display security verified against MS Policy CSP docs
 
 ### Release Highlights v2.2.0
 

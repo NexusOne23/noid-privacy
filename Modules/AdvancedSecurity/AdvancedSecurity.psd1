@@ -2,7 +2,7 @@
     # Module manifest for AdvancedSecurity
     
     # Version
-    ModuleVersion     = '2.2.1'
+    ModuleVersion     = '2.2.2'
     
     # Unique ID
     GUID              = 'e7f5a3d2-8c9b-4f1e-a6d3-9b2c8f4e5a1d'
@@ -48,7 +48,7 @@
             LicenseUri   = ''
             ProjectUri   = ''
             ReleaseNotes = @'
-v2.2.1 (2025-12-08)
+v2.2.2 (2025-12-08)
 - Production release of AdvancedSecurity module
 - 49 advanced hardening settings implemented (was 36)
 - NEW: Wireless Display (Miracast) security hardening

@@ -1,6 +1,6 @@
 @{
     RootModule = 'Privacy.psm1'
-    ModuleVersion = '2.2.1'
+    ModuleVersion = '2.2.2'
     GUID = 'a9f7c8d3-2e5b-4a1f-9c3d-7e8f5a6b2c4d'
     Author = 'NexusOne23'
     CompanyName = 'Open Source Project'

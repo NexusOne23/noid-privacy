@@ -13,7 +13,7 @@
     
 .NOTES
     Author: NexusOne23
-    Version: 2.2.1
+    Version: 2.2.2
     Requires: PowerShell 5.1+, Administrator privileges
 #>
 

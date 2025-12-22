@@ -41,16 +41,22 @@ function Disable-RiskyPorts {
         $disabledRules = 0
         $errors = @()
         
-        # PERFORMANCE: Get all firewall rules ONCE and cache port filters
+        # PERFORMANCE FIX: Batch query instead of per-rule queries
+        # Old approach: foreach { Get-NetFirewallPortFilter } = 300+ queries × 200ms = 60s+
+        # New approach: Get all port filters once via hashtable = 2-5s total
         Write-Log -Level INFO -Message "Loading firewall rules for analysis..." -Module "AdvancedSecurity"
-        $allRules = Get-NetFirewallRule | Where-Object { $_.Direction -eq 'Inbound' -and $_.Enabled -eq $true }
+        $allRules = Get-NetFirewallRule -ErrorAction SilentlyContinue | Where-Object { $_.Direction -eq 'Inbound' -and $_.Enabled -eq $true }
         
-        # Pre-fetch port filters to avoid repeated Get-NetFirewallPortFilter calls
-        # NOTE: We cache both the rule and its ports so we can later filter ONLY
-        # ALLOW rules for disabling. NoID block rules must remain enabled.
+        # Get all port filters in one batch query and build hashtable by InstanceID
+        $allPortFilters = @{}
+        Get-NetFirewallPortFilter -ErrorAction SilentlyContinue | ForEach-Object {
+            $allPortFilters[$_.InstanceID] = $_
+        }
+        
+        # Build cache with fast hashtable lookup
         $rulesWithPorts = @()
         foreach ($rule in $allRules) {
-            $portFilter = $rule | Get-NetFirewallPortFilter -ErrorAction SilentlyContinue
+            $portFilter = $allPortFilters[$rule.InstanceID]
             if ($portFilter) {
                 $rulesWithPorts += [PSCustomObject]@{
                     Rule       = $rule

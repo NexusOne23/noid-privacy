@@ -8,7 +8,7 @@
     
 .NOTES
     Author: NexusOne23
-    Version: 2.2.1
+    Version: 2.2.2
     Requires: Pester 5.0+
 #>
 

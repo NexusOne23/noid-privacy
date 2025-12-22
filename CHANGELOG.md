@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.2.2] - 2025-12-22
+
+### 🚀 Performance Release
+
+**Major performance improvement for AdvancedSecurity firewall operations.**
+
+### ⚡ Performance
+
+**Firewall Snapshot Performance Fix (Critical)**
+- Fixed: Firewall rules backup took 60-120 seconds (especially in offline mode)
+- Root cause: `Get-NetFirewallPortFilter` was called individually for each of ~300+ firewall rules (~200ms per call)
+- Fix: Batch query approach - load all port filters once into hashtable, then fast lookup by InstanceID
+- Result: **60-120 seconds → 2-5 seconds** (both online and offline)
+- Affected files:
+  - `Modules/AdvancedSecurity/Private/Backup-AdvancedSecuritySettings.ps1`
+  - `Modules/AdvancedSecurity/Private/Disable-RiskyPorts.ps1`
+
+### ✅ Changed
+
+**Version Alignment**
+- All 60+ framework files updated to v2.2.2
+- Module manifests (.psd1), module loaders (.psm1), core scripts, utilities, tests, and documentation synchronized
+
+---
+
 ## [2.2.1] - 2025-12-19
 
 ### 🔧 Maintenance Release

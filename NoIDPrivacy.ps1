@@ -50,7 +50,7 @@
     resulting from its use. USE AT YOUR OWN RISK.
 
     Author: NexusOne23
-    Version: 2.2.1
+    Version: 2.2.2
     Requires: PowerShell 5.1+, Administrator privileges, Windows 11
     License: GPL-3.0 (Core CLI). See LICENSE for full terms.
     
@@ -135,7 +135,7 @@ try {
     $logDirectory = Join-Path $script:RootPath "Logs"
     Initialize-Logger -LogDirectory $logDirectory -MinimumLevel $logLevel
     
-    Write-Log -Level INFO -Message "=== NoID Privacy Framework v2.2.1 ===" -Module "Main"
+    Write-Log -Level INFO -Message "=== NoID Privacy Framework v2.2.2 ===" -Module "Main"
     Write-Log -Level INFO -Message "Starting framework initialization..." -Module "Main"
     
     # Load other Core modules
@@ -216,7 +216,7 @@ catch {
 # Display banner
 Write-Host ""
 Write-Host "========================================" -ForegroundColor Cyan
-Write-Host "  NoID Privacy - v2.2.1" -ForegroundColor Cyan
+Write-Host "  NoID Privacy - v2.2.2" -ForegroundColor Cyan
 Write-Host "  Windows 11 Security Hardening" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""

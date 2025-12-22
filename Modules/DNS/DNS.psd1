@@ -2,7 +2,7 @@
     # Module manifest for DNS module
     
     RootModule        = 'DNS.psm1'
-    ModuleVersion     = '2.2.1'
+    ModuleVersion     = '2.2.2'
     GUID              = 'a8f7b3c9-4e5d-4a2b-9c1d-8f3e5a7b9c2d'
     Author            = 'NexusOne23'
     CompanyName       = 'Open Source Project'

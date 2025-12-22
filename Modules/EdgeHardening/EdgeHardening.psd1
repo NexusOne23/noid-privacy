@@ -3,7 +3,7 @@
     RootModule = 'EdgeHardening.psm1'
     
     # Version number of this module
-    ModuleVersion = '2.2.1'
+    ModuleVersion = '2.2.2'
     
     # ID used to uniquely identify this module
     GUID = '8e3f4c2a-9b1d-4e7a-a2c5-6f8b3d9e1a4c'
@@ -48,7 +48,7 @@
             LicenseUri = ''
             ProjectUri = ''
             ReleaseNotes = @"
-v2.2.1 - Production Release
+v2.2.2 - Production Release
 - Microsoft Edge v139 Security Baseline implementation
 - 20 security policies (native PowerShell, no LGPO.exe)
 - SmartScreen enforcement with override prevention

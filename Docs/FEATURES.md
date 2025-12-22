@@ -1,9 +1,9 @@
 # NoID Privacy - Complete Feature List
 
-**Framework Version:** v2.2.1  
+**Framework Version:** v2.2.2  
 **Total Security Settings:** 633 (Paranoid mode)  
 **Modules:** 7 (All Production-Ready)  
-**Last Updated:** December 8, 2025
+**Last Updated:** December 22, 2025
 
 ---
 
@@ -11,13 +11,13 @@
 
 | Module | Settings | Status | Description |
 |--------|----------|--------|-------------|
-| **SecurityBaseline** | 425 | ✅ v2.2.1 | Microsoft Security Baseline for Windows 11 v25H2 |
-| **ASR** | 19 | ✅ v2.2.1 | Attack Surface Reduction rules |
-| **DNS** | 5 | ✅ v2.2.1 | Secure DNS with DoH encryption |
-| **Privacy** | 78 | ✅ v2.2.1 | Telemetry control, OneDrive hardening (Strict: 70 Registry + 2 Services + 6 OneDrive) |
-| **AntiAI** | 32 | ✅ v2.2.1 | AI lockdown (15 features, 32 compliance checks) |
-| **EdgeHardening** | 24 | ✅ v2.2.1 | Microsoft Edge browser security (24 policies) |
-| **AdvancedSecurity** | 50 | ✅ v2.2.1 | Advanced hardening beyond MS Baseline (incl. Wireless Display, Discovery Protocols, IPv6) |
+| **SecurityBaseline** | 425 | ✅ v2.2.2 | Microsoft Security Baseline for Windows 11 v25H2 |
+| **ASR** | 19 | ✅ v2.2.2 | Attack Surface Reduction rules |
+| **DNS** | 5 | ✅ v2.2.2 | Secure DNS with DoH encryption |
+| **Privacy** | 78 | ✅ v2.2.2 | Telemetry control, OneDrive hardening (Strict: 70 Registry + 2 Services + 6 OneDrive) |
+| **AntiAI** | 32 | ✅ v2.2.2 | AI lockdown (15 features, 32 compliance checks) |
+| **EdgeHardening** | 24 | ✅ v2.2.2 | Microsoft Edge browser security (24 policies) |
+| **AdvancedSecurity** | 50 | ✅ v2.2.2 | Advanced hardening beyond MS Baseline (incl. Wireless Display, Discovery Protocols, IPv6) |
 | **TOTAL** | **633** | ✅ **100%** | **Complete Framework (Paranoid mode)** |
 
 ---
@@ -238,7 +238,7 @@ Clipchamp.Clipchamp, SpotifyAB.SpotifyMusic
 
 ## 🤖 Module 5: AntiAI (32 Policies)
 
-**Description:** Disable 15 Windows AI features via 32 registry policies (v2.2.1)
+**Description:** Disable 15 Windows AI features via 32 registry policies (v2.2.2)
 
 ### 15 AI Features Disabled:
 
@@ -724,7 +724,7 @@ Some UI elements in Paint and Photos apps may **still be visible** but non-funct
 
 ```
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-NoID Privacy v2.2.1
+NoID Privacy v2.2.2
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 Total Settings:             633 ✅
@@ -744,5 +744,5 @@ Framework Completion:       🎉 100% COMPLETE
 
 ---
 
-**Last Updated:** December 8, 2025  
-**Framework Version:** v2.2.1  
+**Last Updated:** December 22, 2025  
+**Framework Version:** v2.2.2  

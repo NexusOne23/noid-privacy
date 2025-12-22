@@ -277,7 +277,7 @@ $env:NOIDPRIVACY_NONINTERACTIVE = "true"
 
 ---
 
-## Exit Codes (v2.2.1+)
+## Exit Codes (v2.0.0+)
 
 The framework returns structured exit codes for CI/CD integration:
 

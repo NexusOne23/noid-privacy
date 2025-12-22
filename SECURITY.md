@@ -174,5 +174,5 @@ For licensing questions, see [LICENSE](LICENSE) or open a [Discussion](https://g
 
 ---
 
-**Last Updated**: December 8, 2025  
+**Last Updated**: December 22, 2025  
 **Policy Version**: 1.1

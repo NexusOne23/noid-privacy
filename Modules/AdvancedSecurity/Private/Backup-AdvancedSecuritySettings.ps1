@@ -186,22 +186,34 @@ function Backup-AdvancedSecuritySettings {
         
         # 8. Firewall Rules Snapshot
         Write-Host ""
-        Write-Host "  ============================================" -ForegroundColor Cyan
-        Write-Host "  FIREWALL RULES BACKUP - PLEASE WAIT" -ForegroundColor Cyan
-        Write-Host "  ============================================" -ForegroundColor Cyan
-        Write-Host "  Creating snapshot for risky ports..." -ForegroundColor White
+        Write-Host "  Creating firewall snapshot for risky ports..." -ForegroundColor Cyan
         Write-Host "  Ports: 79, 137-139, 1900, 2869, 5355, 3702, 5353, 5357, 5358" -ForegroundColor Gray
-        Write-Host ""
-        Write-Host "  [!] This operation takes 60-120 seconds" -ForegroundColor Yellow
-        Write-Host "  System is working - do not interrupt!" -ForegroundColor Yellow
-        Write-Host "  ============================================" -ForegroundColor Cyan
-        Write-Host ""
         Write-Log -Level INFO -Message "Backing up firewall rules snapshot for risky ports (79, 137, 138, 139, 1900, 2869, 5355, 3702, 5353, 5357, 5358)..." -Module "AdvancedSecurity"
-        $firewallRules = Get-NetFirewallRule | Where-Object {
-            $portFilter = $_ | Get-NetFirewallPortFilter
-            (($portFilter.LocalPort -in @(79, 137, 138, 139, 1900, 2869, 5355, 3702, 5353, 5357, 5358)) -or 
-            ($portFilter.RemotePort -in @(79, 137, 138, 139, 1900, 2869, 5355, 3702, 5353, 5357, 5358))) -and
-            ($_.Direction -eq 'Inbound' -or $_.Direction -eq 'Outbound')
+        
+        # PERFORMANCE FIX: Batch query instead of per-rule queries
+        # Old approach: Get-NetFirewallRule | ForEach { Get-NetFirewallPortFilter } = 300+ queries × 200ms = 60-120s!
+        # New approach: Get all port filters once, then filter via hashtable = 2-5s total
+        $riskyPorts = @(79, 137, 138, 139, 1900, 2869, 5355, 3702, 5353, 5357, 5358)
+        
+        # Step 1: Get all firewall rules once
+        $allRules = Get-NetFirewallRule -ErrorAction SilentlyContinue
+        
+        # Step 2: Get all port filters in one batch query and build hashtable by InstanceID
+        $allPortFilters = @{}
+        Get-NetFirewallPortFilter -ErrorAction SilentlyContinue | ForEach-Object {
+            $allPortFilters[$_.InstanceID] = $_
+        }
+        
+        # Step 3: Filter rules by risky ports (fast hashtable lookup)
+        $firewallRules = $allRules | Where-Object {
+            $portFilter = $allPortFilters[$_.InstanceID]
+            if ($portFilter) {
+                (($portFilter.LocalPort -in $riskyPorts) -or ($portFilter.RemotePort -in $riskyPorts)) -and
+                ($_.Direction -eq 'Inbound' -or $_.Direction -eq 'Outbound')
+            }
+            else {
+                $false
+            }
         } | Select-Object Name, DisplayName, Enabled, Direction, Action
         
         $firewallData = @{

@@ -8,7 +8,7 @@
     
 .NOTES
     Author: NexusOne23
-    Version: 2.2.1
+    Version: 2.2.2
     Requires: PowerShell 5.1+
 #>
 
@@ -79,7 +79,7 @@ function New-DefaultConfig {
     )
     
     $defaultConfig = @{
-        version = "2.2.1"
+        version = "2.2.2"
         modules = @{
             SecurityBaseline = @{
                 enabled = $true
@@ -114,7 +114,7 @@ function New-DefaultConfig {
                 priority = 6
                 status = "IMPLEMENTED"
                 description = "Microsoft Edge v139 Security Baseline: 20 security policies including SmartScreen enforcement, site isolation, SSL/TLS hardening, extension blocklist, IE Mode restrictions, and Spectre mitigations. No LGPO.exe dependency."
-                version = "2.2.1"
+                version = "2.2.2"
                 baseline = "Edge v139"
                 policies = 20
                 features = @{
@@ -133,7 +133,7 @@ function New-DefaultConfig {
                 priority = 7
                 status = "IMPLEMENTED"
                 description = "Advanced Security hardening beyond MS Baseline: RDP NLA/Disable, WDigest protection, Admin Shares disable, Risky ports/services, Legacy TLS disable, WPAD disable, PowerShell v2 removal, SRP .lnk protection, Windows Update (3 GUI settings), Finger Protocol block. Opt-in by design (use -SecurityProfile Balanced/Enterprise/Maximum)"
-                version = "2.2.1"
+                version = "2.2.2"
                 policies = 36
                 features = @{
                     rdp_hardening = $true

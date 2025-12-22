@@ -1,5 +1,5 @@
 {
-  "version": "2.2.1",
+  "version": "2.2.2",
   "modules": {
     "SecurityBaseline": {
       "enabled": true,
@@ -48,7 +48,7 @@
       "description": "Microsoft Edge v139 Security Baseline: 24 security policies",
       "_comment": "Interactive: Allow extensions (Y/N, default: Y)",
       "allowExtensions": true,
-      "version": "2.2.1",
+      "version": "2.2.2",
       "baseline": "Edge v139",
       "policies": 24,
       "features": {
@@ -75,7 +75,7 @@
       "disableWirelessDisplay": false,
       "disableDiscoveryProtocols": true,
       "disableIPv6": false,
-      "version": "2.2.1",
+      "version": "2.2.2",
       "policies": 50,
       "features": {
         "rdp_hardening": true,

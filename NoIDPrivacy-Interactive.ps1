@@ -19,7 +19,7 @@
     resulting from its use. USE AT YOUR OWN RISK.
 
     Author: NexusOne23
-    Version: 2.2.1
+    Version: 2.2.2
     Requires: PowerShell 5.1+, Administrator
     For CLI mode use: NoIDPrivacy.ps1 -Module <name>
 #>
@@ -30,7 +30,7 @@
 # No parameters - interactive mode only
 
 $ErrorActionPreference = 'Stop'
-$Host.UI.RawUI.WindowTitle = "NoID Privacy v2.2.1"
+$Host.UI.RawUI.WindowTitle = "NoID Privacy v2.2.2"
 
 # Set script root path (required by modules to load configs)
 $script:RootPath = $PSScriptRoot
@@ -90,7 +90,7 @@ function Write-Banner {
     Clear-Host
     Write-Host ""
     Write-Host "    ========================================" -ForegroundColor Cyan
-    Write-Host "         NoID Privacy v2.2.1          " -ForegroundColor Cyan
+    Write-Host "         NoID Privacy v2.2.2          " -ForegroundColor Cyan
     Write-Host "    ========================================" -ForegroundColor Cyan
     Write-Host ""
     Write-Host "    Professional Windows 11 Security & Privacy Hardening Framework" -ForegroundColor Gray
@@ -105,7 +105,7 @@ function Write-Banner {
     $osBuild = if ($os) { $os.BuildNumber } else { $null }
     $psVersion = $PSVersionTable.PSVersion.ToString()
 
-    $envLine = "    Version 2.2.1"
+    $envLine = "    Version 2.2.2"
     if ($osBuild) {
         $envLine += " | Windows Build $osBuild"
     }

@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "RDP Hardening Configuration",
   "description": "Configuration for RDP (Remote Desktop Protocol) hardening including NLA enforcement and optional complete disable",
-  "version": "2.2.1",
+  "version": "2.2.2",
   
   "NLA_Enforcement": {
     "description": "Network Level Authentication (NLA) enforcement settings",

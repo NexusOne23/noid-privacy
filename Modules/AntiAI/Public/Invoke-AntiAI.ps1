@@ -52,7 +52,7 @@
 
 .NOTES
     Author: NoID Privacy
-    Version: 2.2.1
+    Version: 2.2.2
     Requires: Windows 11 24H2 or later, Administrator privileges
     Impact: All AI features completely disabled, reboot required
 #>
@@ -70,7 +70,7 @@ function Invoke-AntiAI {
     
     Write-Host "" -ForegroundColor Cyan
     Write-Host "========================================" -ForegroundColor Cyan
-    Write-Host "  ANTI-AI MODULE v2.2.1" -ForegroundColor Cyan
+    Write-Host "  ANTI-AI MODULE v2.2.2" -ForegroundColor Cyan
     Write-Host "========================================" -ForegroundColor Cyan
     Write-Host ""
     Write-Host "Disables 15 AI features (32 policies):" -ForegroundColor White
@@ -171,7 +171,7 @@ function Invoke-AntiAI {
                     @{ Path = "HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\Paint"; Name = "DisableImageCreator"; Type = "DWord" },
                     @{ Path = "HKLM:\SOFTWARE\Policies\WindowsNotepad"; Name = "DisableAIFeatures"; Type = "DWord" },
                     @{ Path = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI"; Name = "DisableSettingsAgent"; Type = "DWord" },
-                    # NEW v2.2.1: Advanced Copilot Blocking
+                    # NEW v2.2.2: Advanced Copilot Blocking
                     @{ Path = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI"; Name = "AllowRecallExport"; Type = "DWord" },
                     @{ Path = "HKLM:\SOFTWARE\Policies\Microsoft\Edge"; Name = "EdgeSidebarEnabled"; Type = "DWord" },
                     @{ Path = "HKLM:\SOFTWARE\Policies\Microsoft\Edge"; Name = "ShowHubsSidebar"; Type = "DWord" },
@@ -355,7 +355,7 @@ function Invoke-AntiAI {
         }
         
         # ============================================================================
-        # ADVANCED COPILOT BLOCKING (NEW v2.2.1)
+        # ADVANCED COPILOT BLOCKING (NEW v2.2.2)
         # ============================================================================
         Write-Host ""
         Write-Host "  [Advanced Copilot Blocks]" -ForegroundColor Cyan

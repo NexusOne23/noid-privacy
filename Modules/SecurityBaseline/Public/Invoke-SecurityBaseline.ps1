@@ -44,7 +44,7 @@
     
 .NOTES
     Author: NexusOne23
-    Version: 2.2.1 - Self-Contained Edition
+    Version: 2.2.2 - Self-Contained Edition
     Requires: PowerShell 5.1+, Administrator privileges
     
     BREAKING CHANGE from v1.0:

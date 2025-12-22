@@ -1,6 +1,6 @@
 @{
     RootModule = 'SecurityBaseline.psm1'
-    ModuleVersion = '2.2.1'
+    ModuleVersion = '2.2.2'
     GUID = 'a1b2c3d4-e5f6-7890-abcd-ef1234567890'
     Author = 'NexusOne23'
     CompanyName = 'Open Source Project'
@@ -26,7 +26,7 @@
             LicenseUri = ''
             ProjectUri = ''
             ReleaseNotes = @"
-v2.2.1 - Self-Contained Edition
+v2.2.2 - Self-Contained Edition
 - NO LGPO.exe REQUIRED! Fully self-contained implementation
 - 425 Microsoft Security Baseline settings for Windows 11 25H2
 - 335 Registry policies (Computer + User)
