@@ -2991,8 +2991,8 @@ try {
         }
         
         .module-content {
-            max-height: 5000px;
-            overflow: hidden;
+            max-height: none;
+            overflow: visible;
             transition: max-height 0.3s ease;
         }
         
@@ -3139,6 +3139,70 @@ try {
             }
             .controls, .export-section {
                 display: none;
+            }
+            /* Balanced header for print */
+            .header {
+                padding: 1.5rem 2rem;
+                page-break-inside: avoid;
+            }
+            .header h1 {
+                font-size: 1.8rem;
+                margin-bottom: 0.3rem;
+            }
+            .header .subtitle {
+                font-size: 1rem;
+            }
+            .header .badge {
+                margin-top: 0.5rem;
+                padding: 0.4rem 1.2rem;
+                font-size: 0.85rem;
+            }
+            /* Balanced meta-info for print */
+            .meta-info {
+                padding: 1rem 1.5rem;
+                gap: 1rem;
+                page-break-inside: avoid;
+            }
+            .meta-label {
+                font-size: 0.65rem;
+            }
+            .meta-value {
+                font-size: 0.95rem;
+            }
+            /* Balanced dashboard for print */
+            .dashboard {
+                padding: 1rem 1.5rem;
+                page-break-inside: avoid;
+            }
+            .stats-grid {
+                page-break-inside: avoid;
+                display: flex;
+                flex-wrap: nowrap;
+                gap: 1rem;
+                margin-bottom: 1rem;
+            }
+            .stat-card {
+                flex: 1;
+                min-width: 0;
+                padding: 1rem;
+            }
+            .stat-value {
+                font-size: 2rem;
+            }
+            .stat-label {
+                font-size: 0.75rem;
+            }
+            .progress-section {
+                margin: 0.75rem 0;
+                page-break-inside: avoid;
+            }
+            .progress-bar-container {
+                height: 40px;
+            }
+            .progress-bar-fill {
+                background: #10b981 !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
             }
             .module-section {
                 page-break-inside: avoid;
