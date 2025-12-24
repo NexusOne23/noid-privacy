@@ -26,7 +26,6 @@ $script:ModuleRoot = $PSScriptRoot
 # Import private functions
 $privateFunctions = @(
     'Backup-PrivacySettings',
-    'Restore-PrivacySettings',
     'Set-TelemetrySettings',
     'Set-PersonalizationSettings',
     'Set-AppPrivacySettings',

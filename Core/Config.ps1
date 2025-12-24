@@ -85,23 +85,30 @@ function New-DefaultConfig {
                 enabled = $true
                 priority = 1
                 status = "IMPLEMENTED"
+                bitLockerUSBEnforcement = $false
             }
             ASR = @{
                 enabled = $true
                 priority = 2
                 status = "IMPLEMENTED"
+                usesManagementTools = $false
+                allowNewSoftware = $false
+                continueWithoutCloud = $true
             }
             DNS = @{
                 enabled = $true
                 priority = 3
-                provider = ""
                 status = "IMPLEMENTED"
+                provider = "Quad9"
+                dohMode = "REQUIRE"
             }
             Privacy = @{
                 enabled = $true
                 priority = 4
-                mode = ""
                 status = "IMPLEMENTED"
+                mode = "MSRecommended"
+                disableCloudClipboard = $true
+                removeBloatware = $true
             }
             AntiAI = @{
                 enabled = $true
@@ -113,10 +120,11 @@ function New-DefaultConfig {
                 enabled = $true
                 priority = 6
                 status = "IMPLEMENTED"
-                description = "Microsoft Edge v139 Security Baseline: 20 security policies including SmartScreen enforcement, site isolation, SSL/TLS hardening, extension blocklist, IE Mode restrictions, and Spectre mitigations. No LGPO.exe dependency."
+                description = "Microsoft Edge v139 Security Baseline: 24 security policies"
+                allowExtensions = $true
                 version = "2.2.2"
                 baseline = "Edge v139"
-                policies = 20
+                policies = 24
                 features = @{
                     smartscreen_enforcement = $true
                     site_isolation = $true
@@ -132,9 +140,16 @@ function New-DefaultConfig {
                 enabled = $true
                 priority = 7
                 status = "IMPLEMENTED"
-                description = "Advanced Security hardening beyond MS Baseline: RDP NLA/Disable, WDigest protection, Admin Shares disable, Risky ports/services, Legacy TLS disable, WPAD disable, PowerShell v2 removal, SRP .lnk protection, Windows Update (3 GUI settings), Finger Protocol block. Opt-in by design (use -SecurityProfile Balanced/Enterprise/Maximum)"
+                description = "Advanced Security hardening beyond MS Baseline"
+                securityProfile = "Balanced"
+                disableRDP = $true
+                forceAdminShares = $false
+                disableUPnP = $true
+                disableWirelessDisplay = $false
+                disableDiscoveryProtocols = $true
+                disableIPv6 = $false
                 version = "2.2.2"
-                policies = 36
+                policies = 50
                 features = @{
                     rdp_hardening = $true
                     wdigest_protection = $true
@@ -147,6 +162,10 @@ function New-DefaultConfig {
                     srp_lnk_protection = $true
                     windows_update_config = $true
                     finger_protocol_block = $true
+                    wireless_display_security = $true
+                    discovery_protocols_security = $true
+                    firewall_shields_up = $true
+                    ipv6_disable = $true
                 }
                 profiles = @("Balanced", "Enterprise", "Maximum")
             }
@@ -156,6 +175,8 @@ function New-DefaultConfig {
             createBackup = $true
             verboseLogging = $true
             autoReboot = $false
+            nonInteractive = $false
+            autoConfirm = $false
         }
     }
     

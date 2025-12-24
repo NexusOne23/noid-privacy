@@ -227,19 +227,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - OneDrive telemetry off (sync functional)
 - App permissions default-deny
 
-**AntiAI** (24 policies) - AI Lockdown
+**AntiAI** (32 policies) - AI Lockdown
 - Generative AI Master Switch (blocks ALL AI models system-wide)
 - Windows Recall (complete deactivation + component protection)
 - Windows Copilot (system-wide disabled + hardware key remapped)
 - Click to Do, Paint AI, Notepad AI, Settings Agent - all disabled
 
-**EdgeHardening** (20 policies) - Microsoft Edge Security Baseline
+**EdgeHardening** (24 policies) - Microsoft Edge Security Baseline
 - SmartScreen enforced, Tracking Prevention strict
 - SSL/TLS hardening, Extension security
 - IE Mode restrictions
 - Native PowerShell implementation (no LGPO.exe)
 
-**AdvancedSecurity** (44 settings) - Beyond Microsoft Baseline
+**AdvancedSecurity** (50 settings) - Beyond Microsoft Baseline
 - **SRP .lnk Protection (CVE-2025-9491)** - Zero-day mitigation for ClickFix malware
 - **RDP Hardening** - Disabled by default, TLS + NLA enforced
 - **Legacy Protocol Blocking** - SMBv1, NetBIOS, LLMNR, WPAD, PowerShell v2

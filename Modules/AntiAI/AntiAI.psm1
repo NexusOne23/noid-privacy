@@ -22,8 +22,6 @@ $script:ModuleRoot = $PSScriptRoot
 
 # Import private functions
 $privateFunctions = @(
-    'Backup-AntiAISettings'
-    'Restore-AntiAISettings'
     'Test-AntiAICompliance'
     'Set-SystemAIModels'
     'Disable-Recall'
