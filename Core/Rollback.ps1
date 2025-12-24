@@ -1033,11 +1033,23 @@ function Invoke-RestoreRebootPrompt {
         Offers immediate or deferred reboot with countdown.
         Uses validation loop for consistent behavior.
         
+    .PARAMETER NoReboot
+        Skip the reboot prompt entirely (for automation/GUI usage)
+        
+    .PARAMETER ForceReboot
+        Automatically reboot without prompting (for automation)
+        
     .OUTPUTS
         None
     #>
     [CmdletBinding()]
-    param()
+    param(
+        [Parameter(Mandatory = $false)]
+        [switch]$NoReboot,
+        
+        [Parameter(Mandatory = $false)]
+        [switch]$ForceReboot
+    )
     
     Write-Host ""
     Write-Host "========================================" -ForegroundColor Cyan
@@ -1077,7 +1089,32 @@ function Invoke-RestoreRebootPrompt {
     Write-Host "========================================" -ForegroundColor Cyan
     Write-Host ""
     
-    # Prompt user with validation loop
+    # Check if running in NonInteractive mode (e.g., from GUI)
+    $isNonInteractive = [Environment]::GetCommandLineArgs() -contains '-NonInteractive'
+    
+    # Handle -ForceReboot: immediately reboot without prompt
+    if ($ForceReboot) {
+        Write-Host ""
+        Write-Host "[>] ForceReboot specified - rebooting system now..." -ForegroundColor Yellow
+        Write-Host ""
+        Restart-Computer -Force
+        return
+    }
+    
+    # Handle -NoReboot or NonInteractive mode: skip the prompt
+    if ($NoReboot -or $isNonInteractive) {
+        Write-Host ""
+        if ($NoReboot) {
+            Write-Host "[!] NoReboot specified - reboot prompt skipped" -ForegroundColor Yellow
+        } else {
+            Write-Host "[!] Running in NonInteractive mode - reboot prompt skipped" -ForegroundColor Yellow
+        }
+        Write-Host "    Please reboot manually to complete the restore." -ForegroundColor Gray
+        Write-Host ""
+        return
+    }
+    
+    # Interactive mode: prompt user
     do {
         Write-Host "Reboot now? [Y/N] (default: Y): " -NoNewline -ForegroundColor White
         $choice = Read-Host
@@ -1175,8 +1212,8 @@ function Restore-AllBackups {
         Write-Log -Level WARNING -Message "Full rollback completed with some failures" -Module "Rollback"
     }
     
-    # Prompt for reboot after restore
-    Invoke-RestoreRebootPrompt
+    # Prompt for reboot after restore (pass through reboot parameters)
+    Invoke-RestoreRebootPrompt -NoReboot:$NoReboot -ForceReboot:$ForceReboot
     
     return $allSucceeded
 }
@@ -1344,6 +1381,12 @@ function Restore-Session {
     .PARAMETER ModuleNames
         Optional array of specific module names to restore (restores all if not specified)
         
+    .PARAMETER NoReboot
+        Skip the reboot prompt entirely (for automation/GUI usage)
+        
+    .PARAMETER ForceReboot
+        Automatically reboot without prompting (for automation)
+        
     .OUTPUTS
         Boolean indicating overall success
     #>
@@ -1354,7 +1397,13 @@ function Restore-Session {
         [string]$SessionPath,
         
         [Parameter(Mandatory = $false)]
-        [string[]]$ModuleNames
+        [string[]]$ModuleNames,
+        
+        [Parameter(Mandatory = $false)]
+        [switch]$NoReboot,
+        
+        [Parameter(Mandatory = $false)]
+        [switch]$ForceReboot
     )
     
     if (-not (Test-Path $SessionPath)) {
@@ -2690,8 +2739,8 @@ function Restore-Session {
         Write-Host ""
         Write-Host ""
 
-        # Prompt for reboot after restore
-        Invoke-RestoreRebootPrompt
+        # Prompt for reboot after restore (pass through reboot parameters)
+        Invoke-RestoreRebootPrompt -NoReboot:$NoReboot -ForceReboot:$ForceReboot
         
         # Final restore log entry
         $endTime = Get-Date
