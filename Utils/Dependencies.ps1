@@ -7,7 +7,7 @@
     
 .NOTES
     Author: NexusOne23
-    Version: 2.2.2
+    Version: 2.2.3
     Requires: PowerShell 5.1+
 #>
 
@@ -55,9 +55,9 @@ function Test-SecEditAvailable {
     
     $result = [PSCustomObject]@{
         Available = $false
-        Path = $null
-        Version = $null
-        Error = $null
+        Path      = $null
+        Version   = $null
+        Error     = $null
     }
     
     try {
@@ -105,9 +105,9 @@ function Test-AuditPolAvailable {
     
     $result = [PSCustomObject]@{
         Available = $false
-        Path = $null
-        Version = $null
-        Error = $null
+        Path      = $null
+        Version   = $null
+        Error     = $null
     }
     
     try {
@@ -154,10 +154,10 @@ function Test-WindowsDefenderAvailable {
     param()
     
     $result = [PSCustomObject]@{
-        Available = $false
+        Available      = $false
         ServiceRunning = $false
-        ServiceName = "WinDefend"
-        Error = $null
+        ServiceName    = "WinDefend"
+        Error          = $null
     }
     
     try {
@@ -198,16 +198,16 @@ function Test-AllDependencies {
     param()
     
     $result = [PSCustomObject]@{
-        AllAvailable = $true
+        AllAvailable     = $true
         SecurityBaseline = @{
-            secedit = $null
+            secedit  = $null
             auditpol = $null
         }
-        ASR = @{
+        ASR              = @{
             defender = $null
         }
-        MissingCritical = @()
-        MissingOptional = @()
+        MissingCritical  = @()
+        MissingOptional  = @()
     }
     
     # Check secedit.exe (CRITICAL for SecurityBaseline)

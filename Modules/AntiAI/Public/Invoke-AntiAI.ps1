@@ -52,7 +52,7 @@
 
 .NOTES
     Author: NoID Privacy
-    Version: 2.2.2
+    Version: 2.2.3
     Requires: Windows 11 24H2 or later, Administrator privileges
     Impact: All AI features completely disabled, reboot required
 #>
@@ -70,7 +70,7 @@ function Invoke-AntiAI {
     
     Write-Host "" -ForegroundColor Cyan
     Write-Host "========================================" -ForegroundColor Cyan
-    Write-Host "  ANTI-AI MODULE v2.2.2" -ForegroundColor Cyan
+    Write-Host "  ANTI-AI MODULE v2.2.3" -ForegroundColor Cyan
     Write-Host "========================================" -ForegroundColor Cyan
     Write-Host ""
     Write-Host "Disables 15 AI features (32 policies):" -ForegroundColor White
@@ -171,7 +171,7 @@ function Invoke-AntiAI {
                     @{ Path = "HKLM:\Software\Microsoft\Windows\CurrentVersion\Policies\Paint"; Name = "DisableImageCreator"; Type = "DWord" },
                     @{ Path = "HKLM:\SOFTWARE\Policies\WindowsNotepad"; Name = "DisableAIFeatures"; Type = "DWord" },
                     @{ Path = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI"; Name = "DisableSettingsAgent"; Type = "DWord" },
-                    # NEW v2.2.2: Advanced Copilot Blocking
+                    # NEW v2.2.3: Advanced Copilot Blocking
                     @{ Path = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI"; Name = "AllowRecallExport"; Type = "DWord" },
                     @{ Path = "HKLM:\SOFTWARE\Policies\Microsoft\Edge"; Name = "EdgeSidebarEnabled"; Type = "DWord" },
                     @{ Path = "HKLM:\SOFTWARE\Policies\Microsoft\Edge"; Name = "ShowHubsSidebar"; Type = "DWord" },
@@ -196,7 +196,7 @@ function Invoke-AntiAI {
                             $prop = Get-ItemProperty -Path $t.Path -Name $t.Name -ErrorAction SilentlyContinue
                             if ($null -ne $prop -and $prop.PSObject.Properties.Name -contains $t.Name) {
                                 $entry.Exists = $true
-                                $entry.Value  = $prop.$($t.Name)
+                                $entry.Value = $prop.$($t.Name)
                             }
                         }
                     }
@@ -272,7 +272,8 @@ function Invoke-AntiAI {
                         Register-Backup -Type "AntiAI" -Data $expJson -Name "Explorer_Advanced_Device_JSON" | Out-Null
                     }
                 }
-            } catch { 
+            }
+            catch { 
                 Write-Host "  WARNING: Failed to create JSON backup for Explorer Advanced: $_" -ForegroundColor Yellow 
             }
         }
@@ -355,7 +356,7 @@ function Invoke-AntiAI {
         }
         
         # ============================================================================
-        # ADVANCED COPILOT BLOCKING (NEW v2.2.2)
+        # ADVANCED COPILOT BLOCKING (NEW v2.2.3)
         # ============================================================================
         Write-Host ""
         Write-Host "  [Advanced Copilot Blocks]" -ForegroundColor Cyan

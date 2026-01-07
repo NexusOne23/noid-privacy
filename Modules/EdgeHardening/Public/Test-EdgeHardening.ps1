@@ -23,7 +23,7 @@
     
 .NOTES
     Author: NexusOne23
-    Version: 2.2.2
+    Version: 2.2.3
     Can be run without Administrator privileges
 #>
 
@@ -103,8 +103,8 @@ function Test-EdgeHardening {
         
         return [PSCustomObject]@{
             Compliant = $false
-            Message = "Test failed: $($_.Exception.Message)"
-            Details = @()
+            Message   = "Test failed: $($_.Exception.Message)"
+            Details   = @()
         }
     }
 }

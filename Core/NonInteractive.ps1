@@ -12,7 +12,7 @@
 
 .NOTES
     Author: NexusOne23
-    Version: 2.2.2
+    Version: 2.2.3
     
     Usage in modules:
     1. Call Test-NonInteractiveMode to check if prompts should be skipped
@@ -194,7 +194,8 @@ function Write-NonInteractiveDecision {
     
     $message = if ($null -ne $Value) {
         "[GUI] $Decision : $Value"
-    } else {
+    }
+    else {
         "[GUI] $Decision"
     }
     

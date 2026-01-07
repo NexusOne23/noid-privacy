@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [2.2.3] - 2025-01-07
+
+### 🔨 Bugfix Release
+
+**Critical bugfix for Restore Mode manual module selection.**
+
+### 🔨 Fixed
+
+**Restore Mode Module Selection Crash (Critical)**
+- Fixed: Selecting `[M] Restore only SELECTED modules` and entering any module number caused a fatal PowerShell error
+- Root cause: `.Split(',', ';', ' ')` triggered wrong .NET overload `Split(string, Int32)`, interpreting `;` as count parameter
+- Fix: Replaced with native PowerShell `-split '[,; ]'` operator
+- Impact: Manual module selection in Restore workflow now works correctly
+- Reported by: KatCat2
+
+---
+
 ## [2.2.2] - 2025-12-22
 
 ### 🚀 Performance Release

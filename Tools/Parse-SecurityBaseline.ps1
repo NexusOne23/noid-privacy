@@ -25,7 +25,7 @@
     
 .NOTES
     Author: NexusOne23
-    Version: 2.2.2
+    Version: 2.2.3
     Requires: PowerShell 5.1+
     
 .EXAMPLE
@@ -150,21 +150,26 @@ function Read-PolFile {
                 
                 # Parse based on type
                 switch ($type) {
-                    1 { # REG_SZ (String)
+                    1 {
+                        # REG_SZ (String)
                         $data = [System.Text.Encoding]::Unicode.GetString($dataBytes).TrimEnd([char]0)
                     }
-                    2 { # REG_EXPAND_SZ
+                    2 {
+                        # REG_EXPAND_SZ
                         $data = [System.Text.Encoding]::Unicode.GetString($dataBytes).TrimEnd([char]0)
                     }
-                    3 { # REG_BINARY
+                    3 {
+                        # REG_BINARY
                         $data = $dataBytes
                     }
-                    4 { # REG_DWORD
+                    4 {
+                        # REG_DWORD
                         if ($dataBytes.Length -ge 4) {
                             $data = [BitConverter]::ToInt32($dataBytes, 0)
                         }
                     }
-                    7 { # REG_MULTI_SZ
+                    7 {
+                        # REG_MULTI_SZ
                         $data = [System.Text.Encoding]::Unicode.GetString($dataBytes).TrimEnd([char]0) -split '\x00'
                     }
                     default {
@@ -180,9 +185,9 @@ function Read-PolFile {
             
             # Add entry
             $entries += [PSCustomObject]@{
-                KeyName = $keyName
+                KeyName   = $keyName
                 ValueName = $valueName
-                Type = switch ($type) {
+                Type      = switch ($type) {
                     1 { "REG_SZ" }
                     2 { "REG_EXPAND_SZ" }
                     3 { "REG_BINARY" }
@@ -191,7 +196,7 @@ function Read-PolFile {
                     11 { "REG_QWORD" }
                     default { "Unknown($type)" }
                 }
-                Data = $data
+                Data      = $data
             }
         }
         
@@ -296,10 +301,10 @@ function Read-AuditCsv {
         # Skip header row
         $policies = $csv | Select-Object -Skip 1 | ForEach-Object {
             [PSCustomObject]@{
-                Subcategory = $_.'Subcategory'
-                SubcategoryGUID = $_.'Subcategory GUID'
+                Subcategory      = $_.'Subcategory'
+                SubcategoryGUID  = $_.'Subcategory GUID'
                 InclusionSetting = $_.'Inclusion Setting'
-                SettingValue = $_.'Setting Value'
+                SettingValue     = $_.'Setting Value'
             }
         }
         
@@ -346,17 +351,17 @@ $gpoMapping = @{
 $gpoPath = Join-Path $BaselinePath "GPOs"
 
 $allSettings = @{
-    RegistryPolicies = @{
+    RegistryPolicies  = @{
         Computer = @()
-        User = @()
+        User     = @()
     }
     SecurityTemplates = @{}
-    AuditPolicies = @()
-    Summary = @{
+    AuditPolicies     = @()
+    Summary           = @{
         TotalRegistrySettings = 0
         TotalSecuritySettings = 0
-        TotalAuditPolicies = 0
-        TotalSettings = 0
+        TotalAuditPolicies    = 0
+        TotalSettings         = 0
     }
 }
 
@@ -381,11 +386,11 @@ foreach ($guid in $gpoMapping.Keys) {
         
         foreach ($entry in $entries) {
             $allSettings.RegistryPolicies.Computer += [PSCustomObject]@{
-                GPO = $gpoName
-                KeyName = $entry.KeyName
+                GPO       = $gpoName
+                KeyName   = $entry.KeyName
                 ValueName = $entry.ValueName
-                Type = $entry.Type
-                Data = $entry.Data
+                Type      = $entry.Type
+                Data      = $entry.Data
             }
         }
         
@@ -401,11 +406,11 @@ foreach ($guid in $gpoMapping.Keys) {
         
         foreach ($entry in $entries) {
             $allSettings.RegistryPolicies.User += [PSCustomObject]@{
-                GPO = $gpoName
-                KeyName = $entry.KeyName
+                GPO       = $gpoName
+                KeyName   = $entry.KeyName
                 ValueName = $entry.ValueName
-                Type = $entry.Type
-                Data = $entry.Data
+                Type      = $entry.Type
+                Data      = $entry.Data
             }
         }
         
@@ -435,11 +440,11 @@ foreach ($guid in $gpoMapping.Keys) {
         
         foreach ($policy in $policies) {
             $allSettings.AuditPolicies += [PSCustomObject]@{
-                GPO = $gpoName
-                Subcategory = $policy.Subcategory
-                SubcategoryGUID = $policy.SubcategoryGUID
+                GPO              = $gpoName
+                Subcategory      = $policy.Subcategory
+                SubcategoryGUID  = $policy.SubcategoryGUID
                 InclusionSetting = $policy.InclusionSetting
-                SettingValue = $policy.SettingValue
+                SettingValue     = $policy.SettingValue
             }
         }
         
@@ -452,8 +457,8 @@ foreach ($guid in $gpoMapping.Keys) {
 
 # Calculate total
 $allSettings.Summary.TotalSettings = $allSettings.Summary.TotalRegistrySettings + 
-                                     $allSettings.Summary.TotalSecuritySettings + 
-                                     $allSettings.Summary.TotalAuditPolicies
+$allSettings.Summary.TotalSecuritySettings + 
+$allSettings.Summary.TotalAuditPolicies
 
 # Save outputs
 Write-Host "Saving parsed settings..." -ForegroundColor Cyan

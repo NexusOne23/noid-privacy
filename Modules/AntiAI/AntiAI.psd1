@@ -1,21 +1,21 @@
 @{
-    RootModule = 'AntiAI.psm1'
-    ModuleVersion = '2.2.2'
-    GUID = 'f8e9d7c6-5b4a-3c2d-1e0f-9a8b7c6d5e4f'
-    Author = 'NexusOne23'
-    CompanyName = 'Open Source Project'
-    Copyright = '(c) 2025 NexusOne23. Licensed under GPL-3.0.'
-    Description = 'Comprehensive Windows 11 AI deactivation - Disables all 15 AI features using official Microsoft policies (Recall, Copilot, Paint AI, Notepad AI, Click to Do, Settings Agent, etc.). Maximum compliance mode with enterprise-grade Recall protection.'
+    RootModule        = 'AntiAI.psm1'
+    ModuleVersion     = '2.2.3'
+    GUID              = 'f8e9d7c6-5b4a-3c2d-1e0f-9a8b7c6d5e4f'
+    Author            = 'NexusOne23'
+    CompanyName       = 'Open Source Project'
+    Copyright         = '(c) 2025 NexusOne23. Licensed under GPL-3.0.'
+    Description       = 'Comprehensive Windows 11 AI deactivation - Disables all 15 AI features using official Microsoft policies (Recall, Copilot, Paint AI, Notepad AI, Click to Do, Settings Agent, etc.). Maximum compliance mode with enterprise-grade Recall protection.'
     PowerShellVersion = '5.1'
     
     FunctionsToExport = @(
         'Invoke-AntiAI'
     )
     
-    PrivateData = @{
+    PrivateData       = @{
         PSData = @{
-            Tags = @('Windows11', 'AI', 'Privacy', 'Security', 'Recall', 'Copilot', 'AntiAI')
-            ProjectUri = 'https://github.com/yourusername/NoIDPrivacy'
+            Tags         = @('Windows11', 'AI', 'Privacy', 'Security', 'Recall', 'Copilot', 'AntiAI')
+            ProjectUri   = 'https://github.com/yourusername/NoIDPrivacy'
             ReleaseNotes = @'
 v1.0.0 - Initial Release
 - Disables 8+ Windows 11 AI features using official Microsoft policies

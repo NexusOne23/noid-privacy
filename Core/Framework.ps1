@@ -8,7 +8,7 @@
     
 .NOTES
     Author: NexusOne23
-    Version: 2.2.2
+    Version: 2.2.3
     Requires: PowerShell 5.1+
     
 .EXAMPLE
@@ -24,7 +24,7 @@
 # All configuration comes from config.json via Initialize-Config.
 
 # Script-level variables
-$script:FrameworkVersion = "2.2.2"
+$script:FrameworkVersion = "2.2.3"
 $script:FrameworkRoot = Split-Path -Parent $PSScriptRoot
 $script:ExecutionStartTime = Get-Date
 
@@ -409,8 +409,8 @@ function Invoke-Hardening {
             else {
                 # CLI mode: Auto-detect session type based on module count
                 $autoSessionType = if ($modulesToExecute.Count -ge 7) { "wizard" }
-                                   elseif ($modulesToExecute.Count -eq 1) { "advanced" }
-                                   else { "manual" }
+                elseif ($modulesToExecute.Count -eq 1) { "advanced" }
+                else { "manual" }
                 Set-SessionType -SessionType $autoSessionType
                 Write-Log -Level DEBUG -Message "Session type auto-detected: $autoSessionType (based on $($modulesToExecute.Count) modules)" -Module "Framework"
             }
@@ -451,7 +451,7 @@ function Invoke-Hardening {
                             $ruleCount = $ruleIds.Count
 
                             $preFrameworkSnapshot = @{
-                                ASR = @{
+                                ASR       = @{
                                     RuleIds      = $ruleIds
                                     RuleActions  = $ruleActions
                                     SnapshotDate = Get-Date -Format "yyyy-MM-dd HH:mm:ss"

@@ -50,7 +50,7 @@
     resulting from its use. USE AT YOUR OWN RISK.
 
     Author: NexusOne23
-    Version: 2.2.2
+    Version: 2.2.3
     Requires: PowerShell 5.1+, Administrator privileges, Windows 11
     License: GPL-3.0 (Core CLI). See LICENSE for full terms.
     
@@ -111,13 +111,13 @@ $global:CurrentModule = ""
 # ============================================================================
 # EXIT CODES - For CI/CD and automation integration
 # ============================================================================
-$script:EXIT_SUCCESS            = 0   # All operations completed successfully
-$script:EXIT_ERROR_GENERAL      = 1   # General/unspecified error
+$script:EXIT_SUCCESS = 0   # All operations completed successfully
+$script:EXIT_ERROR_GENERAL = 1   # General/unspecified error
 $script:EXIT_ERROR_PREREQUISITES = 2  # System requirements not met
-$script:EXIT_ERROR_CONFIG       = 3   # Configuration file error
-$script:EXIT_ERROR_MODULE       = 4   # One or more modules failed
-$script:EXIT_ERROR_FATAL        = 5   # Fatal/unexpected exception
-$script:EXIT_SUCCESS_REBOOT     = 10  # Success, reboot required
+$script:EXIT_ERROR_CONFIG = 3   # Configuration file error
+$script:EXIT_ERROR_MODULE = 4   # One or more modules failed
+$script:EXIT_ERROR_FATAL = 5   # Fatal/unexpected exception
+$script:EXIT_SUCCESS_REBOOT = 10  # Success, reboot required
 
 # Script root path
 $script:RootPath = $PSScriptRoot
@@ -135,7 +135,7 @@ try {
     $logDirectory = Join-Path $script:RootPath "Logs"
     Initialize-Logger -LogDirectory $logDirectory -MinimumLevel $logLevel
     
-    Write-Log -Level INFO -Message "=== NoID Privacy Framework v2.2.2 ===" -Module "Main"
+    Write-Log -Level INFO -Message "=== NoID Privacy Framework v2.2.3 ===" -Module "Main"
     Write-Log -Level INFO -Message "Starting framework initialization..." -Module "Main"
     
     # Load other Core modules
@@ -216,7 +216,7 @@ catch {
 # Display banner
 Write-Host ""
 Write-Host "========================================" -ForegroundColor Cyan
-Write-Host "  NoID Privacy - v2.2.2" -ForegroundColor Cyan
+Write-Host "  NoID Privacy - v2.2.3" -ForegroundColor Cyan
 Write-Host "  Windows 11 Security Hardening" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
@@ -255,23 +255,23 @@ if (-not $Module) {
         if ([string]::IsNullOrWhiteSpace($selection)) { $selection = "99" }
         $selection = $selection.ToUpper()
         
-        if ($selection -notin @('1','2','3','4','5','6','7','99','V','R','B','I','0')) {
+        if ($selection -notin @('1', '2', '3', '4', '5', '6', '7', '99', 'V', 'R', 'B', 'I', '0')) {
             Write-Host ""
             Write-Host "Invalid selection. Please choose from the menu." -ForegroundColor Red
             Write-Host ""
         }
-    } while ($selection -notin @('1','2','3','4','5','6','7','99','V','R','B','I','0'))
+    } while ($selection -notin @('1', '2', '3', '4', '5', '6', '7', '99', 'V', 'R', 'B', 'I', '0'))
     
     switch ($selection) {
-        "1"  { $Module = "SecurityBaseline" }
-        "2"  { $Module = "ASR" }
-        "3"  { $Module = "DNS" }
-        "4"  { $Module = "Privacy" }
-        "5"  { $Module = "AntiAI" }
-        "6"  { $Module = "EdgeHardening" }
-        "7"  { $Module = "AdvancedSecurity" }
+        "1" { $Module = "SecurityBaseline" }
+        "2" { $Module = "ASR" }
+        "3" { $Module = "DNS" }
+        "4" { $Module = "Privacy" }
+        "5" { $Module = "AntiAI" }
+        "6" { $Module = "EdgeHardening" }
+        "7" { $Module = "AdvancedSecurity" }
         "99" { $Module = "All" }
-        "V"  {
+        "V" {
             # Verify all settings
             Write-Host ""
             Write-Host "Running complete verification..." -ForegroundColor Cyan
@@ -291,7 +291,7 @@ if (-not $Module) {
             $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
             exit 0
         }
-        "R"  {
+        "R" {
             # Restore from backup - Interactive session selection from disk
             Write-Host ""
             Write-Host "========================================" -ForegroundColor Cyan
@@ -365,7 +365,7 @@ if (-not $Module) {
             $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
             exit 0
         }
-        "B"  {
+        "B" {
             # List backups
             Write-Host ""
             Write-Host "========================================" -ForegroundColor Cyan
@@ -387,8 +387,8 @@ if (-not $Module) {
                     foreach ($backup in $backups) {
                         $age = (Get-Date) - $backup.CreationTime
                         $ageStr = if ($age.TotalHours -lt 1) { "$([math]::Round($age.TotalMinutes)) minutes ago" }
-                                  elseif ($age.TotalDays -lt 1) { "$([math]::Round($age.TotalHours)) hours ago" }
-                                  else { "$([math]::Round($age.TotalDays)) days ago" }
+                        elseif ($age.TotalDays -lt 1) { "$([math]::Round($age.TotalHours)) hours ago" }
+                        else { "$([math]::Round($age.TotalDays)) days ago" }
                         
                         Write-Host "  - $($backup.Name)" -ForegroundColor Green -NoNewline
                         Write-Host " ($ageStr)" -ForegroundColor Gray
@@ -404,7 +404,7 @@ if (-not $Module) {
             $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
             exit 0
         }
-        "I"  {
+        "I" {
             # System information
             Write-Host ""
             Write-Host "========================================" -ForegroundColor Cyan
@@ -451,7 +451,7 @@ if (-not $Module) {
             $null = $Host.UI.RawUI.ReadKey("NoEcho,IncludeKeyDown")
             exit 0
         }
-        "0"  { 
+        "0" { 
             Write-Host "Exiting..." -ForegroundColor Yellow
             exit 0
         }

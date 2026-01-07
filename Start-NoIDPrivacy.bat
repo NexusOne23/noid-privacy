@@ -7,12 +7,12 @@ REM This script launches NoIDPrivacy-Interactive.ps1 with
 REM Administrator privileges (auto-elevation).
 REM
 REM Author: NexusOne23
-REM Version: 2.2.2
+REM Version: 2.2.3
 REM ========================================
 
 setlocal
 
-title NoID Privacy v2.2.2
+title NoID Privacy v2.2.3
 
 REM Get the directory where this batch file is located
 set "SCRIPT_DIR=%~dp0"

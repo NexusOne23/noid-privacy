@@ -8,7 +8,7 @@
     
 .NOTES
     Author: NexusOne23
-    Version: 2.2.2
+    Version: 2.2.3
     Requires: PowerShell 5.1+
 #>
 
@@ -64,7 +64,7 @@ function Initialize-BackupSystem {
         displayName      = ""                    # Auto-generated based on modules
         sessionType      = "unknown"             # wizard | advanced | manual
         timestamp        = Get-Date -Format "o"
-        frameworkVersion = "2.2.2"
+        frameworkVersion = "2.2.3"
         modules          = @()
         totalItems       = 0
         restorable       = $true
@@ -116,13 +116,13 @@ function Update-SessionDisplayName {
     # Calculate ACTUAL settings count (not backup items!)
     # Each module applies a specific number of settings (Paranoid mode = max):
     $settingsPerModule = @{
-        "SecurityBaseline"  = 425  # 335 Registry + 67 Security Template + 23 Audit
-        "ASR"               = 19   # 19 ASR Rules
-        "DNS"               = 5    # 5 DNS Settings
-        "Privacy"           = 78   # 54 Registry (MSRecommended) + 24 Bloatware
-        "AntiAI"            = 32   # 32 Registry Policies (15 features)
-        "EdgeHardening"     = 24   # 24 Edge Policies (22-23 applied depending on extensions)
-        "AdvancedSecurity"  = 50   # 50 Advanced Settings (15 features incl. Discovery Protocols + IPv6)
+        "SecurityBaseline" = 425  # 335 Registry + 67 Security Template + 23 Audit
+        "ASR"              = 19   # 19 ASR Rules
+        "DNS"              = 5    # 5 DNS Settings
+        "Privacy"          = 78   # 54 Registry (MSRecommended) + 24 Bloatware
+        "AntiAI"           = 32   # 32 Registry Policies (15 features)
+        "EdgeHardening"    = 24   # 24 Edge Policies (22-23 applied depending on extensions)
+        "AdvancedSecurity" = 50   # 50 Advanced Settings (15 features incl. Discovery Protocols + IPv6)
     }
     
     $totalSettings = 0
@@ -382,10 +382,10 @@ function Backup-RegistryKey {
                 
                 try {
                     $emptyMarker = @{
-                        KeyPath = $KeyPath
+                        KeyPath    = $KeyPath
                         BackupDate = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-                        State = "NotExisted"
-                        Message = "Registry key did not exist before hardening - must be deleted during restore"
+                        State      = "NotExisted"
+                        Message    = "Registry key did not exist before hardening - must be deleted during restore"
                     } | ConvertTo-Json
                     
                     $markerFile = Join-Path $backupFolder "$safeBackupName`_EMPTY.json"
@@ -935,10 +935,10 @@ function Restore-FromBackup {
                             try {
                                 # Convert reg.exe path to PowerShell path
                                 $psKeyPath = $keyPathToRestore -replace 'HKEY_LOCAL_MACHINE', 'HKLM:' `
-                                                                -replace 'HKEY_CURRENT_USER', 'HKCU:' `
-                                                                -replace 'HKEY_CLASSES_ROOT', 'HKCR:' `
-                                                                -replace 'HKEY_USERS', 'HKU:' `
-                                                                -replace 'HKEY_CURRENT_CONFIG', 'HKCC:'
+                                    -replace 'HKEY_CURRENT_USER', 'HKCU:' `
+                                    -replace 'HKEY_CLASSES_ROOT', 'HKCR:' `
+                                    -replace 'HKEY_USERS', 'HKU:' `
+                                    -replace 'HKEY_CURRENT_CONFIG', 'HKCC:'
                                 
                                 if (Test-Path $psKeyPath) {
                                     Write-Log -Level INFO -Message "Deleting existing protected key: $psKeyPath before re-import." -Module "Rollback"
@@ -1106,7 +1106,8 @@ function Invoke-RestoreRebootPrompt {
         Write-Host ""
         if ($NoReboot) {
             Write-Host "[!] NoReboot specified - reboot prompt skipped" -ForegroundColor Yellow
-        } else {
+        }
+        else {
             Write-Host "[!] Running in NonInteractive mode - reboot prompt skipped" -ForegroundColor Yellow
         }
         Write-Host "    Please reboot manually to complete the restore." -ForegroundColor Gray
@@ -1421,7 +1422,8 @@ function Restore-Session {
     Write-RestoreLog -Level INFO -Message "Session Path: $SessionPath"
     if ($ModuleNames) {
         Write-RestoreLog -Level INFO -Message "Specific Modules: $($ModuleNames -join ', ')"
-    } else {
+    }
+    else {
         Write-RestoreLog -Level INFO -Message "Restoring: ALL modules"
     }
     Write-RestoreLog -Level INFO -Message "========================================"
@@ -1849,7 +1851,7 @@ function Restore-Session {
                                 for ($i = 0; $i -lt $preFramework.ASR.RuleIds.Count; $i++) {
                                     if ($preFramework.ASR.RuleActions[$i] -ne 0) {
                                         $asrRulesToRestore += @{
-                                            GUID = $preFramework.ASR.RuleIds[$i]
+                                            GUID   = $preFramework.ASR.RuleIds[$i]
                                             Action = $preFramework.ASR.RuleActions[$i]
                                         }
                                     }
@@ -1892,8 +1894,8 @@ function Restore-Session {
                         $ruleActions = $asrRulesToRestore | ForEach-Object { $_.Action }
                         
                         Set-MpPreference -AttackSurfaceReductionRules_Ids $ruleIds `
-                                        -AttackSurfaceReductionRules_Actions $ruleActions `
-                                        -ErrorAction Stop
+                            -AttackSurfaceReductionRules_Actions $ruleActions `
+                            -ErrorAction Stop
                         
                         $sourceDesc = if ($usePreFramework) { "PreFramework snapshot (TRUE pre-hardening)" } else { "ASR_ActiveConfiguration.json" }
                         Write-Log -Level SUCCESS -Message "ASR rules restored via Set-MpPreference ($($asrRulesToRestore.Count) active rules from $sourceDesc)" -Module "Rollback"
@@ -1961,7 +1963,8 @@ function Restore-Session {
                                 Write-Log -Level SUCCESS -Message "Explorer Advanced settings restored via PowerShell" -Module "Rollback"
                             }
                         }
-                    } catch {
+                    }
+                    catch {
                         Write-Log -Level WARNING -Message "PowerShell-based Explorer restore failed: $($_.Exception.Message)" -Module "Rollback"
                     }
                 }
@@ -1985,10 +1988,10 @@ function Restore-Session {
                                     }
 
                                     $regType = switch ($entry.Type) {
-                                        "DWord"       { "DWord" }
-                                        "String"      { "String" }
+                                        "DWord" { "DWord" }
+                                        "String" { "String" }
                                         "MultiString" { "MultiString" }
-                                        default        { "String" }
+                                        default { "String" }
                                     }
 
                                     $existing = Get-ItemProperty -Path $keyPath -Name $entry.Name -ErrorAction SilentlyContinue
@@ -2227,13 +2230,13 @@ function Restore-Session {
                                 }
 
                                 $regType = switch ($entry.Type) {
-                                    "DWord"       { "DWord" }
-                                    "String"      { "String" }
+                                    "DWord" { "DWord" }
+                                    "String" { "String" }
                                     "MultiString" { "MultiString" }
                                     "ExpandString" { "ExpandString" }
-                                    "Binary"      { "Binary" }
-                                    "QWord"       { "QWord" }
-                                    default        { "String" }
+                                    "Binary" { "Binary" }
+                                    "QWord" { "QWord" }
+                                    default { "String" }
                                 }
 
                                 New-ItemProperty -Path $entry.Path -Name $entry.Name -Value $entry.Value -PropertyType $regType -Force -ErrorAction Stop | Out-Null
@@ -2295,7 +2298,7 @@ function Restore-Session {
                             "HKCU:\Software\Microsoft\Windows\CurrentVersion\SystemSettings\AccountNotifications",
                             "HKCU:\Software\Microsoft\Windows\CurrentVersion\UserProfileEngagement",
                             "HKCU:\SOFTWARE\Microsoft\Personalization\Settings",
-                            # NEW: Input Personalization Settings (v2.2.2 - FIX missing HKCU restore)
+                            # NEW: Input Personalization Settings (v2.2.3 - FIX missing HKCU restore)
                             "HKCU:\SOFTWARE\Microsoft\InputPersonalization",
                             "HKCU:\SOFTWARE\Microsoft\InputPersonalization\TrainedDataStore",
                             "HKCU:\Software\Microsoft\Windows\CurrentVersion\CapabilityAccessManager\ConsentStore\appDiagnostics"
@@ -2312,7 +2315,8 @@ function Restore-Session {
                                             Remove-ItemProperty -Path $keyPath -Name $prop -ErrorAction SilentlyContinue
                                         }
                                     }
-                                } catch {
+                                }
+                                catch {
                                     Write-Log -Level DEBUG -Message "Could not clear $keyPath : $_" -Module "Rollback"
                                 }
                             }
@@ -2329,12 +2333,12 @@ function Restore-Session {
                                 }
                                 
                                 $regType = switch ($entry.Type) {
-                                    "DWord"       { "DWord" }
-                                    "String"      { "String" }
+                                    "DWord" { "DWord" }
+                                    "String" { "String" }
                                     "MultiString" { "MultiString" }
                                     "ExpandString" { "ExpandString" }
-                                    "Binary"      { "Binary" }
-                                    default        { "String" }
+                                    "Binary" { "Binary" }
+                                    default { "String" }
                                 }
                                 
                                 New-ItemProperty -Path $entry.Path -Name $entry.Name -Value $entry.Value -PropertyType $regType -Force -ErrorAction Stop | Out-Null
@@ -2512,13 +2516,13 @@ function Restore-Session {
                                 }
                                 
                                 $regType = switch ($entry.Type) {
-                                    "DWord"       { "DWord" }
-                                    "String"      { "String" }
+                                    "DWord" { "DWord" }
+                                    "String" { "String" }
                                     "MultiString" { "MultiString" }
                                     "ExpandString" { "ExpandString" }
-                                    "Binary"      { "Binary" }
-                                    "QWord"       { "QWord" }
-                                    default        { "String" }
+                                    "Binary" { "Binary" }
+                                    "QWord" { "QWord" }
+                                    default { "String" }
                                 }
                                 
                                 New-ItemProperty -Path $entry.Path -Name $entry.Name -Value $entry.Value -PropertyType $regType -Force -ErrorAction Stop | Out-Null
@@ -2726,7 +2730,8 @@ function Restore-Session {
             Write-Host "  All security settings have been reverted to backup state" -ForegroundColor White
             Write-Host "  Modules restored: $($reversedModules.Count) | Total items: $($manifest.totalItems)" -ForegroundColor Gray
             Write-Host ""
-        } else {
+        }
+        else {
             Write-Host ""
             Write-Host "                    RESTORE COMPLETED WITH ISSUES                        " -ForegroundColor Yellow
             Write-Host ""

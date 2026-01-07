@@ -8,7 +8,7 @@
     
 .NOTES
     Author: NexusOne23
-    Version: 2.2.2
+    Version: 2.2.3
     Requires: PowerShell 5.1+
 #>
 
@@ -27,9 +27,9 @@ function Test-Prerequisites {
     Write-Log -Level INFO -Message "Starting prerequisite validation" -Module "Validator"
     
     $result = [PSCustomObject]@{
-        Success = $true
-        Errors = @()
-        Warnings = @()
+        Success    = $true
+        Errors     = @()
+        Warnings   = @()
         SystemInfo = $null
     }
     
@@ -133,11 +133,11 @@ function Get-WindowsVersion {
     }
     
     return [PSCustomObject]@{
-        Version = $versionName
-        BuildNumber = $buildNumber
-        IsWindows11 = $isWindows11
-        IsSupported = $isSupported
-        Edition = $os.Caption
+        Version      = $versionName
+        BuildNumber  = $buildNumber
+        IsWindows11  = $isWindows11
+        IsSupported  = $isSupported
+        Edition      = $os.Caption
         Architecture = $os.OSArchitecture
     }
 }
@@ -200,26 +200,26 @@ function Test-TPMAvailable {
         
         if ($null -eq $tpm) {
             return [PSCustomObject]@{
-                Present = $false
-                Version = "N/A"
-                Enabled = $false
+                Present   = $false
+                Version   = "N/A"
+                Enabled   = $false
                 Activated = $false
             }
         }
         
         return [PSCustomObject]@{
-            Present = $tpm.TpmPresent
-            Version = if ($tpm.ManufacturerVersion) { $tpm.ManufacturerVersion } else { "2.0" }
-            Enabled = $tpm.TpmEnabled
+            Present   = $tpm.TpmPresent
+            Version   = if ($tpm.ManufacturerVersion) { $tpm.ManufacturerVersion } else { "2.0" }
+            Enabled   = $tpm.TpmEnabled
             Activated = $tpm.TpmActivated
         }
     }
     catch {
         Write-Log -Level WARNING -Message "Unable to check TPM status: $_" -Module "Validator"
         return [PSCustomObject]@{
-            Present = $false
-            Version = "Unknown"
-            Enabled = $false
+            Present   = $false
+            Version   = "Unknown"
+            Enabled   = $false
             Activated = $false
         }
     }
@@ -294,14 +294,14 @@ function Get-SystemInfo {
     $internet = Test-InternetConnectivity
     
     return [PSCustomObject]@{
-        OS = $osInfo
-        TPM = $tpmInfo
-        SecureBoot = $secureBoot
-        Virtualization = $virtualization
-        IsAdministrator = $isAdmin
+        OS                 = $osInfo
+        TPM                = $tpmInfo
+        SecureBoot         = $secureBoot
+        Virtualization     = $virtualization
+        IsAdministrator    = $isAdmin
         DiskSpaceAvailable = $diskSpace
-        InternetConnected = $internet
-        PowerShellVersion = $PSVersionTable.PSVersion.ToString()
+        InternetConnected  = $internet
+        PowerShellVersion  = $PSVersionTable.PSVersion.ToString()
     }
 }
 
@@ -332,9 +332,9 @@ function Test-DomainJoined {
         
         $result = [PSCustomObject]@{
             IsDomainJoined = $isDomainJoined
-            DomainName = if ($isDomainJoined) { $computerSystem.Domain } else { "N/A" }
-            Workgroup = if (-not $isDomainJoined) { $computerSystem.Workgroup } else { "N/A" }
-            UserConfirmed = $false
+            DomainName     = if ($isDomainJoined) { $computerSystem.Domain } else { "N/A" }
+            Workgroup      = if (-not $isDomainJoined) { $computerSystem.Workgroup } else { "N/A" }
+            UserConfirmed  = $false
         }
         
         if ($isDomainJoined) {
@@ -384,9 +384,9 @@ function Test-DomainJoined {
         Write-Log -Level ERROR -Message "Failed to check domain status: $_" -Module "Validator" -Exception $_.Exception
         return [PSCustomObject]@{
             IsDomainJoined = $false
-            DomainName = "Error"
-            Workgroup = "Error"
-            UserConfirmed = $false
+            DomainName     = "Error"
+            Workgroup      = "Error"
+            UserConfirmed  = $false
         }
     }
 }
@@ -416,7 +416,7 @@ function Confirm-SystemBackup {
     Write-Log -Level INFO -Message "Backup recommendation: non-interactive confirmation (no prompt shown)" -Module "Validator"
 
     $result = [PSCustomObject]@{
-        UserConfirmed    = $true
+        UserConfirmed     = $true
         BackupRecommended = $true
     }
 

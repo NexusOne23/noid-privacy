@@ -11,7 +11,7 @@
     
 .NOTES
     Module: AntiAI
-    Version: 2.2.2
+    Version: 2.2.3
     Author: NoID Privacy
 #>
 
@@ -27,7 +27,7 @@ $privateFunctions = @(
     'Disable-Recall'
     'Set-RecallProtection'
     'Disable-Copilot'
-    'Disable-CopilotAdvanced'  # NEW v2.2.2: URI handlers, Edge sidebar, Recall export
+    'Disable-CopilotAdvanced'  # NEW v2.2.3: URI handlers, Edge sidebar, Recall export
     'Disable-ClickToDo'
     'Disable-SettingsAgent'
     'Disable-ExplorerAI'       # NEW: File Explorer AI Actions menu

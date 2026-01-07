@@ -13,10 +13,10 @@
     Output file for checksums. Default: CHECKSUMS.sha256 in the same directory.
 
 .EXAMPLE
-    .\Generate-ReleaseChecksums.ps1 -ReleasePath "C:\Release\NoIDPrivacy-v2.2.2"
+    .\Generate-ReleaseChecksums.ps1 -ReleasePath "C:\Release\NoIDPrivacy-v2.2.3"
     
 .EXAMPLE
-    .\Generate-ReleaseChecksums.ps1 -ReleasePath ".\NoIDPrivacy-v2.2.2.zip"
+    .\Generate-ReleaseChecksums.ps1 -ReleasePath ".\NoIDPrivacy-v2.2.3.zip"
 #>
 
 [CmdletBinding()]
@@ -36,10 +36,12 @@ Write-Host "`n=== NoID Privacy Release Checksum Generator ===" -ForegroundColor 
 if (Test-Path $ReleasePath -PathType Container) {
     $files = Get-ChildItem -Path $ReleasePath -File -Recurse | Where-Object { $_.Extension -in '.zip', '.exe', '.ps1', '.psm1' }
     $basePath = $ReleasePath
-} elseif (Test-Path $ReleasePath -PathType Leaf) {
+}
+elseif (Test-Path $ReleasePath -PathType Leaf) {
     $files = Get-Item $ReleasePath
     $basePath = Split-Path $ReleasePath -Parent
-} else {
+}
+else {
     Write-Error "Path not found: $ReleasePath"
     exit 1
 }

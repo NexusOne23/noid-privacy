@@ -8,7 +8,7 @@
     
 .NOTES
     Author: NexusOne23
-    Version: 2.2.2
+    Version: 2.2.3
     Requires: PowerShell 5.1+
 #>
 
@@ -79,104 +79,104 @@ function New-DefaultConfig {
     )
     
     $defaultConfig = @{
-        version = "2.2.2"
+        version = "2.2.3"
         modules = @{
             SecurityBaseline = @{
-                enabled = $true
-                priority = 1
-                status = "IMPLEMENTED"
+                enabled                 = $true
+                priority                = 1
+                status                  = "IMPLEMENTED"
                 bitLockerUSBEnforcement = $false
             }
-            ASR = @{
-                enabled = $true
-                priority = 2
-                status = "IMPLEMENTED"
-                usesManagementTools = $false
-                allowNewSoftware = $false
+            ASR              = @{
+                enabled              = $true
+                priority             = 2
+                status               = "IMPLEMENTED"
+                usesManagementTools  = $false
+                allowNewSoftware     = $false
                 continueWithoutCloud = $true
             }
-            DNS = @{
-                enabled = $true
+            DNS              = @{
+                enabled  = $true
                 priority = 3
-                status = "IMPLEMENTED"
+                status   = "IMPLEMENTED"
                 provider = "Quad9"
-                dohMode = "REQUIRE"
+                dohMode  = "REQUIRE"
             }
-            Privacy = @{
-                enabled = $true
-                priority = 4
-                status = "IMPLEMENTED"
-                mode = "MSRecommended"
+            Privacy          = @{
+                enabled               = $true
+                priority              = 4
+                status                = "IMPLEMENTED"
+                mode                  = "MSRecommended"
                 disableCloudClipboard = $true
-                removeBloatware = $true
+                removeBloatware       = $true
             }
-            AntiAI = @{
-                enabled = $true
-                priority = 5
-                status = "IMPLEMENTED"
+            AntiAI           = @{
+                enabled     = $true
+                priority    = 5
+                status      = "IMPLEMENTED"
                 description = "Disable all Windows 11 AI features (Recall, Copilot, Paint AI, etc.)"
             }
-            EdgeHardening = @{
-                enabled = $true
-                priority = 6
-                status = "IMPLEMENTED"
-                description = "Microsoft Edge v139 Security Baseline: 24 security policies"
+            EdgeHardening    = @{
+                enabled         = $true
+                priority        = 6
+                status          = "IMPLEMENTED"
+                description     = "Microsoft Edge v139 Security Baseline: 24 security policies"
                 allowExtensions = $true
-                version = "2.2.2"
-                baseline = "Edge v139"
-                policies = 24
-                features = @{
-                    smartscreen_enforcement = $true
-                    site_isolation = $true
-                    ssl_error_blocking = $true
-                    extension_blocklist = $true
-                    ie_mode_restrictions = $true
-                    spectre_mitigations = $true
-                    application_encryption = $true
+                version         = "2.2.3"
+                baseline        = "Edge v139"
+                policies        = 24
+                features        = @{
+                    smartscreen_enforcement  = $true
+                    site_isolation           = $true
+                    ssl_error_blocking       = $true
+                    extension_blocklist      = $true
+                    ie_mode_restrictions     = $true
+                    spectre_mitigations      = $true
+                    application_encryption   = $true
                     auth_scheme_restrictions = $true
                 }
             }
             AdvancedSecurity = @{
-                enabled = $true
-                priority = 7
-                status = "IMPLEMENTED"
-                description = "Advanced Security hardening beyond MS Baseline"
-                securityProfile = "Balanced"
-                disableRDP = $true
-                forceAdminShares = $false
-                disableUPnP = $true
-                disableWirelessDisplay = $false
+                enabled                   = $true
+                priority                  = 7
+                status                    = "IMPLEMENTED"
+                description               = "Advanced Security hardening beyond MS Baseline"
+                securityProfile           = "Balanced"
+                disableRDP                = $true
+                forceAdminShares          = $false
+                disableUPnP               = $true
+                disableWirelessDisplay    = $false
                 disableDiscoveryProtocols = $true
-                disableIPv6 = $false
-                version = "2.2.2"
-                policies = 50
-                features = @{
-                    rdp_hardening = $true
-                    wdigest_protection = $true
-                    admin_shares_disable = $true
-                    risky_ports_closure = $true
-                    risky_services_stop = $true
-                    legacy_tls_disable = $true
-                    wpad_disable = $true
-                    powershell_v2_removal = $true
-                    srp_lnk_protection = $true
-                    windows_update_config = $true
-                    finger_protocol_block = $true
-                    wireless_display_security = $true
+                disableIPv6               = $false
+                version                   = "2.2.3"
+                policies                  = 50
+                features                  = @{
+                    rdp_hardening                = $true
+                    wdigest_protection           = $true
+                    admin_shares_disable         = $true
+                    risky_ports_closure          = $true
+                    risky_services_stop          = $true
+                    legacy_tls_disable           = $true
+                    wpad_disable                 = $true
+                    powershell_v2_removal        = $true
+                    srp_lnk_protection           = $true
+                    windows_update_config        = $true
+                    finger_protocol_block        = $true
+                    wireless_display_security    = $true
                     discovery_protocols_security = $true
-                    firewall_shields_up = $true
-                    ipv6_disable = $true
+                    firewall_shields_up          = $true
+                    ipv6_disable                 = $true
                 }
-                profiles = @("Balanced", "Enterprise", "Maximum")
+                profiles                  = @("Balanced", "Enterprise", "Maximum")
             }
         }
         options = @{
-            dryRun = $false
-            createBackup = $true
+            dryRun         = $false
+            createBackup   = $true
             verboseLogging = $true
-            autoReboot = $false
+            autoReboot     = $false
             nonInteractive = $false
-            autoConfirm = $false
+            autoConfirm    = $false
         }
     }
     
@@ -434,7 +434,7 @@ function Get-EnabledModules {
             # Check if module is actually implemented
             if (Test-ModuleAvailability -ModuleName $moduleName) {
                 $enabledModules += [PSCustomObject]@{
-                    Name = $moduleName
+                    Name     = $moduleName
                     Priority = $moduleConfig.priority
                 }
             }

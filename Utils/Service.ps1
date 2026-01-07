@@ -8,7 +8,7 @@
     
 .NOTES
     Author: NexusOne23
-    Version: 2.2.2
+    Version: 2.2.3
     Requires: PowerShell 5.1+
 #>
 
@@ -213,12 +213,12 @@ function Get-ServiceStatus {
         $serviceWmi = Get-CimInstance -ClassName Win32_Service -Filter "Name='$ServiceName'" -ErrorAction Stop
         
         return [PSCustomObject]@{
-            Name = $service.Name
+            Name        = $service.Name
             DisplayName = $service.DisplayName
-            Status = $service.Status
-            StartType = $service.StartType
-            StartMode = $serviceWmi.StartMode
-            PathName = $serviceWmi.PathName
+            Status      = $service.Status
+            StartType   = $service.StartType
+            StartMode   = $serviceWmi.StartMode
+            PathName    = $serviceWmi.PathName
             Description = $serviceWmi.Description
         }
     }

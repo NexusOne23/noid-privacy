@@ -27,7 +27,7 @@
     
 .NOTES
     Author: NexusOne23
-    Version: 2.2.2
+    Version: 2.2.3
 #>
 
 #Requires -Version 5.1
@@ -130,10 +130,10 @@ function Get-RegistryChecksFromJson {
             # Skip metadata and excluded categories
             # NOTE: EnterpriseProtection is NOT skipped - it contains valid registry paths!
             if ($propName -in @('Mode', 'Description', 'BestFor', 'Warnings', 'Services', 'ScheduledTasks', 
-                                'Summary', 'AutomaticallyBlockedByMasterSwitch', 'ModuleName', 'Version',
-                                'TotalFeatures', 'TotalPolicies', 'URIHandlers', 'Note', 'FilePath',
-                                'HostsEntries', 'CloudBased', 'RequiresReboot',
-                                'RequiresADMX', 'Impact', 'Name')) {
+                    'Summary', 'AutomaticallyBlockedByMasterSwitch', 'ModuleName', 'Version',
+                    'TotalFeatures', 'TotalPolicies', 'URIHandlers', 'Note', 'FilePath',
+                    'HostsEntries', 'CloudBased', 'RequiresReboot',
+                    'RequiresADMX', 'Impact', 'Name')) {
                 continue
             }
             
@@ -962,78 +962,16 @@ try {
         $currentASRIds = $mpPreference.AttackSurfaceReductionRules_Ids
         $currentASRActions = $mpPreference.AttackSurfaceReductionRules_Actions
     
-    # Load expected ASR rules - JSON is array directly
-    $asrRules = Get-Content (Join-Path $asrConfigPath "ASR-Rules.json") -Raw | ConvertFrom-Json
+        # Load expected ASR rules - JSON is array directly
+        $asrRules = Get-Content (Join-Path $asrConfigPath "ASR-Rules.json") -Raw | ConvertFrom-Json
     
-    $asrFailed = @()
-    $asrPassed = @()
+        $asrFailed = @()
+        $asrPassed = @()
     
-    # Check if ASR rules are configured at all
-    if ($null -eq $currentASRIds -or $currentASRIds.Count -eq 0) {
-        # No ASR rules configured - mark all as failed
-        foreach ($rule in $asrRules) {
-            $results.Failed++
-            $expectedActionText = if ($rule.Action -eq 1) { "Block" } elseif ($rule.Action -eq 2) { "Audit" } else { "Disabled" }
-            $asrFailed += [PSCustomObject]@{
-                Rule     = $rule.Name
-                GUID     = $rule.GUID
-                Expected = $expectedActionText
-                Actual   = "Not configured"
-            }
-        }
-    }
-    else {
-        # Rules where both BLOCK (1) and AUDIT (2) are considered "Pass"
-        # These are user-configurable rules where either mode is valid
-        $flexibleRules = @(
-            "d1e49aac-8f56-4280-b9ba-993a6d77406c",  # PSExec/WMI (Management Tools)
-            "01443614-cd74-433a-b99e-2ecdc07bfc25"   # Prevalence (New/Unknown Software)
-        )
-        
-        foreach ($rule in $asrRules) {
-            # Case-insensitive GUID matching (Get-MpPreference may return different case)
-            $index = -1
-            for ($i = 0; $i -lt $currentASRIds.Count; $i++) {
-                if ($currentASRIds[$i] -eq $rule.GUID) {
-                    $index = $i
-                    break
-                }
-            }
-            
-            if ($index -ge 0) {
-                $actualAction = $currentASRActions[$index]
-                $expectedAction = $rule.Action
-                
-                # Check if this is a flexible rule (Block or Audit both count as Pass)
-                $isFlexibleRule = $flexibleRules -contains $rule.GUID
-                $isActiveMode = $actualAction -in @(1, 2)  # Block or Audit
-                
-                # For flexible rules: Pass if Block OR Audit
-                # For other rules: Pass only if exact match
-                $rulePassed = if ($isFlexibleRule) { $isActiveMode } else { $actualAction -eq $expectedAction }
-                
-                if ($rulePassed) {
-                    $results.Verified++
-                    $actionText = if ($actualAction -eq 1) { "Block" } elseif ($actualAction -eq 2) { "Audit" } else { "Disabled" }
-                    $asrPassed += [PSCustomObject]@{
-                        Rule     = $rule.Name
-                        Expected = $actionText
-                        Actual   = $actionText
-                    }
-                }
-                else {
-                    $results.Failed++
-                    $expectedActionText = if ($expectedAction -eq 1) { "Block" } elseif ($expectedAction -eq 2) { "Audit" } else { "Disabled" }
-                    $actualActionText = if ($actualAction -eq 1) { "Block" } elseif ($actualAction -eq 2) { "Audit" } else { "Disabled" }
-                    $asrFailed += [PSCustomObject]@{
-                        Rule     = $rule.Name
-                        GUID     = $rule.GUID
-                        Expected = $expectedActionText
-                        Actual   = $actualActionText
-                    }
-                }
-            }
-            else {
+        # Check if ASR rules are configured at all
+        if ($null -eq $currentASRIds -or $currentASRIds.Count -eq 0) {
+            # No ASR rules configured - mark all as failed
+            foreach ($rule in $asrRules) {
                 $results.Failed++
                 $expectedActionText = if ($rule.Action -eq 1) { "Block" } elseif ($rule.Action -eq 2) { "Audit" } else { "Disabled" }
                 $asrFailed += [PSCustomObject]@{
@@ -1044,28 +982,90 @@ try {
                 }
             }
         }
-    }
-    
-    # Add to AllSettings for HTML report
-    $asrPassedCount = $results.ASRRules - $asrFailed.Count
-    $results.AllSettings += [PSCustomObject]@{
-        Category      = "ASR"
-        Total         = $results.ASRRules
-        Passed        = $asrPassedCount
-        Failed        = $asrFailed.Count
-        PassedDetails = $asrPassed
-        FailedDetails = $asrFailed
-    }
-    
-    if ($asrFailed.Count -gt 0) {
-        $results.FailedSettings += [PSCustomObject]@{
-            Category = "ASR"
-            Count    = $asrFailed.Count
-            Details  = $asrFailed
+        else {
+            # Rules where both BLOCK (1) and AUDIT (2) are considered "Pass"
+            # These are user-configurable rules where either mode is valid
+            $flexibleRules = @(
+                "d1e49aac-8f56-4280-b9ba-993a6d77406c",  # PSExec/WMI (Management Tools)
+                "01443614-cd74-433a-b99e-2ecdc07bfc25"   # Prevalence (New/Unknown Software)
+            )
+        
+            foreach ($rule in $asrRules) {
+                # Case-insensitive GUID matching (Get-MpPreference may return different case)
+                $index = -1
+                for ($i = 0; $i -lt $currentASRIds.Count; $i++) {
+                    if ($currentASRIds[$i] -eq $rule.GUID) {
+                        $index = $i
+                        break
+                    }
+                }
+            
+                if ($index -ge 0) {
+                    $actualAction = $currentASRActions[$index]
+                    $expectedAction = $rule.Action
+                
+                    # Check if this is a flexible rule (Block or Audit both count as Pass)
+                    $isFlexibleRule = $flexibleRules -contains $rule.GUID
+                    $isActiveMode = $actualAction -in @(1, 2)  # Block or Audit
+                
+                    # For flexible rules: Pass if Block OR Audit
+                    # For other rules: Pass only if exact match
+                    $rulePassed = if ($isFlexibleRule) { $isActiveMode } else { $actualAction -eq $expectedAction }
+                
+                    if ($rulePassed) {
+                        $results.Verified++
+                        $actionText = if ($actualAction -eq 1) { "Block" } elseif ($actualAction -eq 2) { "Audit" } else { "Disabled" }
+                        $asrPassed += [PSCustomObject]@{
+                            Rule     = $rule.Name
+                            Expected = $actionText
+                            Actual   = $actionText
+                        }
+                    }
+                    else {
+                        $results.Failed++
+                        $expectedActionText = if ($expectedAction -eq 1) { "Block" } elseif ($expectedAction -eq 2) { "Audit" } else { "Disabled" }
+                        $actualActionText = if ($actualAction -eq 1) { "Block" } elseif ($actualAction -eq 2) { "Audit" } else { "Disabled" }
+                        $asrFailed += [PSCustomObject]@{
+                            Rule     = $rule.Name
+                            GUID     = $rule.GUID
+                            Expected = $expectedActionText
+                            Actual   = $actualActionText
+                        }
+                    }
+                }
+                else {
+                    $results.Failed++
+                    $expectedActionText = if ($rule.Action -eq 1) { "Block" } elseif ($rule.Action -eq 2) { "Audit" } else { "Disabled" }
+                    $asrFailed += [PSCustomObject]@{
+                        Rule     = $rule.Name
+                        GUID     = $rule.GUID
+                        Expected = $expectedActionText
+                        Actual   = "Not configured"
+                    }
+                }
+            }
         }
-    }
     
-    Write-Host "  ASR Rules: $($results.ASRRules - $asrFailed.Count)/$($results.ASRRules) verified" -ForegroundColor $(if ($asrFailed.Count -eq 0) { "Green" } else { "Yellow" })
+        # Add to AllSettings for HTML report
+        $asrPassedCount = $results.ASRRules - $asrFailed.Count
+        $results.AllSettings += [PSCustomObject]@{
+            Category      = "ASR"
+            Total         = $results.ASRRules
+            Passed        = $asrPassedCount
+            Failed        = $asrFailed.Count
+            PassedDetails = $asrPassed
+            FailedDetails = $asrFailed
+        }
+    
+        if ($asrFailed.Count -gt 0) {
+            $results.FailedSettings += [PSCustomObject]@{
+                Category = "ASR"
+                Count    = $asrFailed.Count
+                Details  = $asrFailed
+            }
+        }
+    
+        Write-Host "  ASR Rules: $($results.ASRRules - $asrFailed.Count)/$($results.ASRRules) verified" -ForegroundColor $(if ($asrFailed.Count -eq 0) { "Green" } else { "Yellow" })
     }  # End of else (Defender active)
 }
 catch {
@@ -1303,8 +1303,8 @@ try {
                         if ($entry.ServerAddresses -and $entry.ServerAddresses.Count -gt 0) {
                             # Check if it's not DHCP (empty or localhost fallback)
                             $isDHCP = ($entry.ServerAddresses.Count -eq 0) -or 
-                                     ($entry.ServerAddresses -contains '127.0.0.1') -or
-                                     ($entry.AddressOrigin -eq 'DHCP')
+                            ($entry.ServerAddresses -contains '127.0.0.1') -or
+                            ($entry.AddressOrigin -eq 'DHCP')
                             
                             if (-not $isDHCP) {
                                 $staticDNS = $true
@@ -1796,10 +1796,10 @@ try {
     # We validate both Enabled=0 and DisabledByDefault=1 per version/component
     $tlsChecks = @(
         # Enabled flags
-        @{ Path = "HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.0\Server"; Name = "Enabled";            Expected = 0; Desc = "TLS 1.0 Server Disabled";           Optional = $false }
-        @{ Path = "HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.0\Client"; Name = "Enabled";        Expected = 0; Desc = "TLS 1.0 Client Disabled";           Optional = $false }
-        @{ Path = "HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.1\Server"; Name = "Enabled";        Expected = 0; Desc = "TLS 1.1 Server Disabled";           Optional = $false }
-        @{ Path = "HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.1\Client"; Name = "Enabled";        Expected = 0; Desc = "TLS 1.1 Client Disabled";           Optional = $false }
+        @{ Path = "HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.0\Server"; Name = "Enabled"; Expected = 0; Desc = "TLS 1.0 Server Disabled"; Optional = $false }
+        @{ Path = "HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.0\Client"; Name = "Enabled"; Expected = 0; Desc = "TLS 1.0 Client Disabled"; Optional = $false }
+        @{ Path = "HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.1\Server"; Name = "Enabled"; Expected = 0; Desc = "TLS 1.1 Server Disabled"; Optional = $false }
+        @{ Path = "HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.1\Client"; Name = "Enabled"; Expected = 0; Desc = "TLS 1.1 Client Disabled"; Optional = $false }
         # DisabledByDefault flags
         @{ Path = "HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.0\Server"; Name = "DisabledByDefault"; Expected = 1; Desc = "TLS 1.0 Server DisabledByDefault"; Optional = $false }
         @{ Path = "HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.0\Client"; Name = "DisabledByDefault"; Expected = 1; Desc = "TLS 1.0 Client DisabledByDefault"; Optional = $false }
@@ -1812,24 +1812,24 @@ try {
     # Reference: https://learn.microsoft.com/en-us/troubleshoot/windows-server/networking/disable-http-proxy-auth-features
     # NOTE: HKCU AutoDetect is set per-user via HKU in Apply, verified separately below
     $wpadChecks = @(
-        @{ Path = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\WinHttp"; Name = "DisableWpad";  Expected = 1; Desc = "WPAD Disabled (Official MS Key)";  Optional = $false }
-        @{ Path = "HKLM:\Software\Microsoft\Windows\CurrentVersion\Internet Settings\Wpad";    Name = "WpadOverride"; Expected = 1; Desc = "WPAD Disabled (WpadOverride)";     Optional = $false }
-        @{ Path = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings";         Name = "AutoDetect";   Expected = 0; Desc = "WPAD AutoDetect (HKLM)";           Optional = $false }
+        @{ Path = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings\WinHttp"; Name = "DisableWpad"; Expected = 1; Desc = "WPAD Disabled (Official MS Key)"; Optional = $false }
+        @{ Path = "HKLM:\Software\Microsoft\Windows\CurrentVersion\Internet Settings\Wpad"; Name = "WpadOverride"; Expected = 1; Desc = "WPAD Disabled (WpadOverride)"; Optional = $false }
+        @{ Path = "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings"; Name = "AutoDetect"; Expected = 0; Desc = "WPAD AutoDetect (HKLM)"; Optional = $false }
     )
 
     # SRP Root Policy (2 checks) - ALWAYS required for CVE-2025-9491 mitigation
     $srpRootChecks = @(
-        @{ Path = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Safer\CodeIdentifiers"; Name = "DefaultLevel";       Expected = 262144; Desc = "SRP DefaultLevel (Unrestricted)";   Optional = $false }
-        @{ Path = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Safer\CodeIdentifiers"; Name = "TransparentEnabled"; Expected = 1;      Desc = "SRP TransparentEnabled";               Optional = $false }
+        @{ Path = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Safer\CodeIdentifiers"; Name = "DefaultLevel"; Expected = 262144; Desc = "SRP DefaultLevel (Unrestricted)"; Optional = $false }
+        @{ Path = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Safer\CodeIdentifiers"; Name = "TransparentEnabled"; Expected = 1; Desc = "SRP TransparentEnabled"; Optional = $false }
     )
     
     # Firewall Shields Up (1 check) - Maximum profile only, blocks ALL incoming on Public network
     # Optional = true because it's only applied for Maximum profile (user choice)
     $shieldsUpCheck = @{ 
-        Path = "HKLM:\SYSTEM\CurrentControlSet\Services\SharedAccess\Parameters\FirewallPolicy\PublicProfile"
-        Name = "DoNotAllowExceptions"
+        Path     = "HKLM:\SYSTEM\CurrentControlSet\Services\SharedAccess\Parameters\FirewallPolicy\PublicProfile"
+        Name     = "DoNotAllowExceptions"
         Expected = 1
-        Desc = "Firewall Shields Up (Maximum only)"
+        Desc     = "Firewall Shields Up (Maximum only)"
         Optional = $true 
     }
     
@@ -1837,10 +1837,10 @@ try {
     # Optional = true because only applied for Maximum profile (user choice)
     # Check 1: mDNS disabled via registry
     $discoveryMdnsCheck = @{ 
-        Path = "HKLM:\SYSTEM\CurrentControlSet\Services\Dnscache\Parameters"
-        Name = "EnableMDNS"
+        Path     = "HKLM:\SYSTEM\CurrentControlSet\Services\Dnscache\Parameters"
+        Name     = "EnableMDNS"
         Expected = 0
-        Desc = "Discovery Protocols: mDNS Disabled (Maximum only)"
+        Desc     = "Discovery Protocols: mDNS Disabled (Maximum only)"
         Optional = $true 
     }
     
@@ -1850,10 +1850,10 @@ try {
     # IPv6 Disable (mitm6 attack mitigation) - Maximum profile only
     # Optional = true because only applied for Maximum profile (user choice)
     $ipv6Check = @{ 
-        Path = "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip6\Parameters"
-        Name = "DisabledComponents"
+        Path     = "HKLM:\SYSTEM\CurrentControlSet\Services\Tcpip6\Parameters"
+        Name     = "DisabledComponents"
         Expected = 255  # 0xFF = completely disabled
-        Desc = "IPv6 Disabled (mitm6 mitigation, Maximum only)"
+        Desc     = "IPv6 Disabled (mitm6 mitigation, Maximum only)"
         Optional = $true 
     }
     
@@ -1888,10 +1888,10 @@ try {
     
     # Windows Update (4 Checks) - ALWAYS required - matches AdvancedSecurity module Config/WindowsUpdate.json
     $wuChecks = @(
-        @{ Path = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate";            Name = "AllowOptionalContent";   Expected = 1; Desc = "WU: Get latest updates immediately (Policy)";         Optional = $false }
-        @{ Path = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate";            Name = "SetAllowOptionalContent"; Expected = 1; Desc = "WU: AllowOptionalContent Policy Flag";                 Optional = $false }
-        @{ Path = "HKLM:\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings";                 Name = "AllowMUUpdateService";    Expected = 1; Desc = "WU: Microsoft Update (Office, drivers)";              Optional = $false }
-        @{ Path = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DeliveryOptimization";     Name = "DODownloadMode";          Expected = 0; Desc = "WU: P2P Delivery Optimization OFF";                    Optional = $false }
+        @{ Path = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate"; Name = "AllowOptionalContent"; Expected = 1; Desc = "WU: Get latest updates immediately (Policy)"; Optional = $false }
+        @{ Path = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsUpdate"; Name = "SetAllowOptionalContent"; Expected = 1; Desc = "WU: AllowOptionalContent Policy Flag"; Optional = $false }
+        @{ Path = "HKLM:\SOFTWARE\Microsoft\WindowsUpdate\UX\Settings"; Name = "AllowMUUpdateService"; Expected = 1; Desc = "WU: Microsoft Update (Office, drivers)"; Optional = $false }
+        @{ Path = "HKLM:\SOFTWARE\Policies\Microsoft\Windows\DeliveryOptimization"; Name = "DODownloadMode"; Expected = 0; Desc = "WU: P2P Delivery Optimization OFF"; Optional = $false }
     )
     
     # Finger Protocol (1 check) - verify outbound firewall rule created by AdvancedSecurity
@@ -1911,7 +1911,8 @@ try {
                 else {
                     $actualDesc = if ($portFilter) {
                         "Protocol=$($portFilter.Protocol), RemotePort=$($portFilter.RemotePort)"
-                    } else {
+                    }
+                    else {
                         "No port filter"
                     }
                 }
@@ -2050,8 +2051,8 @@ try {
         
         $hkuPath = "SOFTWARE\Microsoft\Windows\CurrentVersion\Internet Settings"
         $userSIDs = Get-ChildItem -Path "HKU:\" -ErrorAction SilentlyContinue | 
-                    Where-Object { $_.PSChildName -match '^S-1-5-21-' -and $_.PSChildName -notmatch '_Classes$' } |
-                    Select-Object -ExpandProperty PSChildName
+        Where-Object { $_.PSChildName -match '^S-1-5-21-' -and $_.PSChildName -notmatch '_Classes$' } |
+        Select-Object -ExpandProperty PSChildName
         
         $hkuCompliant = $true
         $hkuActualValue = "All users compliant"
@@ -2222,10 +2223,10 @@ try {
 
         $totalAdapters = $adapters.Count
         $disabledCount = 0
-        $nonCompliant  = @()
+        $nonCompliant = @()
 
         foreach ($adapter in $adapters) {
-            $adapterName = if ($adapter.Description.Length -gt 40) { $adapter.Description.Substring(0,37) + "..." } else { $adapter.Description }
+            $adapterName = if ($adapter.Description.Length -gt 40) { $adapter.Description.Substring(0, 37) + "..." } else { $adapter.Description }
             if ($adapter.TcpipNetbiosOptions -eq 2) {
                 $disabledCount++
             }
@@ -2545,7 +2546,7 @@ catch {
 # drift from per-category counters in case some success paths didn't
 # manually increment $results.Verified.
 $results.TotalSettings = ($results.AllSettings | Measure-Object -Property Total -Sum).Sum
-$results.Verified      = ($results.AllSettings | Measure-Object -Property Passed -Sum).Sum
+$results.Verified = ($results.AllSettings | Measure-Object -Property Passed -Sum).Sum
 
 $results.Duration = (Get-Date) - $startTime
 
@@ -3244,7 +3245,7 @@ try {
 <body>
     <div class="container">
         <div class="header">
-            <h1>NoID Privacy v2.2.2</h1>
+            <h1>NoID Privacy v2.2.3</h1>
             <p class="subtitle">Complete Hardening Compliance Report</p>
             <span class="badge">All $totalSettings Settings Verified</span>
         </div>
@@ -3264,7 +3265,7 @@ try {
             </div>
             <div class="meta-item">
                 <span class="meta-label">Framework Version</span>
-                <span class="meta-value">NoID Privacy v2.2.2</span>
+                <span class="meta-value">NoID Privacy v2.2.3</span>
             </div>
         </div>
         
@@ -3423,11 +3424,11 @@ try {
                         $friendlyName = $zoneSettingNames[$settingName]
                         if ($friendlyName) {
                             $zoneName = if ($pathInfo -like "*Zones\\0*") { "My Computer" }
-                                        elseif ($pathInfo -like "*Zones\\1*") { "Local Intranet" }
-                                        elseif ($pathInfo -like "*Zones\\2*") { "Trusted Sites" }
-                                        elseif ($pathInfo -like "*Zones\\3*") { "Internet" }
-                                        elseif ($pathInfo -like "*Zones\\4*") { "Restricted Sites" }
-                                        else { "Zone" }
+                            elseif ($pathInfo -like "*Zones\\1*") { "Local Intranet" }
+                            elseif ($pathInfo -like "*Zones\\2*") { "Trusted Sites" }
+                            elseif ($pathInfo -like "*Zones\\3*") { "Internet" }
+                            elseif ($pathInfo -like "*Zones\\4*") { "Restricted Sites" }
+                            else { "Zone" }
                             $settingName = "[$zoneName] $friendlyName"
                         }
                     }
@@ -3440,14 +3441,14 @@ try {
                     elseif (($settingName -eq "iexplore.exe" -or $settingName -eq "explorer.exe") -and $pathInfo -like "*FeatureControl*") {
                         # IE FeatureControl settings
                         $featureNames = @{
-                            "FEATURE_DISABLE_MK_PROTOCOL" = "Disable MK Protocol (Security)"
-                            "FEATURE_MIME_HANDLING" = "MIME Handling Security"
-                            "FEATURE_MIME_SNIFFING" = "MIME Sniffing Protection"
+                            "FEATURE_DISABLE_MK_PROTOCOL"     = "Disable MK Protocol (Security)"
+                            "FEATURE_MIME_HANDLING"           = "MIME Handling Security"
+                            "FEATURE_MIME_SNIFFING"           = "MIME Sniffing Protection"
                             "FEATURE_RESTRICT_ACTIVEXINSTALL" = "Restrict ActiveX Install"
-                            "FEATURE_RESTRICT_FILEDOWNLOAD" = "Restrict File Download"
-                            "FEATURE_SECURITYBAND" = "Security Band (Info Bar)"
-                            "FEATURE_WINDOW_RESTRICTIONS" = "Window Restrictions (Pop-up Block)"
-                            "FEATURE_ZONE_ELEVATION" = "Zone Elevation Block"
+                            "FEATURE_RESTRICT_FILEDOWNLOAD"   = "Restrict File Download"
+                            "FEATURE_SECURITYBAND"            = "Security Band (Info Bar)"
+                            "FEATURE_WINDOW_RESTRICTIONS"     = "Window Restrictions (Pop-up Block)"
+                            "FEATURE_ZONE_ELEVATION"          = "Zone Elevation Block"
                         }
                         $processName = if ($settingName -eq "iexplore.exe") { "IE" } else { "Explorer" }
                         foreach ($feature in $featureNames.Keys) {
@@ -3585,11 +3586,11 @@ try {
                         $friendlyName = $zoneSettingNames[$settingName]
                         if ($friendlyName) {
                             $zoneName = if ($pathInfo -like "*Zones\\0*" -or $pathInfo -like "*Zones\0*") { "My Computer" }
-                                        elseif ($pathInfo -like "*Zones\\1*" -or $pathInfo -like "*Zones\1*") { "Local Intranet" }
-                                        elseif ($pathInfo -like "*Zones\\2*" -or $pathInfo -like "*Zones\2*") { "Trusted Sites" }
-                                        elseif ($pathInfo -like "*Zones\\3*" -or $pathInfo -like "*Zones\3*") { "Internet" }
-                                        elseif ($pathInfo -like "*Zones\\4*" -or $pathInfo -like "*Zones\4*") { "Restricted Sites" }
-                                        else { "Zone" }
+                            elseif ($pathInfo -like "*Zones\\1*" -or $pathInfo -like "*Zones\1*") { "Local Intranet" }
+                            elseif ($pathInfo -like "*Zones\\2*" -or $pathInfo -like "*Zones\2*") { "Trusted Sites" }
+                            elseif ($pathInfo -like "*Zones\\3*" -or $pathInfo -like "*Zones\3*") { "Internet" }
+                            elseif ($pathInfo -like "*Zones\\4*" -or $pathInfo -like "*Zones\4*") { "Restricted Sites" }
+                            else { "Zone" }
                             $settingName = "[$zoneName] $friendlyName"
                         }
                     }
@@ -3602,14 +3603,14 @@ try {
                     elseif (($settingName -eq "iexplore.exe" -or $settingName -eq "explorer.exe") -and $pathInfo -like "*FeatureControl*") {
                         # IE FeatureControl settings
                         $featureNames = @{
-                            "FEATURE_DISABLE_MK_PROTOCOL" = "Disable MK Protocol (Security)"
-                            "FEATURE_MIME_HANDLING" = "MIME Handling Security"
-                            "FEATURE_MIME_SNIFFING" = "MIME Sniffing Protection"
+                            "FEATURE_DISABLE_MK_PROTOCOL"     = "Disable MK Protocol (Security)"
+                            "FEATURE_MIME_HANDLING"           = "MIME Handling Security"
+                            "FEATURE_MIME_SNIFFING"           = "MIME Sniffing Protection"
                             "FEATURE_RESTRICT_ACTIVEXINSTALL" = "Restrict ActiveX Install"
-                            "FEATURE_RESTRICT_FILEDOWNLOAD" = "Restrict File Download"
-                            "FEATURE_SECURITYBAND" = "Security Band (Info Bar)"
-                            "FEATURE_WINDOW_RESTRICTIONS" = "Window Restrictions (Pop-up Block)"
-                            "FEATURE_ZONE_ELEVATION" = "Zone Elevation Block"
+                            "FEATURE_RESTRICT_FILEDOWNLOAD"   = "Restrict File Download"
+                            "FEATURE_SECURITYBAND"            = "Security Band (Info Bar)"
+                            "FEATURE_WINDOW_RESTRICTIONS"     = "Window Restrictions (Pop-up Block)"
+                            "FEATURE_ZONE_ELEVATION"          = "Zone Elevation Block"
                         }
                         $processName = if ($settingName -eq "iexplore.exe") { "IE" } else { "Explorer" }
                         foreach ($feature in $featureNames.Keys) {
@@ -3706,7 +3707,7 @@ try {
         </div>
         
         <div class="footer">
-            <p>Generated by NoID Privacy v2.2.2</p>
+            <p>Generated by NoID Privacy v2.2.3</p>
             <p>Professional Windows 11 Security & Privacy Hardening Framework</p>
         </div>
     </div>

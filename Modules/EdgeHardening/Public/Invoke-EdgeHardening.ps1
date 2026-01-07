@@ -48,7 +48,7 @@
     
 .NOTES
     Author: NexusOne23
-    Version: 2.2.2
+    Version: 2.2.3
     Requires: PowerShell 5.1+, Administrator privileges
     
     IMPORTANT: This applies Microsoft's recommended security baseline.

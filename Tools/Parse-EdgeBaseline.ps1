@@ -18,7 +18,7 @@
     
 .NOTES
     Author: NexusOne23
-    Version: 2.2.2
+    Version: 2.2.3
     Requires: PowerShell 5.1+
     
 .EXAMPLE
@@ -142,21 +142,26 @@ function Read-PolFile {
                 
                 # Parse based on type
                 switch ($type) {
-                    1 { # REG_SZ (String)
+                    1 {
+                        # REG_SZ (String)
                         $data = [System.Text.Encoding]::Unicode.GetString($dataBytes).TrimEnd([char]0)
                     }
-                    2 { # REG_EXPAND_SZ
+                    2 {
+                        # REG_EXPAND_SZ
                         $data = [System.Text.Encoding]::Unicode.GetString($dataBytes).TrimEnd([char]0)
                     }
-                    3 { # REG_BINARY
+                    3 {
+                        # REG_BINARY
                         $data = $dataBytes
                     }
-                    4 { # REG_DWORD
+                    4 {
+                        # REG_DWORD
                         if ($dataBytes.Length -ge 4) {
                             $data = [BitConverter]::ToInt32($dataBytes, 0)
                         }
                     }
-                    7 { # REG_MULTI_SZ
+                    7 {
+                        # REG_MULTI_SZ
                         $data = [System.Text.Encoding]::Unicode.GetString($dataBytes).TrimEnd([char]0) -split '\x00'
                     }
                     default {
@@ -172,9 +177,9 @@ function Read-PolFile {
             
             # Add entry
             $entries += [PSCustomObject]@{
-                KeyName = $keyName
+                KeyName   = $keyName
                 ValueName = $valueName
-                Type = switch ($type) {
+                Type      = switch ($type) {
                     1 { "REG_SZ" }
                     2 { "REG_EXPAND_SZ" }
                     3 { "REG_BINARY" }
@@ -183,7 +188,7 @@ function Read-PolFile {
                     11 { "REG_QWORD" }
                     default { "Unknown($type)" }
                 }
-                Data = $data
+                Data      = $data
             }
         }
         
@@ -273,9 +278,9 @@ if ($allComputerPolicies.Count -gt 0) {
 # Create summary
 $summary = [PSCustomObject]@{
     TotalEdgePolicies = $allComputerPolicies.Count
-    ParsedDate = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
-    BaselineVersion = "Edge v139"
-    RegistryPaths = ($allComputerPolicies | Select-Object -ExpandProperty KeyName -Unique | Sort-Object)
+    ParsedDate        = Get-Date -Format "yyyy-MM-dd HH:mm:ss"
+    BaselineVersion   = "Edge v139"
+    RegistryPaths     = ($allComputerPolicies | Select-Object -ExpandProperty KeyName -Unique | Sort-Object)
 }
 
 $summaryFile = Join-Path $OutputPath "Summary.json"

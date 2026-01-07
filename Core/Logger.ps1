@@ -8,7 +8,7 @@
     
 .NOTES
     Author: NexusOne23
-    Version: 2.2.2
+    Version: 2.2.3
     Requires: PowerShell 5.1+
 #>
 
@@ -26,10 +26,10 @@ enum LogLevel {
 # NOTE: Must use Get-Variable to check existence (direct access fails in Strict Mode)
 if (-not (Get-Variable -Name 'LoggerConfig' -Scope Global -ErrorAction SilentlyContinue)) {
     $global:LoggerConfig = @{
-        LogFilePath = ""
-        MinimumLevel = [LogLevel]::INFO
-        EnableConsole = $true
-        EnableFile = $true
+        LogFilePath     = ""
+        MinimumLevel    = [LogLevel]::INFO
+        EnableConsole   = $true
+        EnableFile      = $true
         TimestampFormat = "yyyy-MM-dd HH:mm:ss"
     }
 }
@@ -193,10 +193,10 @@ function Write-Log {
     # Write to console with color coding (suppress DEBUG-level on console)
     if ($global:LoggerConfig.EnableConsole -and $Level -ge [LogLevel]::INFO) {
         $consoleColor = switch ($Level) {
-            ([LogLevel]::DEBUG)   { "Gray" }
-            ([LogLevel]::INFO)    { "White" }
+            ([LogLevel]::DEBUG) { "Gray" }
+            ([LogLevel]::INFO) { "White" }
             ([LogLevel]::WARNING) { "Yellow" }
-            ([LogLevel]::ERROR)   { "Red" }
+            ([LogLevel]::ERROR) { "Red" }
             ([LogLevel]::SUCCESS) { "Green" }
             default { "White" }
         }
@@ -245,15 +245,15 @@ function Get-ErrorContext {
     )
     
     $context = @{
-        Message = ""
-        Exception = ""
-        Category = ""
+        Message      = ""
+        Exception    = ""
+        Category     = ""
         TargetObject = ""
-        ScriptName = ""
-        LineNumber = 0
-        Command = ""
-        StackTrace = ""
-        Summary = ""
+        ScriptName   = ""
+        LineNumber   = 0
+        Command      = ""
+        StackTrace   = ""
+        Summary      = ""
     }
     
     if ($null -eq $ErrorRecord) {
@@ -271,13 +271,15 @@ function Get-ErrorContext {
     if ($ErrorRecord.InvocationInfo) {
         $context.ScriptName = if ($ErrorRecord.InvocationInfo.ScriptName) { 
             Split-Path -Leaf $ErrorRecord.InvocationInfo.ScriptName 
-        } else { 
+        }
+        else { 
             "N/A" 
         }
         $context.LineNumber = $ErrorRecord.InvocationInfo.ScriptLineNumber
         $context.Command = if ($ErrorRecord.InvocationInfo.MyCommand) { 
             $ErrorRecord.InvocationInfo.MyCommand.Name 
-        } else { 
+        }
+        else { 
             "N/A" 
         }
     }

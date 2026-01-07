@@ -8,7 +8,7 @@
     
 .NOTES
     Author: NexusOne23
-    Version: 2.2.2
+    Version: 2.2.3
     Requires: PowerShell 5.1+
 #>
 
@@ -25,24 +25,24 @@ function Test-VBSCapable {
     param()
     
     $requirements = @{
-        UEFI = Test-UEFIBoot
-        SecureBoot = Test-SecureBootEnabled
-        TPM = (Test-TPMAvailable).Present
+        UEFI           = Test-UEFIBoot
+        SecureBoot     = Test-SecureBootEnabled
+        TPM            = (Test-TPMAvailable).Present
         Virtualization = Test-VirtualizationEnabled
-        Windows11 = (Get-WindowsVersion).IsWindows11
+        Windows11      = (Get-WindowsVersion).IsWindows11
     }
     
     $allMet = $requirements.UEFI -and $requirements.SecureBoot -and `
-              $requirements.TPM -and $requirements.Virtualization -and `
-              $requirements.Windows11
+        $requirements.TPM -and $requirements.Virtualization -and `
+        $requirements.Windows11
     
     return [PSCustomObject]@{
-        Capable = $allMet
-        UEFI = $requirements.UEFI
-        SecureBoot = $requirements.SecureBoot
-        TPM = $requirements.TPM
+        Capable        = $allMet
+        UEFI           = $requirements.UEFI
+        SecureBoot     = $requirements.SecureBoot
+        TPM            = $requirements.TPM
         Virtualization = $requirements.Virtualization
-        Windows11 = $requirements.Windows11
+        Windows11      = $requirements.Windows11
     }
 }
 
@@ -90,13 +90,13 @@ function Get-CPUInfo {
         $cpu = Get-CimInstance -ClassName Win32_Processor -ErrorAction Stop | Select-Object -First 1
         
         return [PSCustomObject]@{
-            Name = $cpu.Name
-            Manufacturer = $cpu.Manufacturer
-            Cores = $cpu.NumberOfCores
-            LogicalProcessors = $cpu.NumberOfLogicalProcessors
-            MaxClockSpeed = $cpu.MaxClockSpeed
+            Name                  = $cpu.Name
+            Manufacturer          = $cpu.Manufacturer
+            Cores                 = $cpu.NumberOfCores
+            LogicalProcessors     = $cpu.NumberOfLogicalProcessors
+            MaxClockSpeed         = $cpu.MaxClockSpeed
             VirtualizationEnabled = $cpu.VirtualizationFirmwareEnabled
-            Architecture = $cpu.Architecture
+            Architecture          = $cpu.Architecture
         }
     }
     catch {
@@ -123,9 +123,9 @@ function Get-MemoryInfo {
         
         return [PSCustomObject]@{
             TotalPhysicalMemoryGB = [math]::Round($cs.TotalPhysicalMemory / 1GB, 2)
-            FreePhysicalMemoryGB = [math]::Round($os.FreePhysicalMemory / 1MB / 1024, 2)
-            TotalVirtualMemoryGB = [math]::Round($os.TotalVirtualMemorySize / 1MB / 1024, 2)
-            FreeVirtualMemoryGB = [math]::Round($os.FreeVirtualMemory / 1MB / 1024, 2)
+            FreePhysicalMemoryGB  = [math]::Round($os.FreePhysicalMemory / 1MB / 1024, 2)
+            TotalVirtualMemoryGB  = [math]::Round($os.TotalVirtualMemorySize / 1MB / 1024, 2)
+            FreeVirtualMemoryGB   = [math]::Round($os.FreeVirtualMemory / 1MB / 1024, 2)
         }
     }
     catch {
@@ -192,16 +192,16 @@ function Get-WindowsEditionInfo {
         $supportsBitLocker = -not $isHome
         
         return [PSCustomObject]@{
-            Caption = $os.Caption
-            Version = $os.Version
-            BuildNumber = $os.BuildNumber
-            IsHome = $isHome
-            IsPro = $isPro
-            IsEnterprise = $isEnterprise
-            IsEducation = $isEducation
+            Caption                 = $os.Caption
+            Version                 = $os.Version
+            BuildNumber             = $os.BuildNumber
+            IsHome                  = $isHome
+            IsPro                   = $isPro
+            IsEnterprise            = $isEnterprise
+            IsEducation             = $isEducation
             SupportsCredentialGuard = $supportsCredentialGuard
-            SupportsAppLocker = $supportsAppLocker
-            SupportsBitLocker = $supportsBitLocker
+            SupportsAppLocker       = $supportsAppLocker
+            SupportsBitLocker       = $supportsBitLocker
         }
     }
     catch {
@@ -223,16 +223,16 @@ function Get-HardwareReport {
     param()
     
     return [PSCustomObject]@{
-        OS = Get-WindowsVersion
-        Edition = Get-WindowsEditionInfo
-        CPU = Get-CPUInfo
-        Memory = Get-MemoryInfo
-        UEFI = Test-UEFIBoot
-        SecureBoot = Test-SecureBootEnabled
-        TPM = Test-TPMAvailable
+        OS             = Get-WindowsVersion
+        Edition        = Get-WindowsEditionInfo
+        CPU            = Get-CPUInfo
+        Memory         = Get-MemoryInfo
+        UEFI           = Test-UEFIBoot
+        SecureBoot     = Test-SecureBootEnabled
+        TPM            = Test-TPMAvailable
         Virtualization = Test-VirtualizationEnabled
-        VBSCapable = Test-VBSCapable
-        SSD = Test-SSDDrive
+        VBSCapable     = Test-VBSCapable
+        SSD            = Test-SSDDrive
     }
 }
 
