@@ -75,11 +75,11 @@ function Write-Step {
     
     $symbol = switch ($Status) {
         "SUCCESS" { "[+]"; $color = "Green" }
-        "ERROR"   { "[-]"; $color = "Red" }
+        "ERROR" { "[-]"; $color = "Red" }
         "WARNING" { "[!]"; $color = "Yellow" }
-        "INFO"    { "[>]"; $color = "Cyan" }
-        "WAIT"    { "[.]"; $color = "Gray" }
-        default   { "[ ]"; $color = "White" }
+        "INFO" { "[>]"; $color = "Cyan" }
+        "WAIT" { "[.]"; $color = "Gray" }
+        default { "[ ]"; $color = "White" }
     }
     
     Write-ColorText $symbol -Color $color -NoNewline
@@ -356,7 +356,8 @@ function Show-BackupList {
         # Force result to array to handle single-session case correctly
         if (Test-Path $backupPath) {
             $sessions = @(Get-BackupSessions -BackupDirectory $backupPath)
-        } else {
+        }
+        else {
             $sessions = @()
         }
     }
@@ -382,8 +383,8 @@ function Show-BackupList {
         try {
             $age = (Get-Date) - $session.Timestamp
             $ageStr = if ($age.TotalHours -lt 1) { "$([math]::Round($age.TotalMinutes)) minutes ago" }
-                      elseif ($age.TotalDays -lt 1) { "$([math]::Round($age.TotalHours)) hours ago" }
-                      else { "$([math]::Round($age.TotalDays)) days ago" }
+            elseif ($age.TotalDays -lt 1) { "$([math]::Round($age.TotalHours)) hours ago" }
+            else { "$([math]::Round($age.TotalDays)) days ago" }
         }
         catch {
             $ageStr = "unknown age"
@@ -795,7 +796,7 @@ function Invoke-RestoreWorkflow {
             if ([string]::IsNullOrWhiteSpace($modeInput)) { $modeInput = "A" }
             $modeInput = $modeInput.Trim().ToUpper()
             
-            if ($modeInput -in @('A','M')) {
+            if ($modeInput -in @('A', 'M')) {
                 $restoreMode = $modeInput
                 break
             }
@@ -818,7 +819,7 @@ function Invoke-RestoreWorkflow {
             }
             
             $indices = @()
-            foreach ($token in $moduleInput.Split(',', ';', ' ')) {
+            foreach ($token in ($moduleInput -split '[,; ]')) {
                 if (-not [string]::IsNullOrWhiteSpace($token)) {
                     $parsed = 0
                     if ([int]::TryParse($token.Trim(), [ref]$parsed)) {
@@ -837,7 +838,7 @@ function Invoke-RestoreWorkflow {
             }
             
             foreach ($i in $indices) {
-                $selectedModuleNames += $availableModules[$i-1].name
+                $selectedModuleNames += $availableModules[$i - 1].name
             }
         }
     }
