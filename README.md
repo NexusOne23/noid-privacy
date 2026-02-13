@@ -787,15 +787,13 @@ Logs/NoIDPrivacy_YYYYMMDD_HHMMSS.log
 
 ---
 
-## 🔗 Sister Project: NoID Privacy for Linux
+## 🔗 The NoID Privacy Ecosystem
 
-**[NoID Privacy for Linux](https://github.com/NexusOne23/noid-privacy-linux)** — Privacy & Security Audit for Linux Desktops
-
-- 300+ checks across 42 sections — pure Bash, zero dependencies
-- Browser privacy, app telemetry, VPN kill-switch, webcam/bluetooth audits
-- **`--ai` flag** generates a ready-to-paste prompt for AI-powered remediation
-
-**Two operating systems. One mission: Your privacy.**
+| Platform | Link |
+|----------|------|
+| 🪟 **Windows** | You're here! |
+| 🐧 **Linux** | [NoID Privacy for Linux](https://github.com/NexusOne23/noid-privacy-linux) — 300+ checks, 42 sections, `--ai` flag for AI-powered fixes |
+| 📱 **Android** | [NoID Privacy on Google Play](https://play.google.com/store/apps/details?id=com.noid.privacy) |
 
 ---
 
