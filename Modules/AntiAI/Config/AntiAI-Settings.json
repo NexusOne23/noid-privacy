@@ -100,8 +100,8 @@
           },
           "SetMaximumStorageSpaceForRecallSnapshots": {
             "Type": "DWord",
-            "Value": 10,
-            "Description": "Maximum snapshot storage: 10 GB (Choices: 10/25/50/75/100/150 GB, 0=OS default)"
+            "Value": 10240,
+            "Description": "Maximum snapshot storage: 10 GB = 10240 MB (Choices: 10240/25600/51200/76800/102400/153600 MB, 0=OS default)"
           }
         }
       }

@@ -95,14 +95,14 @@ function Set-RecallProtection {
         Write-Log -Level DEBUG -Message "Set max snapshot retention: 30 days" -Module "AntiAI"
         $result.Applied++
         
-        # 4. Storage Space Limit - Max 10 GB
+        # 4. Storage Space Limit - Max 10 GB (10240 MB per MS CSP)
         $existing = Get-ItemProperty -Path $regPath -Name "SetMaximumStorageSpaceForRecallSnapshots" -ErrorAction SilentlyContinue
         if ($null -ne $existing) {
-            Set-ItemProperty -Path $regPath -Name "SetMaximumStorageSpaceForRecallSnapshots" -Value 10 -Force
+            Set-ItemProperty -Path $regPath -Name "SetMaximumStorageSpaceForRecallSnapshots" -Value 10240 -Force
         } else {
-            New-ItemProperty -Path $regPath -Name "SetMaximumStorageSpaceForRecallSnapshots" -Value 10 -PropertyType DWord -Force | Out-Null
+            New-ItemProperty -Path $regPath -Name "SetMaximumStorageSpaceForRecallSnapshots" -Value 10240 -PropertyType DWord -Force | Out-Null
         }
-        Write-Log -Level DEBUG -Message "Set max snapshot storage: 10 GB" -Module "AntiAI"
+        Write-Log -Level DEBUG -Message "Set max snapshot storage: 10 GB (10240 MB)" -Module "AntiAI"
         $result.Applied++
         
         # Verify
@@ -111,7 +111,7 @@ function Set-RecallProtection {
         $verified = ($null -ne $values.SetDenyAppListForRecall) -and
                    ($null -ne $values.SetDenyUriListForRecall) -and
                    ($values.SetMaximumStorageDurationForRecallSnapshots -eq 30) -and
-                   ($values.SetMaximumStorageSpaceForRecallSnapshots -eq 10)
+                   ($values.SetMaximumStorageSpaceForRecallSnapshots -eq 10240)
         
         if ($verified) {
             Write-Log -Level DEBUG -Message "Verification SUCCESS: All Recall protection policies applied" -Module "AntiAI"

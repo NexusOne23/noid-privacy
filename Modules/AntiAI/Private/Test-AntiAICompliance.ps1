@@ -235,7 +235,7 @@ $protectionChecks = @(
     (Test-RegistryValue -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI" -Name "SetDenyAppListForRecall" -ExpectedValue $expectedDenyApps -Description "App Deny List"),
     (Test-RegistryValue -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI" -Name "SetDenyUriListForRecall" -ExpectedValue $expectedDenyUris -Description "URI Deny List"),
     (Test-RegistryValue -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI" -Name "SetMaximumStorageDurationForRecallSnapshots" -ExpectedValue 30 -Description "Max Retention: 30 days"),
-    (Test-RegistryValue -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI" -Name "SetMaximumStorageSpaceForRecallSnapshots" -ExpectedValue 10 -Description "Max Storage: 10 GB")
+    (Test-RegistryValue -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\WindowsAI" -Name "SetMaximumStorageSpaceForRecallSnapshots" -ExpectedValue 10240 -Description "Max Storage: 10 GB (10240 MB)")
 )
 foreach ($check in $protectionChecks) {
     $results.Details += $check
