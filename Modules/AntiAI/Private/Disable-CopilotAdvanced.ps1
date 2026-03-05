@@ -40,7 +40,7 @@
     
 .NOTES
     Requires Administrator privileges.
-    Part of NoID Privacy AntiAI Module v2.2.2
+    Part of NoID Privacy AntiAI Module v2.2.3
 #>
 function Disable-CopilotAdvanced {
     [CmdletBinding()]

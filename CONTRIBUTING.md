@@ -68,7 +68,7 @@ Modules/
 
 ```
 Modules/AdvancedSecurity/
-├── AdvancedSecurity.psd1            # Manifest with version 2.2.2
+├── AdvancedSecurity.psd1            # Manifest with version 2.2.3
 ├── AdvancedSecurity.psm1            # Loads Private/*.ps1 and Public/*.ps1
 ├── Config/
 │   ├── RDP.json                     # RDP hardening config
@@ -105,7 +105,7 @@ Modules/AdvancedSecurity/
 ```powershell
 @{
     RootModule = 'YourModule.psm1'
-    ModuleVersion = '2.2.2'
+    ModuleVersion = '2.2.3'
     GUID = 'YOUR-GUID-HERE'  # Generate with [guid]::NewGuid()
     Author = 'Your Name'
     CompanyName = 'NoID Privacy'
@@ -128,7 +128,7 @@ Modules/AdvancedSecurity/
             Tags = @('Security', 'Hardening', 'Windows11')
             ProjectUri = 'https://github.com/yourusername/noid-privacy'
             ReleaseNotes = @"
-v2.2.2 - Initial Release
+v2.2.3 - Initial Release
 - Feature 1
 - Feature 2
 "@
@@ -141,7 +141,7 @@ v2.2.2 - Initial Release
 ```powershell
 @{
     RootModule = 'AdvancedSecurity.psm1'
-    ModuleVersion = '2.2.2'
+    ModuleVersion = '2.2.3'
     GUID = 'a1b2c3d4-e5f6-7890-abcd-ef1234567890'
     Author = 'NexusOne23'
     Description = 'Advanced Security hardening beyond Microsoft Security Baseline'
@@ -155,7 +155,7 @@ v2.2.2 - Initial Release
         PSData = @{
             Tags = @('Security', 'Hardening', 'RDP', 'TLS', 'Windows11')
             ReleaseNotes = @"
-v2.2.2 - Production Release
+v2.2.3 - Production Release
 - RDP NLA enforcement + optional complete disable
 - WDigest credential protection
 - Administrative shares disable (domain-aware)
@@ -781,4 +781,4 @@ mkdir "Modules\YourModule\Config"
 
 ---
 
-**Questions? Study AdvancedSecurity v2.2.2 - it's the reference implementation!** 🎯
+**Questions? Study AdvancedSecurity v2.2.3 - it's the reference implementation!** 🎯

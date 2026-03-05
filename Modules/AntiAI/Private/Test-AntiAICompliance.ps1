@@ -42,7 +42,7 @@
 
 .NOTES
     Author: NoID Privacy
-    Version: 2.2.2 (Extended validation)
+    Version: 2.2.3 (Extended validation)
     Requires: Windows 11 24H2+, Administrator privileges
 #>
 

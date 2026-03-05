@@ -27,7 +27,7 @@ function Set-SRPRules {
         
     .NOTES
         Author: NexusOne23
-        Version: 2.2.2
+        Version: 2.2.3
         Requires: Administrator privileges
         
         REFERENCES:
