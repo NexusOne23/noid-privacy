@@ -385,7 +385,7 @@ cd noid-privacy
 
 **Release Highlights:**
 
-- **v2.2.3:** Critical fix — Restore Mode manual module selection crash
+- **v2.2.3:** Restore Mode crash fix, Recall snapshot storage verification fix ([#14](https://github.com/NexusOne23/noid-privacy/issues/14))
 - **v2.2.2:** Firewall snapshot 60-120s → 2-5s (batch query performance fix)
 - **v2.2.1:** Multi-run session bug fix, `.Count` property bug in 5 files
 - **v2.2.0:** 100% verification coverage, SRP .lnk protection, RDP/TLS hardening, legacy protocol blocking
@@ -847,8 +847,8 @@ The authors are not responsible for any damage or data loss.
 
 ### Release Highlights v2.2.3
 
-- **Critical Fix:** Restore Mode manual module selection crash
-- Fix: `.Split()` wrong .NET overload → `-split` operator
+- **Critical Fix:** Restore Mode manual module selection crash (`.Split()` → `-split`)
+- **Bug Fix:** Recall snapshot storage verification — MB vs GB unit mismatch ([#14](https://github.com/NexusOne23/noid-privacy/issues/14))
 
 ### Release Highlights v2.2.2
 

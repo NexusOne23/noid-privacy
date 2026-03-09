@@ -7,11 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [2.2.3] - 2025-01-07
+## [2.2.3] - 2026-03-05
 
 ### 🔨 Bugfix Release
 
-**Critical bugfix for Restore Mode manual module selection.**
+**Restore Mode crash fix and Recall snapshot storage verification fix.**
 
 ### 🔨 Fixed
 
@@ -21,6 +21,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fix: Replaced with native PowerShell `-split '[,; ]'` operator
 - Impact: Manual module selection in Restore workflow now works correctly
 - Reported by: KatCat2
+
+**Recall Snapshot Storage Verification (Bug)**
+- Fixed: "Maximum snapshot storage: 10 GB" verification always reported as failed
+- Root cause: Microsoft's WindowsAI CSP stores snapshot storage in **MB**, not GB (e.g., `10240` = 10 GB)
+- Fix: Updated expected values in config, apply, verify, and docs to use MB values
+- Affected values: 10→10240, 25→25600, 50→51200, 75→76800, 100→102400, 150→153600, 0=OS default unchanged
+- Reported by: VM-Master ([#14](https://github.com/NexusOne23/noid-privacy/issues/14))
 
 ---
 
