@@ -1,8 +1,5 @@
 ﻿# 🛡️ NoID Privacy - Professional Windows 11 Security & Privacy Hardening Framework
 
-> **⚠️ DISCLAIMER: USE AT YOUR OWN RISK.**  
-> This tool makes deep modifications to the Windows Registry and System Services. While extensive backups are created, the authors accept **no responsibility for any damage, data loss, or system instability**. Always review changes before applying.
-
 <div align="center">
 
 [![PowerShell](https://img.shields.io/badge/PowerShell-5.1%2B-blue.svg?logo=powershell)](https://github.com/PowerShell/PowerShell)
@@ -10,6 +7,9 @@
 [![License](https://img.shields.io/badge/license-GPL--3.0-green.svg?logo=gnu)](LICENSE)
 [![Version](https://img.shields.io/badge/version-2.2.3-blue.svg)](CHANGELOG.md)
 [![Status](https://img.shields.io/badge/status-production--ready-brightgreen.svg)]()
+[![GitHub Stars](https://img.shields.io/github/stars/NexusOne23/noid-privacy?style=flat&logo=github)](https://github.com/NexusOne23/noid-privacy/stargazers)
+[![Last Commit](https://img.shields.io/github/last-commit/NexusOne23/noid-privacy?style=flat)](https://github.com/NexusOne23/noid-privacy/commits)
+[![Website](https://img.shields.io/badge/Website-noid--privacy.com-0078D4?style=flat&logo=globe)](https://noid-privacy.com)
 
 ---
 
@@ -24,59 +24,42 @@
 
 **7 Independent Security Modules • Modular Design • Complete BAVR Pattern**
 
+[![Get NoID Privacy PRO](https://img.shields.io/badge/Get_NoID_Privacy_PRO-€39.99_One--Time-success?style=for-the-badge)](https://noid-privacy.com)
+
 </div>
+
+> **⚠️ DISCLAIMER:** This tool modifies Windows Registry and System Services. Full backups are created automatically (BAVR pattern), but always [create a system backup](#-system-backup-required) before running. Use at your own risk.
 
 ---
 
-## ⚠️ CRITICAL: Domain-Joined Systems & System Backup
-
-> **⚡ READ THIS BEFORE RUNNING** This tool modifies critical Windows security settings!
+<details>
+<summary><strong>⚠️ CRITICAL: Domain-Joined Systems & System Backup (click to expand)</strong></summary>
 
 ### 🏢 Domain-Joined Systems (Active Directory)
 
 **WARNING:** This tool is **NOT recommended for production domain-joined systems** without AD team coordination!
 
-**Why?**
 - This tool modifies **local Group Policies**
 - Domain Group Policies **override local policies every 90 minutes**
 - Your hardening **may be reset automatically** by domain GPOs
-- Can lead to configuration conflicts and "flapping" behavior
 
-**RECOMMENDED USE CASES:**
-- Standalone systems (Home/Workgroup)
-- Home/Personal PCs (not domain-joined)
-- Virtual machines (testing/lab environments)
-- Air-gapped systems
-- Test/development domain-joined systems (non-production)
+**Recommended for:** Standalone systems, Home/Personal PCs, VMs, air-gapped systems, test/dev environments.
 
-**For Enterprise/Domain Environments:** 
-- **Integrate these settings into your Domain Group Policies instead!** 
-- Coordinate with your Active Directory team before using this tool
-
----
+**For Enterprise/Domain Environments:** Integrate these settings into your Domain Group Policies instead!
 
 ### 💾 System Backup REQUIRED
 
-**Before running this tool, you MUST create:**
+**Before running this tool, create:**
 
 1. **Windows System Restore Point** (recommended)
 2. **Full System Image/Backup** (critical!)
 3. **VM Snapshot** (if running in virtual machine)
 
-**Why?**
-- This tool creates **internal backups** for rollback (Registry, Services, Tasks)
-- However, a **full system backup** protects against:
- - Unforeseen system issues
- - Hardware failures during hardening
- - Configuration conflicts
- - Critical errors
+The tool creates internal backups for rollback (BAVR pattern), but a full system backup protects against unforeseen issues, hardware failures, and configuration conflicts.
 
-**Backup Tools:**
-- Windows Backup (Settings → System → Storage → Backup)
-- System Image (wbadmin, Macrium Reflect, Acronis)
-- Hyper-V/VMware: Checkpoint/Snapshot
+**Backup Tools:** Windows Backup, wbadmin, Macrium Reflect, Acronis, Hyper-V/VMware Snapshots.
 
-**⚠️ IMPORTANT: Create your backup BEFORE running the tool. The tool does NOT verify backup existence.**
+</details>
 
 ---
 
@@ -791,8 +774,9 @@ Logs/NoIDPrivacy_YYYYMMDD_HHMMSS.log
 
 | Platform | Link |
 |----------|------|
+| 🌐 **Website** | [noid-privacy.com](https://noid-privacy.com) — All platforms, pricing, and documentation |
 | 🪟 **Windows** | You're here! |
-| 🐧 **Linux** | [NoID Privacy for Linux](https://github.com/NexusOne23/noid-privacy-linux) — 300+ checks, 42 sections, `--ai` flag for AI-powered fixes |
+| 🐧 **Linux** | [NoID Privacy for Linux](https://github.com/NexusOne23/noid-privacy-linux) — 300+ checks, 42 sections, `--ai` flag for AI-powered fixes (free & open source) |
 | 📱 **Android** | [NoID Privacy on Google Play](https://play.google.com/store/apps/details?id=com.noid.privacy) — 81 checks, 10 categories, permission audit, Chrome hardening, anti-theft |
 
 ---
@@ -862,8 +846,7 @@ The authors are not responsible for any damage or data loss.
 
 ## 📈 Project Status
 
-**Current Version:** 2.2.3 
-**Last Updated:** January 7, 2026 
+**Current Version:** 2.2.3
 **Status:** Production-Ready
 
 ### Release Highlights v2.2.3
@@ -890,9 +873,9 @@ The authors are not responsible for any damage or data loss.
 
 **Made with 🛡️ for the Windows Security Community**
 
-[Report Bug](https://github.com/NexusOne23/noid-privacy/issues) [Request Feature](https://github.com/NexusOne23/noid-privacy/issues) [Discussions](https://github.com/NexusOne23/noid-privacy/discussions)
+[Report Bug](https://github.com/NexusOne23/noid-privacy/issues) · [Request Feature](https://github.com/NexusOne23/noid-privacy/issues) · [Discussions](https://github.com/NexusOne23/noid-privacy/discussions) · [Website](https://noid-privacy.com)
 
- **Star this repo** if you find it useful!
+**[⭐ Star this repo](https://github.com/NexusOne23/noid-privacy)** if you find it useful!
 
 </div>
 
