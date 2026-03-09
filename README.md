@@ -6,10 +6,10 @@
 [![Windows 11](https://img.shields.io/badge/Windows%2011-25H2-0078D4.svg?logo=windows11)](https://www.microsoft.com/windows/)
 [![License](https://img.shields.io/badge/license-GPL--3.0-green.svg?logo=gnu)](LICENSE)
 [![Version](https://img.shields.io/badge/version-2.2.3-blue.svg)](CHANGELOG.md)
-[![Status](https://img.shields.io/badge/status-production--ready-brightgreen.svg)]()
+[![Status](https://img.shields.io/badge/status-production--ready-brightgreen.svg)](CHANGELOG.md)
 [![GitHub Stars](https://img.shields.io/github/stars/NexusOne23/noid-privacy?style=flat&logo=github)](https://github.com/NexusOne23/noid-privacy/stargazers)
 [![Last Commit](https://img.shields.io/github/last-commit/NexusOne23/noid-privacy?style=flat)](https://github.com/NexusOne23/noid-privacy/commits)
-[![Website](https://img.shields.io/badge/Website-noid--privacy.com-0078D4?style=flat&logo=globe)](https://noid-privacy.com)
+[![Website](https://img.shields.io/badge/Website-noid--privacy.com-0078D4?style=flat)](https://noid-privacy.com)
 
 ---
 
@@ -245,8 +245,8 @@ The tool creates internal backups for rollback (BAVR pattern), but a full system
 - **Complete Restore** Registry, Services, Tasks, Files - everything
 - **Production-Ready** Tested on Windows 11 25H2, PowerShell 5.1+
 
-**Before v2.2.0:** 89.4% verification coverage (62 settings missing) 
-**After v2.2.0:** 100% verification coverage (all 630+ settings verified) 
+**Before v2.1.0:** 89.4% verification coverage (62 settings missing)
+**Since v2.1.0:** 100% verification coverage (all 630+ settings verified)
 
 ---
 

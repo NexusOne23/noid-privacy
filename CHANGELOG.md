@@ -97,7 +97,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## 🌟 Release Highlights
+### 🌟 Release Highlights
 
 ✅ **630+ Settings** - Expanded from 580+ (Privacy, AntiAI, EdgeHardening, AdvSec Wireless Display)  
 ✅ **NonInteractive Mode** - Full GUI integration via config.json  
@@ -213,7 +213,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## 🌟 Release Highlights
+### 🌟 Release Highlights
 
 ✅ **All 7 Modules Production-Ready** - Complete framework with 580+ security settings  
 ✅ **Zero-Day Protection** - CVE-2025-9491 mitigation (SRP .lnk protection)  
@@ -251,7 +251,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - OneDrive telemetry off (sync functional)
 - App permissions default-deny
 
-**AntiAI** (32 policies) - AI Lockdown
+**AntiAI** (24 policies) - AI Lockdown
 - Generative AI Master Switch (blocks ALL AI models system-wide)
 - Windows Recall (complete deactivation + component protection)
 - Windows Copilot (system-wide disabled + hardware key remapped)
@@ -276,7 +276,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 **Complete BAVR Pattern (Backup-Apply-Verify-Restore)**
 - All 580+ settings now fully verified in `Verify-Complete-Hardening.ps1`
 - EdgeHardening: 20 verification checks added
-- AdvancedSecurity: 42 verification checks added
+- AdvancedSecurity: 44 verification checks added
 - 100% coverage achieved (was 89.4%)
 
 **Bloatware Removal & Restore**
@@ -404,3 +404,9 @@ Temp File Cleanup:   Complete
 ---
 
 **Made with 🛡️ for the Windows Security Community**
+
+[2.2.3]: https://github.com/NexusOne23/noid-privacy/compare/v2.2.2...v2.2.3
+[2.2.2]: https://github.com/NexusOne23/noid-privacy/compare/v2.2.1...v2.2.2
+[2.2.1]: https://github.com/NexusOne23/noid-privacy/compare/v2.2.0...v2.2.1
+[2.2.0]: https://github.com/NexusOne23/noid-privacy/compare/v2.1.0...v2.2.0
+[2.1.0]: https://github.com/NexusOne23/noid-privacy/releases/tag/v2.1.0
