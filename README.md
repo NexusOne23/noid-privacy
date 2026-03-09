@@ -24,7 +24,7 @@
 
 **7 Independent Security Modules • Modular Design • Complete BAVR Pattern**
 
-[![Get NoID Privacy PRO](https://img.shields.io/badge/Get_NoID_Privacy_PRO-€39.99_One--Time-success?style=for-the-badge)](https://noid-privacy.com)
+[![Get NoID Privacy PRO for Windows](https://img.shields.io/badge/Get_PRO_for_Windows-€39.99_One--Time_Purchase-success?style=for-the-badge&logo=windows)](https://noid-privacy.com)
 
 </div>
 
@@ -385,14 +385,10 @@ cd noid-privacy
 
 **Release Highlights:**
 
-- **v2.2.0:** 100% verification coverage (all 630+ settings verified)
-- **v2.2.0:** Improved Advanced Security module with SRP .lnk protection
-- **v2.2.0:** Enhanced RDP hardening with TLS + NLA enforced
-- **v2.2.0:** Legacy protocol blocking (SMBv1, NetBIOS, LLMNR, WPAD, PowerShell v2)
-- **v2.2.0:** TLS hardening (1.0/1.1 OFF, 1.2/1.3 ON)
-- **v2.2.0:** Windows Update interactive configuration
-- **v2.2.0:** Finger Protocol blocked (ClickFix malware protection)
-- **v2.2.0:** Enhanced Registry Backup (Smart JSON-Fallback for protected system keys)
+- **v2.2.3:** Critical fix — Restore Mode manual module selection crash
+- **v2.2.2:** Firewall snapshot 60-120s → 2-5s (batch query performance fix)
+- **v2.2.1:** Multi-run session bug fix, `.Count` property bug in 5 files
+- **v2.2.0:** 100% verification coverage, SRP .lnk protection, RDP/TLS hardening, legacy protocol blocking
 
 📖 [Detailed Module Documentation](Docs/FEATURES.md)
 
