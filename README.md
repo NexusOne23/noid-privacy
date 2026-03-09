@@ -770,7 +770,7 @@ Logs/NoIDPrivacy_YYYYMMDD_HHMMSS.log
 
 | Platform | Link |
 |----------|------|
-| 🌐 **Website** | [noid-privacy.com](https://noid-privacy.com) — All platforms, pricing, and documentation |
+| 🌐 **Website** | [NoID-Privacy.com](https://noid-privacy.com) — All platforms, pricing, and documentation |
 | 🪟 **Windows** | You're here! |
 | 🐧 **Linux** | [NoID Privacy for Linux](https://github.com/NexusOne23/noid-privacy-linux) — 300+ checks, 42 sections, `--ai` flag for AI-powered fixes (free & open source) |
 | 📱 **Android** | [NoID Privacy on Google Play](https://play.google.com/store/apps/details?id=com.noid.privacy) — 81 checks, 10 categories, permission audit, Chrome hardening, anti-theft |
