@@ -1,0 +1,118 @@
+﻿{
+    "MSFT Internet Explorer 11 - Computer":  {
+                                                 "Unicode":  {
+                                                                 "Unicode":  "yes"
+                                                             },
+                                                 "Version":  {
+                                                                 "Revision":  "1",
+                                                                 "signature":  "\"$CHICAGO$\""
+                                                             }
+                                             },
+    "MSFT Windows 11 25H2 - Domain Security":  {
+                                                   "System Access":  {
+                                                                         "AllowAdministratorLockout":  "1",
+                                                                         "ResetLockoutCount":  "10",
+                                                                         "LockoutBadCount":  "10",
+                                                                         "PasswordComplexity":  "1",
+                                                                         "LockoutDuration":  "10",
+                                                                         "PasswordHistorySize":  "24",
+                                                                         "ClearTextPassword":  "0",
+                                                                         "MinimumPasswordLength":  "14"
+                                                                     },
+                                                   "Registry Values":  {
+
+                                                                       },
+                                                   "Version":  {
+                                                                   "Revision":  "1",
+                                                                   "signature":  "\"$CHICAGO$\""
+                                                               },
+                                                   "Unicode":  {
+                                                                   "Unicode":  "yes"
+                                                               }
+                                               },
+    "MSFT Windows 11 25H2 - BitLocker":  {
+                                             "Unicode":  {
+                                                             "Unicode":  "yes"
+                                                         },
+                                             "Version":  {
+                                                             "Revision":  "1",
+                                                             "signature":  "\"$CHICAGO$\""
+                                                         }
+                                         },
+    "MSFT Windows 11 25H2 - Computer":  {
+                                            "Service General Setting":  {
+                                                                            "XboxGipSvc":  "StartupType=Disabled",
+                                                                            "XblAuthManager":  "StartupType=Disabled",
+                                                                            "XblGameSave":  "StartupType=Disabled",
+                                                                            "XboxNetApiSvc":  "StartupType=Disabled"
+                                                                        },
+                                            "Registry Values":  {
+                                                                    "MACHINE\\System\\CurrentControlSet\\Services\\LanmanWorkstation\\Parameters\\EnablePlainTextPassword":  "4,0",
+                                                                    "MACHINE\\Software\\Microsoft\\Windows NT\\CurrentVersion\\Winlogon\\ScRemoveOption":  "1,\"1\"",
+                                                                    "MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\EnableInstallerDetection":  "4,1",
+                                                                    "MACHINE\\System\\CurrentControlSet\\Services\\Netlogon\\Parameters\\DisablePasswordChange":  "4,0",
+                                                                    "MACHINE\\System\\CurrentControlSet\\Control\\Session Manager\\ProtectionMode":  "4,1",
+                                                                    "MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\EnableSecureUIAPaths":  "4,1",
+                                                                    "MACHINE\\System\\CurrentControlSet\\Control\\Lsa\\RestrictAnonymousSAM":  "4,1",
+                                                                    "MACHINE\\System\\CurrentControlSet\\Control\\Lsa\\MSV1_0\\NTLMMinServerSec":  "4,537395200",
+                                                                    "MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\ConsentPromptBehaviorUser":  "4,0",
+                                                                    "MACHINE\\System\\CurrentControlSet\\Control\\Lsa\\RestrictAnonymous":  "4,1",
+                                                                    "MACHINE\\System\\CurrentControlSet\\Services\\LanmanWorkstation\\Parameters\\RequireSecuritySignature":  "4,1",
+                                                                    "MACHINE\\System\\CurrentControlSet\\Control\\Lsa\\MSV1_0\\allownullsessionfallback":  "4,0",
+                                                                    "MACHINE\\System\\CurrentControlSet\\Control\\Lsa\\LmCompatibilityLevel":  "4,5",
+                                                                    "MACHINE\\System\\CurrentControlSet\\Services\\Netlogon\\Parameters\\requiresignorseal":  "4,1",
+                                                                    "MACHINE\\System\\CurrentControlSet\\Control\\Lsa\\MSV1_0\\NTLMMinClientSec":  "4,537395200",
+                                                                    "MACHINE\\System\\CurrentControlSet\\Control\\Lsa\\SCENoApplyLegacyAuditPolicy":  "4,1",
+                                                                    "MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\TypeOfAdminApprovalMode":  "4,2",
+                                                                    "MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\ConsentPromptBehaviorEnhancedAdmin":  "4,1",
+                                                                    "MACHINE\\System\\CurrentControlSet\\Services\\LanManServer\\Parameters\\requiresecuritysignature":  "4,1",
+                                                                    "MACHINE\\System\\CurrentControlSet\\Services\\Netlogon\\Parameters\\requirestrongkey":  "4,1",
+                                                                    "MACHINE\\System\\CurrentControlSet\\Services\\LanManServer\\Parameters\\RestrictNullSessAccess":  "4,1",
+                                                                    "MACHINE\\System\\CurrentControlSet\\Services\\Netlogon\\Parameters\\sealsecurechannel":  "4,1",
+                                                                    "MACHINE\\System\\CurrentControlSet\\Control\\Lsa\\RestrictRemoteSAM":  "1,\"O:BAG:BAD:(A;;RC;;;BA)\"",
+                                                                    "MACHINE\\System\\CurrentControlSet\\Services\\LDAP\\LDAPClientIntegrity":  "4,1",
+                                                                    "MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\EnableLUA":  "4,1",
+                                                                    "MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\EnableVirtualization":  "4,1",
+                                                                    "MACHINE\\System\\CurrentControlSet\\Control\\Lsa\\LimitBlankPasswordUse":  "4,1",
+                                                                    "MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\FilterAdministratorToken":  "4,1",
+                                                                    "MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\ConsentPromptBehaviorAdmin":  "4,2",
+                                                                    "MACHINE\\System\\CurrentControlSet\\Services\\Netlogon\\Parameters\\signsecurechannel":  "4,1",
+                                                                    "MACHINE\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\InactivityTimeoutSecs":  "4,900"
+                                                                },
+                                            "Version":  {
+                                                            "Revision":  "1",
+                                                            "signature":  "\"$CHICAGO$\""
+                                                        },
+                                            "Privilege Rights":  {
+                                                                     "SeDebugPrivilege":  "*S-1-5-32-544",
+                                                                     "SeManageVolumePrivilege":  "*S-1-5-32-544",
+                                                                     "SeDenyRemoteInteractiveLogonRight":  "*S-1-5-113",
+                                                                     "SeTcbPrivilege":  "",
+                                                                     "SeRemoteShutdownPrivilege":  "*S-1-5-32-544",
+                                                                     "SeBackupPrivilege":  "*S-1-5-32-544",
+                                                                     "SeLoadDriverPrivilege":  "*S-1-5-32-544",
+                                                                     "SeLockMemoryPrivilege":  "",
+                                                                     "SeCreatePagefilePrivilege":  "*S-1-5-32-544",
+                                                                     "SeSystemEnvironmentPrivilege":  "*S-1-5-32-544",
+                                                                     "SeCreateTokenPrivilege":  "",
+                                                                     "SeSecurityPrivilege":  "*S-1-5-32-544",
+                                                                     "SeTakeOwnershipPrivilege":  "*S-1-5-32-544",
+                                                                     "SeCreateGlobalPrivilege":  "*S-1-5-20,*S-1-5-19,*S-1-5-6,*S-1-5-32-544",
+                                                                     "SeRestorePrivilege":  "*S-1-5-32-544",
+                                                                     "SeNetworkLogonRight":  "*S-1-5-32-555,*S-1-5-32-544",
+                                                                     "SeProfileSingleProcessPrivilege":  "*S-1-5-32-544",
+                                                                     "SeEnableDelegationPrivilege":  "",
+                                                                     "SeImpersonatePrivilege":  "*S-1-5-6,*S-1-5-99-216390572-1995538116-3857911515-2404958512-2623887229,*S-1-5-20,*S-1-5-19,*S-1-5-32-544",
+                                                                     "SeCreatePermanentPrivilege":  "",
+                                                                     "SeInteractiveLogonRight":  "*S-1-5-32-545,*S-1-5-32-544",
+                                                                     "SeDenyNetworkLogonRight":  "*S-1-5-113",
+                                                                     "SeTrustedCredManAccessPrivilege":  ""
+                                                                 },
+                                            "Unicode":  {
+                                                            "Unicode":  "yes"
+                                                        },
+                                            "System Access":  {
+                                                                  "LSAAnonymousNameLookup":  "0"
+                                                              }
+                                        }
+}

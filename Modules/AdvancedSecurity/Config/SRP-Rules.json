@@ -1,0 +1,85 @@
+{
+  "Description": "Software Restriction Policies (SRP) for CVE-2025-9491 Mitigation",
+  "Documentation": "https://msrc.microsoft.com/update-guide/vulnerability/CVE-2025-9491",
+  "CVE": "CVE-2025-9491",
+  "Threat": "Windows LNK Remote Code Execution",
+  "Status": "Zero-Day, Actively Exploited since 2017",
+  "Severity": "High (CVSS 7.0)",
+  
+  "SRPConfiguration": {
+    "DefaultLevel": 262144,
+    "Description": "Unrestricted - Allow all programs except explicitly blocked",
+    "TransparentEnabled": 1,
+    "ExecutableTypes": [
+      ".ADE", ".ADP", ".BAS", ".BAT", ".CHM", ".CMD", ".COM", ".CPL", ".CRT", 
+      ".EXE", ".HLP", ".HTA", ".INF", ".INS", ".ISP", ".LNK", ".MDB", ".MDE",
+      ".MSC", ".MSI", ".MSP", ".MST", ".OCX", ".PCD", ".PIF", ".REG", ".SCR",
+      ".SHS", ".URL", ".VB", ".WSC", ".WSF", ".WSH"
+    ]
+  },
+  
+  "PathRules": [
+    {
+      "Name": "Block LNK from Outlook Temp",
+      "Path": "%LOCALAPPDATA%\\Temp\\*.lnk",
+      "SecurityLevel": 0,
+      "Description": "Blocks .lnk files from Outlook email attachments to prevent CVE-2025-9491 exploitation. Outlook saves attachments to %LOCALAPPDATA%\\Temp\\Content.Outlook\\ before execution.",
+      "SaferFlags": 0,
+      "Enabled": true,
+      "AttackVector": "Email attachments (malicious.lnk via Outlook)",
+      "Impact": "Prevents execution of .lnk files from email attachments. Legitimate shortcuts from Start Menu/Desktop/Taskbar still work (different paths)."
+    },
+    {
+      "Name": "Block LNK from Downloads",
+      "Path": "%USERPROFILE%\\Downloads\\*.lnk",
+      "SecurityLevel": 0,
+      "Description": "Blocks .lnk files from browser Downloads folder to prevent CVE-2025-9491 exploitation from web downloads.",
+      "SaferFlags": 0,
+      "Enabled": true,
+      "AttackVector": "Browser downloads (malicious.lnk from web)",
+      "Impact": "Prevents execution of .lnk files downloaded from internet. Move .lnk to another location to execute if needed."
+    }
+  ],
+  
+  "Windows11BugFix": {
+    "Description": "Windows 11 has a bug where SRP is disabled by presence of certain keys in HKLM\\SYSTEM\\CurrentControlSet\\Control\\Srp\\Gp",
+    "Action": "Remove RuleCount and LastWriteTime keys",
+    "RegistryPath": "HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Srp\\Gp",
+    "KeysToRemove": ["RuleCount", "LastWriteTime"],
+    "Reason": "These keys cause SRP to be ignored on Windows 11. Removing them re-enables SRP functionality."
+  },
+  
+  "RegistryPaths": {
+    "PolicyRoot": "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Safer\\CodeIdentifiers",
+    "PathRules": "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Safer\\CodeIdentifiers\\0\\Paths",
+    "Win11BugFix": "HKLM:\\SYSTEM\\CurrentControlSet\\Control\\Srp\\Gp"
+  },
+  
+  "SecurityLevels": {
+    "Disallowed": 0,
+    "Unrestricted": 262144,
+    "Description": "0 = Block execution, 262144 = Allow execution"
+  },
+  
+  "SafeScenarios": [
+    "Start Menu shortcuts (C:\\ProgramData\\Microsoft\\Windows\\Start Menu)",
+    "Desktop shortcuts (C:\\Users\\<user>\\Desktop)",
+    "Taskbar shortcuts (pinned applications)",
+    "Program Files shortcuts (C:\\Program Files)",
+    "System shortcuts (C:\\Windows)"
+  ],
+  
+  "BlockedScenarios": [
+    "Outlook email attachments (%LOCALAPPDATA%\\Temp\\Content.Outlook)",
+    "Browser downloads (%USERPROFILE%\\Downloads)",
+    "Temporary Internet Files",
+    "Other Temp locations matching patterns"
+  ],
+  
+  "Testing": {
+    "VerifyBlockedPath": "%USERPROFILE%\\Downloads\\test.lnk",
+    "ExpectedResult": "Execution blocked with 'This program is blocked by group policy' message",
+    "VerifySafePath": "%USERPROFILE%\\Desktop\\test.lnk",
+    "ExpectedResult2": "Execution allowed (Desktop not in blocked path list)"
+  }
+}

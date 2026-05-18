@@ -1,0 +1,26 @@
+{
+  "Description": "Mapping between internal app names (Remove-Bloatware) and Winget Store IDs for automated restoration",
+  "Version": "1.2",
+  "LastVerified": "2025-12-08",
+  "Notes": "Store IDs verified against winget msstore source. Xbox system components (Xbox.TCUI, XboxSpeechToTextOverlay) are restored via Gaming Services / Xbox Game Bar where possible. XboxIdentityProvider uses a dedicated Store ID. Empty IDs = not available in winget catalog.",
+  "Mappings": {
+    "Microsoft.BingNews": "9WZDNCRFHVFW",
+    "Microsoft.BingWeather": "9WZDNCRFJ3Q2",
+    "Microsoft.MicrosoftSolitaireCollection": "",
+    "Microsoft.MicrosoftStickyNotes": "9NBLGGH4QGHW",
+    "Microsoft.GamingApp": "9MV0B5HZVK9Z",
+    "Microsoft.XboxApp": "9MV0B5HZVK9Z",
+    "Microsoft.XboxGamingOverlay": "9NZKPSTSNW4P",
+    "Microsoft.XboxIdentityProvider": "9WZDNCRD1HKW",
+    "Microsoft.ZuneMusic": "9WZDNCRFJ3PT",
+    "Microsoft.ZuneVideo": "9WZDNCRFJ3PT",
+    "Microsoft.WindowsFeedbackHub": "9NBLGGH4R32N",
+    "Microsoft.GetHelp": "9PKDZBMV1H3T",
+    "Microsoft.Getstarted": "",
+    "Microsoft.MixedReality.Portal": "9NG1H8B3ZC7M",
+    "Microsoft.People": "",
+    "Microsoft.YourPhone": "9NMPJ99VJBWV",
+    "Clipchamp.Clipchamp": "9P1J8S7CCWWT",
+    "SpotifyAB.SpotifyMusic": "9NCBCSZSJRSB"
+  }
+}

@@ -1,0 +1,20 @@
+{
+  "Description": "Firewall Shields Up - Block all incoming connections on Public network",
+  "Purpose": "Extra protection in public WiFi networks (airports, cafes, hotels)",
+  "Note": "This goes BEYOND Microsoft Security Baseline",
+  
+  "ShieldsUp": {
+    "description": "Block ALL incoming connections on Public profile, including allowed apps",
+    "registry_path": "HKLM:\\SYSTEM\\CurrentControlSet\\Services\\SharedAccess\\Parameters\\FirewallPolicy\\PublicProfile",
+    "value_name": "DoNotAllowExceptions",
+    "enabled_value": 1,
+    "disabled_value": 0,
+    "profiles": {
+      "Balanced": false,
+      "Enterprise": false,
+      "Maximum": true
+    },
+    "warning": "When enabled, apps like Teams, Discord, Zoom cannot receive incoming calls on Public networks",
+    "recommendation": "Enable only for maximum security (Maximum / air-gapped profile)"
+  }
+}

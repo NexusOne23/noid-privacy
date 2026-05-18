@@ -1,0 +1,150 @@
+﻿[
+    {
+        "KeyName":  "[Software\\Policies\\Microsoft\\Edge",
+        "ValueName":  "SitePerProcess",
+        "Type":  "REG_DWORD",
+        "Data":  1
+    },
+    {
+        "KeyName":  "[Software\\Policies\\Microsoft\\Edge",
+        "ValueName":  "AuthSchemes",
+        "Type":  "REG_SZ",
+        "Data":  "ntlm,negotiate"
+    },
+    {
+        "KeyName":  "[Software\\Policies\\Microsoft\\Edge",
+        "ValueName":  "NativeMessagingUserLevelHosts",
+        "Type":  "REG_DWORD",
+        "Data":  0
+    },
+    {
+        "KeyName":  "[Software\\Policies\\Microsoft\\Edge",
+        "ValueName":  "SmartScreenEnabled",
+        "Type":  "REG_DWORD",
+        "Data":  1
+    },
+    {
+        "KeyName":  "[Software\\Policies\\Microsoft\\Edge",
+        "ValueName":  "PreventSmartScreenPromptOverride",
+        "Type":  "REG_DWORD",
+        "Data":  1
+    },
+    {
+        "KeyName":  "[Software\\Policies\\Microsoft\\Edge",
+        "ValueName":  "PreventSmartScreenPromptOverrideForFiles",
+        "Type":  "REG_DWORD",
+        "Data":  1
+    },
+    {
+        "KeyName":  "[Software\\Policies\\Microsoft\\Edge",
+        "ValueName":  "SSLErrorOverrideAllowed",
+        "Type":  "REG_DWORD",
+        "Data":  0
+    },
+    {
+        "KeyName":  "[Software\\Policies\\Microsoft\\Edge",
+        "ValueName":  "SmartScreenPuaEnabled",
+        "Type":  "REG_DWORD",
+        "Data":  1
+    },
+    {
+        "KeyName":  "[Software\\Policies\\Microsoft\\Edge",
+        "ValueName":  "BasicAuthOverHttpEnabled",
+        "Type":  "REG_DWORD",
+        "Data":  0
+    },
+    {
+        "KeyName":  "[Software\\Policies\\Microsoft\\Edge",
+        "ValueName":  "InternetExplorerIntegrationReloadInIEModeAllowed",
+        "Type":  "REG_DWORD",
+        "Data":  0
+    },
+    {
+        "KeyName":  "[Software\\Policies\\Microsoft\\Edge",
+        "ValueName":  "SharedArrayBufferUnrestrictedAccessAllowed",
+        "Type":  "REG_DWORD",
+        "Data":  0
+    },
+    {
+        "KeyName":  "[Software\\Policies\\Microsoft\\Edge",
+        "ValueName":  "BrowserLegacyExtensionPointsBlockingEnabled",
+        "Type":  "REG_DWORD",
+        "Data":  1
+    },
+    {
+        "KeyName":  "[Software\\Policies\\Microsoft\\Edge",
+        "ValueName":  "InternetExplorerModeToolbarButtonEnabled",
+        "Type":  "REG_DWORD",
+        "Data":  0
+    },
+    {
+        "KeyName":  "[Software\\Policies\\Microsoft\\Edge",
+        "ValueName":  "TyposquattingCheckerEnabled",
+        "Type":  "REG_DWORD",
+        "Data":  1
+    },
+    {
+        "KeyName":  "[Software\\Policies\\Microsoft\\Edge",
+        "ValueName":  "InternetExplorerIntegrationZoneIdentifierMhtFileAllowed",
+        "Type":  "REG_DWORD",
+        "Data":  0
+    },
+    {
+        "KeyName":  "[Software\\Policies\\Microsoft\\Edge",
+        "ValueName":  "DynamicCodeSettings",
+        "Type":  "REG_DWORD",
+        "Data":  1
+    },
+    {
+        "KeyName":  "[Software\\Policies\\Microsoft\\Edge",
+        "ValueName":  "ApplicationBoundEncryptionEnabled",
+        "Type":  "REG_DWORD",
+        "Data":  1
+    },
+    {
+        "KeyName":  "[Software\\Policies\\Microsoft\\Edge",
+        "ValueName":  "EnableUnsafeSwiftShader",
+        "Type":  "REG_DWORD",
+        "Data":  0
+    },
+    {
+        "KeyName":  "[Software\\Policies\\Microsoft\\Edge",
+        "ValueName":  "PersonalizationReportingEnabled",
+        "Type":  "REG_DWORD",
+        "Data":  0,
+        "Description":  "CRITICAL: Prevent browsing history, favorites sent to Microsoft"
+    },
+    {
+        "KeyName":  "[Software\\Policies\\Microsoft\\Edge",
+        "ValueName":  "DiagnosticData",
+        "Type":  "REG_DWORD",
+        "Data":  0,
+        "Description":  "Disable Edge telemetry/diagnostic data"
+    },
+    {
+        "KeyName":  "[Software\\Policies\\Microsoft\\Edge",
+        "ValueName":  "TrackingPrevention",
+        "Type":  "REG_DWORD",
+        "Data":  2,
+        "Description":  "Balanced tracking prevention (won't break websites)"
+    },
+    {
+        "KeyName":  "[Software\\Policies\\Microsoft\\Edge",
+        "ValueName":  "EdgeShoppingAssistantEnabled",
+        "Type":  "REG_DWORD",
+        "Data":  0,
+        "Description":  "Disable shopping assistant/price tracking"
+    },
+    {
+        "KeyName":  "[Software\\Policies\\Microsoft\\Edge\\ExtensionInstallBlocklist",
+        "ValueName":  "**delvals.",
+        "Type":  "REG_SZ",
+        "Data":  " "
+    },
+    {
+        "KeyName":  "[Software\\Policies\\Microsoft\\Edge\\ExtensionInstallBlocklist",
+        "ValueName":  "1",
+        "Type":  "REG_SZ",
+        "Data":  "*"
+    }
+]
