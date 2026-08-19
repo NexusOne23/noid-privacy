@@ -1,0 +1,54 @@
+{
+  "Description": "Stable Windows Update optional-content and Delivery Optimization policies plus a choice-aware Windows Settings preference",
+  "Documentation": "https://learn.microsoft.com/en-us/windows/client-management/mdm/policy-csp-update#allowoptionalcontent ; https://learn.microsoft.com/en-us/windows/client-management/mdm/policy-csp-deliveryoptimization#dodownloadmode ; https://learn.microsoft.com/en-us/windows/apps/develop/settings/settings-common#windows-update",
+  "Purpose": "Keep optional non-security updates user-selected, leave early continuous-innovation rollout off unless the user already selected it in Windows Settings, preserve the user's Microsoft-product update preference, and disable peer-to-peer delivery",
+
+  "Settings": {
+    "1_OptionalUpdatesPolicy": {
+      "Name": "Let users select optional updates",
+      "RequiresManagedPolicyEdition": true,
+      "RegistryPath": "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsUpdate",
+      "Values": {
+        "SetAllowOptionalContent": {
+          "Type": "DWord",
+          "Value": 3,
+          "Description": "Official AllowOptionalContent policy mapping: users select which optional updates to receive; no automatic optional preview/CFR enrollment"
+        }
+      },
+      "GUIPath": "Settings > Windows Update > Advanced options > Optional updates (managed policy)"
+    },
+    "2_ContinuousInnovationPreference": {
+      "Name": "Do not prioritize early non-security and feature updates",
+      "RequiresManagedPolicyEdition": false,
+      "RegistryPath": "HKLM:\\SOFTWARE\\Microsoft\\WindowsUpdate\\UX\\Settings",
+      "Values": {
+        "IsContinuousInnovationOptedIn": {
+          "Type": "DWord",
+          "Value": 0,
+          "Description": "Windows Settings preference with the early continuous-innovation rollout toggle off; regular security updates are unaffected"
+        }
+      },
+      "GUIPath": "Settings > Windows Update > Get the latest updates as soon as they're available"
+    },
+
+    "3_DeliveryOptimization": {
+      "Name": "Downloads from other devices (DISABLED for privacy)",
+      "RequiresManagedPolicyEdition": true,
+      "RegistryPath": "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\DeliveryOptimization",
+      "Values": {
+        "DODownloadMode": {
+          "Type": "DWord",
+          "Value": 0,
+          "Description": "0 = HTTP only (Microsoft servers), no P2P, no LAN sharing"
+        }
+      },
+      "GUIPath": "Settings > Windows Update > Advanced options > Delivery Optimization > Allow downloads from other devices = OFF"
+    }
+  },
+
+  "TotalRegistryKeys": 3,
+  "MSBestPractice": "Both policy values are mapped to current Microsoft documentation; the raw Windows Settings UX preference is written only when no stamped manual opt-in is active. Regular security updates remain enabled, while forced schedules, deadlines and restart policies are not configured",
+  "UserControl": "Optional non-security updates remain user-selected; a stored manual early-rollout opt-in is preserved and reported NotChecked; the existing Microsoft-product update preference is preserved; restart scheduling remains Windows-managed",
+  "NoInteractivePrompt": "No mode selection needed - stable optional-update behavior and HTTP-only delivery are the fixed hardening contract",
+  "CRITICAL_NOTE": "The official AllowOptionalContent Group Policy mapping writes only SetAllowOptionalContent. Value 3 keeps optional updates user-selected, whereas value 1 automatically installs optional cumulative updates and CFRs; per Microsoft's policy matrix value 3 deliberately delegates the early-rollout decision to the Settings toggle. IsContinuousInnovationOptedIn=0 is a raw Windows Settings UX preference, not a documented managed policy. When the toggle is on, Windows stores a stamped opt-in intent (CIOptinModified) and the Update Session Orchestrator re-commits 1 over a direct raw write at boot and on Settings/USO activity. NoID Privacy therefore preserves an active stamped user opt-in, reports exactly that value NotChecked, excludes it from SettingsApplied, and instructs the user to turn the toggle off in Settings to select the hardened state; value 1 without the intent stamp remains a failure. NoID Privacy deliberately does not write AllowMUUpdateService because changing update-source enrollment can trigger downstream product updates that BAVR cannot uninstall. SetAllowOptionalContent and DODownloadMode policy CSPs document Pro/Enterprise/Education/IoT Enterprise, not Home, so Home has only the choice-aware continuous-innovation UX target. DODownloadMode=0 disables peer-to-peer caching but retains HTTP/CDN downloads."
+}

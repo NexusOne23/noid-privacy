@@ -1,0 +1,26 @@
+# NoID Privacy
+
+> Windows 11 security & privacy hardening framework. 645 default-decision declared checks across 7 modules with a sealed Backup-Apply-Verify-Restore (BAVR) pattern. Native PowerShell, no telemetry, open source (GPL-3.0). Optional bloatware removal is destructive: Tier 1 restores its Microsoft policy values exactly but not downstream app/data deletion; Tier 2 is a best-effort classic per-user removal (all editions, explicitly NOT an exact restore).
+
+## Documentation
+- [README](README.md): Overview, quick start, key features, compatibility
+- [2026 primary-source review](Docs/SECURITY-PRIVACY-PRIMARY-SOURCE-REVIEW-2026.md): Current Microsoft security/privacy control coverage and explicit include/exclude decisions
+- [Features](Docs/FEATURES.md): Declared settings and decision reference for all 7 modules
+- [Troubleshooting](Docs/TROUBLESHOOTING.md): Common issues, ASR/SmartScreen relax steps, logs
+- [Changelog](CHANGELOG.md): Version history
+- [Security Policy](SECURITY.md): Vulnerability reporting
+- [Windows VM release gate](Docs/WINDOWS-VM-RELEASE-GATE.md): current 25H2 Home/Pro/Enterprise full matrix; 24H2 SecurityBaseline uses the same profile after official-baseline delta review, with no second runtime branch; explicit 26H2 previews get an Experimental full-BAVR apply path that is not runtime-validated or release-approved
+
+## Key facts
+- Platform: the release-validated full seven-module profile targets Windows 11 25H2; the same 425-target 25H2-derived SecurityBaseline/BAVR contract is admitted on supported 24H2 after an exact official-upstream delta safety review, without a second profile, schema, UX or runtime-gate branch; explicit 26H2 previews get an Experimental full-BAVR apply path for enabled/applicable targets but are not runtime-validated or release-approved
+- Checks: 645 with default decisions (425 SecurityBaseline + 19 declared ASR [18 Windows-client applicable + 1 Exchange-server-only NotApplicable] + 5 DNS + 63 Privacy [36 base registry + 27 Tier 1 policy-based bloatware-removal targets, Enterprise/Education 24H2+ only] + 47 AntiAI [43 registry + 4 URI] + 26 Edge managed values + 60 AdvancedSecurity); declared/applicable counts vary by mode, edition, build and explicit choices
+- Reversible scope: every declared configuration mutation requires sealed prestate and exact target-level restore verification. Privacy Tier 1's policy values are exact but its downstream app/data deletion is not; Tier 2 classic bloatware removal (26 base apps including Microsoft Copilot plus a separate default-off Weather/Widgets choice, all editions) is a best-effort action restored only via the explicitly non-exact Restore-BloatwareApps entry point
+- Privacy: no telemetry, analytics, or license check; explicit DNS prechecks contact the selected resolver and optional update/install actions contact GitHub
+- License: GPL-3.0 (dual-licensed; a commercial license is available)
+- Requirements: Windows PowerShell 5.1, Administrator rights; individual hardware-backed features can additionally require UEFI/Secure Boot/TPM 2.0
+
+## Ecosystem
+- Website: https://noid-privacy.com
+- Windows GUI (Pro): https://noid-privacy.com
+- Linux: https://github.com/NexusOne23/noid-privacy-linux
+- Android: https://play.google.com/store/apps/details?id=com.noid.privacy

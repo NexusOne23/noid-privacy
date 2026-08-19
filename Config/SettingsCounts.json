@@ -1,0 +1,61 @@
+{
+  "schemaVersion": 1,
+  "description": "Canonical declared-count summary consumed by Verify-Complete-Hardening.ps1 and report consumers. Every value must reconcile with the corresponding module target inventory; changing a number alone is intentionally rejected by deterministic consistency checks.",
+  "lastReviewed": "2026-08-14",
+  "framework": {
+    "totalSettings": 645,
+    "totalModes": "MSRecommended/default-decision totals (Privacy uses 32 mode registry targets plus 4 OneDrive/Store targets when Cloud Clipboard disable is selected, plus 27 Tier 1 policy-based in-box app-removal policy targets declared unconditionally: NotChecked when unselected on an eligible standalone client, NotApplicable when unsupported or externally managed); Strict and Paranoid use different declared Privacy mode scopes. Six visible interactive-user preference targets are included in every mode and remain separate from managed-policy effectiveness claims. App-removal effects are destructive and outside exact end-to-end BAVR: Tier 1 restores only its policy values exactly, and Tier 2 is a separate best-effort action. Tier 2 is not part of this count (see modules.Privacy.bloatwareBestEffortApps)."
+  },
+  "modules": {
+    "SecurityBaseline": {
+      "registry": 335,
+      "securityTemplate": 67,
+      "auditPolicies": 23,
+      "subtotal": 425,
+      "note": "Registry = Computer + User policies parsed from baseline INF; SecurityTemplate = 79 parsed minus 12 metadata-only entries (TitleName/Description/etc.); AuditPolicies = 23 subcategories."
+    },
+    "ASR": {
+      "rules": 19,
+      "note": "Nineteen declared Defender ASR identities. On Windows 11 clients, 18 are applicable (16 Block-by-default and 2 user-configurable); Microsoft's operating-system matrix marks the Exchange-server Webshell rule NotApplicable."
+    },
+    "DNS": {
+      "checks": 5,
+      "note": "Five exact aggregates: primary IPv4, secondary IPv4, the IPv6 pair in every binding-enabled adapter's native/registry state (plus effective DNS-client readback while IPv6 transport is enabled), all four selected-provider DoH registrations, and DoHPolicy/fallback consistency including Microsoft DNS_INTERFACE_SETTINGS3 per-adapter-family DoH properties. The native interface properties make the persisted encrypted configuration visible as encrypted in Windows Settings without adding a second UX decision. Schema-5 BAVR seals effective resolver scope and native/UI-visible DoH scope separately and restores both exact prior states; when DisabledComponents=0xFF disables IPv6 transport, the label is not a claim of active IPv6 traffic."
+    },
+    "Privacy": {
+      "registry": 36,
+      "tier1PolicyTargets": 27,
+      "total": 63,
+      "modeTotals": {
+        "MSRecommended": 63,
+        "Strict": 88,
+        "Paranoid": 117
+      },
+      "bloatwareBestEffortApps": 27,
+      "note": "MSRecommended base = 32 mode-specific registry targets plus 4 OneDrive/Store targets; choosing Preserve for Cloud Clipboard reduces that active base by one. Six base targets are visible interactive-user preferences and do not inherit managed-policy effectiveness claims; Strict/Paranoid add two account-notification preferences, disable periodic Windows settings/app-list cloud backup and block cellular text-message cloud sync. Paranoid alone disables local device-search history, online font providers and automatic device-metadata companion-app downloads. MSRecommended/Strict preserve useful local search ranking while all modes disable their selected web/Bing surfaces. Strict base declares 61 targets including services; Paranoid base declares 90 including services/tasks. All modes additionally declare the same 27 Tier 1 policy identities. HKCU targets belong only to the interactive Explorer owner; offline profiles remain untouched. Schema-7 BAVR seals decisions, management/applicability, Applied, NotChecked and NotApplicable inventories. Tier 1 = root Enabled, an empty root DynamicRemovalList REG_MULTI_SZ, and 25 static Package-Family-Name RemovePackage flags, exactly matching the current inbox gpedit layout; eight static flags are selected by the NoID Privacy curated opt-in, including Microsoft Copilot. Policy-value prestate restores exactly, but downstream app/data removal does not. Tier 1 is NotChecked when unselected on eligible standalone Enterprise/Education 24H2+, and NotApplicable when unsupported, multi-session, AD-domain joined, MDM registered or management state cannot be proven. A failed management query blocks Tier 1 only, not unrelated Privacy controls. Tier 2 = 26 base per-user AppX candidates including Microsoft Copilot plus the separately selected Weather/Widgets package, each with a catalog-bound sealed inventory; both choices are valid verification outcomes. Tier 2 is excluded from totalSettings because Store reinstall cannot reproduce exact app data/package/provisioning state and is a separate original-user-only best-effort action."
+    },
+    "AntiAI": {
+      "policies": 43,
+      "uriSourceChecks": 4,
+      "total": 47,
+      "features": 12,
+      "note": "43 config-derived registry targets across 11 registry groups plus one URI-handler group. User-scope values target the interactive desktop user's loaded HKEY_USERS hive, not the elevated account's HKCU. Complete verification includes four real source hives for absence of the two Copilot URI handlers. Preview/edition/product applicability is reported separately from registry/source-state exactness."
+    },
+    "EdgeHardening": {
+      "policies": 26,
+      "microsoftBaseline": 19,
+      "privacyAdditions": 7,
+      "defaultSelected": 25,
+      "strictSelected": 26,
+      "metadataEntries": 1,
+      "note": "Exact Edge scope: 19 Microsoft v139 baseline values plus seven separately labelled, currently documented NoID Privacy additions. The LGPO **delvals. row is metadata, not a policy. Default does not select the block-all extension value (25 selected); strict selects all 26. Four SmartScreen values are applied only after AD-domain or eligible Pro/Enterprise MDM registration proof; otherwise they remain untouched and are NotApplicable. The Edge 151+ Reading Mode online-extraction target is NotApplicable on an installed older Edge; absent Edge installations receive staged policy for a future supported installation."
+    },
+    "AdvancedSecurity": {
+      "settings": 60,
+      "firewall": 17,
+      "nonFirewall": 43,
+      "features": 14,
+      "note": "Maximum declared verification scope after expanding aggregates: 17 deterministic firewall targets (16 stable module-owned rules plus Shields Up) and 43 non-firewall registry/service/adapter/API targets. WPAD contributes exactly two checks: Microsoft's documented WinHTTP DisableWpad machine value and the interactive Explorer user's WinINet PROXY_TYPE_AUTO_DETECT bit, changed and restored through the documented API while preserving every unrelated proxy flag; the user check is NotApplicable when no interactive Explorer user exists. Optional profile choices remain NotChecked when not selected; an explicit firewall-layer skip reports applicable firewall targets as NotChecked and never as Applied/Passed. On Home, 18 RDP-host, WirelessDisplay and managed Windows Update/Delivery Optimization policy targets are NotApplicable rather than written or passed. Windows Update keeps optional non-security updates user-selected (SetAllowOptionalContent=3), disables the early-rollout UX preference, preserves Microsoft-product update enrollment, and disables P2P delivery where supported. The obsolete WDigest policy removed by Microsoft's Windows 11 25H2 baseline and Windows PowerShell 2.0 removed from updated 24H2 images in August 2025 are not written or counted. The historical PowerShellV2 reader recognizes older sealed artifacts for BAVR compatibility, restores only while Windows still exposes the recorded feature identity and otherwise fails closed; new runs do not query, back up, apply, verify or report the removed component. The legacy SRP scope verifies only eight owned registry values; it does not claim runtime enforcement."
+    }
+  }
+}

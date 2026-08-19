@@ -1,0 +1,115 @@
+name: Release - Generate CHECKSUMS.sha256
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Tag to checksum (e.g. v2.2.5). Required when run manually.'
+        required: true
+        type: string
+
+permissions:
+  contents: write  # required to upload the asset to the release
+
+jobs:
+  generate-checksums:
+    name: Generate + Publish CHECKSUMS.sha256
+    runs-on: windows-latest
+
+    steps:
+      - name: Resolve target tag
+        id: resolve_tag
+        shell: pwsh
+        run: |
+          $eventTag = "${{ github.ref_name }}"
+          $inputTag = "${{ github.event.inputs.tag }}"
+          $tag = if ($inputTag) { $inputTag } else { $eventTag }
+
+          if (-not $tag -or $tag -cnotmatch '^v\d+\.\d+\.\d+$') {
+            Write-Host "Resolved tag '$tag' is not in v<MAJOR>.<MINOR>.<PATCH> form -- aborting." -ForegroundColor Red
+            exit 1
+          }
+
+          Write-Host "Resolved tag: $tag"
+          "tag=$tag" | Out-File -Append -FilePath $env:GITHUB_OUTPUT
+
+      - name: Checkout exact target tag
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+        with:
+          ref: ${{ steps.resolve_tag.outputs.tag }}
+
+      - name: Build release ZIP and CHECKSUMS.sha256
+        shell: pwsh
+        run: |
+          if (-not (Test-Path 'Tools/Generate-ReleaseChecksums.ps1')) {
+            Write-Host "Tools/Generate-ReleaseChecksums.ps1 not found in repository root" -ForegroundColor Red
+            exit 1
+          }
+
+          $repoRoot = (Resolve-Path '.').Path
+          $tag = '${{ steps.resolve_tag.outputs.tag }}'
+          $dist = Join-Path $repoRoot 'dist'
+          $staging = Join-Path $env:RUNNER_TEMP "NoIDPrivacy-$tag"
+          $zipFile = Join-Path $dist "NoIDPrivacy-$tag.zip"
+          $outFile  = Join-Path $repoRoot 'CHECKSUMS.sha256'
+
+          $version = (Get-Content -LiteralPath (Join-Path $repoRoot 'VERSION') -Raw -Encoding UTF8).Trim()
+          if ($tag -cne "v$version") {
+            Write-Host "Tag '$tag' does not match canonical VERSION '$version'." -ForegroundColor Red
+            exit 1
+          }
+
+          New-Item -ItemType Directory -Path $dist -Force | Out-Null
+          New-Item -ItemType Directory -Path $staging -Force | Out-Null
+
+          Get-ChildItem -LiteralPath $repoRoot -Force |
+            Where-Object { $_.Name -notin @('.git', 'dist', 'Backups', 'Logs', 'CHECKSUMS.sha256') } |
+            Copy-Item -Destination $staging -Recurse -Force
+
+          Compress-Archive -LiteralPath $staging -DestinationPath $zipFile -CompressionLevel Optimal -Force
+          & ./Tools/Generate-ReleaseChecksums.ps1 -ReleasePath $zipFile -OutputFile $outFile
+
+          if (-not (Test-Path $outFile) -or -not (Test-Path $zipFile)) {
+            Write-Host "Release ZIP or CHECKSUMS.sha256 was not produced -- aborting." -ForegroundColor Red
+            exit 1
+          }
+
+          $expectedName = Split-Path $zipFile -Leaf
+          $dataLines = @(Get-Content -LiteralPath $outFile | Where-Object { $_ -cmatch '^[a-f0-9]{64}\s{2}.+$' })
+          $matchingLines = @($dataLines | Where-Object { $_ -cmatch ('^[a-f0-9]{64}\s{2}' + [regex]::Escape($expectedName) + '$') })
+          if ($dataLines.Count -ne 1 -or $matchingLines.Count -ne 1) {
+            Write-Host "Checksum manifest must contain exactly the release ZIP '$expectedName' and no ambiguous entries." -ForegroundColor Red
+            exit 1
+          }
+
+          $declaredHash = ($matchingLines[0] -split '\s+', 2)[0]
+          $actualHash = (Get-FileHash -LiteralPath $zipFile -Algorithm SHA256).Hash.ToLowerInvariant()
+          if ($declaredHash -ne $actualHash) {
+            Write-Host 'Generated checksum does not match the release ZIP.' -ForegroundColor Red
+            exit 1
+          }
+
+          $lineCount = (Get-Content $outFile | Measure-Object -Line).Lines
+          Write-Host "[OK] Release ZIP and CHECKSUMS.sha256 generated ($lineCount lines)" -ForegroundColor Green
+
+      - name: Upload release assets as build artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: NoIDPrivacy-${{ steps.resolve_tag.outputs.tag }}
+          path: |
+            dist/NoIDPrivacy-${{ steps.resolve_tag.outputs.tag }}.zip
+            CHECKSUMS.sha256
+          if-no-files-found: error
+
+      - name: Attach verified ZIP and checksum to GitHub Release
+        if: github.event_name == 'push'
+        uses: softprops/action-gh-release@3d0d9888cb7fd7b750713d6e236d1fcb99157228 # v3.0.2
+        with:
+          tag_name: ${{ steps.resolve_tag.outputs.tag }}
+          files: |
+            dist/NoIDPrivacy-${{ steps.resolve_tag.outputs.tag }}.zip
+            CHECKSUMS.sha256
+          fail_on_unmatched_files: true

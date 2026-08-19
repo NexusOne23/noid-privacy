@@ -1,0 +1,95 @@
+{
+  "version": "1.0.0",
+  "providers": {
+    "cloudflare": {
+      "intentToken": "Cloudflare",
+      "name": "Cloudflare",
+      "description": "Unfiltered public resolver with encrypted DNS support and a documented privacy commitment",
+      "ipv4": {
+        "primary": "1.1.1.1",
+        "secondary": "1.0.0.1"
+      },
+      "ipv6": {
+        "primary": "2606:4700:4700::1111",
+        "secondary": "2606:4700:4700::1001"
+      },
+      "doh": {
+        "template": "https://cloudflare-dns.com/dns-query",
+        "supported": true
+      },
+      "features": [
+        "Limited public-resolver transaction/debug logs are deleted within 25 hours",
+        "Source IP addresses are truncated and the truncated value is deleted within 25 hours",
+        "DNSSEC validation (server-side)",
+        "Privacy commitments are covered by a published independent accounting-firm audit",
+        "The selected 1.1.1.1 endpoints are unfiltered",
+        "Separate malware and family-filtering resolver variants exist but are not selected here"
+      ],
+      "jurisdiction": "United States; service behavior is governed by Cloudflare's published public-resolver privacy commitment",
+      "best_for": "An unfiltered public resolver with independently audited privacy commitments",
+      "documentation": "https://developers.cloudflare.com/1.1.1.1/privacy/public-dns-resolver/"
+    },
+    "quad9": {
+      "intentToken": "Quad9",
+      "name": "Quad9",
+      "description": "Non-profit DNS with Swiss privacy and threat blocking",
+      "ipv4": {
+        "primary": "9.9.9.9",
+        "secondary": "149.112.112.112"
+      },
+      "ipv6": {
+        "primary": "2620:fe::fe",
+        "secondary": "2620:fe::9"
+      },
+      "doh": {
+        "template": "https://dns.quad9.net/dns-query",
+        "supported": true
+      },
+      "features": [
+        "Does not retain information that can identify an individual user under normal service conditions",
+        "Shares limited non-identifying counters for malicious-domain queries only with the threat-intelligence analyst that contributed that domain",
+        "Threat blocking combines many public and commercial intelligence sources",
+        "DNSSEC validation (server-side)",
+        "Non-profit, no data monetization",
+        "Globally distributed resolver network"
+      ],
+      "jurisdiction": "Switzerland (Zuerich); operated by the Swiss Quad9 Foundation",
+      "best_for": "Threat-domain blocking without retaining client IPs in ordinary query logs",
+      "documentation": "https://www.quad9.net/privacy/policy/"
+    },
+    "adguard": {
+      "intentToken": "AdGuard",
+      "name": "AdGuard DNS",
+      "description": "EU-based DNS with comprehensive ad and tracker blocking",
+      "ipv4": {
+        "primary": "94.140.14.14",
+        "secondary": "94.140.15.15"
+      },
+      "ipv6": {
+        "primary": "2a10:50c0::ad1:ff",
+        "secondary": "2a10:50c0::ad2:ff"
+      },
+      "doh": {
+        "template": "https://dns.adguard-dns.com/dns-query",
+        "supported": true
+      },
+      "features": [
+        "Comprehensive ad and tracker blocking",
+        "Default public endpoints also block domains classified as malicious",
+        "DNSSEC validation (server-side)",
+        "Public DNS policy describes aggregated performance metrics and no user-specific collection beyond what service operation requires",
+        "Stores an anonymous database of requested domains from the last 24 hours",
+        "Family-friendly filtering options available"
+      ],
+      "jurisdiction": "Cyprus (Limassol); ADGUARD SOFTWARE LIMITED is the data controller",
+      "best_for": "Public DNS-level ad, tracker, and malicious-domain filtering",
+      "documentation": "https://adguard-dns.io/en/privacy.html"
+    }
+  },
+  "default_provider": "quad9",
+  "notes": {
+    "dnssec": "All providers perform server-side DNSSEC validation. No client-side NRPT configuration required.",
+    "doh": "For the managed endpoints, Windows DNS Client uses DNS over HTTPS. Classic-DNS fallback is disabled in REQUIRE mode and permitted in ALLOW mode; applications with an independent resolver stack are outside this policy.",
+    "ipv6": "Effective IPv6 resolvers are configured alongside IPv4 only when the adapter binding and global IPv6 transport are enabled. On a binding-enabled adapter whose transport is intentionally disabled with DisabledComponents=0xFF, schema-5 BAVR separately manages the persisted native IPv6 resolver/DoH state used by Windows Settings without claiming active IPv6 traffic."
+  }
+}

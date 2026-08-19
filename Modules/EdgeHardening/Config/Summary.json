@@ -1,0 +1,111 @@
+{
+  "SchemaVersion": 2,
+  "BaselineVersion": "Microsoft Edge v139",
+  "BaselineReleaseDate": "2025-08-07",
+  "PolicyDocumentationChecked": "2026-08-13",
+  "OfficialPackage": {
+    "FileName": "Microsoft Edge v139 Security Baseline.zip",
+    "SizeBytes": 400613,
+    "Sha256": "ac54ff9ccb9e86c4f65d8be7968e499f2ed1f9daa4aecb6294f429141c943e3f",
+    "DownloadPage": "https://www.microsoft.com/en-us/download/details.aspx?id=55319"
+  },
+  "MicrosoftBaselinePolicyCount": 19,
+  "PrivacyAdditionPolicyCount": 7,
+  "ManagedPolicyCount": 26,
+  "MetadataEntryCount": 1,
+  "DefaultSelectedPolicyCount": 25,
+  "StrictSelectedPolicyCount": 26,
+  "LegacyV225ManagedPolicyCount": 23,
+  "LegacyV225DefaultSelectedPolicyCount": 22,
+  "LegacyV225StrictSelectedPolicyCount": 23,
+  "LegacyV225ExcludedPolicyNames": [
+    "SearchSuggestEnabled",
+    "AddressBarTrendingSuggestEnabled",
+    "EdgeReadingModeServiceBasedExtractionEnabled"
+  ],
+  "MicrosoftBaselinePolicyNames": [
+    "SitePerProcess",
+    "AuthSchemes",
+    "NativeMessagingUserLevelHosts",
+    "SmartScreenEnabled",
+    "PreventSmartScreenPromptOverride",
+    "PreventSmartScreenPromptOverrideForFiles",
+    "SSLErrorOverrideAllowed",
+    "SmartScreenPuaEnabled",
+    "BasicAuthOverHttpEnabled",
+    "InternetExplorerIntegrationReloadInIEModeAllowed",
+    "SharedArrayBufferUnrestrictedAccessAllowed",
+    "BrowserLegacyExtensionPointsBlockingEnabled",
+    "InternetExplorerModeToolbarButtonEnabled",
+    "TyposquattingCheckerEnabled",
+    "InternetExplorerIntegrationZoneIdentifierMhtFileAllowed",
+    "DynamicCodeSettings",
+    "ApplicationBoundEncryptionEnabled",
+    "EnableUnsafeSwiftShader",
+    "1"
+  ],
+  "PrivacyAdditionPolicyNames": [
+    "PersonalizationReportingEnabled",
+    "DiagnosticData",
+    "TrackingPrevention",
+    "EdgeShoppingAssistantEnabled",
+    "SearchSuggestEnabled",
+    "AddressBarTrendingSuggestEnabled",
+    "EdgeReadingModeServiceBasedExtractionEnabled"
+  ],
+  "MinimumEdgeMajorByPolicy": {
+    "SitePerProcess": 77,
+    "AuthSchemes": 77,
+    "NativeMessagingUserLevelHosts": 77,
+    "SmartScreenEnabled": 77,
+    "PreventSmartScreenPromptOverride": 77,
+    "PreventSmartScreenPromptOverrideForFiles": 77,
+    "SSLErrorOverrideAllowed": 77,
+    "SmartScreenPuaEnabled": 80,
+    "BasicAuthOverHttpEnabled": 88,
+    "InternetExplorerIntegrationReloadInIEModeAllowed": 92,
+    "SharedArrayBufferUnrestrictedAccessAllowed": 92,
+    "BrowserLegacyExtensionPointsBlockingEnabled": 95,
+    "InternetExplorerModeToolbarButtonEnabled": 96,
+    "TyposquattingCheckerEnabled": 96,
+    "InternetExplorerIntegrationZoneIdentifierMhtFileAllowed": 117,
+    "DynamicCodeSettings": 128,
+    "ApplicationBoundEncryptionEnabled": 127,
+    "EnableUnsafeSwiftShader": 139,
+    "PersonalizationReportingEnabled": 80,
+    "DiagnosticData": 122,
+    "TrackingPrevention": 78,
+    "EdgeShoppingAssistantEnabled": 87,
+    "SearchSuggestEnabled": 77,
+    "AddressBarTrendingSuggestEnabled": 135,
+    "EdgeReadingModeServiceBasedExtractionEnabled": 151,
+    "1": 77
+  },
+  "ManagedWindowsOnlyPolicies": [
+    "SmartScreenEnabled",
+    "PreventSmartScreenPromptOverride",
+    "PreventSmartScreenPromptOverrideForFiles",
+    "SmartScreenPuaEnabled"
+  ],
+  "MetadataEntry": {
+    "Path": "HKLM:\\Software\\Policies\\Microsoft\\Edge\\ExtensionInstallBlocklist",
+    "Name": "**delvals."
+  },
+  "PolicyPaths": [
+    "HKLM:\\Software\\Policies\\Microsoft\\Edge",
+    "HKLM:\\Software\\Policies\\Microsoft\\Edge\\ExtensionInstallBlocklist"
+  ],
+  "Sources": {
+    "BaselineAnnouncement": "https://techcommunity.microsoft.com/blog/microsoft-security-baselines/security-baseline-for-microsoft-edge-version-139/4441251",
+    "BaselineSettings": "https://learn.microsoft.com/en-us/intune/device-security/security-baselines/ref-v2-edge-settings",
+    "PolicyDocumentation": "https://learn.microsoft.com/en-us/deployedge/microsoft-edge-policies/",
+    "SearchSuggestEnabled": "https://learn.microsoft.com/en-us/deployedge/microsoft-edge-browser-policies/searchsuggestenabled",
+    "AddressBarTrendingSuggestEnabled": "https://learn.microsoft.com/en-us/deployedge/microsoft-edge-browser-policies/addressbartrendingsuggestenabled",
+    "EdgeReadingModeServiceBasedExtractionEnabled": "https://learn.microsoft.com/en-us/deployedge/microsoft-edge-policies/edgereadingmodeservicebasedextractionenabled"
+  },
+  "IntentionalDeviations": [
+    "The NoID Privacy default profile does not manage the extension blocklist and preserves any existing administrator policy; the Microsoft baseline block-all value is opt-in.",
+    "Seven separately identified privacy additions are not represented as Microsoft Edge v139 baseline settings.",
+    "DiagnosticData=0 is a privacy choice that Microsoft documents as not recommended."
+  ]
+}

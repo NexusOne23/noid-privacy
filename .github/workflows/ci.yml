@@ -1,0 +1,385 @@
+name: CI - PowerShell Quality Checks
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  psscriptanalyzer:
+    name: PSScriptAnalyzer
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Run PSScriptAnalyzer
+        shell: pwsh
+        run: |
+          Write-Host "Installing PSScriptAnalyzer 1.25.0..."
+          Install-Module -Name PSScriptAnalyzer -RequiredVersion '1.25.0' -Force -Scope CurrentUser -ErrorAction Stop
+          Import-Module PSScriptAnalyzer -RequiredVersion '1.25.0' -ErrorAction Stop
+
+          Write-Host ""
+          Write-Host "Running PSScriptAnalyzer with framework settings (./PSScriptAnalyzerSettings.psd1)..."
+          # The settings file applies architectural suppressions with rationale
+          # (Write-Host for CLI, NO-BOM for cross-tool JSON, plural-noun public
+          # API, dot-sourced $global: cross-file state). All real issues -- both
+          # Error and Warning -- still fail the build.
+          $results = Invoke-ScriptAnalyzer -Path . -Recurse -Settings ./PSScriptAnalyzerSettings.psd1
+          $errors   = @($results | Where-Object { $_.Severity -eq 'Error' })
+          $warnings = @($results | Where-Object { $_.Severity -eq 'Warning' })
+          $parseErr = @($results | Where-Object { $_.Severity -eq 'ParseError' })
+
+          Write-Host ""
+          Write-Host "=== Results ===" -ForegroundColor Cyan
+          Write-Host "ParseError: $($parseErr.Count) | Error: $($errors.Count) | Warning: $($warnings.Count)"
+
+          if ($results.Count -gt 0) {
+            Write-Host ""
+            Write-Host "=== Findings ===" -ForegroundColor Yellow
+            $results | Format-Table @{N='File';E={Split-Path $_.ScriptName -Leaf}}, Line, Severity, RuleName, Message -AutoSize -Wrap
+            Write-Host ""
+            Write-Host "PSScriptAnalyzer found $($results.Count) issue(s). Failing CI." -ForegroundColor Red
+            exit 1
+          } else {
+            Write-Host "[OK] PSScriptAnalyzer clean (no Error/Warning/ParseError findings)." -ForegroundColor Green
+          }
+
+  test-powershell-51:
+    name: Test on PowerShell 5.1
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Test PowerShell Scripts (5.1)
+        shell: powershell
+        run: |
+          Write-Host "PowerShell Version: $($PSVersionTable.PSVersion)" -ForegroundColor Cyan
+          Write-Host "Testing script syntax..."
+          $ErrorActionPreference = 'Stop'
+
+          $failed = $false
+          $parseTargets = @(Get-ChildItem -Path . -File -Recurse -ErrorAction Stop |
+            Where-Object { $_.Extension -in @('.ps1', '.psm1', '.psd1') })
+          if ($parseTargets.Count -eq 0) { throw 'PowerShell 5.1 syntax discovery returned zero files' }
+          $parseTargets | ForEach-Object {
+            Write-Host "Checking: $($_.Name)"
+            try {
+              $errors = $null
+              $tokens = [System.Management.Automation.PSParser]::Tokenize((Get-Content $_.FullName -Raw), [ref]$errors)
+              if ($errors.Count -gt 0) {
+                Write-Host "  [ERROR] $($errors[0].Message)" -ForegroundColor Red
+                $failed = $true
+              } else {
+                Write-Host "  [OK]" -ForegroundColor Green
+              }
+            } catch {
+              Write-Host "  [ERROR] $_" -ForegroundColor Red
+              $failed = $true
+            }
+          }
+
+          if ($failed) {
+            Write-Host ""
+            Write-Host "Syntax check FAILED" -ForegroundColor Red
+            exit 1
+          } else {
+            Write-Host ""
+            Write-Host "All scripts have valid syntax!" -ForegroundColor Green
+          }
+
+  test-powershell-7:
+    name: Test on PowerShell 7.4
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Test PowerShell Scripts (7.4)
+        shell: pwsh
+        run: |
+          Write-Host "PowerShell Version: $($PSVersionTable.PSVersion)" -ForegroundColor Cyan
+          Write-Host "Testing script syntax..."
+          $ErrorActionPreference = 'Stop'
+
+          $failed = $false
+          $parseTargets = @(Get-ChildItem -Path . -File -Recurse -ErrorAction Stop |
+            Where-Object { $_.Extension -in @('.ps1', '.psm1', '.psd1') })
+          if ($parseTargets.Count -eq 0) { throw 'PowerShell 7 syntax discovery returned zero files' }
+          $parseTargets | ForEach-Object {
+            Write-Host "Checking: $($_.Name)"
+            try {
+              $errors = $null
+              $tokens = $null
+              $ast = [System.Management.Automation.Language.Parser]::ParseFile($_.FullName, [ref]$tokens, [ref]$errors)
+              if ($errors.Count -gt 0) {
+                Write-Host "  [ERROR] $($errors[0].Message)" -ForegroundColor Red
+                $failed = $true
+              } else {
+                Write-Host "  [OK]" -ForegroundColor Green
+              }
+            } catch {
+              Write-Host "  [ERROR] $_" -ForegroundColor Red
+              $failed = $true
+            }
+          }
+
+          if ($failed) {
+            Write-Host ""
+            Write-Host "Syntax check FAILED" -ForegroundColor Red
+            exit 1
+          } else {
+            Write-Host ""
+            Write-Host "All scripts have valid syntax!" -ForegroundColor Green
+          }
+
+  validate-structure:
+    name: Validate Project Structure
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Check Required Files
+        shell: pwsh
+        run: |
+          Write-Host "Checking project structure..." -ForegroundColor Cyan
+
+          $required = @(
+            "README.md",
+            "LICENSE",
+            "CHANGELOG.md",
+            "NoIDPrivacy-Interactive.ps1",
+            "Core/Framework.ps1",
+            "Modules",
+            "Tools"
+          )
+
+          $missing = @()
+          foreach ($item in $required) {
+            if (Test-Path $item) {
+              Write-Host "[OK] $item" -ForegroundColor Green
+            } else {
+              Write-Host "[MISSING] $item" -ForegroundColor Red
+              $missing += $item
+            }
+          }
+
+          if ($missing.Count -gt 0) {
+            Write-Host ""
+            Write-Host "Missing required files/folders!" -ForegroundColor Red
+            exit 1
+          } else {
+            Write-Host ""
+            Write-Host "All required files present!" -ForegroundColor Green
+          }
+
+      - name: Check Module Structure
+        shell: pwsh
+        run: |
+          Write-Host "`nValidating module structure..." -ForegroundColor Cyan
+
+          $modules = @(
+            "SecurityBaseline",
+            "ASR",
+            "DNS",
+            "Privacy",
+            "AntiAI",
+            "EdgeHardening",
+            "AdvancedSecurity"
+          )
+
+          $failed = $false
+          foreach ($module in $modules) {
+            $modulePath = "Modules/$module"
+            if (Test-Path $modulePath) {
+              Write-Host "[OK] Module: $module" -ForegroundColor Green
+
+              # Check for required module files
+              $moduleFile = "$modulePath/$module.psm1"
+              $manifestFile = "$modulePath/$module.psd1"
+
+              if (Test-Path $moduleFile) {
+                Write-Host "  [OK] $module.psm1" -ForegroundColor Green
+              } else {
+                Write-Host "  [MISSING] $module.psm1" -ForegroundColor Red
+                $failed = $true
+              }
+
+              if (Test-Path $manifestFile) {
+                Write-Host "  [OK] $module.psd1" -ForegroundColor Green
+              } else {
+                Write-Host "  [MISSING] $module.psd1" -ForegroundColor Red
+                $failed = $true
+              }
+            } else {
+              Write-Host "[MISSING] Module: $module" -ForegroundColor Red
+              $failed = $true
+            }
+          }
+
+          if ($failed) {
+            Write-Host ""
+            Write-Host "Module structure validation FAILED!" -ForegroundColor Red
+            exit 1
+          } else {
+            Write-Host ""
+            Write-Host "All modules are correctly structured!" -ForegroundColor Green
+          }
+
+      - name: Validate module GUIDs (uniqueness + no Nil-GUID outside template)
+        shell: pwsh
+        run: |
+          Write-Host "`nValidating module manifest GUIDs..." -ForegroundColor Cyan
+
+          $nilGuid = '00000000-0000-0000-0000-000000000000'
+          $manifests = Get-ChildItem -Path 'Modules' -Filter '*.psd1' -Recurse -File -ErrorAction SilentlyContinue
+          $guidMap = @{}
+          $failed = $false
+
+          foreach ($manifest in $manifests) {
+            $relPath = $manifest.FullName.Substring((Resolve-Path '.').Path.Length + 1)
+            $isTemplate = $manifest.FullName -match '[\\/]_ModuleTemplate[\\/]'
+
+            # Extract GUID via regex (avoids importing the manifest which may have unresolved dependencies)
+            $content = Get-Content $manifest.FullName -Raw -Encoding UTF8
+            if ($content -match "GUID\s*=\s*['""]([0-9a-fA-F\-]{36})['""]") {
+              $guid = $matches[1].ToLowerInvariant()
+
+              # Rule 1: Nil GUID is only permitted in the template
+              if ($guid -eq $nilGuid -and -not $isTemplate) {
+                Write-Host "[FAIL] $relPath uses Nil GUID '$nilGuid' (regenerate via [guid]::NewGuid())" -ForegroundColor Red
+                $failed = $true
+                continue
+              }
+
+              # Rule 2: GUID must be unique across non-template manifests
+              if (-not $isTemplate) {
+                if ($guidMap.ContainsKey($guid)) {
+                  Write-Host "[FAIL] Duplicate GUID '$guid' in $relPath -- already used by $($guidMap[$guid])" -ForegroundColor Red
+                  $failed = $true
+                } else {
+                  $guidMap[$guid] = $relPath
+                  Write-Host "[OK] $relPath ($guid)" -ForegroundColor Green
+                }
+              } else {
+                Write-Host "[SKIP] $relPath (template, Nil GUID permitted)" -ForegroundColor DarkGray
+              }
+            } else {
+              Write-Host "[FAIL] $relPath does not declare a parseable GUID line" -ForegroundColor Red
+              $failed = $true
+            }
+          }
+
+          if ($failed) {
+            Write-Host "`nGUID validation FAILED. Regenerate fresh GUIDs via [guid]::NewGuid() and rerun." -ForegroundColor Red
+            exit 1
+          } else {
+            Write-Host "`n[OK] All module GUIDs are valid and unique." -ForegroundColor Green
+          }
+
+      - name: Validate documentation against SettingsCounts.json (canonical source)
+        shell: pwsh
+        run: |
+          Write-Host "`nCross-checking documented setting counts against Config/SettingsCounts.json..." -ForegroundColor Cyan
+
+          $countsPath = 'Config/SettingsCounts.json'
+          if (-not (Test-Path $countsPath)) {
+            Write-Host "[FAIL] $countsPath not found -- canonical source missing" -ForegroundColor Red
+            exit 1
+          }
+
+          $counts = Get-Content $countsPath -Raw -Encoding UTF8 | ConvertFrom-Json
+          $total = [int]$counts.framework.totalSettings
+
+          # Per-module expected subtotals from the canonical source
+          $expected = @{
+            'SecurityBaseline' = [int]$counts.modules.SecurityBaseline.subtotal
+            'ASR'              = [int]$counts.modules.ASR.rules
+            'DNS'              = [int]$counts.modules.DNS.checks
+            'Privacy'          = [int]$counts.modules.Privacy.total
+            'AntiAI'           = [int]$counts.modules.AntiAI.total
+            'EdgeHardening'    = [int]$counts.modules.EdgeHardening.policies
+            'AdvancedSecurity' = [int]$counts.modules.AdvancedSecurity.settings
+          }
+
+          Write-Host "  Canonical totals: total=$total ($($expected.SecurityBaseline)/$($expected.ASR)/$($expected.DNS)/$($expected.Privacy)/$($expected.AntiAI)/$($expected.EdgeHardening)/$($expected.AdvancedSecurity))" -ForegroundColor Gray
+
+          $failed = $false
+
+          # 1. README.md and FEATURES.md MUST reference the canonical total at least once
+          foreach ($doc in @('README.md', 'Docs/FEATURES.md', 'SECURITY.md', 'llms.txt')) {
+            # A document that MOVED used to be skipped silently, and the step still
+            # ended with "All documented counts match" - so a relocated SECURITY.md
+            # was free to drift from Config/SettingsCounts.json indefinitely.
+            if (-not (Test-Path $doc)) {
+              Write-Host "[FAIL] $doc is missing; the count gate cannot verify a document it cannot find" -ForegroundColor Red
+              $failed = $true
+              continue
+            }
+            $content = Get-Content $doc -Raw -Encoding UTF8
+            if ($content -notmatch [regex]::Escape($total.ToString())) {
+              Write-Host "[FAIL] $doc never references canonical total ($total)" -ForegroundColor Red
+              $failed = $true
+            } else {
+              Write-Host "[OK] $doc references total $total" -ForegroundColor Green
+            }
+          }
+
+          # Derive from the canonical VERSION file. A hardcoded filename is
+          # rewritten by Tools/Bump-Version.ps1's blanket replace, which pointed
+          # this gate at a release-notes document that does not exist yet and
+          # broke validate-structure on every push until someone created it.
+          $canonicalVersion = (Get-Content 'VERSION' -Raw -Encoding UTF8).Trim()
+          $releaseNotes = "Docs/RELEASE-NOTES-$canonicalVersion.md"
+          if (-not (Test-Path $releaseNotes)) {
+            Write-Host "[FAIL] $releaseNotes does not exist for VERSION $canonicalVersion" -ForegroundColor Red
+            $failed = $true
+            $releaseNoteText = ''
+          } else {
+            $releaseNoteText = Get-Content $releaseNotes -Raw -Encoding UTF8
+          }
+          if ($releaseNoteText -notmatch [regex]::Escape("Declared default-decision total is now $total")) {
+            Write-Host "[FAIL] $releaseNotes does not identify $total as the current declared total" -ForegroundColor Red
+            $failed = $true
+          } else {
+            Write-Host "[OK] $releaseNotes identifies current total $total" -ForegroundColor Green
+          }
+
+          # 2. EdgeHardening.psd1 ReleaseNotes must carry the canonical baseline/privacy split
+          #    ("<N> Microsoft baseline values plus <M> ... privacy additions", N+M = policies)
+          $edgePsd1 = 'Modules/EdgeHardening/EdgeHardening.psd1'
+          if (Test-Path $edgePsd1) {
+            $edgeContent = Get-Content $edgePsd1 -Raw -Encoding UTF8
+            $edgeCount = $expected.EdgeHardening
+            if ($edgeContent -match '(\d+) Microsoft baseline values plus (\d+)') {
+              $actual = [int]$matches[1] + [int]$matches[2]
+              if ($actual -ne $edgeCount) {
+                Write-Host "[FAIL] EdgeHardening.psd1 ReleaseNotes sum to '$actual' values but canonical = $edgeCount" -ForegroundColor Red
+                $failed = $true
+              } else {
+                Write-Host "[OK] EdgeHardening.psd1 policy count matches ($edgeCount)" -ForegroundColor Green
+              }
+            } else {
+              Write-Host "[FAIL] EdgeHardening.psd1 ReleaseNotes no longer carry the expected count phrase -- update this check together with the wording" -ForegroundColor Red
+              $failed = $true
+            }
+          }
+
+          if ($failed) {
+            Write-Host "`nDoc-count validation FAILED. Either update Config/SettingsCounts.json (canonical) or sync the docs." -ForegroundColor Red
+            exit 1
+          } else {
+            Write-Host "`n[OK] All documented counts match the canonical source." -ForegroundColor Green
+          }

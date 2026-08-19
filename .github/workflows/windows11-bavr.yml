@@ -1,0 +1,83 @@
+name: Windows 11 Client BAVR Release Gate
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm_disposable_vm:
+        description: 'Type DISPOSABLE-WINDOWS11-VM; this workflow changes and restores OS security state.'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  bavr:
+    if: github.event.inputs.confirm_disposable_vm == 'DISPOSABLE-WINDOWS11-VM'
+    # checkout v7 and upload-artifact v7 run on Node 24. Keep this disposable
+    # self-hosted runner at v2.329.0 or newer.
+    runs-on: [self-hosted, Windows, X64, noid-windows11-disposable]
+    timeout-minutes: 180
+    env:
+      NOID_DISPOSABLE_VM: 'true'
+      NOIDPRIVACY_NONINTERACTIVE: 'true'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+      - name: Validate Windows 11 client and run static Pester suite
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $os = Get-CimInstance Win32_OperatingSystem
+          if ([int]$os.ProductType -ne 1 -or $os.Caption -notmatch 'Windows 11') {
+            throw "This release gate requires Windows 11 client, not $($os.Caption)"
+          }
+          Install-Module Pester -RequiredVersion 5.9.0 -Scope CurrentUser -Force
+          Import-Module Pester -RequiredVersion 5.9.0
+          & .\Tests\Run-Tests.ps1 -TestType All -OutputFormat NUnitXml
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Run module-by-module exact BAVR validation
+        shell: powershell
+        run: |
+          & .\Tests\Windows11\Invoke-Windows11BavrValidation.ps1 `
+            -ConfirmDisposableVm `
+            -OutputPath .\Windows11-BAVR-Results.json `
+            -EvidenceDirectory .\Windows11-BAVR-State
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Run standalone verifier behavior validation
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $configuration = Get-Content .\config.json -Raw -Encoding UTF8 |
+            ConvertFrom-Json
+          $configuration.modules.Privacy.mode = 'Strict'
+          $configuration.options.nonInteractive = $true
+          $configurationPath = '.\Windows11-Standalone-Strict.json'
+          [IO.File]::WriteAllText(
+            $configurationPath,
+            ($configuration | ConvertTo-Json -Depth 12),
+            [Text.UTF8Encoding]::new($false))
+          & .\Tests\Windows11\Invoke-Windows11StandaloneVerifierValidation.ps1 `
+            -ConfirmDisposableVm `
+            -ConfigurationPath $configurationPath `
+            -OutputPath .\Windows11-Standalone-Verifier-Results.json `
+            -EvidenceDirectory .\Windows11-Standalone-Verifier-State
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Upload Windows 11 evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: windows11-bavr-evidence
+          path: |
+            Windows11-BAVR-Results.json
+            Windows11-BAVR-State/**/*.json
+            Windows11-Standalone-Verifier-Results.json
+            Windows11-Standalone-Verifier-State/**/*.json
+            Tests/Results/TestResults_*.xml
+            Logs/*.log
+          if-no-files-found: error

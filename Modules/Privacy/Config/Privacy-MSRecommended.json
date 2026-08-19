@@ -1,0 +1,217 @@
+{
+  "Mode": "MSRecommended",
+  "Description": "Balanced privacy profile - reduces diagnostic, advertising and cloud-personalization surfaces without relaxing stricter existing policy",
+  "BestFor": "Compatibility-focused standalone workstations; managed environments require policy-owner review",
+  "Warnings": [
+    "AllowTelemetry=1: Required diagnostic data (MS minimum)",
+    "Settings Sync and AppPrivacy user-choice policies are preserved, not overwritten",
+    "Services are not modified by this mode"
+  ],
+
+  "DataCollection": {
+    "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\DataCollection": {
+      "AllowTelemetry": {
+        "Type": "DWord",
+        "Value": 1,
+        "Description": "Required diagnostic data only (MS recommended)"
+      },
+      "LimitDiagnosticLogCollection": {
+        "Type": "DWord",
+        "Value": 1,
+        "Description": "Limit additional diagnostic log collection"
+      },
+      "DoNotShowFeedbackNotifications": {
+        "Type": "DWord",
+        "Value": 1,
+        "Description": "No feedback popups"
+      },
+      "DisableOneSettingsDownloads": {
+        "Type": "DWord",
+        "Value": 1,
+        "Description": "Block dynamic config downloads from Microsoft"
+      }
+    }
+  },
+
+  "Personalization": {
+    "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\CloudContent": {
+      "DisableCloudOptimizedContent": {
+        "Type": "DWord",
+        "Value": 1,
+        "Description": "No cloud-optimized content/tips from Microsoft"
+      },
+      "DisableSoftLanding": {
+        "Type": "DWord",
+        "Value": 1,
+        "Description": "Do not show Windows tips (computer policy)"
+      }
+    },
+    "HKCU:\\Software\\Policies\\Microsoft\\Windows\\CloudContent": {
+      "DisableTailoredExperiencesWithDiagnosticData": {
+        "Type": "DWord",
+        "Value": 1,
+        "Description": "Do not use diagnostic data for tailored experiences (user policy)"
+      },
+      "DisableWindowsSpotlightFeatures": {
+        "Type": "DWord",
+        "Value": 1,
+        "Description": "Turn off all Windows Spotlight features (user policy)"
+      },
+      "DisableWindowsSpotlightOnSettings": {
+        "Type": "DWord",
+        "Value": 1,
+        "Description": "Turn off Spotlight suggestions in Settings (user policy)"
+      },
+      "DisableWindowsSpotlightOnActionCenter": {
+        "Type": "DWord",
+        "Value": 1,
+        "Description": "Turn off Spotlight notifications in Action Center (user policy)"
+      },
+      "DisableThirdPartySuggestions": {
+        "Type": "DWord",
+        "Value": 1,
+        "Description": "Do not suggest third-party Spotlight content (user policy)"
+      },
+      "DisableSpotlightCollectionOnDesktop": {
+        "Type": "DWord",
+        "Value": 1,
+        "Description": "Turn off Spotlight collection on Desktop (user policy)"
+      }
+    },
+    "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\AdvertisingInfo": {
+      "DisabledByGroupPolicy": {
+        "Type": "DWord",
+        "Value": 1,
+        "Description": "Disable Advertising ID (via Group Policy)"
+      }
+    },
+    "HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced": {
+      "Start_IrisRecommendations": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "User preference: hide Start recommendations (runtime validation required per Windows build)"
+      },
+      "ShowSyncProviderNotifications": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "User preference: hide sync-provider notifications in File Explorer (runtime validation required per Windows build)"
+      }
+    }
+  },
+
+  "SearchAndCloud": {
+    "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Windows Search": {
+      "DisableWebSearch": {
+        "Type": "DWord",
+        "Value": 1,
+        "Description": "No web search in Start menu"
+      },
+      "ConnectedSearchUseWeb": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "No connected search to web"
+      },
+      "AllowCloudSearch": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "No cloud search"
+      },
+      "AllowCortana": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "Disable Cortana (legacy, Win11 has no Cortana)"
+      }
+    },
+    "HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\Search": {
+      "BingSearchEnabled": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "User preference: disable Bing integration in Windows Search (runtime validation required per Windows build)"
+      }
+    },
+    "HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\SearchSettings": {
+      "IsDynamicSearchBoxEnabled": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "User preference: disable dynamic Search highlights (runtime validation required per Windows build)"
+      },
+      "IsGlobalWebSearchProviderToggleEnabled": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "User preference: turn off the current Windows global web-search provider switch (validated through the visible Windows 11 Settings UI)"
+      }
+    },
+    "HKCU:\\Software\\Microsoft\\Windows\\CurrentVersion\\SearchSettings\\WebSearchProviders": {
+      "Microsoft.BingSearch_8wekyb3d8bbwe!App": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "User preference: turn off the current Microsoft Bing Search app provider (validated through the visible Windows 11 Settings UI)"
+      }
+    }
+  },
+
+  "InputAndSync": {
+    "HKLM:\\SOFTWARE\\Policies\\Microsoft\\InputPersonalization": {
+      "AllowInputPersonalization": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "No cloud-based input personalization"
+      }
+    },
+    "HKLM:\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\TextInput": {
+      "AllowLinguisticDataCollection": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "Don't send typing data to Microsoft for language model improvement"
+      }
+    },
+    "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\System": {
+      "EnableActivityFeed": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "Disable activity feed"
+      },
+      "PublishUserActivities": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "Don't publish user activities"
+      },
+      "UploadUserActivities": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "Don't upload user activities to cloud"
+      },
+      "AllowCrossDeviceClipboard": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "Disable cloud clipboard sync between devices (USER PROMPT in MSRecommended)",
+        "RequiresPrompt": true
+      }
+    },
+    "HKCU:\\SOFTWARE\\Microsoft\\InputPersonalization": {
+      "RestrictImplicitTextCollection": {
+        "Type": "DWord",
+        "Value": 1,
+        "Description": "Block typing data collection"
+      },
+      "RestrictImplicitInkCollection": {
+        "Type": "DWord",
+        "Value": 1,
+        "Description": "Block inking/handwriting data collection"
+      }
+    },
+    "HKCU:\\SOFTWARE\\Microsoft\\InputPersonalization\\TrainedDataStore": {
+      "HarvestContacts": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "Don't harvest contacts for personalization"
+      }
+    }
+  },
+
+  "LocationAndAppPrivacy": {},
+
+  "Services": [],
+
+  "ScheduledTasks": []
+}

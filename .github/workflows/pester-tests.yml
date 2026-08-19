@@ -1,0 +1,127 @@
+name: Pester Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+# Security: Explicit permissions (Principle of Least Privilege)
+permissions:
+  contents: read          # Required for checkout
+
+jobs:
+  test:
+    # GitHub-hosted windows-latest is Windows Server, not Windows 11 client.
+    # This job proves syntax/unit/dry-run behavior only. The separate guarded
+    # self-hosted workflow is the Windows 11 BAVR release gate.
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
+
+    # The framework's supported runtime is Windows PowerShell 5.1 (stock
+    # Windows 11 ships no PowerShell 7). Tests therefore run under 5.1:
+    # pwsh-only behavior differences (e.g. ConvertFrom-Json auto-converting
+    # ISO 8601 strings to [datetime]) would otherwise fail contracts the
+    # product runtime provably satisfies.
+    - name: Install Pester
+      shell: powershell
+      run: |
+        # Pin to a known-good 5.x version for reproducible CI runs (GHW-02).
+        # NuGet bootstrap + SkipPublisherCheck: 5.1 ships a signed Pester 3.4
+        # whose publisher differs from Pester 5.x.
+        $null = Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force -Scope CurrentUser
+        Install-Module -Name Pester -RequiredVersion '5.9.0' -Force -Scope CurrentUser -SkipPublisherCheck
+        Import-Module Pester -RequiredVersion '5.9.0'
+
+    - name: Run Unit Tests
+      shell: powershell
+      run: |
+        # Coverage floor. This product has already lost coverage silently once
+        # (the 2.2.4 regression), and a removed or undiscovered test file lowers
+        # the total without failing anything. Raise this when tests are added.
+        $unitTestFloor = 640
+        $config = New-PesterConfiguration
+        $config.Run.Path = "Tests/Unit"
+        $config.Run.PassThru = $true
+        $config.Output.Verbosity = 'Detailed'
+        $config.TestResult.Enabled = $true
+        $config.TestResult.OutputPath = "TestResults-Unit.xml"
+        $config.TestResult.OutputFormat = 'NUnitXml'
+
+        $results = Invoke-Pester -Configuration $config
+
+        # FailedCount is blind to a test file that throws during discovery
+        # (FailedContainersCount) or a top-level BeforeAll that throws
+        # (FailedBlocksCount): its tests never run and never count as failures,
+        # so an entire module's coverage can leave the suite with the job green.
+        # A total floor additionally catches a deleted test file.
+        $blocked = [int]$results.FailedContainersCount + [int]$results.FailedBlocksCount
+        if ($blocked -gt 0) {
+          foreach ($c in @($results.Containers | Where-Object { $_.Result -eq 'Failed' })) {
+            Write-Host "::error::Never executed: $($c.Item) - $(@($c.ErrorRecord)[0].Exception.Message)"
+          }
+          Write-Error "Unit tests could not run: $($results.FailedContainersCount) file(s) failed discovery, $($results.FailedBlocksCount) block(s) failed setup"
+          exit 1
+        }
+        if ($results.TotalCount -lt $unitTestFloor) {
+          Write-Error "Unit test count dropped to $($results.TotalCount); the floor is $unitTestFloor. A test file was removed or stopped being discovered."
+          exit 1
+        }
+        if ($results.Result -ne 'Passed' -or $results.FailedCount -gt 0) {
+          Write-Error "Unit tests failed: $($results.FailedCount) failures"
+          exit 1
+        }
+
+    - name: Run Integration Tests (DryRun only)
+      shell: powershell
+      run: |
+        $config = New-PesterConfiguration
+        $config.Run.Path = "Tests/Integration"
+        $config.Run.PassThru = $true
+        $config.Output.Verbosity = 'Detailed'
+        $config.TestResult.Enabled = $true
+        $config.TestResult.OutputPath = "TestResults-Integration.xml"
+        $config.TestResult.OutputFormat = 'NUnitXml'
+
+        $results = Invoke-Pester -Configuration $config
+
+        $blocked = [int]$results.FailedContainersCount + [int]$results.FailedBlocksCount
+        if ($blocked -gt 0) {
+          foreach ($c in @($results.Containers | Where-Object { $_.Result -eq 'Failed' })) {
+            Write-Host "::error::Never executed: $($c.Item) - $(@($c.ErrorRecord)[0].Exception.Message)"
+          }
+          Write-Error "Integration tests could not run: $($results.FailedContainersCount) file(s) failed discovery, $($results.FailedBlocksCount) block(s) failed setup"
+          exit 1
+        }
+        if ($results.TotalCount -eq 0 -or $results.Result -ne 'Passed' -or $results.FailedCount -gt 0) {
+          Write-Error "Integration tests failed: $($results.FailedCount) failures"
+          exit 1
+        }
+
+    - name: Upload Test Results
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+      if: always()
+      with:
+        name: test-results
+        path: TestResults-*.xml
+
+    - name: Publish Test Summary
+      shell: pwsh
+      if: always()
+      run: |
+        "## Pester Test Results`n" | Out-File -Append -FilePath $env:GITHUB_STEP_SUMMARY
+        $files = Get-ChildItem TestResults-*.xml -ErrorAction SilentlyContinue
+        if (-not $files) {
+          "_No test result files found._" | Out-File -Append -FilePath $env:GITHUB_STEP_SUMMARY
+          return
+        }
+        foreach ($f in $files) {
+          [xml]$xml = Get-Content $f.FullName
+          $r = $xml.'test-results'
+          $icon = if ([int]$r.failures -gt 0 -or [int]$r.errors -gt 0) { ':x:' } else { ':white_check_mark:' }
+          "- $icon **$($f.Name)**: $($r.total) total, $($r.failures) failures, $($r.errors) errors, $($r.'not-run') skipped" | Out-File -Append -FilePath $env:GITHUB_STEP_SUMMARY
+        }
