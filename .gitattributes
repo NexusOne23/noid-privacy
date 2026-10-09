@@ -1,0 +1,13 @@
+# Normalize text files to LF in the repository and on checkout. The engine is
+# authored and released with LF endings on every platform; Windows batch files
+# are the one exception below.
+* text=auto eol=lf
+
+# cmd.exe parses batch files reliably only with CRLF line endings
+# (label lookup can fail on LF-only files).
+*.bat text eol=crlf
+*.cmd text eol=crlf
+
+# Never touch binary content.
+*.png binary
+*.ico binary

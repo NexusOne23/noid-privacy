@@ -1,0 +1,431 @@
+{
+  "ModuleName": "AntiAI",
+  "Version": "1.0.0",
+  "Description": "Reversible Windows 11 AI policy hardening with exact registry prestate restore",
+  "Mode": "Reversible Policy Hardening",
+  "TotalFeatureGroups": 12,
+  "TotalPolicies": 50,
+
+  "Features": {
+    "1_GenerativeAI_Master": {
+      "Name": "Windows AI Text and Image Generation for Apps",
+      "Description": "Force-denies Windows apps access to the text and image generation features of Windows (the systemAIModels capability behind Settings > Privacy & security > Text and image generation)",
+      "Impact": "Configures the AppPrivacy policy from Microsoft's Windows 11 25H2/26H2 AppPrivacy.admx. Product-specific AI features are covered by their dedicated policies where Microsoft provides them.",
+      "CloudBased": false,
+      "Registry": {
+        "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\AppPrivacy": {
+          "LetAppsAccessSystemAIModels": {
+            "Type": "DWord",
+            "Value": 2,
+            "Description": "Force Deny - AppPrivacy.admx 'Let Windows apps make use of Text and image generation features of Windows'. 0=User in control, 1=Force Allow, 2=Force Deny."
+          }
+        }
+      }
+    },
+
+    "2_Windows_Recall": {
+      "Name": "Windows Recall Policy Hardening",
+      "Description": "Recall can periodically save local snapshots for later search on supported Copilot+ PCs.",
+      "Impact": "Requests component unavailability/removal and disables snapshot saving. Both policies delete existing Recall snapshots. NoID Restore restores recorded policy values, not deleted snapshots or removed component files. Edition-dependent deny-list and storage controls, and the Insider-only data-provider control, are also configured where applicable.",
+      "CloudBased": false,
+      "RequiresReboot": true,
+      "Registry": {
+        "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsAI": {
+          "AllowRecallEnablement": {
+            "Type": "DWord",
+            "Value": 0,
+            "Description": "Recall component unavailable and removed after a restart; existing snapshots are deleted. Deleted snapshots and removed component files cannot be recovered by NoID Restore."
+          },
+          "DisableAIDataAnalysis": {
+            "Type": "DWord",
+            "Value": 1,
+            "Description": "Turns off saving snapshots for Recall at device scope and deletes existing snapshots. Deleted snapshots cannot be recovered by NoID Restore."
+          }
+        },
+        "HKCU:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsAI": {
+          "DisableRecallDataProviders": {
+            "Type": "DWord",
+            "Value": 1,
+            "Description": "Stops Recall from showing extra activity details from App Actions providers. Microsoft documents this user policy for Windows Insider Preview builds on Enterprise/Education only; it is written only there."
+          }
+        }
+      },
+      "EnterpriseProtection": {
+        "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsAI": {
+          "SetDenyAppListForRecall": {
+            "Type": "DWord",
+            "Value": 1,
+            "Description": "Enables the Recall application deny-list policy (WindowsCopilot.admx). Enterprise/Education; takes effect after restart."
+          },
+          "DenyAppListForRecall": {
+            "Type": "String",
+            "Value": "msedge.exe;chrome.exe;firefox.exe;WindowsTerminal.exe;KeePassXC.exe;KeePass.exe;1Password.exe;mstsc.exe;msrdc.exe",
+            "Description": "ADMX text element for the enabled Recall application deny-list: semicolon-delimited executable names or AUMIDs."
+          },
+          "SetDenyUriListForRecall": {
+            "Type": "DWord",
+            "Value": 1,
+            "Description": "Enables the Recall URI deny-list policy (WindowsCopilot.admx). Enterprise/Education; takes effect after restart."
+          },
+          "DenyUriListForRecall": {
+            "Type": "String",
+            "Value": "https://account.microsoft.com;https://login.live.com;https://outlook.live.com;https://accounts.google.com;https://mail.google.com;https://www.paypal.com",
+            "Description": "ADMX text element for the enabled Recall URI deny-list: semicolon-delimited absolute HTTPS URIs; wildcard pseudo-URIs are not used."
+          },
+          "SetMaximumStorageDurationForRecallSnapshots": {
+            "Type": "DWord",
+            "Value": 30,
+            "Description": "Maximum snapshot retention: 30 days (Choices: 30/60/90/180 days, 0=OS default)"
+          },
+          "SetMaximumStorageSpaceForRecallSnapshots": {
+            "Type": "DWord",
+            "Value": 10240,
+            "Description": "Maximum snapshot storage: 10 GB = 10240 MB (Choices: 10240/25600/51200/76800/102400/153600 MB, 0=OS default)"
+          }
+        }
+      }
+    },
+
+    "3_Windows_Copilot": {
+      "Name": "Copilot, Copilot App and Agent Controls",
+      "Description": "Microsoft Copilot, its app policies and installation channel, start at sign-in of the Copilot apps, the Copilot key, Windows agent connectors and agent-container telemetry",
+      "Impact": "Disables browsing and Cowork actions in the Microsoft Copilot app, blocks installing Copilot through Microsoft Edge Update on domain-joined or MDM-enrolled devices (Edge Update ignores its policies elsewhere), stops the Microsoft 365 Copilot and Copilot apps from starting at sign-in, remaps the Copilot key, applies Microsoft's documented agent-connector controls where applicable and blocks Microsoft Execution Containers telemetry. The legacy Copilot user policy is kept for older images; it does not control the current Copilot app. AntiAI does not uninstall or AppLocker-block the Copilot app; package removal is available only through Privacy Tier 1/Tier 2 destructive opt-in.",
+      "CloudBased": true,
+      "Registry": {
+        "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsAI": {
+          "ConfigureAgentConnectors": {
+            "Type": "DWord",
+            "Value": 2,
+            "Description": "Force Disable agent connectors (CAM_AI.admx; 0=User in control, 1=Force Enable, 2=Force Disable). Written on explicit 26H2 or detected Insider builds."
+          },
+          "AgentConsentDuration": {
+            "Type": "DWord",
+            "Value": 1,
+            "Description": "Agent consent decisions expire after 1 hour, the documented minimum (range 1-8760, default 720), so a granted agent permission is asked again soon. Written on explicit 26H2 or detected Insider builds."
+          }
+        },
+        "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Copilot": {
+          "BrowsingEnabled": {
+            "Type": "DWord",
+            "Value": 0,
+            "Description": "Disables browsing capabilities in the Microsoft Copilot app (CopilotApp.admx). Copilot app 152+; staged for a later installation when the app is absent."
+          },
+          "CopilotCoworkToolActionsEnabled": {
+            "Type": "DWord",
+            "Value": 0,
+            "Description": "Cowork in the Microsoft Copilot app cannot take actions on the user's behalf, and the user cannot change this in Settings (CopilotApp.admx). Copilot app 152+."
+          }
+        },
+        "HKLM:\\SOFTWARE\\Policies\\Microsoft\\EdgeUpdate": {
+          "Install{C50565E9-CCCF-44B4-BA15-5AC5C6569197}": {
+            "Type": "DWord",
+            "Value": 0,
+            "Description": "Installs disabled: Copilot cannot be installed through Microsoft Edge Update (copilotupdate.admx, Edge Update 1.3.253.25+). Written only on domain-joined or MDM-enrolled devices: Edge Update loads none of its policies on other devices. Does not uninstall an existing app or block Copilot updates; Store or web installs are a separate channel."
+          }
+        },
+        "HKLM:\\SOFTWARE\\Policies\\Mxc": {
+          "AllowTelemetry": {
+            "Type": "DWord",
+            "Value": 0,
+            "Description": "Microsoft Execution Containers (the Windows sandbox for AI agents) collect no diagnostic data and do not ask for telemetry consent. MXC reads only this key, not the Windows DataCollection policy."
+          }
+        },
+        "HKCU:\\Software\\Policies\\Microsoft\\Windows\\WindowsCopilot": {
+          "TurnOffWindowsCopilot": {
+            "Type": "DWord",
+            "Value": 1,
+            "Description": "Legacy 'Turn off Windows Copilot' user policy (deprecated by Microsoft). Prevents the old Copilot pane and its install on upgraded images; it does not control the current Copilot app."
+          }
+        },
+        "HKCU:\\Software\\Policies\\Microsoft\\Windows\\CopilotKey": {
+          "SetCopilotHardwareKey": {
+            "Type": "String",
+            "Value": "Microsoft.WindowsNotepad_8wekyb3d8bbwe!App",
+            "Description": "The Copilot key opens Notepad instead of Copilot. Microsoft lets the user change the key assignment in Settings, so this sets the default rather than locking it."
+          }
+        },
+        "HKCU:\\Software\\Classes\\Local Settings\\Software\\Microsoft\\Windows\\CurrentVersion\\AppModel\\SystemAppData\\Microsoft.MicrosoftOfficeHub_8wekyb3d8bbwe\\WebViewHostStartupId": {
+          "State": {
+            "Type": "DWord",
+            "Value": 1,
+            "Description": "The Microsoft 365 Copilot app no longer starts at sign-in, the same as turning it off in Settings > Apps > Startup (StartupTaskState DisabledByUser). Its manifest enables this start by default. Written only when the app is registered for the user; the user can turn it back on in Settings."
+          }
+        },
+        "HKCU:\\Software\\Classes\\Local Settings\\Software\\Microsoft\\Windows\\CurrentVersion\\AppModel\\SystemAppData\\Microsoft.Copilot_8wekyb3d8bbwe\\Copilot.StartupTaskId": {
+          "State": {
+            "Type": "DWord",
+            "Value": 1,
+            "Description": "The Copilot app does not start at sign-in and cannot switch that on by itself, the same as turning it off in Settings > Apps > Startup (StartupTaskState DisabledByUser). Written only when the app is registered for the user; the user can turn it back on in Settings."
+          }
+        }
+      }
+    },
+
+    "4_Click_to_Do": {
+      "Name": "Click to Do (Screenshot AI Analysis)",
+      "Description": "Takes on-demand screenshots and analyzes them with AI to suggest actions (copy text, search, call numbers)",
+      "Impact": "Configures the documented device policy that removes Click to Do and its entry points where applicable. Microsoft notes that it does not affect Click to Do inside Recall, which the Recall policies remove.",
+      "CloudBased": false,
+      "Registry": {
+        "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsAI": {
+          "DisableClickToDo": {
+            "Type": "DWord",
+            "Value": 1,
+            "Description": "Click to Do and its entry points are unavailable (no screenshot AI analysis, no action suggestions)."
+          }
+        }
+      }
+    },
+
+    "5_Paint_Cocreator": {
+      "Name": "Paint Cocreator (Cloud-Based Image Generation)",
+      "Description": "Text-to-image generation using cloud AI (type description, AI creates artwork)",
+      "Impact": "Configures the documented policy that makes Cocreator inaccessible where applicable.",
+      "CloudBased": true,
+      "Registry": {
+        "HKLM:\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Paint": {
+          "DisableCocreator": {
+            "Type": "DWord",
+            "Value": 1,
+            "Description": "DISABLE Paint Cocreator (no AI-generated images from text prompts)"
+          }
+        }
+      }
+    },
+
+    "6_Paint_Generative_Fill": {
+      "Name": "Paint Generative Fill (Cloud-Based AI Editing)",
+      "Description": "AI-powered image editing (fill selected areas with AI-generated content)",
+      "Impact": "Configures the documented policy that makes Generative Fill inaccessible where applicable.",
+      "CloudBased": true,
+      "Registry": {
+        "HKLM:\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Paint": {
+          "DisableGenerativeFill": {
+            "Type": "DWord",
+            "Value": 1,
+            "Description": "DISABLE Paint Generative Fill (no AI-powered content-aware fill)"
+          }
+        }
+      }
+    },
+
+    "7_Paint_Image_Creator": {
+      "Name": "Paint Image Creator (Cloud-Based AI Art)",
+      "Description": "DALL-E powered AI art generator integrated into Paint",
+      "Impact": "Configures the documented policy that makes Image Creator inaccessible where applicable.",
+      "CloudBased": true,
+      "Registry": {
+        "HKLM:\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\Paint": {
+          "DisableImageCreator": {
+            "Type": "DWord",
+            "Value": 1,
+            "Description": "DISABLE Paint Image Creator (no DALL-E AI art generation)"
+          }
+        }
+      }
+    },
+
+    "8_Notepad_AI": {
+      "Name": "Notepad AI (Copilot Integration - Write, Summarize, Rewrite)",
+      "Description": "AI features in Notepad (generate text, summarize content, rewrite paragraphs), cloud or on-device",
+      "Impact": "Configures Notepad's documented DisableAIFeatures policy.",
+      "CloudBased": true,
+      "RequiresADMX": false,
+      "Note": "ADMX file (WindowsNotepad.admx) is NOT required - registry policy works without it. ADMX only provides GUI visibility in gpedit.msc.",
+      "Registry": {
+        "HKLM:\\SOFTWARE\\Policies\\WindowsNotepad": {
+          "DisableAIFeatures": {
+            "Type": "DWord",
+            "Value": 1,
+            "Description": "DISABLE all AI features in Notepad (Write, Summarize, Rewrite, Explain) - Microsoft official registry value name"
+          }
+        }
+      }
+    },
+
+    "9_Settings_Agent": {
+      "Name": "Settings Agent (AI-Powered Settings Search)",
+      "Description": "AI-enhanced natural language search in Windows Settings (understands questions like 'How do I change wallpaper?')",
+      "Impact": "Requests Settings Agent disablement on documented applicable commercial systems; Microsoft describes fallback to classic search.",
+      "CloudBased": false,
+      "Registry": {
+        "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsAI": {
+          "DisableSettingsAgent": {
+            "Type": "DWord",
+            "Value": 1,
+            "Description": "Requests Settings Agent disablement; documented applicable systems fall back to classic search."
+          }
+        }
+      }
+    },
+
+    "10_Recall_Export_Block": {
+      "Name": "Recall Export Prevention",
+      "Description": "Prevents users from exporting Recall snapshots to share with apps/websites (EEA compliance feature)",
+      "Impact": "Declared for the EEA/Insider-scoped export policy. Not configured already denies export; NoID writes it only where applicability can be proven.",
+      "CloudBased": false,
+      "Registry": {
+        "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\WindowsAI": {
+          "AllowRecallExport": {
+            "Type": "DWord",
+            "Value": 0,
+            "Description": "Requests Recall snapshot export to be disallowed where the EEA/Insider policy is applicable."
+          }
+        }
+      }
+    },
+
+    "11_Copilot_URI_Handlers": {
+      "Name": "Copilot URI Protocol Handlers (Deep Link Block)",
+      "Description": "Removes the ms-copilot: and ms-edge-copilot: protocol registrations so links and other programs cannot open Copilot through them",
+      "Impact": "Removes the two protocol keys from the real machine and user Classes hives. This is an undocumented compatibility control, not a Microsoft policy: it does not remove Start, search, app, browser, or Microsoft 365 entry points, and an app update can register the protocols again, which verification then reports.",
+      "CloudBased": false,
+      "URIHandlers": [
+        "ms-copilot",
+        "ms-edge-copilot"
+      ],
+      "Note": "HKCR is a merged view; Apply and BAVR operate on the real HKLM Classes source and the interactive user's HKEY_USERS Classes source."
+    },
+
+    "12_Edge_Copilot_Sidebar": {
+      "Name": "Microsoft Edge Copilot / AI Policies (Browser AI)",
+      "Description": "Configures 23 declared Edge Copilot and AI policy values covering the sidebar, page context, new-tab Copilot, address-bar and agentic browsing, on-device AI models and APIs, AI writing and text prediction, AI tab organization, cloud autofill models, cloud proofing, AI history search, visual search, Copilot sign-in linking and DALL-E themes",
+      "Impact": "Configures 23 Edge Copilot/AI policy values. Effectiveness depends on the documented Edge version and profile: Microsoft marks most of these policies as not applying to profiles signed in with a personal Microsoft account on managed devices, and several apply only to work (Entra ID) profiles.",
+      "CloudBased": true,
+      "Registry": {
+        "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Edge": {
+          "HubsSidebarEnabled": {
+            "Type": "DWord",
+            "Value": 0,
+            "Description": "Hides the Edge sidebar. Edge >=99. Since Edge 141 it no longer controls the Copilot toolbar button, and since Edge 149 sidebar policies do not affect Copilot Chat."
+          },
+          "StandaloneHubsSidebarEnabled": {
+            "Type": "DWord",
+            "Value": 0,
+            "Description": "Docked standalone sidebar off. Edge >=114, Windows only."
+          },
+          "Microsoft365CopilotChatIconEnabled": {
+            "Type": "DWord",
+            "Value": 0,
+            "Description": "Hides the Microsoft 365 Copilot Chat toolbar icon for work (Entra ID) profiles, the only documented toolbar control since Edge 141. Edge >=139. No policy hides the button for local or personal-account profiles."
+          },
+          "CopilotAddressBarSuggestionsEnabled": {
+            "Type": "DWord",
+            "Value": 0,
+            "Description": "Copilot chat suggestions in the address bar. Edge >=149."
+          },
+          "CopilotNewTabPageEnabled": {
+            "Type": "DWord",
+            "Value": 0,
+            "Description": "Copilot new tab page; applies to work (Entra ID) profiles. Edge >=148."
+          },
+          "NewTabPageBingChatEnabled": {
+            "Type": "DWord",
+            "Value": 0,
+            "Description": "Requests removal of the three Bing Chat entry points from the Edge Enterprise new-tab page. Edge >=117; not universal coverage for unsigned local or MSA profiles."
+          },
+          "AllowBrowsingWithCopilot": {
+            "Type": "DWord",
+            "Value": 0,
+            "Description": "Browsing with Copilot / page actions. Edge >=148."
+          },
+          "M365LinksAutoOpenCopilotEnabled": {
+            "Type": "DWord",
+            "Value": 0,
+            "Description": "Auto-open of the Copilot pane for Microsoft 365 links. Edge >=148; Microsoft marks the policy as not yet supported, and the page-context policies below already disable the feature."
+          },
+          "CopilotPageContext": {
+            "Type": "DWord",
+            "Value": 0,
+            "Description": "Copilot cannot read page content in work (Entra ID) profiles; this also covers the YouTube Summarize toggle. Edge >=124."
+          },
+          "EdgeEntraCopilotPageContext": {
+            "Type": "DWord",
+            "Value": 0,
+            "Description": "Copilot cannot read page content or transcribe videos in work (Entra ID) profiles. Edge >=130."
+          },
+          "ShareBrowsingHistoryWithCopilotSearchAllowed": {
+            "Type": "DWord",
+            "Value": 0,
+            "Description": "Browsing history is not shared with Microsoft 365 Copilot Search (work profiles). Edge >=143."
+          },
+          "GenAILocalFoundationalModelSettings": {
+            "Type": "DWord",
+            "Value": 1,
+            "Description": "Edge on-device GenAI foundational model: 1=Disallowed (not downloaded + existing deleted). Edge >=132. (Type is Integer/REG_DWORD.)"
+          },
+          "BuiltInAIAPIsEnabled": {
+            "Type": "DWord",
+            "Value": 0,
+            "Description": "Websites cannot use Edge's built-in on-device AI APIs (LanguageModel, Summarization, Writer and Rewriter). Edge >=138."
+          },
+          "ComposeInlineEnabled": {
+            "Type": "DWord",
+            "Value": 0,
+            "Description": "Microsoft 365 Copilot writing assistance (Rewrite) in work profiles. Edge >=115."
+          },
+          "EdgeHistoryAISearchEnabled": {
+            "Type": "DWord",
+            "Value": 0,
+            "Description": "AI-enhanced (semantic) search in browsing history. Edge >=138."
+          },
+          "AIGenThemesEnabled": {
+            "Type": "DWord",
+            "Value": 0,
+            "Description": "Edge DALL-E AI-generated themes: 0=disabled. Edge >=122."
+          },
+          "VisualSearchEnabled": {
+            "Type": "DWord",
+            "Value": 0,
+            "Description": "Visual search (Bing entity recognition on images): 0=disabled. Edge >=95."
+          },
+          "TextPredictionEnabled": {
+            "Type": "DWord",
+            "Value": 0,
+            "Description": "No Microsoft Turing cloud text predictions while typing in web text fields. Edge >=104."
+          },
+          "TabServicesEnabled": {
+            "Type": "DWord",
+            "Value": 0,
+            "Description": "Tab URLs, titles and groups are not sent to Microsoft's tab organization service (AI tab grouping suggestions). Edge >=113."
+          },
+          "EdgeAutofillMlEnabled": {
+            "Type": "DWord",
+            "Value": 0,
+            "Description": "Autofill no longer uses cloud-based machine learning models. Edge >=132."
+          },
+          "MicrosoftEditorProofingEnabled": {
+            "Type": "DWord",
+            "Value": 0,
+            "Description": "Spelling and grammar are checked locally (Windows or Hunspell) instead of by the Microsoft Editor cloud service. Edge >=105."
+          },
+          "CopilotCoworkToolActionsEnabled": {
+            "Type": "DWord",
+            "Value": 0,
+            "Description": "Copilot Cowork cannot take actions in the browser (open tabs, take screenshots, interact with pages). Applies where Cowork browsing is enabled for a Microsoft 365 tenant. Edge >=152."
+          },
+          "ProactiveAuthWorkflowEnabled": {
+            "Type": "DWord",
+            "Value": 0,
+            "Description": "The signed-in Edge identity is not automatically linked to Bing, MSN and Copilot; users sign in to those services themselves. Edge >=126."
+          }
+        }
+      }
+    }
+  },
+
+  "Summary": {
+    "TotalFeatureGroups": 12,
+    "TotalRegistryValuesConfigured": 50,
+    "URIHandlersBlocked": 2,
+    "RequiresReboot": "Yes (for applicable Recall and Windows AI policies to be reevaluated)",
+    "RequiresADMX": "No external ADMX download is required for direct registry configuration",
+    "VerificationScope": "Exact registry type/value readback plus absence of both URI handlers in four real source hives",
+    "EffectivePolicyCaveat": "Runtime effectiveness depends on Microsoft-documented edition, build, profile, geography, and product-version applicability",
+    "DeepLinksBlocked": "ms-copilot: and ms-edge-copilot: URI protocols",
+    "PolicySources": "Documented Microsoft policies are used where available; URI source-key removal is a reversible compatibility control, not a policy-effectiveness claim.",
+    "ExcludedUnsafeMechanisms": "Protected region-policy file edits, hosts-file endpoint blocking, and package removal are excluded because they are shared/destructive state and cannot meet the same low-risk exact-restore contract.",
+    "RetiredTargets": "DisableAgentConnectors, DisableAgentWorkspaces, DisableRemoteAgentConnectors and AgentConnectorMinimumPolicy are no longer in Microsoft's WindowsAI CSP or any official ADMX; LetAppsAccessGenerativeAI is in no official ADMX (its successor is LetAppsAccessSystemAIModels); ShowCopilotButton was never written. Values written by earlier versions stay until their own session is restored.",
+    "UnsupportedExplorerPolicyRemoved": "HideAIActionsMenu is not present in Microsoft's official Windows 11 25H2/26H2 ADMX packages and is not treated as a valid policy target."
+  }
+}

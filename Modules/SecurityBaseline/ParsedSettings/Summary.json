@@ -1,0 +1,13 @@
+{
+    "TotalSecuritySettings":  79,
+    "TotalSecuritySettingsApplied": 67,
+    "MetadataEntriesSkipped": 13,
+    "SecurityTemplateMetadataEntriesSkipped": 12,
+    "RegistryMetadataEntriesSkipped": 1,
+    "TotalRegistrySettings":  336,
+    "TotalRegistrySettingsApplied": 335,
+    "TotalAuditPolicies":  23,
+    "TotalSettingsParsed":  438,
+    "TotalSettingsApplied": 425,
+    "Note": "Raw source counts remain 438. Application excludes 12 INF metadata entries (Unicode/Version) and the native WindowsFirewall PolicyVersion format entry: 335 registry + 67 security template + 23 audit = 425."
+}

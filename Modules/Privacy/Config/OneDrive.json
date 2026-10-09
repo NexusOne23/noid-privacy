@@ -1,0 +1,33 @@
+{
+  "OneDrivePolicies": {
+    "HKLM:\\SOFTWARE\\Policies\\Microsoft\\OneDrive": {
+      "EnableFeedbackAndSupport": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "Disable the OneDrive in-app feedback and support contact experience"
+      },
+      "EnableSyncAdminReports": {
+        "Type": "DWord",
+        "Value": 0,
+        "Description": "Disable sync health reporting telemetry"
+      },
+      "PreventNetworkTrafficPreUserSignIn": {
+        "Type": "DWord",
+        "Value": 1,
+        "Description": "Prevent network traffic before user signs in"
+      }
+    }
+  },
+
+  "StorePolicies": {
+    "HKLM:\\SOFTWARE\\Policies\\Microsoft\\WindowsStore": {
+      "DisableOSUpgrade": {
+        "Type": "DWord",
+        "Value": 1,
+        "Description": "Block Store upgrade offers (Windows Update still works)"
+      }
+    }
+  },
+
+  "Description": "Disables OneDrive feedback/sync-health reporting, delays OneDrive traffic until sign-in, and blocks Store OS-upgrade offers. Existing Personal OneDrive and Store-access policy is preserved rather than relaxed."
+}

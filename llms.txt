@@ -1,0 +1,27 @@
+# NoID Privacy
+
+> Windows 11 security & privacy hardening framework. 630+ default-decision declared checks across 7 modules with a sealed Backup-Apply-Verify-Restore (BAVR) pattern. Native PowerShell, no telemetry, open source (GPL-3.0). Optional bloatware removal is destructive: Tier 1 restores its Microsoft policy values exactly but not downstream app/data deletion; Tier 2 is a best-effort classic per-user removal (all editions, explicitly NOT an exact restore).
+
+## Documentation
+- [README](README.md): Overview, quick start, key features, compatibility
+- [Security and privacy controls](Docs/SECURITY-PRIVACY-CONTROLS.md): Microsoft sources, configured controls and compatibility limits
+- [Features](Docs/FEATURES.md): Declared settings and decision reference for all 7 modules
+- [Troubleshooting](Docs/TROUBLESHOOTING.md): Common issues, ASR/SmartScreen relax steps, logs
+- [Changelog](CHANGELOG.md): Version history
+- [Security Policy](SECURITY.md): Vulnerability reporting
+
+## Key facts
+- Platform: Windows 11 24H2, 25H2 and 26H2 x64 share the complete seven-module BAVR lifecycle and the 425-target SecurityBaseline profile derived from Microsoft's Windows 11 v26H2 Security Baseline v2.
+- Checks: 647 with default decisions (425 SecurityBaseline + 19 declared ASR [18 Windows-client applicable + 1 Exchange-server-only NotApplicable] + 5 DNS + 65 Privacy [38 base registry + 27 Tier 1 policy-based bloatware-removal targets, Enterprise/Education 24H2+ only] + 54 AntiAI [50 registry + 4 URI] + 31 Edge managed values + 48 AdvancedSecurity); Strict applies 672 and Paranoid 703. Every complete verification reports the same 703 declared targets; unselected profile targets and options are NotChecked by choice, host-unsupported targets NotApplicable
+- Reversible scope: every declared configuration mutation requires sealed prestate and exact target-level restore verification. Privacy Tier 1's policy values are exact but its downstream app/data deletion is not; Tier 2 classic bloatware removal (26 base apps including Microsoft Copilot plus a separate default-off Weather/Widgets choice, all editions) is a best-effort action restored only via the explicitly non-exact Restore-BloatwareApps entry point
+- Recall boundary: AntiAI's Recall disable policies delete existing Recall snapshots, and AllowRecallEnablement=0 also removes the component after restart. Registry Restore cannot recover those snapshots or automatically reinstall the component; see Docs/WINDOWS-AI-APPLICABILITY.md.
+- Privacy: no telemetry, analytics, or license check; explicit DNS prechecks contact the selected resolver and optional update/install actions contact GitHub
+- License: GPL-3.0 (dual-licensed; a commercial license is available)
+- Requirements: Windows PowerShell 5.1, Administrator rights; individual hardware-backed features can additionally require UEFI/Secure Boot/TPM 2.0
+
+## Ecosystem
+- Website: https://noid-privacy.com
+- Windows GUI (Pro): https://noid-privacy.com
+- Linux: https://github.com/NexusOne23/noid-privacy-linux
+- Workstation (hardened Fedora 44 / GNOME 50 privacy OS): https://github.com/NexusOne23/noid-privacy-workstation
+- Android: https://play.google.com/store/apps/details?id=com.noid.privacy

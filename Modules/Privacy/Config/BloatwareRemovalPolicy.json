@@ -1,0 +1,86 @@
+{
+  "Description": "Windows 11 Enterprise/Education native policy-based in-box app removal (Microsoft's RemoveDefaultMicrosoftStorePackages policy, GP path Computer Configuration > Administrative Templates > Windows Components > App Package Deployment > Remove default Microsoft Store packages from the system; CSP ./Device/Vendor/MSFT/Policy/Config/ApplicationManagement/RemoveDefaultMicrosoftStorePackages). Microsoft Learn documents Windows 11 Enterprise/Education version 24H2 (build 26100) or newer, device scope, no multi-session, sign-in/provisioning-time removal, and the non-recoverable app-data boundary. The exact registry layout below was produced by the current inbox AppxPackageManager ADMX/ADML through gpedit.msc on Windows 11 Enterprise 25H2 build 26200.8875 and remained byte/type-exact through gpupdate: Enabled DWORD, empty DynamicRemovalList REG_MULTI_SZ, and 25 Package Family Name subkeys with RemovePackage DWORD values. CSP XML data IDs such as BingNews are presentation identifiers, not registry subkey names. NoID Privacy writes no custom dynamic PFNs and no undocumented companion values. Restoring this policy's exact prestate re-allows future reprovisioning but does not itself bring back an already-removed app or deleted app data. Copilot is an intentional NoID Privacy curated-selection addition to the otherwise inbox-derived defaults and remains behind the existing destructive Tier 1 opt-in.",
+  "MinBuildNumber": 26100,
+  "RequiredEditions": ["Enterprise", "Education"],
+  "PolicyTargets": {
+    "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Appx\\RemoveDefaultMicrosoftStorePackages": {
+      "Enabled": { "Type": "DWord", "Value": 1, "Description": "Enables the RemoveDefaultMicrosoftStorePackages policy" },
+      "DynamicRemovalList": { "Type": "MultiString", "Value": [], "Description": "Native GP dynamic PFN list, deliberately empty for the audited static profile" }
+    },
+    "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Appx\\RemoveDefaultMicrosoftStorePackages\\Microsoft.WindowsFeedbackHub_8wekyb3d8bbwe": {
+      "RemovePackage": { "Type": "DWord", "Value": 0, "Description": "Feedback Hub" }
+    },
+    "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Appx\\RemoveDefaultMicrosoftStorePackages\\Microsoft.MicrosoftOfficeHub_8wekyb3d8bbwe": {
+      "RemovePackage": { "Type": "DWord", "Value": 0, "Description": "Microsoft Office Hub (My Office)" }
+    },
+    "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Appx\\RemoveDefaultMicrosoftStorePackages\\Clipchamp.Clipchamp_yxz26nhyzhsrt": {
+      "RemovePackage": { "Type": "DWord", "Value": 0, "Description": "Clipchamp video editor" }
+    },
+    "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Appx\\RemoveDefaultMicrosoftStorePackages\\Microsoft.Copilot_8wekyb3d8bbwe": {
+      "RemovePackage": { "Type": "DWord", "Value": 1, "Description": "Copilot app" }
+    },
+    "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Appx\\RemoveDefaultMicrosoftStorePackages\\Microsoft.BingNews_8wekyb3d8bbwe": {
+      "RemovePackage": { "Type": "DWord", "Value": 1, "Description": "News" }
+    },
+    "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Appx\\RemoveDefaultMicrosoftStorePackages\\Microsoft.Windows.Photos_8wekyb3d8bbwe": {
+      "RemovePackage": { "Type": "DWord", "Value": 0, "Description": "Photos" }
+    },
+    "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Appx\\RemoveDefaultMicrosoftStorePackages\\Microsoft.MicrosoftSolitaireCollection_8wekyb3d8bbwe": {
+      "RemovePackage": { "Type": "DWord", "Value": 1, "Description": "Microsoft Solitaire Collection" }
+    },
+    "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Appx\\RemoveDefaultMicrosoftStorePackages\\Microsoft.MicrosoftStickyNotes_8wekyb3d8bbwe": {
+      "RemovePackage": { "Type": "DWord", "Value": 0, "Description": "Sticky Notes" }
+    },
+    "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Appx\\RemoveDefaultMicrosoftStorePackages\\MSTeams_8wekyb3d8bbwe": {
+      "RemovePackage": { "Type": "DWord", "Value": 0, "Description": "Microsoft Teams (new)" }
+    },
+    "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Appx\\RemoveDefaultMicrosoftStorePackages\\Microsoft.Todos_8wekyb3d8bbwe": {
+      "RemovePackage": { "Type": "DWord", "Value": 0, "Description": "Microsoft To Do" }
+    },
+    "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Appx\\RemoveDefaultMicrosoftStorePackages\\Microsoft.BingWeather_8wekyb3d8bbwe": {
+      "RemovePackage": { "Type": "DWord", "Value": 1, "Description": "Weather" }
+    },
+    "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Appx\\RemoveDefaultMicrosoftStorePackages\\Microsoft.OutlookForWindows_8wekyb3d8bbwe": {
+      "RemovePackage": { "Type": "DWord", "Value": 0, "Description": "Outlook for Windows" }
+    },
+    "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Appx\\RemoveDefaultMicrosoftStorePackages\\Microsoft.Paint_8wekyb3d8bbwe": {
+      "RemovePackage": { "Type": "DWord", "Value": 0, "Description": "Paint" }
+    },
+    "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Appx\\RemoveDefaultMicrosoftStorePackages\\MicrosoftCorporationII.QuickAssist_8wekyb3d8bbwe": {
+      "RemovePackage": { "Type": "DWord", "Value": 0, "Description": "Quick Assist" }
+    },
+    "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Appx\\RemoveDefaultMicrosoftStorePackages\\Microsoft.ScreenSketch_8wekyb3d8bbwe": {
+      "RemovePackage": { "Type": "DWord", "Value": 0, "Description": "Snipping Tool" }
+    },
+    "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Appx\\RemoveDefaultMicrosoftStorePackages\\Microsoft.WindowsCalculator_8wekyb3d8bbwe": {
+      "RemovePackage": { "Type": "DWord", "Value": 0, "Description": "Calculator" }
+    },
+    "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Appx\\RemoveDefaultMicrosoftStorePackages\\Microsoft.WindowsCamera_8wekyb3d8bbwe": {
+      "RemovePackage": { "Type": "DWord", "Value": 0, "Description": "Camera" }
+    },
+    "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Appx\\RemoveDefaultMicrosoftStorePackages\\Microsoft.ZuneMusic_8wekyb3d8bbwe": {
+      "RemovePackage": { "Type": "DWord", "Value": 0, "Description": "Windows Media Player (modern)" }
+    },
+    "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Appx\\RemoveDefaultMicrosoftStorePackages\\Microsoft.WindowsNotepad_8wekyb3d8bbwe": {
+      "RemovePackage": { "Type": "DWord", "Value": 0, "Description": "Notepad" }
+    },
+    "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Appx\\RemoveDefaultMicrosoftStorePackages\\Microsoft.WindowsSoundRecorder_8wekyb3d8bbwe": {
+      "RemovePackage": { "Type": "DWord", "Value": 0, "Description": "Sound Recorder" }
+    },
+    "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Appx\\RemoveDefaultMicrosoftStorePackages\\Microsoft.WindowsTerminal_8wekyb3d8bbwe": {
+      "RemovePackage": { "Type": "DWord", "Value": 0, "Description": "Windows Terminal" }
+    },
+    "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Appx\\RemoveDefaultMicrosoftStorePackages\\Microsoft.GamingApp_8wekyb3d8bbwe": {
+      "RemovePackage": { "Type": "DWord", "Value": 1, "Description": "Xbox app (Gaming app)" }
+    },
+    "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Appx\\RemoveDefaultMicrosoftStorePackages\\Microsoft.XboxIdentityProvider_8wekyb3d8bbwe": {
+      "RemovePackage": { "Type": "DWord", "Value": 1, "Description": "Xbox Identity Provider" }
+    },
+    "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Appx\\RemoveDefaultMicrosoftStorePackages\\Microsoft.XboxSpeechToTextOverlay_8wekyb3d8bbwe": {
+      "RemovePackage": { "Type": "DWord", "Value": 1, "Description": "Xbox Speech To Text Overlay" }
+    },
+    "HKLM:\\SOFTWARE\\Policies\\Microsoft\\Windows\\Appx\\RemoveDefaultMicrosoftStorePackages\\Microsoft.Xbox.TCUI_8wekyb3d8bbwe": {
+      "RemovePackage": { "Type": "DWord", "Value": 1, "Description": "Xbox Game UI (Xbox.TCUI)" }
+    }
+  }
+}
