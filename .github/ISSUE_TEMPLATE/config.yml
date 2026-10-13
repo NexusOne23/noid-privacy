@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 🔒 Report a security vulnerability
+    url: https://github.com/NexusOne23/noid-privacy/security/advisories
+    about: Please use a private security advisory. Never post vulnerability details in public issues.
+  - name: 💬 Questions and ideas
+    url: https://github.com/NexusOne23/noid-privacy/discussions
+    about: Use Discussions for questions, ideas and general help.

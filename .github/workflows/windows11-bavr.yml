@@ -1,0 +1,104 @@
+name: Windows 11 Client BAVR Release Gate
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm_disposable_vm:
+        description: 'Type DISPOSABLE-WINDOWS11-VM; this workflow changes and restores OS security state.'
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  bavr:
+    if: github.event.inputs.confirm_disposable_vm == 'DISPOSABLE-WINDOWS11-VM'
+    # checkout v7 and upload-artifact v7 run on Node 24. Keep this disposable
+    # self-hosted runner at v2.329.0 or newer.
+    # This is a public repository: a pull request from a fork can try to run
+    # its own workflow code on any registered self-hosted runner. Register this
+    # runner only for the duration of a gate run (for example with
+    # --ephemeral), on a disposable VM that holds no secrets, and remove it
+    # afterwards. GitHub documents this risk in its secure-use reference for
+    # self-hosted runners.
+    runs-on: [self-hosted, Windows, X64, noid-windows11-disposable]
+    timeout-minutes: 180
+    env:
+      NOID_DISPOSABLE_VM: 'true'
+      NOIDPRIVACY_NONINTERACTIVE: 'true'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Validate Windows 11 client and run static Pester suite
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $os = Get-CimInstance Win32_OperatingSystem
+          if ([int]$os.ProductType -ne 1 -or $os.Caption -notmatch 'Windows 11') {
+            throw "This release gate requires Windows 11 client, not $($os.Caption)"
+          }
+          # Windows 11 ships a Microsoft-signed Pester 3.4.0; Pester 5 has a
+          # different publisher, so a side-by-side install needs -SkipPublisherCheck.
+          $null = Install-PackageProvider -Name NuGet -MinimumVersion 2.8.5.201 -Force -Scope CurrentUser
+          Install-Module -Name Pester -RequiredVersion 5.9.0 -Scope CurrentUser -Force -SkipPublisherCheck
+          Import-Module Pester -RequiredVersion 5.9.0
+          # All conditional tests are applicable on this privileged disposable
+          # Windows 11 self-hosted runner. Missing prerequisites must fail closed.
+          & .\Tests\Run-Tests.ps1 -TestType All -OutputFormat NUnitXml -RequireZeroSkipped
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Run complete module decision matrix
+        shell: powershell
+        run: |
+          & .\Tests\Windows11\Invoke-Windows11DecisionMatrix.ps1 `
+            -ConfirmDisposableVm `
+            -RuntimeScope All `
+            -OutputPath .\Windows11-Decision-Matrix.json
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Run module-by-module exact BAVR validation
+        shell: powershell
+        run: |
+          & .\Tests\Windows11\Invoke-Windows11BavrValidation.ps1 `
+            -ConfirmDisposableVm `
+            -OutputPath .\Windows11-BAVR-Results.json `
+            -EvidenceDirectory .\Windows11-BAVR-State
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Run standalone verifier behavior validation
+        shell: powershell
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $configuration = Get-Content .\config.json -Raw -Encoding UTF8 |
+            ConvertFrom-Json
+          $configuration.modules.Privacy.mode = 'Strict'
+          $configuration.options.nonInteractive = $true
+          $configurationPath = '.\Windows11-Standalone-Strict.json'
+          [IO.File]::WriteAllText(
+            $configurationPath,
+            ($configuration | ConvertTo-Json -Depth 12),
+            [Text.UTF8Encoding]::new($false))
+          & .\Tests\Windows11\Invoke-Windows11StandaloneVerifierValidation.ps1 `
+            -ConfirmDisposableVm `
+            -ConfigurationPath $configurationPath `
+            -OutputPath .\Windows11-Standalone-Verifier-Results.json `
+            -EvidenceDirectory .\Windows11-Standalone-Verifier-State
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Upload Windows 11 evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: windows11-bavr-evidence
+          path: |
+            Windows11-Decision-Matrix.json
+            Windows11-BAVR-Results.json
+            Windows11-BAVR-State/**/*.json
+            Windows11-Standalone-Verifier-Results.json
+            Windows11-Standalone-Verifier-State/**/*.json
+            Tests/Results/TestResults_*.xml
+            Logs/*.log
+          if-no-files-found: error
